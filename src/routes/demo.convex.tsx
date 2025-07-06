@@ -2,6 +2,8 @@ import { Suspense, useRef } from 'react'
 import { createFileRoute } from '@tanstack/react-router'
 import { useMutation, useQuery } from 'convex/react'
 
+import { useSuspenseQuery } from '@tanstack/react-query'
+import { convexQuery } from '@convex-dev/react-query'
 import { api } from '../../convex/_generated/api'
 
 export const Route = createFileRoute('/demo/convex')({
@@ -9,11 +11,11 @@ export const Route = createFileRoute('/demo/convex')({
 })
 
 function Products() {
-  const products = useQuery(api.products.get)
+  const products = useSuspenseQuery(convexQuery(api.products.get, {}))
 
   return (
     <ul>
-      {(products || []).map((p) => (
+      {products.data.map((p) => (
         <li key={p._id}>
           {p.title} - {p.price}
         </li>

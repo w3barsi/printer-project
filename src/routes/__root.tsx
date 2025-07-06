@@ -1,6 +1,6 @@
 import {
-  Outlet,
   HeadContent,
+  Outlet,
   Scripts,
   createRootRouteWithContext,
 } from '@tanstack/react-router'
@@ -44,14 +44,12 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 
   component: () => (
     <RootDocument>
-      <ConvexProvider>
-        <Header />
+      <Header />
 
-        <Outlet />
-        <TanStackRouterDevtools />
+      <Outlet />
+      <TanStackRouterDevtools />
 
-        <TanStackQueryLayout />
-      </ConvexProvider>
+      <TanStackQueryLayout />
     </RootDocument>
   ),
 })
