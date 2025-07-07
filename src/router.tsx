@@ -4,9 +4,10 @@ import { createRouter as createTanStackRouter } from "@tanstack/react-router"
 import "./styles.css"
 import { QueryClient } from "@tanstack/react-query"
 import { ConvexQueryClient } from "@convex-dev/react-query"
-import { ConvexProvider } from "convex/react"
+import { ConvexProvider, ConvexReactClient } from "convex/react"
 
 import { routeTree } from "./routeTree.gen"
+import { NotFound } from "./components/not-found"
 
 // Create a new router instance
 export function createRouter() {
@@ -14,7 +15,12 @@ export function createRouter() {
 	if (!CONVEX_URL) {
 		console.error("missing envar VITE_CONVEX_URL")
 	}
-	const convexQueryClient = new ConvexQueryClient(CONVEX_URL)
+
+	const convex = new ConvexReactClient(CONVEX_URL, {
+		unsavedChangesWarning: false,
+	})
+
+	const convexQueryClient = new ConvexQueryClient(convex)
 
 	const queryClient: QueryClient = new QueryClient({
 		defaultOptions: {
@@ -24,13 +30,15 @@ export function createRouter() {
 			},
 		},
 	})
+
 	convexQueryClient.connect(queryClient)
 
 	const router = routerWithQueryClient(
 		createTanStackRouter({
 			routeTree,
 			defaultPreload: "intent",
-			context: { queryClient },
+			context: { queryClient, convexClient: convex, convexQueryClient },
+			defaultNotFoundComponent: NotFound,
 			Wrap: ({ children }) => (
 				<ConvexProvider client={convexQueryClient.convexClient}>
 					{children}
