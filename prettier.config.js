@@ -2,9 +2,10 @@
 
 /** @type {import('prettier').Config} */
 const config = {
-  semi: false,
-  singleQuote: true,
-  trailingComma: "all",
-};
+  tabWidth: 2, // Default to 2 spaces for tab width
+  useTabs: true, // Indent with tabs
+  singleQuote: false, // Use double quotes instead of single quotes
+  semi: false, // Do not print semicolons at the end of statements
+}
 
-export default config;
+export default config
