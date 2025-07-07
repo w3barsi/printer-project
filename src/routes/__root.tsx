@@ -32,7 +32,7 @@ const fetchAuth = createServerFn({ method: "GET" }).handler(async () => {
 	const request = getWebRequest()
 	const { session } = await fetchSession(createAuth, request)
 	return {
-		userId: session?.user.id,
+		user: session?.user ?? undefined,
 		token,
 	}
 })
@@ -65,14 +65,18 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 		],
 	}),
 	beforeLoad: async (ctx) => {
-		const auth = await fetchAuth()
-		const { userId, token } = auth
+		const auth = await ctx.context.queryClient.fetchQuery({
+			queryKey: ["user"],
+			queryFn: ({ signal }) => fetchAuth({ signal }),
+		}) // we're using react-query for caching, see router.tsx
+
+		const { user, token } = auth
 
 		if (token) {
 			ctx.context.convexQueryClient.serverHttpClient?.setAuth(token)
 		}
 
-		return { userId, token }
+		return { user: user?.id, token: token }
 	},
 	component: RootComponent,
 })
@@ -85,8 +89,6 @@ function RootComponent() {
 			authClient={authClient}
 		>
 			<RootDocument>
-				<Header />
-
 				<Outlet />
 				<TanStackRouterDevtools />
 
