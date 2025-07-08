@@ -1,6 +1,8 @@
 {
   "include": ["**/*.ts", "**/*.tsx", "eslint.config.js", "prettier.config.js", "vite.config.js"],
-
+    "files": [
+      "node_modules/@types/w3c-web-usb/index.d.ts"
+    ],
   "compilerOptions": {
     "target": "ES2022",
     "jsx": "react-jsx",

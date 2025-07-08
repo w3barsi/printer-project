@@ -17,6 +17,7 @@
 	"dependencies": {
 		"@convex-dev/better-auth": "^0.6.2",
 		"@convex-dev/react-query": "0.0.0-alpha.8",
+		"@point-of-sale/receipt-printer-encoder": "^3.0.3",
 		"@t3-oss/env-core": "^0.12.0",
 		"@tailwindcss/vite": "^4.0.6",
 		"@tanstack/react-query": "^5.66.5",
@@ -31,6 +32,7 @@
 		"convex": "^1.19.2",
 		"react": "^19.0.0",
 		"react-dom": "^19.0.0",
+		"react-to-print": "^3.1.1",
 		"tailwindcss": "^4.0.6",
 		"vite": "^6.3.3",
 		"vite-tsconfig-paths": "^5.1.4",
@@ -43,6 +45,7 @@
 		"@types/node": "^24.0.10",
 		"@types/react": "^19.0.8",
 		"@types/react-dom": "^19.0.3",
+		"@types/w3c-web-usb": "^1.0.10",
 		"@vitejs/plugin-react": "^4.3.4",
 		"jsdom": "^26.0.0",
 		"prettier": "^3.5.3",
