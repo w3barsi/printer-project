@@ -82,7 +82,7 @@ const PrintableReceipt = React.forwardRef<HTMLDivElement>((props, ref) => {
 	}, [])
 
 	return (
-		<div ref={ref}>
+		<div ref={ref} className="printable-content w-48">
 			<canvas ref={canvasRef} width={CANVAS_WIDTH} height={CANVAS_HEIGHT} />
 		</div>
 	)
@@ -95,7 +95,28 @@ function CanvasPrinterComponent() {
 
 	const handlePrint = useReactToPrint({
 		contentRef: componentRef,
-		// This style ensures the print output is sized correctly for the paper.
+		pageStyle: `
+      @page {
+        /* This removes the default print margins */
+        margin: 0;
+      }
+      @media print {
+        html, body {
+          /* Tell the browser to use the full height and width */
+          height: 100%;
+          width: 100%;
+          margin: 0 !important; /* Important to override user agent styles */
+          padding: 0 !important;
+        }
+        /* This scales the content to fit the page */
+        .printable-content {
+          display: block;
+          position: absolute;
+          top: 0;
+          left: 0;
+        }
+      }
+    `,
 	})
 
 	return (
