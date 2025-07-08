@@ -1,9 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router"
 import { useRef, useState } from "react"
 import { useReactToPrint } from "react-to-print"
+import { ItemRenderer } from "./-components/item-render"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
-import { ItemRenderer } from "./-components/item-render"
 
 export const Route = createFileRoute("/printer")({
 	component: CanvasPrinterComponent,

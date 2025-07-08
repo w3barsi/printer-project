@@ -11,8 +11,6 @@
 import { createServerRootRoute } from '@tanstack/react-start/server'
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as Printer2RouteImport } from './routes/printer2'
-import { Route as Printer1RouteImport } from './routes/printer1'
 import { Route as PrinterRouteImport } from './routes/printer'
 import { Route as ConvexRouteImport } from './routes/convex'
 import { Route as IndexRouteImport } from './routes/index'
@@ -21,16 +19,6 @@ import { ServerRoute as ApiAuthSplatServerRouteImport } from './routes/api/auth.
 
 const rootServerRouteImport = createServerRootRoute()
 
-const Printer2Route = Printer2RouteImport.update({
-  id: '/printer2',
-  path: '/printer2',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const Printer1Route = Printer1RouteImport.update({
-  id: '/printer1',
-  path: '/printer1',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const PrinterRoute = PrinterRouteImport.update({
   id: '/printer',
   path: '/printer',
@@ -61,38 +49,30 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/convex': typeof ConvexRoute
   '/printer': typeof PrinterRoute
-  '/printer1': typeof Printer1Route
-  '/printer2': typeof Printer2Route
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/convex': typeof ConvexRoute
   '/printer': typeof PrinterRoute
-  '/printer1': typeof Printer1Route
-  '/printer2': typeof Printer2Route
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/convex': typeof ConvexRoute
   '/printer': typeof PrinterRoute
-  '/printer1': typeof Printer1Route
-  '/printer2': typeof Printer2Route
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/convex' | '/printer' | '/printer1' | '/printer2'
+  fullPaths: '/' | '/convex' | '/printer'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/convex' | '/printer' | '/printer1' | '/printer2'
-  id: '__root__' | '/' | '/convex' | '/printer' | '/printer1' | '/printer2'
+  to: '/' | '/convex' | '/printer'
+  id: '__root__' | '/' | '/convex' | '/printer'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ConvexRoute: typeof ConvexRoute
   PrinterRoute: typeof PrinterRoute
-  Printer1Route: typeof Printer1Route
-  Printer2Route: typeof Printer2Route
 }
 export interface FileServerRoutesByFullPath {
   '/api/demo-names': typeof ApiDemoNamesServerRoute
@@ -122,20 +102,6 @@ export interface RootServerRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/printer2': {
-      id: '/printer2'
-      path: '/printer2'
-      fullPath: '/printer2'
-      preLoaderRoute: typeof Printer2RouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/printer1': {
-      id: '/printer1'
-      path: '/printer1'
-      fullPath: '/printer1'
-      preLoaderRoute: typeof Printer1RouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/printer': {
       id: '/printer'
       path: '/printer'
@@ -182,8 +148,6 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ConvexRoute: ConvexRoute,
   PrinterRoute: PrinterRoute,
-  Printer1Route: Printer1Route,
-  Printer2Route: Printer2Route,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
