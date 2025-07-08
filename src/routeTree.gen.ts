@@ -13,7 +13,9 @@ import { createServerRootRoute } from '@tanstack/react-start/server'
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as PrinterRouteImport } from './routes/printer'
 import { Route as ConvexRouteImport } from './routes/convex'
+import { Route as JoRouteRouteImport } from './routes/jo/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as JoIndexRouteImport } from './routes/jo/index'
 import { ServerRoute as ApiDemoNamesServerRouteImport } from './routes/api/demo-names'
 import { ServerRoute as ApiAuthSplatServerRouteImport } from './routes/api/auth.$'
 
@@ -29,10 +31,20 @@ const ConvexRoute = ConvexRouteImport.update({
   path: '/convex',
   getParentRoute: () => rootRouteImport,
 } as any)
+const JoRouteRoute = JoRouteRouteImport.update({
+  id: '/jo',
+  path: '/jo',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const JoIndexRoute = JoIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => JoRouteRoute,
 } as any)
 const ApiDemoNamesServerRoute = ApiDemoNamesServerRouteImport.update({
   id: '/api/demo-names',
@@ -47,30 +59,36 @@ const ApiAuthSplatServerRoute = ApiAuthSplatServerRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/jo': typeof JoRouteRouteWithChildren
   '/convex': typeof ConvexRoute
   '/printer': typeof PrinterRoute
+  '/jo/': typeof JoIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/convex': typeof ConvexRoute
   '/printer': typeof PrinterRoute
+  '/jo': typeof JoIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/jo': typeof JoRouteRouteWithChildren
   '/convex': typeof ConvexRoute
   '/printer': typeof PrinterRoute
+  '/jo/': typeof JoIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/convex' | '/printer'
+  fullPaths: '/' | '/jo' | '/convex' | '/printer' | '/jo/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/convex' | '/printer'
-  id: '__root__' | '/' | '/convex' | '/printer'
+  to: '/' | '/convex' | '/printer' | '/jo'
+  id: '__root__' | '/' | '/jo' | '/convex' | '/printer' | '/jo/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  JoRouteRoute: typeof JoRouteRouteWithChildren
   ConvexRoute: typeof ConvexRoute
   PrinterRoute: typeof PrinterRoute
 }
@@ -116,12 +134,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ConvexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/jo': {
+      id: '/jo'
+      path: '/jo'
+      fullPath: '/jo'
+      preLoaderRoute: typeof JoRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/jo/': {
+      id: '/jo/'
+      path: '/'
+      fullPath: '/jo/'
+      preLoaderRoute: typeof JoIndexRouteImport
+      parentRoute: typeof JoRouteRoute
     }
   }
 }
@@ -144,8 +176,20 @@ declare module '@tanstack/react-start/server' {
   }
 }
 
+interface JoRouteRouteChildren {
+  JoIndexRoute: typeof JoIndexRoute
+}
+
+const JoRouteRouteChildren: JoRouteRouteChildren = {
+  JoIndexRoute: JoIndexRoute,
+}
+
+const JoRouteRouteWithChildren =
+  JoRouteRoute._addFileChildren(JoRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  JoRouteRoute: JoRouteRouteWithChildren,
   ConvexRoute: ConvexRoute,
   PrinterRoute: PrinterRoute,
 }

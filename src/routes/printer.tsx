@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router"
+import { Link, createFileRoute } from "@tanstack/react-router"
 import { useRef, useState } from "react"
 import { useReactToPrint } from "react-to-print"
 import { ItemRenderer } from "./-components/item-render"
@@ -24,6 +24,9 @@ function CanvasPrinterComponent() {
 	return (
 		<div className="w-full flex items-center justify-center">
 			<div className="container max-w-md flex gap-2 p-2 flex-col items-center">
+				<Link to="/jo">
+					<Button variant="link">JobOrder</Button>
+				</Link>
 				<Button onClick={reactToPrintFn} className="w-full">
 					Print
 				</Button>

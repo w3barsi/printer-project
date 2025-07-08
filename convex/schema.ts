@@ -9,13 +9,22 @@ export default defineSchema({
 	}),
 
 	jo: defineTable({
+		name: v.string(),
 		joNumber: v.number(),
-	}).index("by_joNumber", ["joNumber"]),
+		pickupDate: v.string(),
+		status: v.union(
+			v.literal("pending"),
+			v.literal("in-progress"),
+			v.literal("completed"),
+		),
+	}),
+
 	items: defineTable({
-		joNumber: v.id("jo"),
+		joId: v.id("jo"),
 		name: v.string(),
 		quantity: v.number(),
 		price: v.number(),
-	}).index("by_joNumber", ["joNumber"]),
+	}).index("by_joId", ["joId"]),
+
 	users: defineTable({}),
 })
