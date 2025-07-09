@@ -18,6 +18,13 @@ export const betterAuthComponent = new BetterAuth(components.betterAuth, {
 export const createAuth = (ctx: GenericCtx) =>
 	// Configure your Better Auth instance here
 	betterAuth({
+		session: {
+			cookieCache: {
+				enabled: true,
+				maxAge: 5 * 60,
+			},
+		},
+
 		// All auth requests will be proxied through your TanStack Start server
 		baseURL: "http://localhost:3000",
 		database: convexAdapter(ctx, betterAuthComponent),
