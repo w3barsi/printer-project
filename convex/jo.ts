@@ -48,3 +48,23 @@ export const getJosWithItems = query({
 		return all
 	},
 })
+
+export const getOneJoWithItems = query({
+	args: { id: v.id("jo") },
+	handler: async (ctx, args) => {
+		const jo = await ctx.db
+			.query("jo")
+			.withIndex("by_id", (q) => q.eq("_id", args.id))
+			.first()
+		if (!jo) {
+			return null
+		}
+
+		const items = await ctx.db
+			.query("items")
+			.withIndex("by_joId", (q) => q.eq("joId", jo._id))
+			.collect()
+
+		return { jo, items }
+	},
+})
