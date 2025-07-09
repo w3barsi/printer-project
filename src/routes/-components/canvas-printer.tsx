@@ -1,4 +1,4 @@
-import { Link, createFileRoute } from "@tanstack/react-router"
+import { Link } from "@tanstack/react-router"
 import { useRef, useState } from "react"
 import * as reactToPrint from "react-to-print"
 import { useQuery } from "@tanstack/react-query"
@@ -9,7 +9,11 @@ import { ItemRenderer } from "@/routes/-components/item-render"
 import { Separator } from "@/components/ui/separator"
 import { Button } from "@/components/ui/button"
 
-export function CanvasPrinterComponent({ joId }: { joId: string | null }) {
+export default function CanvasPrinterComponent({
+	joId,
+}: {
+	joId: string | null
+}) {
 	const contentRef = useRef<HTMLDivElement>(null)
 	const print = reactToPrint.useReactToPrint({
 		contentRef: contentRef,
