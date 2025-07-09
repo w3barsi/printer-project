@@ -11,19 +11,20 @@
 import { createServerRootRoute } from '@tanstack/react-start/server'
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as PrinterRouteImport } from './routes/printer'
+import { Route as TestRouteImport } from './routes/test'
 import { Route as ConvexRouteImport } from './routes/convex'
 import { Route as JoRouteRouteImport } from './routes/jo/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as JoIndexRouteImport } from './routes/jo/index'
+import { Route as PrinterJoIdRouteImport } from './routes/printer.$joId'
 import { ServerRoute as ApiDemoNamesServerRouteImport } from './routes/api/demo-names'
 import { ServerRoute as ApiAuthSplatServerRouteImport } from './routes/api/auth.$'
 
 const rootServerRouteImport = createServerRootRoute()
 
-const PrinterRoute = PrinterRouteImport.update({
-  id: '/printer',
-  path: '/printer',
+const TestRoute = TestRouteImport.update({
+  id: '/test',
+  path: '/test',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ConvexRoute = ConvexRouteImport.update({
@@ -46,6 +47,11 @@ const JoIndexRoute = JoIndexRouteImport.update({
   path: '/',
   getParentRoute: () => JoRouteRoute,
 } as any)
+const PrinterJoIdRoute = PrinterJoIdRouteImport.update({
+  id: '/printer/$joId',
+  path: '/printer/$joId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiDemoNamesServerRoute = ApiDemoNamesServerRouteImport.update({
   id: '/api/demo-names',
   path: '/api/demo-names',
@@ -61,13 +67,15 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/jo': typeof JoRouteRouteWithChildren
   '/convex': typeof ConvexRoute
-  '/printer': typeof PrinterRoute
+  '/test': typeof TestRoute
+  '/printer/$joId': typeof PrinterJoIdRoute
   '/jo/': typeof JoIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/convex': typeof ConvexRoute
-  '/printer': typeof PrinterRoute
+  '/test': typeof TestRoute
+  '/printer/$joId': typeof PrinterJoIdRoute
   '/jo': typeof JoIndexRoute
 }
 export interface FileRoutesById {
@@ -75,22 +83,24 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/jo': typeof JoRouteRouteWithChildren
   '/convex': typeof ConvexRoute
-  '/printer': typeof PrinterRoute
+  '/test': typeof TestRoute
+  '/printer/$joId': typeof PrinterJoIdRoute
   '/jo/': typeof JoIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/jo' | '/convex' | '/printer' | '/jo/'
+  fullPaths: '/' | '/jo' | '/convex' | '/test' | '/printer/$joId' | '/jo/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/convex' | '/printer' | '/jo'
-  id: '__root__' | '/' | '/jo' | '/convex' | '/printer' | '/jo/'
+  to: '/' | '/convex' | '/test' | '/printer/$joId' | '/jo'
+  id: '__root__' | '/' | '/jo' | '/convex' | '/test' | '/printer/$joId' | '/jo/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   JoRouteRoute: typeof JoRouteRouteWithChildren
   ConvexRoute: typeof ConvexRoute
-  PrinterRoute: typeof PrinterRoute
+  TestRoute: typeof TestRoute
+  PrinterJoIdRoute: typeof PrinterJoIdRoute
 }
 export interface FileServerRoutesByFullPath {
   '/api/demo-names': typeof ApiDemoNamesServerRoute
@@ -120,11 +130,11 @@ export interface RootServerRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/printer': {
-      id: '/printer'
-      path: '/printer'
-      fullPath: '/printer'
-      preLoaderRoute: typeof PrinterRouteImport
+    '/test': {
+      id: '/test'
+      path: '/test'
+      fullPath: '/test'
+      preLoaderRoute: typeof TestRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/convex': {
@@ -154,6 +164,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/jo/'
       preLoaderRoute: typeof JoIndexRouteImport
       parentRoute: typeof JoRouteRoute
+    }
+    '/printer/$joId': {
+      id: '/printer/$joId'
+      path: '/printer/$joId'
+      fullPath: '/printer/$joId'
+      preLoaderRoute: typeof PrinterJoIdRouteImport
+      parentRoute: typeof rootRouteImport
     }
   }
 }
@@ -191,7 +208,8 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   JoRouteRoute: JoRouteRouteWithChildren,
   ConvexRoute: ConvexRoute,
-  PrinterRoute: PrinterRoute,
+  TestRoute: TestRoute,
+  PrinterJoIdRoute: PrinterJoIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

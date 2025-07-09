@@ -1,9 +1,23 @@
-import { createFileRoute, Link } from "@tanstack/react-router"
+import { Link, createFileRoute } from "@tanstack/react-router"
 
 import { Calendar, Package } from "lucide-react"
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { convexQuery } from "@convex-dev/react-query"
 import { api } from "@convex/_generated/api"
+import { CanvasPrinterComponent } from "../printer.$joId"
+import { Button } from "@/components/ui/button"
+import {
+	Dialog,
+	DialogClose,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+	DialogTrigger,
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import {
 	Accordion,
 	AccordionContent,
@@ -20,36 +34,10 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table"
-import { Button } from "@/components/ui/button"
 
 export const Route = createFileRoute("/jo/")({
 	component: RouteComponent,
 })
-const jobOrders = [
-	{
-		id: "JO-001",
-		name: "Downtown Office Cleaning",
-		pickupDate: "2024-01-15",
-		status: "pending",
-		items: [
-			{ id: 1, name: "Vacuum Cleaner", quantity: 2, price: 150.0 },
-			{ id: 2, name: "Cleaning Supplies", quantity: 5, price: 75.5 },
-			{ id: 3, name: "Trash Bags", quantity: 10, price: 25.0 },
-		],
-	},
-	{
-		id: "JO-002",
-		name: "Restaurant Equipment Service",
-		pickupDate: "2024-01-18",
-		status: "in-progress",
-		items: [
-			{ id: 4, name: "Industrial Dishwasher", quantity: 1, price: 2500.0 },
-			{ id: 5, name: "Replacement Parts", quantity: 8, price: 320.0 },
-			{ id: 6, name: "Maintenance Kit", quantity: 2, price: 180.0 },
-			{ id: 7, name: "Safety Equipment", quantity: 4, price: 95.75 },
-		],
-	},
-]
 
 const getStatusColor = (status: string) => {
 	switch (status) {
@@ -64,14 +52,6 @@ const getStatusColor = (status: string) => {
 	}
 }
 
-const formatDate = (dateString: string) => {
-	return new Date(dateString).toLocaleDateString("en-US", {
-		year: "numeric",
-		month: "long",
-		day: "numeric",
-	})
-}
-
 const formatCurrency = (amount: number) => {
 	return new Intl.NumberFormat("en-US", {
 		style: "currency",
@@ -83,7 +63,6 @@ function RouteComponent() {
 	const { data, refetch } = useSuspenseQuery(
 		convexQuery(api.jo.getJosWithItems, {}),
 	)
-	console.log(data)
 
 	return (
 		<div className="container mx-auto py-8 px-4 max-w-6xl">
@@ -95,17 +74,13 @@ function RouteComponent() {
 					</p>
 				</div>
 				<Button onClick={async () => refetch()}>Refetch</Button>
-
-				<Link to="/printer">
-					<Button variant="link">JobOrder</Button>
-				</Link>
 			</div>
 
 			<Card>
 				<CardHeader>
 					<CardTitle className="flex items-center gap-2">
 						<Package className="h-5 w-5" />
-						All Job Orders ({jobOrders.length})
+						All Job Orders ({data.length})
 					</CardTitle>
 				</CardHeader>
 				<CardContent>
@@ -131,7 +106,10 @@ function RouteComponent() {
 													</div>
 													<div className="flex items-center gap-2 text-sm text-muted-foreground">
 														<Calendar className="h-4 w-4" />
-														Pickup: {formatDate(jo.jo.pickupDate)}
+														Pickup:{" "}
+														{new Date(
+															Number(jo.jo.pickupDate),
+														).toLocaleString()}
 													</div>
 												</div>
 											</div>
@@ -155,13 +133,23 @@ function RouteComponent() {
 									</AccordionTrigger>
 									<AccordionContent>
 										<div className="pt-4">
-											<div className="mb-4">
-												<h4 className="font-semibold text-lg mb-2">
-													Order Items
-												</h4>
-												<p className="text-sm text-muted-foreground">
-													Items included in job order {jo.jo.joNumber}
-												</p>
+											<div className="flex justify-between w-full items-center">
+												<div className="mb-4">
+													<h4 className="font-semibold text-lg mb-2">
+														Order Items
+													</h4>
+													<p className="text-sm text-muted-foreground">
+														Items included in job order {jo.jo.joNumber}
+													</p>
+												</div>
+												<Dialog>
+													<DialogTrigger>
+														<Button>Print</Button>
+													</DialogTrigger>
+													<DialogContent>
+														<CanvasPrinterComponent joId={jo.jo._id} />
+													</DialogContent>
+												</Dialog>
 											</div>
 
 											<div className="rounded-md border">

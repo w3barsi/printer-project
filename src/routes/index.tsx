@@ -65,7 +65,6 @@ function SignIn() {
 				},
 			)
 		} else {
-			console.log("Signing up user...")
 			await authClient.signUp.email(
 				{
 					name: formData.get("name") as string,
