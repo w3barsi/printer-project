@@ -62,7 +62,7 @@ function RouteComponent() {
 		<div className="container mx-auto py-8 px-4 max-w-6xl">
 			<div className="flex justify-between items-center">
 				<div className="mb-8">
-					<h1 className="text-3xl font-bold tracking-tight mb-2">Job Orders</h1>
+					<h1 className="text-3xl font-bold tracking-tight mb-2">Job Orderz</h1>
 					<p className="text-muted-foreground ">
 						Manage and track all job orders and their associated items
 					</p>
