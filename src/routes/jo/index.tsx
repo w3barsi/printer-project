@@ -28,6 +28,11 @@ import { printReceipt } from "@/lib/printer"
 
 export const Route = createFileRoute("/jo/")({
 	component: RouteComponent,
+	loader: async ({ context }) => {
+		await context.queryClient.ensureQueryData(
+			convexQuery(api.jo.getJosWithItems, {}),
+		)
+	},
 })
 
 const getStatusColor = (status: string) => {
