@@ -18,8 +18,8 @@ import appCss from "../styles.css?url"
 import type { QueryClient } from "@tanstack/react-query"
 import type { ConvexReactClient } from "convex/react"
 import type { ConvexQueryClient } from "@convex-dev/react-query"
-import { authClient } from "@/lib/auth.ts"
-import { fetchSession, getCookieName } from "@/lib/utils.ts"
+import { authClient } from "@/lib/auth-client.ts"
+import { fetchSession, getCookieName } from "@/lib/auth-utils"
 
 const fetchAuth = createServerFn({ method: "GET" }).handler(async () => {
 	const sessionCookieName = await getCookieName()

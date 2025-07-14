@@ -1,15 +1,8 @@
-import { createAuthClient } from "better-auth/react"
-import { convexClient } from "@convex-dev/better-auth/client/plugins"
-
 import { betterAuth } from "better-auth"
 import { convexAdapter } from "@convex-dev/better-auth"
 import { convex } from "@convex-dev/better-auth/plugins"
 import { betterAuthComponent } from "../../convex/auth"
 import type { GenericCtx } from "../../convex/_generated/server"
-
-export const authClient = createAuthClient({
-	plugins: [convexClient()],
-})
 
 export const createAuth = (ctx: GenericCtx) =>
 	// Configure your Better Auth instance here
