@@ -1,128 +1,67 @@
-import { convexQuery } from "@convex-dev/react-query"
-import { api } from "@convex/_generated/api"
-import { useSuspenseQuery } from "@tanstack/react-query"
-import { Link, createFileRoute } from "@tanstack/react-router"
-import { AuthLoading, Authenticated, Unauthenticated } from "convex/react"
-import { useState } from "react"
+import { useQueryClient } from "@tanstack/react-query"
+import { Link, createFileRoute, useRouter } from "@tanstack/react-router"
+import { Button } from "@/components/ui/button"
 import { authClient } from "@/lib/auth-client"
 
 export const Route = createFileRoute("/")({
-	component: RouteComponent,
+	component: Home,
+	loader: ({ context }) => {
+		return { user: context.user }
+	},
 })
 
-function RouteComponent() {
-	return (
-		<div className="bg-black text-white min-h-screen flex flex-col items-center  font-sans p-4">
-			<AuthLoading>
-				<div>Loading...</div>
-			</AuthLoading>
-			<Unauthenticated>
-				<SignIn />
-			</Unauthenticated>
-			<Authenticated>
-				<Dashboard />
-			</Authenticated>
-		</div>
-	)
-}
-function Dashboard() {
-	const user = useSuspenseQuery(convexQuery(api.auth.getCurrentUser, {}))
-	return (
-		<div className="flex flex-col gap-4 text-center">
-			<Link
-				className="px-4 py-2 bg-black text-white hover:text-black  border-2 border-white rounded-md hover:bg-gray-200 transition-colors"
-				to="/convex"
-			>
-				Convex
-			</Link>
-			<h1 className="text-2xl mb-4">Hello {user.data?.name}!</h1>
-			<button
-				onClick={() => authClient.signOut()}
-				className="px-4 py-2 bg-white text-black rounded-md hover:bg-gray-200 transition-colors"
-			>
-				Sign out
-			</button>
-		</div>
-	)
-}
-
-function SignIn() {
-	const [showSignIn, setShowSignIn] = useState(true)
-
-	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-		e.preventDefault()
-		const formData = new FormData(e.target as HTMLFormElement)
-		if (showSignIn) {
-			await authClient.signIn.email(
-				{
-					email: formData.get("email") as string,
-					password: formData.get("password") as string,
-				},
-				{
-					onError: (ctx) => {
-						window.alert(ctx.error.message)
-					},
-				},
-			)
-		} else {
-			await authClient.signUp.email(
-				{
-					name: formData.get("name") as string,
-					email: formData.get("email") as string,
-					password: formData.get("password") as string,
-				},
-				{
-					onError: (ctx) => {
-						window.alert(ctx.error.message)
-					},
-				},
-			)
-		}
-	}
+function Home() {
+	const { user } = Route.useLoaderData()
+	const queryClient = useQueryClient()
+	const router = useRouter()
 
 	return (
-		<div className="w-full max-w-sm">
-			<div className="bg-black border border-zinc-800 rounded-lg p-8">
-				<h2 className="text-2xl font-bold text-center mb-6">
-					{showSignIn ? "Sign In" : "Create an Account"}
-				</h2>
-				<form onSubmit={handleSubmit} className="flex flex-col gap-4">
-					{!showSignIn && (
-						<input
-							name="name"
-							placeholder="Name"
-							className="bg-zinc-900 border border-zinc-700 rounded-md px-3 py-2 text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
-						/>
-					)}
-					<input
-						type="email"
-						name="email"
-						placeholder="Email"
-						className="bg-zinc-900 border border-zinc-700 rounded-md px-3 py-2 text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
-					/>
-					<input
-						type="password"
-						name="password"
-						placeholder="Password"
-						className="bg-zinc-900 border border-zinc-700 rounded-md px-3 py-2 text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
-					/>
-					<button
-						type="submit"
-						className="bg-white text-black rounded-md py-2 font-semibold hover:bg-gray-200 transition-colors mt-2"
-					>
-						{showSignIn ? "Sign In" : "Sign Up"}
-					</button>
-				</form>
+		<div className="flex min-h-svh flex-col items-center justify-center gap-10 p-2">
+			<div className="flex flex-col items-center gap-4">
+				<h1 className="text-3xl font-bold sm:text-4xl">React TanStarter</h1>
+				<div className="flex items-center gap-2 max-sm:flex-col">
+					This is an unprotected page:
+					<pre className="bg-card text-card-foreground rounded-md border p-1">
+						routes/index.tsx
+					</pre>
+				</div>
 			</div>
-			<p className="text-center text-zinc-400 mt-6">
-				{showSignIn ? "Don't have an account? " : "Already have an account? "}
-				<button
-					onClick={() => setShowSignIn(!showSignIn)}
-					className="text-blue-400 hover:underline"
-				>
-					{showSignIn ? "Sign up" : "Sign in"}
-				</button>
-			</p>
+
+			{user ? (
+				<div className="flex flex-col items-center gap-2">
+					<p>Welcome back, {user.name}!</p>
+					<Button type="button" asChild className="mb-2 w-fit" size="lg">
+						<Link to="/jo">Go to Job Orders</Link>
+					</Button>
+					<div className="text-center text-xs sm:text-sm">
+						Session user:
+						<pre className="max-w-screen overflow-x-auto px-2 text-start">
+							{JSON.stringify(user, null, 2)}
+						</pre>
+					</div>
+
+					<Button
+						onClick={async () => {
+							await authClient.signOut()
+							await queryClient.invalidateQueries({ queryKey: ["user"] })
+							await router.invalidate()
+						}}
+						type="button"
+						className="w-fit"
+						variant="destructive"
+						size="lg"
+					>
+						Sign out
+					</Button>
+				</div>
+			) : (
+				<div className="flex flex-col items-center gap-2">
+					<p>You are not signed in.</p>
+					<Button type="button" asChild className="w-fit" size="lg">
+						<Link to="/login">Log in</Link>
+					</Button>
+				</div>
+			)}
 		</div>
 	)
 }

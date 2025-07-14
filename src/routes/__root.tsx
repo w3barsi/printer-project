@@ -76,7 +76,11 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 			ctx.context.convexQueryClient.serverHttpClient?.setAuth(token)
 		}
 
-		return { user: user?.id, token: token }
+		const now = new Date().toLocaleString()
+
+		console.log(now, "[BEFORE_LOAD] ", user?.id)
+
+		return { user: user, token: token }
 	},
 	component: RootComponent,
 })

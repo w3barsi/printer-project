@@ -25,6 +25,8 @@ export function createRouter() {
 	const queryClient: QueryClient = new QueryClient({
 		defaultOptions: {
 			queries: {
+				refetchOnWindowFocus: false,
+				staleTime: 1000 * 60 * 2, // 2 minutes
 				queryKeyHashFn: convexQueryClient.hashFn(),
 				queryFn: convexQueryClient.queryFn(),
 			},
@@ -37,6 +39,8 @@ export function createRouter() {
 		createTanStackRouter({
 			routeTree,
 			defaultPreload: "intent",
+			// react-query will handle data fetching & caching
+			// https://tanstack.com/router/latest/docs/framework/react/guide/data-loading#passing-all-loader-events-to-an-external-cache
 			defaultPreloadStaleTime: 0,
 			context: { queryClient, convexClient: convex, convexQueryClient },
 			scrollRestoration: true,

@@ -13,8 +13,11 @@ import { createServerRootRoute } from '@tanstack/react-start/server'
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ConvexRouteImport } from './routes/convex'
 import { Route as JoRouteRouteImport } from './routes/jo/route'
+import { Route as authRouteRouteImport } from './routes/(auth)/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as JoIndexRouteImport } from './routes/jo/index'
+import { Route as authSignupRouteImport } from './routes/(auth)/signup'
+import { Route as authLoginRouteImport } from './routes/(auth)/login'
 import { ServerRoute as ApiDemoNamesServerRouteImport } from './routes/api/demo-names'
 import { ServerRoute as ApiAuthSplatServerRouteImport } from './routes/api/auth.$'
 
@@ -30,6 +33,10 @@ const JoRouteRoute = JoRouteRouteImport.update({
   path: '/jo',
   getParentRoute: () => rootRouteImport,
 } as any)
+const authRouteRoute = authRouteRouteImport.update({
+  id: '/(auth)',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -39,6 +46,16 @@ const JoIndexRoute = JoIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => JoRouteRoute,
+} as any)
+const authSignupRoute = authSignupRouteImport.update({
+  id: '/signup',
+  path: '/signup',
+  getParentRoute: () => authRouteRoute,
+} as any)
+const authLoginRoute = authLoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => authRouteRoute,
 } as any)
 const ApiDemoNamesServerRoute = ApiDemoNamesServerRouteImport.update({
   id: '/api/demo-names',
@@ -52,33 +69,49 @@ const ApiAuthSplatServerRoute = ApiAuthSplatServerRouteImport.update({
 } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
+  '/': typeof authRouteRouteWithChildren
   '/jo': typeof JoRouteRouteWithChildren
   '/convex': typeof ConvexRoute
+  '/login': typeof authLoginRoute
+  '/signup': typeof authSignupRoute
   '/jo/': typeof JoIndexRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
+  '/': typeof authRouteRouteWithChildren
   '/convex': typeof ConvexRoute
+  '/login': typeof authLoginRoute
+  '/signup': typeof authSignupRoute
   '/jo': typeof JoIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/(auth)': typeof authRouteRouteWithChildren
   '/jo': typeof JoRouteRouteWithChildren
   '/convex': typeof ConvexRoute
+  '/(auth)/login': typeof authLoginRoute
+  '/(auth)/signup': typeof authSignupRoute
   '/jo/': typeof JoIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/jo' | '/convex' | '/jo/'
+  fullPaths: '/' | '/jo' | '/convex' | '/login' | '/signup' | '/jo/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/convex' | '/jo'
-  id: '__root__' | '/' | '/jo' | '/convex' | '/jo/'
+  to: '/' | '/convex' | '/login' | '/signup' | '/jo'
+  id:
+    | '__root__'
+    | '/'
+    | '/(auth)'
+    | '/jo'
+    | '/convex'
+    | '/(auth)/login'
+    | '/(auth)/signup'
+    | '/jo/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  authRouteRoute: typeof authRouteRouteWithChildren
   JoRouteRoute: typeof JoRouteRouteWithChildren
   ConvexRoute: typeof ConvexRoute
 }
@@ -124,6 +157,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof JoRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/(auth)': {
+      id: '/(auth)'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof authRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -137,6 +177,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/jo/'
       preLoaderRoute: typeof JoIndexRouteImport
       parentRoute: typeof JoRouteRoute
+    }
+    '/(auth)/signup': {
+      id: '/(auth)/signup'
+      path: '/signup'
+      fullPath: '/signup'
+      preLoaderRoute: typeof authSignupRouteImport
+      parentRoute: typeof authRouteRoute
+    }
+    '/(auth)/login': {
+      id: '/(auth)/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof authLoginRouteImport
+      parentRoute: typeof authRouteRoute
     }
   }
 }
@@ -159,6 +213,20 @@ declare module '@tanstack/react-start/server' {
   }
 }
 
+interface authRouteRouteChildren {
+  authLoginRoute: typeof authLoginRoute
+  authSignupRoute: typeof authSignupRoute
+}
+
+const authRouteRouteChildren: authRouteRouteChildren = {
+  authLoginRoute: authLoginRoute,
+  authSignupRoute: authSignupRoute,
+}
+
+const authRouteRouteWithChildren = authRouteRoute._addFileChildren(
+  authRouteRouteChildren,
+)
+
 interface JoRouteRouteChildren {
   JoIndexRoute: typeof JoIndexRoute
 }
@@ -172,6 +240,7 @@ const JoRouteRouteWithChildren =
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  authRouteRoute: authRouteRouteWithChildren,
   JoRouteRoute: JoRouteRouteWithChildren,
   ConvexRoute: ConvexRoute,
 }

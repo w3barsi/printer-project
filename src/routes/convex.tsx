@@ -8,7 +8,9 @@ import { api } from "../../convex/_generated/api"
 
 export const Route = createFileRoute("/convex")({
 	component: App,
-	loader: async ({ context }) => {},
+	loader: async ({ context }) => {
+		await context.queryClient.ensureQueryData(convexQuery(api.products.get, {}))
+	},
 })
 
 function Products() {
