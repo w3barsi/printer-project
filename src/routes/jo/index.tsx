@@ -7,7 +7,6 @@ import { api } from "@convex/_generated/api"
 import { Suspense, useState } from "react"
 import { UsbPrinterHandlerComponent } from "@/components/usb-printer-handler-component"
 import { Button } from "@/components/ui/button"
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"
 import {
 	Accordion,
 	AccordionContent,

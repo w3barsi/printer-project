@@ -8,14 +8,8 @@ import {
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools"
 
 import { createServerFn } from "@tanstack/react-start"
-import {
-	fetchSession,
-	getCookieName,
-} from "@convex-dev/better-auth/react-start"
 import { ConvexBetterAuthProvider } from "@convex-dev/better-auth/react"
 import { getCookie, getWebRequest } from "@tanstack/react-start/server"
-import { createAuth } from "@convex/auth.ts"
-import Header from "../components/Header"
 
 import TanStackQueryLayout from "../integrations/tanstack-query/layout.tsx"
 
@@ -24,13 +18,14 @@ import appCss from "../styles.css?url"
 import type { QueryClient } from "@tanstack/react-query"
 import type { ConvexReactClient } from "convex/react"
 import type { ConvexQueryClient } from "@convex-dev/react-query"
-import { authClient } from "@/lib/auth-client.ts"
+import { authClient } from "@/lib/auth.ts"
+import { fetchSession, getCookieName } from "@/lib/utils.ts"
 
 const fetchAuth = createServerFn({ method: "GET" }).handler(async () => {
-	const sessionCookieName = await getCookieName(createAuth)
+	const sessionCookieName = await getCookieName()
 	const token = getCookie(sessionCookieName)
 	const request = getWebRequest()
-	const { session } = await fetchSession(createAuth, request)
+	const { session } = await fetchSession(request)
 	return {
 		user: session?.user ?? undefined,
 		token,

@@ -1,4 +1,5 @@
 import { useEffect } from "react"
+import { useRouter } from "@tanstack/react-router"
 import type { Dispatch, SetStateAction } from "react"
 import { Button } from "@/components/ui/button"
 import {
@@ -6,7 +7,6 @@ import {
 	TooltipContent,
 	TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { useRouter } from "@tanstack/react-router"
 
 export function UsbPrinterHandlerComponent({
 	device,
@@ -15,8 +15,6 @@ export function UsbPrinterHandlerComponent({
 	device: USBDevice | null
 	setDevice: Dispatch<SetStateAction<USBDevice | null>>
 }) {
-	const router = useRouter()
-
 	useEffect(() => {
 		const checkPermittedDevices = async () => {
 			if ("usb" in navigator) {

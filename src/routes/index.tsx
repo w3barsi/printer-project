@@ -1,7 +1,7 @@
 import { useQueryClient } from "@tanstack/react-query"
 import { Link, createFileRoute, useRouter } from "@tanstack/react-router"
 import { Button } from "@/components/ui/button"
-import { authClient } from "@/lib/auth-client"
+import { authClient } from "@/lib/auth"
 
 export const Route = createFileRoute("/")({
 	component: Home,
@@ -25,6 +25,10 @@ function Home() {
 						routes/index.tsx
 					</pre>
 				</div>
+
+				<Button type="button" asChild className="mb-2 w-fit" size="lg">
+					<Link to="/jo">Go to Job Orders</Link>
+				</Button>
 			</div>
 
 			{user ? (

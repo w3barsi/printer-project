@@ -1,10 +1,7 @@
-import { BetterAuth, convexAdapter } from "@convex-dev/better-auth"
-import { convex } from "@convex-dev/better-auth/plugins"
-import { betterAuth } from "better-auth"
+import { BetterAuth } from "@convex-dev/better-auth"
 import { components, internal } from "./_generated/api"
 import { query } from "./_generated/server"
 import type { AuthFunctions } from "@convex-dev/better-auth"
-import type { GenericCtx } from "./_generated/server"
 import type { DataModel, Id } from "./_generated/dataModel"
 
 // Typesafe way to pass Convex functions defined in this file
@@ -14,31 +11,6 @@ const authFunctions: AuthFunctions = internal.auth
 export const betterAuthComponent = new BetterAuth(components.betterAuth, {
 	authFunctions,
 })
-
-export const createAuth = (ctx: GenericCtx) =>
-	// Configure your Better Auth instance here
-	betterAuth({
-		session: {
-			cookieCache: {
-				enabled: true,
-				maxAge: 5 * 60,
-			},
-		},
-
-		// All auth requests will be proxied through your TanStack Start server
-		baseURL: "http://localhost:3000",
-		database: convexAdapter(ctx, betterAuthComponent),
-
-		// Simple non-verified email/password to get started
-		emailAndPassword: {
-			enabled: true,
-			requireEmailVerification: false,
-		},
-		plugins: [
-			// The Convex plugin is required
-			convex(),
-		],
-	})
 
 // These are required named exports
 export const { createUser, updateUser, deleteUser, createSession } =

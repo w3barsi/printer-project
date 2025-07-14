@@ -1,0 +1,37 @@
+import { createAuthClient } from "better-auth/react"
+import { convexClient } from "@convex-dev/better-auth/client/plugins"
+
+import { betterAuth } from "better-auth"
+import { convexAdapter } from "@convex-dev/better-auth"
+import { convex } from "@convex-dev/better-auth/plugins"
+import { betterAuthComponent } from "../../convex/auth"
+import type { GenericCtx } from "../../convex/_generated/server"
+
+export const authClient = createAuthClient({
+	plugins: [convexClient()],
+})
+
+export const createAuth = (ctx: GenericCtx) =>
+	// Configure your Better Auth instance here
+	betterAuth({
+		session: {
+			cookieCache: {
+				enabled: true,
+				maxAge: 5 * 60,
+			},
+		},
+
+		// All auth requests will be proxied through your TanStack Start server
+		baseURL: "http://localhost:3000",
+		database: convexAdapter(ctx, betterAuthComponent),
+
+		// Simple non-verified email/password to get started
+		emailAndPassword: {
+			enabled: true,
+			requireEmailVerification: false,
+		},
+		plugins: [
+			// The Convex plugin is required
+			convex(),
+		],
+	})
