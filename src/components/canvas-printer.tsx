@@ -5,7 +5,7 @@ import { useQuery } from "@tanstack/react-query"
 import { convexQuery } from "@convex-dev/react-query"
 import { api } from "@convex/_generated/api"
 import type { Id } from "@convex/_generated/dataModel"
-import { ItemRenderer } from "@/routes/-components/item-render"
+import { ItemRenderer } from "@/components/item-render"
 import { Separator } from "@/components/ui/separator"
 import { Button } from "@/components/ui/button"
 
