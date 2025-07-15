@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router"
+import { createFileRoute, Link } from "@tanstack/react-router"
 
 import { Calendar, Package } from "lucide-react"
 import { useSuspenseQuery } from "@tanstack/react-query"
@@ -104,7 +104,13 @@ function JobOrderList({ device }: { device: USBDevice | null }) {
 										<div className="flex items-center gap-4">
 											<div className="text-left">
 												<div className="font-semibold text-lg">
-													{jo.jo.name}
+													<Link
+														to="/jo/$joId"
+														params={{ joId: jo.jo._id }}
+														className="hover:underline"
+													>
+														{jo.jo.name}
+													</Link>
 												</div>
 												<div className="flex items-center gap-2 text-sm text-muted-foreground">
 													<Calendar className="h-4 w-4" />
