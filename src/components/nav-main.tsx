@@ -33,10 +33,10 @@ export function NavMain() {
 				<Collapsible asChild defaultOpen={true}>
 					<SidebarMenuItem>
 						<SidebarMenuButton asChild tooltip="Job Order">
-							<a href="/jo">
+							<Link to="/jo">
 								<FileTextIcon />
 								<span>Job Order</span>
-							</a>
+							</Link>
 						</SidebarMenuButton>
 						<>
 							<CollapsibleTrigger asChild>
