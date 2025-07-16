@@ -6,53 +6,31 @@ import {
 	useRouteContext,
 } from "@tanstack/react-router"
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools"
-
 import { createServerFn } from "@tanstack/react-start"
 import { ConvexBetterAuthProvider } from "@convex-dev/better-auth/react"
 import { getCookie, getWebRequest } from "@tanstack/react-start/server"
-
+import { convexQuery } from "@convex-dev/react-query"
 import { api } from "@convex/_generated/api.js"
-import { ConvexHttpClient } from "convex/browser"
 import TanStackQueryLayout from "../integrations/tanstack-query/layout.tsx"
-
 import appCss from "../styles.css?url"
-
+import type { ConvexQueryClient } from "@convex-dev/react-query"
 import type { QueryClient } from "@tanstack/react-query"
 import type { ConvexReactClient } from "convex/react"
-import type { ConvexQueryClient } from "@convex-dev/react-query"
 import { authClient } from "@/lib/auth-client.ts"
 import { fetchSession, getCookieName } from "@/lib/auth-utils"
-import { createAuth } from "@/lib/auth.ts"
 
-const setupClient = (token?: string) => {
-	const client = new ConvexHttpClient(import.meta.env.VITE_CONVEX_URL)
-	if (token) {
-		client.setAuth(token)
-	}
-	return client
-}
+// import { fetchAuth } from "@/server/functions.ts"
 
 const fetchAuth = createServerFn({ method: "GET" }).handler(async () => {
 	const sessionCookieName = await getCookieName()
 	const token = getCookie(sessionCookieName)
-	const session = await setupClient(token).query(api.auth.getCurrentUser, {})
-
+	const request = getWebRequest()
+	const { session } = await fetchSession(request)
 	return {
-		user: session ?? undefined,
+		user: session?.user ?? undefined,
 		token,
 	}
 })
-
-// const fetchAuth = createServerFn({ method: "GET" }).handler(async () => {
-// 	const sessionCookieName = await getCookieName()
-// 	const token = getCookie(sessionCookieName)
-// 	const request = getWebRequest()
-// 	const { session } = await fetchSession(request)
-// 	return {
-// 		user: session?.user ?? undefined,
-// 		token,
-// 	}
-// })
 
 interface MyRouterContext {
 	queryClient: QueryClient
@@ -76,6 +54,11 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 		],
 		links: [
 			{
+				rel: "preload",
+				href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap",
+				as: "style",
+			},
+			{
 				rel: "stylesheet",
 				href: appCss,
 			},
@@ -93,9 +76,9 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 			ctx.context.convexQueryClient.serverHttpClient?.setAuth(token)
 		}
 
-		const now = new Date().toLocaleString()
-
-		console.log(now, "[BEFORE_LOAD] ", user?.id)
+		// const user = await ctx.context.queryClient.fetchQuery(
+		// 	convexQuery(api.auth.getCurrentUser, {}),
+		// )
 
 		return { user: user, token: token }
 	},
@@ -111,9 +94,8 @@ function RootComponent() {
 		>
 			<RootDocument>
 				<Outlet />
-				<TanStackRouterDevtools />
-
-				<TanStackQueryLayout />
+				{/* <TanStackRouterDevtools /> */}
+				{/* <TanStackQueryLayout /> */}
 			</RootDocument>
 		</ConvexBetterAuthProvider>
 	)

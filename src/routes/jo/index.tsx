@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router"
+import { Link, createFileRoute } from "@tanstack/react-router"
 
 import { Calendar, Package } from "lucide-react"
 import { useSuspenseQuery } from "@tanstack/react-query"
@@ -27,8 +27,8 @@ import { printReceipt } from "@/lib/printer"
 
 export const Route = createFileRoute("/jo/")({
 	component: RouteComponent,
-	loader: async ({ context }) => {
-		await context.queryClient.ensureQueryData(
+	loader: ({ context }) => {
+		void context.queryClient.prefetchQuery(
 			convexQuery(api.jo.getJosWithItems, {}),
 		)
 	},

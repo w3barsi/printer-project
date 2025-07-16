@@ -30,6 +30,14 @@ export const createJo = mutation({
 	},
 })
 
+export const getRecent = query({
+	args: {},
+	handler: async (ctx) => {
+		const recent = await ctx.db.query("jo").take(5)
+		return recent.map((jo) => ({ id: jo._id, name: jo.name }))
+	},
+})
+
 export const getJosWithItems = query({
 	args: {},
 	handler: async (ctx) => {

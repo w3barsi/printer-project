@@ -7,6 +7,8 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 
 import { authClient } from "@/lib/auth-client"
+import { convexQuery } from "@convex-dev/react-query"
+import { api } from "@convex/_generated/api"
 
 export const Route = createFileRoute("/(auth)/login")({
 	component: LoginForm,
