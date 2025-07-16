@@ -26,5 +26,5 @@ export default defineSchema({
 		price: v.number(),
 	}).index("by_joId", ["joId"]),
 
-	users: defineTable({}),
+	users: defineTable({ nickname: v.optional(v.string()) }),
 })
