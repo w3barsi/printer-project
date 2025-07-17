@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/breadcrumb"
 import { ThemeToggle } from "@/components/theme-toggle"
 
-export const Route = createFileRoute("/jo")({
+export const Route = createFileRoute("/(main)")({
 	component: RouteComponent,
 	beforeLoad: ({ context }) => {
 		if (!context.user) {

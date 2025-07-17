@@ -24,8 +24,9 @@ import {
 	TableRow,
 } from "@/components/ui/table"
 import { printReceipt } from "@/lib/printer"
+import { Container } from "@/components/layouts/container"
 
-export const Route = createFileRoute("/jo/")({
+export const Route = createFileRoute("/(main)/jo/")({
 	component: RouteComponent,
 	loader: ({ context }) => {
 		void context.queryClient.prefetchQuery(
@@ -58,11 +59,11 @@ function RouteComponent() {
 	const [device, setDevice] = useState<USBDevice | null>(null)
 
 	return (
-		<div className="container mx-auto py-8 px-4 max-w-6xl">
-			<div className="flex justify-between items-center">
+		<Container>
+			<div className="flex items-center justify-between">
 				<div className="mb-8">
-					<h1 className="text-3xl font-bold tracking-tight mb-2">Job Orderz</h1>
-					<p className="text-muted-foreground ">
+					<h1 className="mb-2 text-3xl font-bold tracking-tight">Job Orderz</h1>
+					<p className="text-muted-foreground">
 						Manage and track all job orders and their associated items
 					</p>
 				</div>
@@ -71,14 +72,14 @@ function RouteComponent() {
 			<Suspense fallback={<div>Loading...</div>}>
 				<JobOrderList device={device} />
 			</Suspense>
-		</div>
+		</Container>
 	)
 }
 
 function JobOrderList({ device }: { device: USBDevice | null }) {
 	const { data } = useSuspenseQuery(convexQuery(api.jo.getJosWithItems, {}))
 	return (
-		<Card>
+		<Card className="border-none shadow-none">
 			<CardHeader>
 				<CardTitle className="flex items-center gap-2">
 					<Package className="h-5 w-5" />
@@ -100,10 +101,10 @@ function JobOrderList({ device }: { device: USBDevice | null }) {
 						return (
 							<AccordionItem key={jo.jo._id} value={jo.jo._id}>
 								<AccordionTrigger className="hover:no-underline">
-									<div className="flex items-center justify-between w-full pr-4">
+									<div className="flex w-full items-center justify-between pr-4">
 										<div className="flex items-center gap-4">
 											<div className="text-left">
-												<div className="font-semibold text-lg">
+												<div className="text-lg font-semibold">
 													<Link
 														to="/jo/$joId"
 														params={{ joId: jo.jo._id }}
@@ -112,7 +113,7 @@ function JobOrderList({ device }: { device: USBDevice | null }) {
 														{jo.jo.name}
 													</Link>
 												</div>
-												<div className="flex items-center gap-2 text-sm text-muted-foreground">
+												<div className="text-muted-foreground flex items-center gap-2 text-sm">
 													<Calendar className="h-4 w-4" />
 													Pickup:{" "}
 													{new Date(Number(jo.jo.pickupDate)).toLocaleString()}
@@ -139,12 +140,12 @@ function JobOrderList({ device }: { device: USBDevice | null }) {
 								</AccordionTrigger>
 								<AccordionContent>
 									<div className="pt-4">
-										<div className="flex justify-between w-full items-center">
+										<div className="flex w-full items-center justify-between">
 											<div className="mb-4">
-												<h4 className="font-semibold text-lg mb-2">
+												<h4 className="mb-2 text-lg font-semibold">
 													Order Items
 												</h4>
-												<p className="text-sm text-muted-foreground">
+												<p className="text-muted-foreground text-sm">
 													Items included in job order {jo.jo.joNumber}
 												</p>
 											</div>
@@ -190,7 +191,7 @@ function JobOrderList({ device }: { device: USBDevice | null }) {
 														<TableCell colSpan={3} className="font-semibold">
 															Total Order Value
 														</TableCell>
-														<TableCell className="text-right font-bold text-lg">
+														<TableCell className="text-right text-lg font-bold">
 															{formatCurrency(totalValue)}
 														</TableCell>
 													</TableRow>

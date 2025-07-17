@@ -2,13 +2,13 @@ import { useQueryClient } from "@tanstack/react-query"
 import { Link, createFileRoute, useNavigate } from "@tanstack/react-router"
 import { GalleryVerticalEnd, LoaderCircle } from "lucide-react"
 import { useState } from "react"
+import { convexQuery } from "@convex-dev/react-query"
+import { api } from "@convex/_generated/api"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 
 import { authClient } from "@/lib/auth-client"
-import { convexQuery } from "@convex-dev/react-query"
-import { api } from "@convex/_generated/api"
 
 export const Route = createFileRoute("/(auth)/login")({
 	component: LoginForm,

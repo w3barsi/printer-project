@@ -86,7 +86,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 
 function RootComponent() {
 	const context = useRouteContext({ from: Route.id })
-	const theme = Route.useLoaderData()
+
 	return (
 		<ConvexBetterAuthProvider
 			client={context.convexClient}

@@ -11,27 +11,33 @@
 import { createServerRootRoute } from '@tanstack/react-start/server'
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TestfruitsRouteImport } from './routes/testfruits'
 import { Route as ConvexRouteImport } from './routes/convex'
-import { Route as JoRouteRouteImport } from './routes/jo/route'
+import { Route as mainRouteRouteImport } from './routes/(main)/route'
 import { Route as authRouteRouteImport } from './routes/(auth)/route'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as JoIndexRouteImport } from './routes/jo/index'
-import { Route as JoJoIdRouteImport } from './routes/jo/$joId'
+import { Route as mainTestRouteImport } from './routes/(main)/test'
 import { Route as authSignupRouteImport } from './routes/(auth)/signup'
 import { Route as authLoginRouteImport } from './routes/(auth)/login'
+import { Route as mainJoIndexRouteImport } from './routes/(main)/jo.index'
+import { Route as mainJoJoIdRouteImport } from './routes/(main)/jo.$joId'
 import { ServerRoute as ApiDemoNamesServerRouteImport } from './routes/api/demo-names'
 import { ServerRoute as ApiAuthSplatServerRouteImport } from './routes/api/auth.$'
 
 const rootServerRouteImport = createServerRootRoute()
 
+const TestfruitsRoute = TestfruitsRouteImport.update({
+  id: '/testfruits',
+  path: '/testfruits',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ConvexRoute = ConvexRouteImport.update({
   id: '/convex',
   path: '/convex',
   getParentRoute: () => rootRouteImport,
 } as any)
-const JoRouteRoute = JoRouteRouteImport.update({
-  id: '/jo',
-  path: '/jo',
+const mainRouteRoute = mainRouteRouteImport.update({
+  id: '/(main)',
   getParentRoute: () => rootRouteImport,
 } as any)
 const authRouteRoute = authRouteRouteImport.update({
@@ -43,15 +49,10 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const JoIndexRoute = JoIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => JoRouteRoute,
-} as any)
-const JoJoIdRoute = JoJoIdRouteImport.update({
-  id: '/$joId',
-  path: '/$joId',
-  getParentRoute: () => JoRouteRoute,
+const mainTestRoute = mainTestRouteImport.update({
+  id: '/test',
+  path: '/test',
+  getParentRoute: () => mainRouteRoute,
 } as any)
 const authSignupRoute = authSignupRouteImport.update({
   id: '/signup',
@@ -62,6 +63,16 @@ const authLoginRoute = authLoginRouteImport.update({
   id: '/login',
   path: '/login',
   getParentRoute: () => authRouteRoute,
+} as any)
+const mainJoIndexRoute = mainJoIndexRouteImport.update({
+  id: '/jo/',
+  path: '/jo/',
+  getParentRoute: () => mainRouteRoute,
+} as any)
+const mainJoJoIdRoute = mainJoJoIdRouteImport.update({
+  id: '/jo/$joId',
+  path: '/jo/$joId',
+  getParentRoute: () => mainRouteRoute,
 } as any)
 const ApiDemoNamesServerRoute = ApiDemoNamesServerRouteImport.update({
   id: '/api/demo-names',
@@ -75,62 +86,79 @@ const ApiAuthSplatServerRoute = ApiAuthSplatServerRouteImport.update({
 } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof authRouteRouteWithChildren
-  '/jo': typeof JoRouteRouteWithChildren
+  '/': typeof mainRouteRouteWithChildren
   '/convex': typeof ConvexRoute
+  '/testfruits': typeof TestfruitsRoute
   '/login': typeof authLoginRoute
   '/signup': typeof authSignupRoute
-  '/jo/$joId': typeof JoJoIdRoute
-  '/jo/': typeof JoIndexRoute
+  '/test': typeof mainTestRoute
+  '/jo/$joId': typeof mainJoJoIdRoute
+  '/jo': typeof mainJoIndexRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof authRouteRouteWithChildren
+  '/': typeof mainRouteRouteWithChildren
   '/convex': typeof ConvexRoute
+  '/testfruits': typeof TestfruitsRoute
   '/login': typeof authLoginRoute
   '/signup': typeof authSignupRoute
-  '/jo/$joId': typeof JoJoIdRoute
-  '/jo': typeof JoIndexRoute
+  '/test': typeof mainTestRoute
+  '/jo/$joId': typeof mainJoJoIdRoute
+  '/jo': typeof mainJoIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/(auth)': typeof authRouteRouteWithChildren
-  '/jo': typeof JoRouteRouteWithChildren
+  '/(main)': typeof mainRouteRouteWithChildren
   '/convex': typeof ConvexRoute
+  '/testfruits': typeof TestfruitsRoute
   '/(auth)/login': typeof authLoginRoute
   '/(auth)/signup': typeof authSignupRoute
-  '/jo/$joId': typeof JoJoIdRoute
-  '/jo/': typeof JoIndexRoute
+  '/(main)/test': typeof mainTestRoute
+  '/(main)/jo/$joId': typeof mainJoJoIdRoute
+  '/(main)/jo/': typeof mainJoIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/jo'
     | '/convex'
+    | '/testfruits'
     | '/login'
     | '/signup'
+    | '/test'
     | '/jo/$joId'
-    | '/jo/'
+    | '/jo'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/convex' | '/login' | '/signup' | '/jo/$joId' | '/jo'
+  to:
+    | '/'
+    | '/convex'
+    | '/testfruits'
+    | '/login'
+    | '/signup'
+    | '/test'
+    | '/jo/$joId'
+    | '/jo'
   id:
     | '__root__'
     | '/'
     | '/(auth)'
-    | '/jo'
+    | '/(main)'
     | '/convex'
+    | '/testfruits'
     | '/(auth)/login'
     | '/(auth)/signup'
-    | '/jo/$joId'
-    | '/jo/'
+    | '/(main)/test'
+    | '/(main)/jo/$joId'
+    | '/(main)/jo/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   authRouteRoute: typeof authRouteRouteWithChildren
-  JoRouteRoute: typeof JoRouteRouteWithChildren
+  mainRouteRoute: typeof mainRouteRouteWithChildren
   ConvexRoute: typeof ConvexRoute
+  TestfruitsRoute: typeof TestfruitsRoute
 }
 export interface FileServerRoutesByFullPath {
   '/api/demo-names': typeof ApiDemoNamesServerRoute
@@ -160,6 +188,13 @@ export interface RootServerRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/testfruits': {
+      id: '/testfruits'
+      path: '/testfruits'
+      fullPath: '/testfruits'
+      preLoaderRoute: typeof TestfruitsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/convex': {
       id: '/convex'
       path: '/convex'
@@ -167,11 +202,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ConvexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/jo': {
-      id: '/jo'
-      path: '/jo'
-      fullPath: '/jo'
-      preLoaderRoute: typeof JoRouteRouteImport
+    '/(main)': {
+      id: '/(main)'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof mainRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/(auth)': {
@@ -188,19 +223,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/jo/': {
-      id: '/jo/'
-      path: '/'
-      fullPath: '/jo/'
-      preLoaderRoute: typeof JoIndexRouteImport
-      parentRoute: typeof JoRouteRoute
-    }
-    '/jo/$joId': {
-      id: '/jo/$joId'
-      path: '/$joId'
-      fullPath: '/jo/$joId'
-      preLoaderRoute: typeof JoJoIdRouteImport
-      parentRoute: typeof JoRouteRoute
+    '/(main)/test': {
+      id: '/(main)/test'
+      path: '/test'
+      fullPath: '/test'
+      preLoaderRoute: typeof mainTestRouteImport
+      parentRoute: typeof mainRouteRoute
     }
     '/(auth)/signup': {
       id: '/(auth)/signup'
@@ -215,6 +243,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/login'
       preLoaderRoute: typeof authLoginRouteImport
       parentRoute: typeof authRouteRoute
+    }
+    '/(main)/jo/': {
+      id: '/(main)/jo/'
+      path: '/jo'
+      fullPath: '/jo'
+      preLoaderRoute: typeof mainJoIndexRouteImport
+      parentRoute: typeof mainRouteRoute
+    }
+    '/(main)/jo/$joId': {
+      id: '/(main)/jo/$joId'
+      path: '/jo/$joId'
+      fullPath: '/jo/$joId'
+      preLoaderRoute: typeof mainJoJoIdRouteImport
+      parentRoute: typeof mainRouteRoute
     }
   }
 }
@@ -251,24 +293,28 @@ const authRouteRouteWithChildren = authRouteRoute._addFileChildren(
   authRouteRouteChildren,
 )
 
-interface JoRouteRouteChildren {
-  JoJoIdRoute: typeof JoJoIdRoute
-  JoIndexRoute: typeof JoIndexRoute
+interface mainRouteRouteChildren {
+  mainTestRoute: typeof mainTestRoute
+  mainJoJoIdRoute: typeof mainJoJoIdRoute
+  mainJoIndexRoute: typeof mainJoIndexRoute
 }
 
-const JoRouteRouteChildren: JoRouteRouteChildren = {
-  JoJoIdRoute: JoJoIdRoute,
-  JoIndexRoute: JoIndexRoute,
+const mainRouteRouteChildren: mainRouteRouteChildren = {
+  mainTestRoute: mainTestRoute,
+  mainJoJoIdRoute: mainJoJoIdRoute,
+  mainJoIndexRoute: mainJoIndexRoute,
 }
 
-const JoRouteRouteWithChildren =
-  JoRouteRoute._addFileChildren(JoRouteRouteChildren)
+const mainRouteRouteWithChildren = mainRouteRoute._addFileChildren(
+  mainRouteRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   authRouteRoute: authRouteRouteWithChildren,
-  JoRouteRoute: JoRouteRouteWithChildren,
+  mainRouteRoute: mainRouteRouteWithChildren,
   ConvexRoute: ConvexRoute,
+  TestfruitsRoute: TestfruitsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -1,8 +1,8 @@
-import { createFileRoute, Router, useParams } from "@tanstack/react-router"
+import { createFileRoute } from "@tanstack/react-router"
 import { convexQuery } from "@convex-dev/react-query"
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { api } from "@convex/_generated/api"
-import { Calendar, Package, Clock } from "lucide-react"
+import { Calendar, Clock, Package } from "lucide-react"
 import type { Id } from "@convex/_generated/dataModel"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -14,37 +14,19 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table"
+import { Container } from "@/components/layouts/container"
 
-export const Route = createFileRoute("/jo/$joId")({
+export const Route = createFileRoute("/(main)/jo/$joId")({
 	component: JoDetailComponent,
 	loader: async ({ context: { queryClient: qc }, params }) => {
 		const id = params.joId as Id<"jo">
+		console.log(id)
 		await qc.ensureQueryData(convexQuery(api.jo.getOneJoWithItems, { id }))
 	},
 })
 
-const getStatusColor = (status: string) => {
-	switch (status) {
-		case "completed":
-			return "bg-green-100 text-green-800 hover:bg-green-100"
-		case "in-progress":
-			return "bg-blue-100 text-blue-800 hover:bg-blue-100"
-		case "pending":
-			return "bg-yellow-100 text-yellow-800 hover:bg-yellow-100"
-		default:
-			return "bg-gray-100 text-gray-800 hover:bg-gray-100"
-	}
-}
-
-const formatCurrency = (amount: number) => {
-	return new Intl.NumberFormat("en-US", {
-		style: "currency",
-		currency: "PHP",
-	}).format(amount)
-}
-
 function JoDetailComponent() {
-	const { joId } = useParams({ from: "/jo/$joId" })
+	const { joId } = Route.useParams()
 
 	const { data: jo } = useSuspenseQuery(
 		convexQuery(api.jo.getOneJoWithItems, { id: joId as any }),
@@ -52,11 +34,11 @@ function JoDetailComponent() {
 
 	if (jo === null) {
 		return (
-			<div className="container mx-auto py-8 px-4 max-w-4xl">
+			<div className="container mx-auto max-w-4xl px-4 py-8">
 				<Card>
 					<CardContent className="p-8 text-center">
-						<Package className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-						<h2 className="text-xl font-semibold mb-2">Job Order Not Found</h2>
+						<Package className="text-muted-foreground mx-auto mb-4 h-12 w-12" />
+						<h2 className="mb-2 text-xl font-semibold">Job Order Not Found</h2>
 						<p className="text-muted-foreground">
 							The requested job order could not be found.
 						</p>
@@ -73,13 +55,13 @@ function JoDetailComponent() {
 	const totalItems = jo.items.reduce((sum, item) => sum + item.quantity, 0)
 
 	return (
-		<div className="container mx-auto py-8 px-4 max-w-4xl">
+		<Container>
 			<div className="space-y-6">
 				<Card>
 					<CardHeader>
 						<div className="flex items-center justify-between">
 							<div>
-								<CardTitle className="text-2xl font-bold flex items-center gap-2">
+								<CardTitle className="flex items-center gap-2 text-2xl font-bold">
 									<Package className="h-6 w-6" />
 									{jo.jo.name}
 								</CardTitle>
@@ -89,37 +71,37 @@ function JoDetailComponent() {
 							</div>
 							<Badge
 								variant="secondary"
-								className={`${getStatusColor(jo.jo.status)} text-sm px-3 py-1`}
+								className={`${getStatusColor(jo.jo.status)} px-3 py-1 text-sm`}
 							>
 								{jo.jo.status.replace("-", " ")}
 							</Badge>
 						</div>
 					</CardHeader>
 					<CardContent>
-						<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+						<div className="grid grid-cols-1 gap-4 md:grid-cols-3">
 							<div className="flex items-center gap-3">
-								<Calendar className="h-5 w-5 text-muted-foreground" />
+								<Calendar className="text-muted-foreground h-5 w-5" />
 								<div>
 									<p className="text-sm font-medium">Pickup Date</p>
-									<p className="text-sm text-muted-foreground">
+									<p className="text-muted-foreground text-sm">
 										{new Date(Number(jo.jo.pickupDate)).toLocaleDateString()}
 									</p>
 								</div>
 							</div>
 							<div className="flex items-center gap-3">
-								<Clock className="h-5 w-5 text-muted-foreground" />
+								<Clock className="text-muted-foreground h-5 w-5" />
 								<div>
 									<p className="text-sm font-medium">Created</p>
-									<p className="text-sm text-muted-foreground">
+									<p className="text-muted-foreground text-sm">
 										{new Date(jo.jo._creationTime).toLocaleDateString()}
 									</p>
 								</div>
 							</div>
 							<div className="flex items-center gap-3">
-								<Package className="h-5 w-5 text-muted-foreground" />
+								<Package className="text-muted-foreground h-5 w-5" />
 								<div>
 									<p className="text-sm font-medium">Total Items</p>
-									<p className="text-sm text-muted-foreground">
+									<p className="text-muted-foreground text-sm">
 										{totalItems} items
 									</p>
 								</div>
@@ -165,7 +147,7 @@ function JoDetailComponent() {
 										<TableCell colSpan={3} className="font-semibold">
 											Total Order Value
 										</TableCell>
-										<TableCell className="text-right font-bold text-lg">
+										<TableCell className="text-right text-lg font-bold">
 											{formatCurrency(totalValue)}
 										</TableCell>
 									</TableRow>
@@ -175,6 +157,26 @@ function JoDetailComponent() {
 					</CardContent>
 				</Card>
 			</div>
-		</div>
+		</Container>
 	)
+}
+
+function getStatusColor(status: string) {
+	switch (status) {
+		case "completed":
+			return "bg-green-100 text-green-800 hover:bg-green-100"
+		case "in-progress":
+			return "bg-blue-100 text-blue-800 hover:bg-blue-100"
+		case "pending":
+			return "bg-yellow-100 text-yellow-800 hover:bg-yellow-100"
+		default:
+			return "bg-gray-100 text-gray-800 hover:bg-gray-100"
+	}
+}
+
+function formatCurrency(amount: number) {
+	return new Intl.NumberFormat("en-US", {
+		style: "currency",
+		currency: "PHP",
+	}).format(amount)
 }
