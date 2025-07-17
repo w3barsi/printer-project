@@ -1,13 +1,12 @@
 # AGENTS.md
 
 ## Commands
-- `pnpm dev` - Start dev server
+- `pnpm dev` - Start dev server (web + db)
 - `pnpm build` - Build for production
-- `pnpm test` - Run all tests
-- `pnpm test --run [filename]` - Run single test file
 - `pnpm lint` - Run ESLint
 - `pnpm format` - Run Prettier
 - `pnpm check` - Format + lint fix
+- `pnpm clean` - Clean install
 
 ## Style
 - **Imports**: `@/` for src/, `@convex` for convex/

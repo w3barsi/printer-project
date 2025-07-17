@@ -1,5 +1,5 @@
-import type { JoWithItems } from "@/types/printer"
 import ReceiptPrinterEncoder from "@point-of-sale/receipt-printer-encoder"
+import type { JoWithItems } from "@/types/printer"
 
 const encoder = new ReceiptPrinterEncoder()
 

@@ -1,5 +1,5 @@
 {
-	"name": "manginasal",
+	"name": "printer-project",
 	"private": true,
 	"type": "module",
 	"scripts": {
@@ -12,15 +12,16 @@
 		"build": "vite build",
 		"build:start": "vite build && export $(grep -v '^#' .env | xargs) && pnpm start",
 		"serve": "vite preview",
-		"test": "vitest run",
 		"lint": "eslint",
 		"format": "prettier",
+		"format:restart": "prettierd restart",
 		"check": "prettier --write . && eslint --fix",
-		"clean": "rm -rf .tanstack node_modules && pnpm i"
+		"clean": "rm -rf .tanstack node_modules .nitro .output && pnpm i"
 	},
 	"dependencies": {
 		"@convex-dev/better-auth": "^0.7.5",
 		"@convex-dev/react-query": "0.0.0-alpha.8",
+		"@formkit/auto-animate": "^0.8.2",
 		"@hookform/resolvers": "^5.1.1",
 		"@point-of-sale/receipt-printer-encoder": "^3.0.3",
 		"@radix-ui/react-accordion": "^1.2.11",
@@ -96,6 +97,7 @@
 		"@vitejs/plugin-react": "^4.3.4",
 		"jsdom": "^26.0.0",
 		"prettier": "^3.5.3",
+		"prettier-plugin-tailwindcss": "^0.6.14",
 		"tw-animate-css": "^1.3.5",
 		"typescript": "^5.7.2",
 		"vite": "^6.1.0",
