@@ -17,7 +17,7 @@ export type JoWithItems = {
 }
 
 export const createJo = mutation({
-	args: { joNumber: v.number(), name: v.string(), pickupDate: v.string() },
+	args: { joNumber: v.number(), name: v.string(), pickupDate: v.number() },
 	handler: async (ctx, args) => {
 		const { joNumber, name, pickupDate } = args
 		const joId = await ctx.db.insert("jo", {
@@ -30,10 +30,41 @@ export const createJo = mutation({
 	},
 })
 
+export const convertDateStringToNumber = mutation({
+	args: {},
+	handler: async (ctx) => {
+		const jos = await ctx.db.query("jo").collect()
+		jos.forEach(async (jo) => {
+			await ctx.db.patch(jo._id, { pickupDate: Number(jo.pickupDate) })
+		})
+	},
+})
+
+export const createRandomJo = mutation({
+	args: {},
+	handler: async (ctx) => {
+		const name = generateFakeName()
+		const lastJoNumber = await ctx.db
+			.query("jo")
+			.withIndex("by_joNumber")
+			.order("desc")
+			.first()
+		const joNumber = lastJoNumber ? lastJoNumber.joNumber + 1 : 1
+
+		const joId = await ctx.db.insert("jo", {
+			joNumber,
+			name,
+			pickupDate: new Date().getTime(),
+			status: "pending",
+		})
+		return joId
+	},
+})
+
 export const getRecent = query({
 	args: {},
 	handler: async (ctx) => {
-		const recent = await ctx.db.query("jo").take(5)
+		const recent = await ctx.db.query("jo").order("desc").take(5)
 		return recent.map((jo) => ({ id: jo._id, name: jo.name }))
 	},
 })
@@ -76,3 +107,32 @@ export const getOneJoWithItems = query({
 		return { jo, items }
 	},
 })
+
+function generateFakeName() {
+	const firstNames = [
+		"Alice",
+		"Bob",
+		"Charlie",
+		"David",
+		"Eve",
+		"Frank",
+		"Grace",
+		"Heidi",
+	]
+	const lastNames = [
+		"Smith",
+		"Johnson",
+		"Williams",
+		"Brown",
+		"Jones",
+		"Garcia",
+		"Miller",
+		"Davis",
+	]
+
+	const randomFirstName =
+		firstNames[Math.floor(Math.random() * firstNames.length)]
+	const randomLastName = lastNames[Math.floor(Math.random() * lastNames.length)]
+
+	return `${randomFirstName} ${randomLastName}`
+}

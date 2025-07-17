@@ -11,13 +11,13 @@ export default defineSchema({
 	jo: defineTable({
 		name: v.string(),
 		joNumber: v.number(),
-		pickupDate: v.string(),
+		pickupDate: v.number(),
 		status: v.union(
 			v.literal("pending"),
 			v.literal("in-progress"),
 			v.literal("completed"),
 		),
-	}),
+	}).index("by_joNumber", ["joNumber"]),
 
 	items: defineTable({
 		joId: v.id("jo"),
