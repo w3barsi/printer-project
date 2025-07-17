@@ -1,17 +1,14 @@
 import {
 	HeadContent,
 	Outlet,
+	ScriptOnce,
 	Scripts,
 	createRootRouteWithContext,
 	useRouteContext,
 } from "@tanstack/react-router"
-import { TanStackRouterDevtools } from "@tanstack/react-router-devtools"
 import { createServerFn } from "@tanstack/react-start"
 import { ConvexBetterAuthProvider } from "@convex-dev/better-auth/react"
 import { getCookie, getWebRequest } from "@tanstack/react-start/server"
-import { convexQuery } from "@convex-dev/react-query"
-import { api } from "@convex/_generated/api.js"
-import TanStackQueryLayout from "../integrations/tanstack-query/layout.tsx"
 import appCss from "../styles.css?url"
 import type { ConvexQueryClient } from "@convex-dev/react-query"
 import type { QueryClient } from "@tanstack/react-query"
@@ -26,6 +23,7 @@ const fetchAuth = createServerFn({ method: "GET" }).handler(async () => {
 	const token = getCookie(sessionCookieName)
 	const request = getWebRequest()
 	const { session } = await fetchSession(request)
+	console.log("[BEFORE-LOAD (fetchAuth)] ", "fetching auth details")
 	return {
 		user: session?.user ?? undefined,
 		token,
@@ -79,6 +77,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 		// const user = await ctx.context.queryClient.fetchQuery(
 		// 	convexQuery(api.auth.getCurrentUser, {}),
 		// )
+		console.log("[BEFORE-LOAD] ", user ? "User is populated" : "No user")
 
 		return { user: user, token: token }
 	},
@@ -87,6 +86,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 
 function RootComponent() {
 	const context = useRouteContext({ from: Route.id })
+	const theme = Route.useLoaderData()
 	return (
 		<ConvexBetterAuthProvider
 			client={context.convexClient}
@@ -103,11 +103,17 @@ function RootComponent() {
 
 function RootDocument({ children }: { children: React.ReactNode }) {
 	return (
-		<html lang="en">
+		<html suppressHydrationWarning lang="en">
 			<head>
 				<HeadContent />
 			</head>
 			<body>
+				<ScriptOnce>
+					{`document.documentElement.classList.toggle(
+            'dark',
+            localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)
+            )`}
+				</ScriptOnce>
 				{children}
 				<Scripts />
 			</body>
