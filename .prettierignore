@@ -1,3 +1,17 @@
-package-lock.json
+# lockfiles
 pnpm-lock.yaml
+package-lock.json
 yarn.lock
+bun.lock
+
+# misc
+routeTree.gen.ts
+.tanstack/
+./convex/_generated/
+
+# build outputs
+.vercel
+.output
+.wrangler
+.netlify
+dist
