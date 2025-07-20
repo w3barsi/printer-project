@@ -55,6 +55,7 @@ export function UsbPrinterHandlerComponent({
         <Tooltip delayDuration={300}>
           <TooltipTrigger asChild>
             <Button
+              className="w-full"
               variant="destructive-outline"
               onClick={async () => {
                 setDevice(null)

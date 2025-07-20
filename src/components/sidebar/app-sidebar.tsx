@@ -13,7 +13,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
 import { Link } from "@tanstack/react-router"
-import { UsbPrinterHandlerComponent } from "../printer/usb-printer-handler-component"
+import { PrinterButton } from "../printer/printer-button"
 import { RecentJobOrders } from "../recent-job-orders"
 
 const data = {
@@ -25,7 +25,6 @@ const data = {
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const [device, setDevice] = React.useState<USBDevice | null>(null)
   return (
     <Sidebar {...props}>
       <SidebarHeader>
@@ -50,7 +49,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <RecentJobOrders />
       </SidebarContent>
       <SidebarFooter>
-        <UsbPrinterHandlerComponent device={device} setDevice={setDevice} />
+        <PrinterButton />
         <NavUser user={data.user} />
       </SidebarFooter>
     </Sidebar>

@@ -5,7 +5,7 @@
 	"scripts": {
 		"dev": "concurrently -r pnpm:dev:web pnpm:dev:db",
 		"dev:web": "vite dev --port 3000",
-		"dev:db": "npx convex dev --live-component-sources --typecheck-components",
+		"dev:db": "pnpx convex dev --live-component-sources --typecheck-components",
 		"start": "node .output/server/index.mjs",
 		"start:xargs": "export $(grep -v '^#' .env | xargs) && pnpm start",
 		"start:node": "node -r dotenv/config .output/server/index.mjs",
@@ -17,8 +17,8 @@
 		"format:restart": "prettierd restart",
 		"check": "prettier --write . && eslint --fix",
 		"clean": "rm -rf .tanstack node_modules .nitro .output && pnpm i",
-		"deps": "pnpm dlx taze@latest -Ilw",
-		"deps:major": "pnpm dlx taze@latest major -Ilw"
+		"deps": "pnpx taze@latest -Ilw",
+		"deps:major": "pnpx taze@latest major -Ilw"
 	},
 	"dependencies": {
 		"@convex-dev/better-auth": "^0.7.8",

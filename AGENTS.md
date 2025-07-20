@@ -17,6 +17,7 @@
 - **Styling**: Tailwind + shadcn/ui
 - **Convex**: Use `v` validator from convex/values
 - **Testing**: Vitest + React Testing Library
+- **Components**: Use `function ComponentName()` instead of `React.FC<>`
 
 ## Restrictions
 - Do not run `pnpm dev` (tanstack-router dev server)
