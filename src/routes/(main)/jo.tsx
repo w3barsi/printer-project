@@ -15,17 +15,8 @@ export const Route = createFileRoute("/(main)/jo")({
   component: RouteComponent,
   loader: ({ context }) => {
     void context.queryClient.prefetchQuery(convexQuery(api.jo.getWithItems, {}))
-
-    return { crumb: [{ value: "Job Orders", href: "/jo/", type: "static" }] }
   },
 })
-
-const formatCurrency = (amount: number) => {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "PHP",
-  }).format(amount)
-}
 
 function RouteComponent() {
   const {
@@ -33,28 +24,12 @@ function RouteComponent() {
   } = useRouterState()
   const hasJoId = pathname.split("/").length === 3
 
-  // if no jo id
-  //  - scroll area
-  //    - scroll area w-full
-  //    - xl: scroll area w-1/3
-  //  - content
-  //    - hidden
-  //    - xl: w-2/3
-  // if joId
-  //  - scroll area
-  //    - hidden
-  //    - xl: w-1/3
-  //  - content
-  //    - w-full
-  //    - xl: w-2/3
-  //
-
   return (
     <div className="flex h-[calc(100vh-4rem)]">
       <ScrollArea
         id="jo-list"
         className={cn(
-          "h-full w-full bg-neutral-200/60 xl:w-1/3 dark:bg-neutral-800",
+          "h-full w-full bg-neutral-200/60 pb-8 xl:w-1/3 dark:bg-neutral-800",
           hasJoId && "hidden xl:flex",
         )}
       >
@@ -92,6 +67,10 @@ function JobOrderList() {
         {data.map((jo, idx) => (
           <JoItem key={jo.jo._id} idx={idx} jo={jo} />
         ))}
+
+        {data.map((jo, idx) => (
+          <JoItem key={jo.jo._id} idx={idx} jo={jo} />
+        ))}
       </div>
     </div>
   )
@@ -104,13 +83,12 @@ function JoItem({ idx, jo }: { idx: number; jo: GetOneWithItemsReturnTypeNotNull
     <>
       {idx !== 0 && <Separator />}
       <Link
-        preload={false}
         key={jo.jo._id}
         to="/jo/$joId"
         params={{ joId: jo.jo._id }}
         className="text flex w-full items-center justify-between rounded p-4 hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black"
         activeProps={{
-          className: "bg-white",
+          className: "bg-black text-white dark:bg-white dark:text-black",
         }}
       >
         <div className="text-left">
@@ -125,4 +103,11 @@ function JoItem({ idx, jo }: { idx: number; jo: GetOneWithItemsReturnTypeNotNull
       </Link>
     </>
   )
+}
+
+const formatCurrency = (amount: number) => {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "PHP",
+  }).format(amount)
 }
