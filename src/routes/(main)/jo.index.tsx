@@ -2,6 +2,9 @@ import { createFileRoute } from "@tanstack/react-router"
 
 export const Route = createFileRoute("/(main)/jo/")({
   component: RouteComponent,
+  loader: () => {
+    return { crumb: [{ value: "Job Orders", href: "/jo/", type: "static" }] }
+  },
 })
 
 function RouteComponent() {
