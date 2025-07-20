@@ -17,6 +17,7 @@ import { Route as mainRouteRouteImport } from "./routes/(main)/route";
 import { Route as authRouteRouteImport } from "./routes/(auth)/route";
 import { Route as IndexRouteImport } from "./routes/index";
 import { Route as mainTestRouteImport } from "./routes/(main)/test";
+import { Route as mainJoRouteImport } from "./routes/(main)/jo";
 import { Route as authSignupRouteImport } from "./routes/(auth)/signup";
 import { Route as authLoginRouteImport } from "./routes/(auth)/login";
 import { Route as mainJoIndexRouteImport } from "./routes/(main)/jo.index";
@@ -53,6 +54,11 @@ const mainTestRoute = mainTestRouteImport.update({
   path: "/test",
   getParentRoute: () => mainRouteRoute,
 } as any);
+const mainJoRoute = mainJoRouteImport.update({
+  id: "/jo",
+  path: "/jo",
+  getParentRoute: () => mainRouteRoute,
+} as any);
 const authSignupRoute = authSignupRouteImport.update({
   id: "/signup",
   path: "/signup",
@@ -64,14 +70,14 @@ const authLoginRoute = authLoginRouteImport.update({
   getParentRoute: () => authRouteRoute,
 } as any);
 const mainJoIndexRoute = mainJoIndexRouteImport.update({
-  id: "/jo/",
-  path: "/jo/",
-  getParentRoute: () => mainRouteRoute,
+  id: "/",
+  path: "/",
+  getParentRoute: () => mainJoRoute,
 } as any);
 const mainJoJoIdRoute = mainJoJoIdRouteImport.update({
-  id: "/jo/$joId",
-  path: "/jo/$joId",
-  getParentRoute: () => mainRouteRoute,
+  id: "/$joId",
+  path: "/$joId",
+  getParentRoute: () => mainJoRoute,
 } as any);
 const ApiAuthSplatServerRoute = ApiAuthSplatServerRouteImport.update({
   id: "/api/auth/$",
@@ -85,9 +91,10 @@ export interface FileRoutesByFullPath {
   "/testfruits": typeof TestfruitsRoute;
   "/login": typeof authLoginRoute;
   "/signup": typeof authSignupRoute;
+  "/jo": typeof mainJoRouteWithChildren;
   "/test": typeof mainTestRoute;
   "/jo/$joId": typeof mainJoJoIdRoute;
-  "/jo": typeof mainJoIndexRoute;
+  "/jo/": typeof mainJoIndexRoute;
 }
 export interface FileRoutesByTo {
   "/": typeof mainRouteRouteWithChildren;
@@ -108,6 +115,7 @@ export interface FileRoutesById {
   "/testfruits": typeof TestfruitsRoute;
   "/(auth)/login": typeof authLoginRoute;
   "/(auth)/signup": typeof authSignupRoute;
+  "/(main)/jo": typeof mainJoRouteWithChildren;
   "/(main)/test": typeof mainTestRoute;
   "/(main)/jo/$joId": typeof mainJoJoIdRoute;
   "/(main)/jo/": typeof mainJoIndexRoute;
@@ -120,9 +128,10 @@ export interface FileRouteTypes {
     | "/testfruits"
     | "/login"
     | "/signup"
+    | "/jo"
     | "/test"
     | "/jo/$joId"
-    | "/jo";
+    | "/jo/";
   fileRoutesByTo: FileRoutesByTo;
   to:
     | "/"
@@ -142,6 +151,7 @@ export interface FileRouteTypes {
     | "/testfruits"
     | "/(auth)/login"
     | "/(auth)/signup"
+    | "/(main)/jo"
     | "/(main)/test"
     | "/(main)/jo/$joId"
     | "/(main)/jo/";
@@ -220,6 +230,13 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof mainTestRouteImport;
       parentRoute: typeof mainRouteRoute;
     };
+    "/(main)/jo": {
+      id: "/(main)/jo";
+      path: "/jo";
+      fullPath: "/jo";
+      preLoaderRoute: typeof mainJoRouteImport;
+      parentRoute: typeof mainRouteRoute;
+    };
     "/(auth)/signup": {
       id: "/(auth)/signup";
       path: "/signup";
@@ -236,17 +253,17 @@ declare module "@tanstack/react-router" {
     };
     "/(main)/jo/": {
       id: "/(main)/jo/";
-      path: "/jo";
-      fullPath: "/jo";
+      path: "/";
+      fullPath: "/jo/";
       preLoaderRoute: typeof mainJoIndexRouteImport;
-      parentRoute: typeof mainRouteRoute;
+      parentRoute: typeof mainJoRoute;
     };
     "/(main)/jo/$joId": {
       id: "/(main)/jo/$joId";
-      path: "/jo/$joId";
+      path: "/$joId";
       fullPath: "/jo/$joId";
       preLoaderRoute: typeof mainJoJoIdRouteImport;
-      parentRoute: typeof mainRouteRoute;
+      parentRoute: typeof mainJoRoute;
     };
   }
 }
@@ -276,16 +293,27 @@ const authRouteRouteWithChildren = authRouteRoute._addFileChildren(
   authRouteRouteChildren,
 );
 
-interface mainRouteRouteChildren {
-  mainTestRoute: typeof mainTestRoute;
+interface mainJoRouteChildren {
   mainJoJoIdRoute: typeof mainJoJoIdRoute;
   mainJoIndexRoute: typeof mainJoIndexRoute;
 }
 
-const mainRouteRouteChildren: mainRouteRouteChildren = {
-  mainTestRoute: mainTestRoute,
+const mainJoRouteChildren: mainJoRouteChildren = {
   mainJoJoIdRoute: mainJoJoIdRoute,
   mainJoIndexRoute: mainJoIndexRoute,
+};
+
+const mainJoRouteWithChildren =
+  mainJoRoute._addFileChildren(mainJoRouteChildren);
+
+interface mainRouteRouteChildren {
+  mainJoRoute: typeof mainJoRouteWithChildren;
+  mainTestRoute: typeof mainTestRoute;
+}
+
+const mainRouteRouteChildren: mainRouteRouteChildren = {
+  mainJoRoute: mainJoRouteWithChildren,
+  mainTestRoute: mainTestRoute,
 };
 
 const mainRouteRouteWithChildren = mainRouteRoute._addFileChildren(

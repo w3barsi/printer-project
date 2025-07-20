@@ -1,5 +1,4 @@
-import { Container } from "@/components/layouts/container"
-import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   Table,
@@ -13,8 +12,8 @@ import { convexQuery } from "@convex-dev/react-query"
 import { api } from "@convex/_generated/api"
 import type { Id } from "@convex/_generated/dataModel"
 import { useSuspenseQuery } from "@tanstack/react-query"
-import { createFileRoute } from "@tanstack/react-router"
-import { Calendar, Clock, Package } from "lucide-react"
+import { createFileRoute, Link } from "@tanstack/react-router"
+import { ArrowLeftIcon, Calendar, Clock, Package } from "lucide-react"
 
 export const Route = createFileRoute("/(main)/jo/$joId")({
   component: JoDetailComponent,
@@ -58,103 +57,99 @@ function JoDetailComponent() {
   const totalItems = jo.items.reduce((sum, item) => sum + item.quantity, 0)
 
   return (
-    <Container>
-      <div className="space-y-6">
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
+    <div className="flex h-full w-full flex-col gap-4 p-4">
+      <Button variant="ghost" asChild>
+        <Link to="/jo">
+          <ArrowLeftIcon /> Back
+        </Link>
+      </Button>
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2 text-2xl font-bold">
+                <Package className="h-6 w-6" />
+                {jo.jo.name}
+              </CardTitle>
+              <p className="text-muted-foreground mt-1">Job Order #{jo.jo.joNumber}</p>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+            <div className="flex items-center gap-3">
+              <Calendar className="text-muted-foreground h-5 w-5" />
               <div>
-                <CardTitle className="flex items-center gap-2 text-2xl font-bold">
-                  <Package className="h-6 w-6" />
-                  {jo.jo.name}
-                </CardTitle>
-                <p className="text-muted-foreground mt-1">Job Order #{jo.jo.joNumber}</p>
-              </div>
-              <Badge
-                variant="secondary"
-                className={`${getStatusColor(jo.jo.status)} px-3 py-1 text-sm`}
-              >
-                {jo.jo.status.replace("-", " ")}
-              </Badge>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-              <div className="flex items-center gap-3">
-                <Calendar className="text-muted-foreground h-5 w-5" />
-                <div>
-                  <p className="text-sm font-medium">Pickup Date</p>
-                  <p className="text-muted-foreground text-sm">
-                    {new Date(Number(jo.jo.pickupDate)).toLocaleDateString()}
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <Clock className="text-muted-foreground h-5 w-5" />
-                <div>
-                  <p className="text-sm font-medium">Created</p>
-                  <p className="text-muted-foreground text-sm">
-                    {new Date(jo.jo._creationTime).toLocaleDateString()}
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <Package className="text-muted-foreground h-5 w-5" />
-                <div>
-                  <p className="text-sm font-medium">Total Items</p>
-                  <p className="text-muted-foreground text-sm">{totalItems} items</p>
-                </div>
+                <p className="text-sm font-medium">Pickup Date</p>
+                <p className="text-muted-foreground text-sm">
+                  {new Date(Number(jo.jo.pickupDate)).toLocaleDateString()}
+                </p>
               </div>
             </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Package className="h-5 w-5" />
-              Order Items ({jo.items.length})
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="rounded-md border">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Item Name</TableHead>
-                    <TableHead className="text-center">Quantity</TableHead>
-                    <TableHead className="text-right">Unit Price</TableHead>
-                    <TableHead className="text-right">Total</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {jo.items.map((item) => (
-                    <TableRow key={item._id}>
-                      <TableCell className="font-medium">{item.name}</TableCell>
-                      <TableCell className="text-center">{item.quantity}</TableCell>
-                      <TableCell className="text-right">
-                        {formatCurrency(item.price)}
-                      </TableCell>
-                      <TableCell className="text-right font-medium">
-                        {formatCurrency(item.quantity * item.price)}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                  <TableRow className="border-t-2">
-                    <TableCell colSpan={3} className="font-semibold">
-                      Total Order Value
+            <div className="flex items-center gap-3">
+              <Clock className="text-muted-foreground h-5 w-5" />
+              <div>
+                <p className="text-sm font-medium">Created</p>
+                <p className="text-muted-foreground text-sm">
+                  {new Date(jo.jo._creationTime).toLocaleDateString()}
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <Package className="text-muted-foreground h-5 w-5" />
+              <div>
+                <p className="text-sm font-medium">Total Items</p>
+                <p className="text-muted-foreground text-sm">{totalItems} items</p>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Package className="h-5 w-5" />
+            Order Items ({jo.items.length})
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="rounded-md border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Item Name</TableHead>
+                  <TableHead className="text-center">Quantity</TableHead>
+                  <TableHead className="text-right">Unit Price</TableHead>
+                  <TableHead className="text-right">Total</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {jo.items.map((item) => (
+                  <TableRow key={item._id}>
+                    <TableCell className="font-medium">{item.name}</TableCell>
+                    <TableCell className="text-center">{item.quantity}</TableCell>
+                    <TableCell className="text-right">
+                      {formatCurrency(item.price)}
                     </TableCell>
-                    <TableCell className="text-right text-lg font-bold">
-                      {formatCurrency(totalValue)}
+                    <TableCell className="text-right font-medium">
+                      {formatCurrency(item.quantity * item.price)}
                     </TableCell>
                   </TableRow>
-                </TableBody>
-              </Table>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    </Container>
+                ))}
+                <TableRow className="border-t-2">
+                  <TableCell colSpan={3} className="font-semibold">
+                    Total Order Value
+                  </TableCell>
+                  <TableCell className="text-right text-lg font-bold">
+                    {formatCurrency(totalValue)}
+                  </TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   )
 }
 
