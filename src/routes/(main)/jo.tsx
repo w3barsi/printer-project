@@ -67,10 +67,6 @@ function JobOrderList() {
         {data.map((jo, idx) => (
           <JoItem key={jo.jo._id} idx={idx} jo={jo} />
         ))}
-
-        {data.map((jo, idx) => (
-          <JoItem key={jo.jo._id} idx={idx} jo={jo} />
-        ))}
       </div>
     </div>
   )
