@@ -46,7 +46,6 @@ export const DeviceProvider = ({ children }: DeviceProviderProps) => {
     const checkPermittedDevices = async () => {
       if ("usb" in navigator) {
         const devices = await navigator.usb.getDevices()
-        console.log(devices.length)
 
         if (devices.length > 0) {
           setDevice(devices[0])

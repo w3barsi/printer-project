@@ -20,8 +20,14 @@ export const Route = createFileRoute("/(main)/jo/$joId")({
   component: JoDetailComponent,
   loader: async ({ context: { queryClient: qc }, params }) => {
     const id = params.joId as Id<"jo">
-    console.log(id)
-    await qc.ensureQueryData(convexQuery(api.jo.getOneJoWithItems, { id }))
+    await qc.ensureQueryData(convexQuery(api.jo.getOneWithItems, { id }))
+
+    return {
+      crumb: [
+        { value: "Job Order", href: "/jo/", type: "static" },
+        { value: params.joId, href: `/jo/${params.joId}`, type: "jo" },
+      ],
+    }
   },
 })
 
@@ -29,7 +35,7 @@ function JoDetailComponent() {
   const { joId } = Route.useParams()
 
   const { data: jo } = useSuspenseQuery(
-    convexQuery(api.jo.getOneJoWithItems, { id: joId as Id<"jo"> }),
+    convexQuery(api.jo.getOneWithItems, { id: joId as Id<"jo"> }),
   )
 
   if (jo === null) {

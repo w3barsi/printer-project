@@ -34,7 +34,6 @@ export function UsbPrinterHandlerComponent({
         const newDevice = await navigator.usb.requestDevice({
           filters: [],
         })
-        console.log("Granted access to USB device:", newDevice)
         setDevice(newDevice)
         window.location.reload()
       } catch (error) {

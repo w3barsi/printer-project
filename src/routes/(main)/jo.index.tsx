@@ -29,7 +29,9 @@ import { Suspense } from "react"
 export const Route = createFileRoute("/(main)/jo/")({
   component: RouteComponent,
   loader: ({ context }) => {
-    void context.queryClient.prefetchQuery(convexQuery(api.jo.getJosWithItems, {}))
+    void context.queryClient.prefetchQuery(convexQuery(api.jo.getWithItems, {}))
+
+    return { crumb: [{ value: "Job Orders", href: "/jo/", type: "static" }] }
   },
 })
 
@@ -59,11 +61,8 @@ function RouteComponent() {
   return (
     <Container>
       <div className="flex items-center justify-between">
-        <div className="mb-8">
-          <h1 className="mb-2 text-3xl font-bold tracking-tight">Job Orderz</h1>
-          <p className="text-muted-foreground">
-            Manage and track all job orders and their associated items
-          </p>
+        <div className="">
+          <h1 className="mb-2 text-3xl font-bold tracking-tight">Job Orders</h1>
         </div>
       </div>
       <Suspense fallback={<div>Loading...</div>}>
@@ -74,7 +73,7 @@ function RouteComponent() {
 }
 
 function JobOrderList({ device }: { device: USBDevice | null }) {
-  const { data } = useSuspenseQuery(convexQuery(api.jo.getJosWithItems, {}))
+  const { data } = useSuspenseQuery(convexQuery(api.jo.getWithItems, {}))
   return (
     <Card className="border-none shadow-none">
       <CardHeader>
