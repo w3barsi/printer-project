@@ -5,7 +5,7 @@ import { useQuery } from "@tanstack/react-query"
 import { convexQuery } from "@convex-dev/react-query"
 import { api } from "@convex/_generated/api"
 import type { Id } from "@convex/_generated/dataModel"
-import { ItemRenderer } from "@/routes/-components/item-render"
+import { ItemRenderer } from "@/components/item-render"
 import { Separator } from "@/components/ui/separator"
 import { Button } from "@/components/ui/button"
 
@@ -30,22 +30,22 @@ export default function CanvasPrinterComponent({
 	)
 
 	return (
-		<div className="w-full flex items-center justify-center">
-			<div className="container max-w-md flex gap-2 p-2 flex-col items-center">
+		<div className="flex w-full items-center justify-center">
+			<div className="container flex max-w-md flex-col items-center gap-2 p-2">
 				<Link to="/jo">
 					<Button variant="link">JobOrder</Button>
 				</Link>
 				<Button onClick={reactToPrintFn} className="w-full">
 					Print
 				</Button>
-				<div className="border w-fit p-2 inline-block bg-blue-200 rounded">
+				<div className="inline-block w-fit rounded border bg-blue-200 p-2">
 					<div
 						ref={contentRef}
-						className="flex flex-col w-48 min-h-24 bg-white justify-between items-center"
+						className="flex min-h-24 w-48 flex-col items-center justify-between bg-white"
 					>
-						<img src="/logo.jpg" className="p-2 w-2/3" />
+						<img src="/logo.jpg" className="w-2/3 p-2" />
 						<Separator className="bg-black" />
-						<div className="flex justify-between p-2 items-center w-full">
+						<div className="flex w-full items-center justify-between p-2">
 							<span>{jo?.jo.name}</span>
 							<span className="text-center">
 								{jo?.jo.joNumber ?? Math.floor(Math.random() * 100)}
@@ -54,7 +54,7 @@ export default function CanvasPrinterComponent({
 						<Separator className="bg-black" />
 						<ItemRenderer item={jo?.items} />
 						<Separator className="bg-black" />
-						<div className="text-center text-sm pb-12">
+						<div className="pb-12 text-center text-sm">
 							This serves as your claim slip. Please don't lose this!
 						</div>
 						<Separator className="bg-black" />

@@ -6,12 +6,12 @@ export function NotFound() {
 			<p>The page you are looking for does not exist.</p>
 			<p className="flex flex-wrap items-center gap-2">
 				<button
-					className="px-4 py-2 bg-white text-black rounded-md hover:bg-gray-200 transition-colors"
+					className="rounded-md bg-white px-4 py-2 text-black transition-colors hover:bg-gray-200"
 					onClick={() => window.history.back()}
 				>
 					Go back
 				</button>
-				<button className="px-4 py-2 bg-white text-black rounded-md hover:bg-gray-200 transition-colors">
+				<button className="rounded-md bg-white px-4 py-2 text-black transition-colors hover:bg-gray-200">
 					<Link to="/">Home</Link>
 				</button>
 			</p>

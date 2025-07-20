@@ -2,10 +2,13 @@
 
 /** @type {import('prettier').Config} */
 const config = {
-  tabWidth: 2, // Default to 2 spaces for tab width
-  useTabs: true, // Indent with tabs
-  singleQuote: false, // Use double quotes instead of single quotes
-  semi: false, // Do not print semicolons at the end of statements
-}
+  tabWidth: 2,
+  semi: false,
+  printWidth: 90,
+  singleQuote: false,
+  endOfLine: "lf",
+  trailingComma: "all",
+  plugins: ["prettier-plugin-organize-imports", "prettier-plugin-tailwindcss"],
+};
 
-export default config
+export default config;
