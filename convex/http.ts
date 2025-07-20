@@ -4,6 +4,8 @@ import { betterAuthComponent } from "./auth"
 
 const http = httpRouter()
 
-betterAuthComponent.registerRoutes(http, createAuth)
+betterAuthComponent.registerRoutes(http, createAuth, {
+  cors: true,
+})
 
 export default http
