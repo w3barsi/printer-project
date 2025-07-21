@@ -1,4 +1,5 @@
 import { MainBreadcrumbs } from "@/components/breadcrumbs"
+import { Container } from "@/components/layouts/container"
 import { AppSidebar } from "@/components/sidebar/app-sidebar"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { Separator } from "@/components/ui/separator"
@@ -28,19 +29,21 @@ function RouteComponent() {
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center justify-between px-2 md:px-4">
-          <div className="flex items-center gap-2">
-            <SidebarTrigger className="-ml-1 size-9" />
-            <Separator
-              orientation="vertical"
-              className="mr-2 data-[orientation=vertical]:h-4"
-            />
-            <MainBreadcrumbs />
-          </div>
-          <div>
-            <ThemeToggle />
-          </div>
-        </header>
+        <Container className="h-16">
+          <header className="mx-auto flex shrink-0 items-center justify-between">
+            <div className="flex items-center gap-2">
+              <SidebarTrigger className="-ml-1 size-9" />
+              <Separator
+                orientation="vertical"
+                className="mr-2 data-[orientation=vertical]:h-4"
+              />
+              <MainBreadcrumbs />
+            </div>
+            <div>
+              <ThemeToggle />
+            </div>
+          </header>
+        </Container>
 
         <Separator />
         <Outlet />

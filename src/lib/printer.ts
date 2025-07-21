@@ -73,7 +73,11 @@ export async function printReceipt({
     }
 
     const logo = new Image()
-    logo.src = "/logo.jpg"
+    await new Promise((resolve, reject) => {
+      logo.onload = resolve
+      logo.onerror = reject
+      logo.src = "/logo.jpg"
+    })
 
     const totalPrice = jo.items.reduce((total, item) => {
       return total + item.quantity * item.price

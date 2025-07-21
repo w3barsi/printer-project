@@ -1,4 +1,3 @@
-import { Container } from "@/components/layouts/container"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
@@ -58,7 +57,7 @@ function JoDetailComponent() {
   const totalItems = jo.items.reduce((sum, item) => sum + item.quantity, 0)
 
   return (
-    <Container className="flex flex-col gap-4">
+    <div className="flex h-full w-full flex-col gap-4 p-4">
       <div>
         <Button variant="ghost" asChild>
           <Link to="/jo">
@@ -152,7 +151,7 @@ function JoDetailComponent() {
           </div>
         </CardContent>
       </Card>
-    </Container>
+    </div>
   )
 }
 

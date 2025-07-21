@@ -10,9 +10,6 @@ export const createAuth = (ctx: GenericCtx) =>
   // Configure your Better Auth instance here
   betterAuth({
     // All auth requests will be proxied through your TanStack Start server
-    logger: {
-      level: "debug",
-    },
     baseURL: URL,
     session: {
       cookieCache: {

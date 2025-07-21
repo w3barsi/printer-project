@@ -1,8 +1,13 @@
 import type { AuthFunctions, PublicAuthFunctions } from "@convex-dev/better-auth"
 import { BetterAuth } from "@convex-dev/better-auth"
+import {
+  customCtx,
+  customMutation,
+  customQuery,
+} from "convex-helpers/server/customFunctions"
 import { api, components, internal } from "./_generated/api"
 import type { DataModel, Id } from "./_generated/dataModel"
-import { query } from "./_generated/server"
+import { mutation, query } from "./_generated/server"
 
 // Typesafe way to pass Convex functions defined in this file
 const authFunctions: AuthFunctions = internal.auth
@@ -12,7 +17,6 @@ const publicAuthFunctions: PublicAuthFunctions = api.auth
 export const betterAuthComponent = new BetterAuth(components.betterAuth, {
   authFunctions,
   publicAuthFunctions,
-  verbose: true,
 })
 
 // These are required named exports
@@ -48,3 +52,21 @@ export const getCurrentUser = query({
     }
   },
 })
+
+export const authedQuery = customQuery(
+  query,
+  customCtx(async (ctx) => {
+    const user = await ctx.auth.getUserIdentity()
+    if (!user) throw new Error("Authentication required")
+    return { user }
+  }),
+)
+
+export const authedMutation = customMutation(
+  mutation,
+  customCtx(async (ctx) => {
+    const user = await ctx.auth.getUserIdentity()
+    if (!user) throw new Error("Authentication required")
+    return { user }
+  }),
+)

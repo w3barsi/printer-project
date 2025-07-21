@@ -1,7 +1,8 @@
 import { v } from "convex/values"
 
 import type { Doc } from "./_generated/dataModel"
-import { mutation, query } from "./_generated/server"
+import { internalMutation } from "./_generated/server"
+import { authedMutation, authedQuery } from "./auth"
 
 export type Item = Doc<"items">
 export type Jo = Doc<"jo">
@@ -10,10 +11,14 @@ export type JoWithItems = {
   items: Item[]
 }
 
-export const createJo = mutation({
-  args: { name: v.string(), pickupDate: v.number() },
+export const createJo = authedMutation({
+  args: v.object({
+    name: v.string(),
+    contactNumber: v.optional(v.string()),
+    pickupDate: v.optional(v.number()),
+  }),
   handler: async (ctx, args) => {
-    const { name, pickupDate } = args
+    const { name, pickupDate, contactNumber } = args
 
     const lastJoNumber = await ctx.db
       .query("jo")
@@ -26,13 +31,14 @@ export const createJo = mutation({
       joNumber,
       name,
       pickupDate,
+      contactNumber,
       status: "pending",
     })
     return joId
   },
 })
 
-export const createRandomJo = mutation({
+export const createRandomJo = internalMutation({
   args: {},
   handler: async (ctx) => {
     const name = generateFakeName()
@@ -53,7 +59,7 @@ export const createRandomJo = mutation({
   },
 })
 
-export const getRecent = query({
+export const getRecent = authedQuery({
   args: {},
   handler: async (ctx) => {
     const recent = await ctx.db.query("jo").order("desc").take(5)
@@ -61,10 +67,10 @@ export const getRecent = query({
   },
 })
 
-export const getWithItems = query({
+export const getWithItems = authedQuery({
   args: {},
   handler: async (ctx) => {
-    const jos = await ctx.db.query("jo").collect()
+    const jos = await ctx.db.query("jo").order("desc").collect()
     const joWithItems = jos.map(async (jo) => {
       const items = await ctx.db
         .query("items")
@@ -80,7 +86,7 @@ export const getWithItems = query({
   },
 })
 
-export const getOneWithItems = query({
+export const getOneWithItems = authedQuery({
   args: { id: v.id("jo") },
   handler: async (ctx, args) => {
     const jo = await ctx.db

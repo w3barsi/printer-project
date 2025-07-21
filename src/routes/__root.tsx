@@ -1,3 +1,4 @@
+import { Toaster } from "@/components/ui/sonner"
 import { DeviceProvider } from "@/contexts/DeviceContext"
 import { authClient } from "@/lib/auth-client.ts"
 import { fetchSession, getCookieName } from "@/lib/auth-utils"
@@ -94,6 +95,7 @@ function RootComponent() {
     <ConvexBetterAuthProvider client={context.convexClient} authClient={authClient}>
       <DeviceProvider>
         <RootDocument>
+          <Toaster richColors />
           <Outlet />
           <ReactQueryDevtools />
           <TanStackRouterDevtools position="bottom-right" />

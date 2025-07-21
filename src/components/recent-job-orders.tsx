@@ -2,6 +2,7 @@ import {
   SidebarGroup,
   SidebarGroupLabel,
   SidebarMenu,
+  SidebarMenuSkeleton,
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuSubItem,
@@ -12,7 +13,6 @@ import { useAutoAnimate } from "@formkit/auto-animate/react"
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
 import { Suspense } from "react"
-import { Skeleton } from "./ui/skeleton"
 
 export function RecentJobOrders() {
   return (
@@ -35,15 +35,9 @@ function RecentSubMenu() {
       {recent.map((item) => (
         <SidebarMenuSub key={item.id}>
           <SidebarMenuSubItem>
-            <SidebarMenuSubButton asChild>
-              <Link
-                to="/jo/$joId"
-                params={{ joId: item.id }}
-                activeProps={{ className: "font-semibold" }}
-              >
-                <span>{item.name}</span>
-              </Link>
-            </SidebarMenuSubButton>
+            <Link to={`/jo/$joId`} params={{ joId: item.id }}>
+              <SidebarMenuSubButton>{item.name}</SidebarMenuSubButton>
+            </Link>
           </SidebarMenuSubItem>
         </SidebarMenuSub>
       ))}
@@ -58,7 +52,7 @@ function RecentSubMenuSkeleton() {
         <SidebarMenuSub key={idx}>
           <SidebarMenuSubItem>
             <SidebarMenuSubButton asChild>
-              <Skeleton className="h-7 w-full" />
+              <SidebarMenuSkeleton />
             </SidebarMenuSubButton>
           </SidebarMenuSubItem>
         </SidebarMenuSub>

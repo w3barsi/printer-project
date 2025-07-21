@@ -1,4 +1,4 @@
-import { Link, Outlet, createFileRoute, useRouterState } from "@tanstack/react-router"
+import { Link, Outlet, createFileRoute, useLocation } from "@tanstack/react-router"
 
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -19,10 +19,8 @@ export const Route = createFileRoute("/(main)/jo")({
 })
 
 function RouteComponent() {
-  const {
-    location: { pathname },
-  } = useRouterState()
-  const hasJoId = pathname.split("/").length === 3
+  const location = useLocation()
+  const hasJoId = location.pathname.split("/").length === 3
 
   return (
     <div className="flex h-[calc(100vh-4rem)]">
