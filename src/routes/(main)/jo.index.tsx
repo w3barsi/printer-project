@@ -25,7 +25,7 @@ import { toast } from "sonner"
 
 export const Route = createFileRoute("/(main)/jo/")({
   component: RouteComponent,
-  loader: ({ context }) => {
+  loader: () => {
     // void context.queryClient.prefetchQuery(
     //   convexQuery(api.jo.getWithItems, {
     //     paginationopts: { cursor: null, numItems: 10 },
@@ -55,14 +55,14 @@ function RouteComponent() {
 }
 function JobOrderList() {
   const convex = useConvex()
-  const { data, hasNextPage, fetchNextPage } = useSuspenseInfiniteQuery({
+  const { data, hasNextPage, fetchNextPage, isFetching } = useSuspenseInfiniteQuery({
     queryKey: ["jo"],
     async queryFn({ pageParam }: { pageParam: string | null }) {
       console.log("pageParam", pageParam)
       const result = await convex.query(api.jo.getWithPagination, {
         paginationOptions: {
           cursor: pageParam,
-          numItems: 3,
+          numItems: 10,
         },
       })
       return result
@@ -76,19 +76,23 @@ function JobOrderList() {
   const jos = data.pages[page].jos
   console.log(data.pages)
 
+  const noMoreNextPageCondition = !hasNextPage && page === data.pages.length - 1
+
   const goToNextPage = () => {
-    console.log(hasNextPage)
+    if (noMoreNextPageCondition) {
+      return toast.error("No more job orders")
+    }
+    console.log("WHAT")
+
     if (page === data.pages.length - 1 && hasNextPage) {
       fetchNextPage().then(() => setPage((i) => i + 1))
-    } else if (page < data.pages.length - 1 && !hasNextPage) {
-      setPage((i) => i + 1)
     } else {
-      console.log("No more pages.")
+      setPage((i) => i + 1)
     }
   }
 
   const goToPreviousPage = () => {
-    if (page > 1) {
+    if (page > 0) {
       setPage((prev) => prev - 1)
     }
   }
@@ -112,12 +116,16 @@ function JobOrderList() {
         </TableBody>
       </Table>
       <Separator />
-      <div className="flex w-full flex-row-reverse">
-        <Button onClick={() => goToNextPage()}>
-          <ArrowRightIcon />
+      <div className="flex w-full flex-row-reverse gap-2">
+        <Button
+          onClick={() => goToNextPage()}
+          disabled={isFetching || noMoreNextPageCondition}
+        >
+          Next <ArrowRightIcon />
         </Button>
-        <Button onClick={() => goToPreviousPage()}>
+        <Button onClick={() => goToPreviousPage()} disabled={page === 0}>
           <ArrowLeftIcon />
+          Prev
         </Button>
       </div>
     </div>
@@ -170,6 +178,17 @@ function JobOrderListBody({ jos }: { jos: JoWithItems[] }) {
           </TableCell>
         </TableRow>
       ))}
+      {jos.length < 10 &&
+        Array.from({ length: 10 - jos.length }).map((_, idx) => (
+          <TableRow key={idx}>
+            <TableCell className="py-4 pl-6 first:rounded-l-lg"></TableCell>
+            <TableCell className=""></TableCell>
+            <TableCell className=""></TableCell>
+
+            <TableCell className="text-right"></TableCell>
+            <TableCell className="flex justify-center"></TableCell>
+          </TableRow>
+        ))}
     </>
   )
 }
@@ -196,6 +215,7 @@ function JobOrderListBodySkeleton() {
   return (
     <>
       {Array.from({ length: 5 }).map((_, idx) => (
+        // eslint-disable-next-line @eslint-react/no-array-index-key
         <TableRow key={idx} className="border-none">
           <TableCell className="py-4 pl-6 first:rounded-l-lg">
             <Skeleton />

@@ -72,9 +72,9 @@ function JoDetailComponent() {
             <div>
               <CardTitle className="flex items-center gap-2 text-2xl font-bold">
                 <Package className="h-6 w-6" />
-                {jo.jo.name}
+                {jo.name}
               </CardTitle>
-              <p className="text-muted-foreground mt-1">Job Order #{jo.jo.joNumber}</p>
+              <p className="text-muted-foreground mt-1">Job Order #{jo.joNumber}</p>
             </div>
           </div>
         </CardHeader>
@@ -85,7 +85,7 @@ function JoDetailComponent() {
               <div>
                 <p className="text-sm font-medium">Pickup Date</p>
                 <p className="text-muted-foreground text-sm">
-                  {new Date(Number(jo.jo.pickupDate)).toLocaleDateString()}
+                  {new Date(Number(jo.pickupDate)).toLocaleDateString()}
                 </p>
               </div>
             </div>
@@ -94,7 +94,7 @@ function JoDetailComponent() {
               <div>
                 <p className="text-sm font-medium">Created</p>
                 <p className="text-muted-foreground text-sm">
-                  {new Date(jo.jo._creationTime).toLocaleDateString()}
+                  {new Date(jo._creationTime).toLocaleDateString()}
                 </p>
               </div>
             </div>
