@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router"
+import { createFileRoute, useNavigate, useRouter } from "@tanstack/react-router"
 
 import { CreateDialog } from "@/components/create-jo"
 import { Container } from "@/components/layouts/container"
@@ -16,9 +16,10 @@ import {
 import { useDevice } from "@/contexts/DeviceContext"
 import { printReceipt } from "@/lib/printer"
 import type { JoWithItems } from "@/types/convex"
-import { useConvex } from "@convex-dev/react-query"
+import { convexQuery } from "@convex-dev/react-query"
 import { api } from "@convex/_generated/api"
-import { useSuspenseInfiniteQuery } from "@tanstack/react-query"
+import { useAutoAnimate } from "@formkit/auto-animate/react"
+import { useSuspenseQuery } from "@tanstack/react-query"
 import { ArrowLeftIcon, ArrowRightIcon } from "lucide-react"
 import { Suspense, useState } from "react"
 import { toast } from "sonner"
@@ -60,7 +61,7 @@ function JobOrderSkeleton() {
             <TableHead>Pickup Date</TableHead>
             <TableHead>Contact Number</TableHead>
             <TableHead className="text-right">Total Value</TableHead>
-            <TableHead className="w-32 text-center last:rounded-r-lg">Actions</TableHead>
+            <TableHead className="text-center last:rounded-r-lg"></TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -81,48 +82,72 @@ function JobOrderSkeleton() {
   )
 }
 
+type CursorHistory = (string | null)[]
+
 function JobOrderList() {
-  const convex = useConvex()
-  const { data, hasNextPage, fetchNextPage, isFetching, isLoading } =
-    useSuspenseInfiniteQuery({
-      queryKey: ["jo"],
-      async queryFn({ pageParam }: { pageParam: string | null }) {
-        const result = await convex.query(api.jo.getWithPagination, {
-          paginationOptions: {
-            cursor: pageParam,
-            numItems: 10,
-          },
-        })
-        return result
+  const [history, setHistory] = useState<CursorHistory>([])
+
+  const { data, isFetching } = useSuspenseQuery(
+    convexQuery(api.jo.getWithPagination, {
+      paginationOptions: {
+        numItems: 10,
+        cursor: history.length > 0 ? history[history.length - 1] : null,
       },
-      getNextPageParam: (lastPage) => lastPage.nextCursor,
-      initialPageParam: null,
-    })
+    }),
+  )
 
-  const [page, setPage] = useState(0)
+  const jos = data.jos
 
-  const jos = data.pages[page].jos
-
-  const noMoreNextPageCondition = !hasNextPage && page === data.pages.length - 1
-
-  const goToNextPage = () => {
-    if (noMoreNextPageCondition) {
-      return toast.error("No more job orders")
-    }
-
-    if (page === data.pages.length - 1 && hasNextPage) {
-      fetchNextPage().then(() => setPage((i) => i + 1))
-    } else {
-      setPage((i) => i + 1)
+  const handleNext = () => {
+    if (data.nextCursor !== undefined) {
+      const a = data.nextCursor
+      setHistory((prev) => [...prev, a])
     }
   }
 
-  const goToPreviousPage = () => {
-    if (page > 0) {
-      setPage((prev) => prev - 1)
-    }
+  const handlePrev = () => {
+    setHistory((prev) => prev.slice(0, prev.length - 1))
   }
 
+  // const convex = useConvex()
+  // const { data, hasNextPage, fetchNextPage, isFetching } = useSuspenseInfiniteQuery({
+  //   queryKey: ["jo"],
+  //   async queryFn({ pageParam }: { pageParam: string | null }) {
+  //     const result = await convex.query(api.jo.getWithPagination, {
+  //       paginationOptions: {
+  //         cursor: pageParam,
+  //         numItems: 10,
+  //       },
+  //     })
+  //     return result
+  //   },
+  //   getNextPageParam: (lastPage) => lastPage.nextCursor,
+  //   initialPageParam: null,
+  // })
+  //
+  // const jos = data.pages[page].jos
+  //
+  // const noMoreNextPageCondition = !hasNextPage && page === data.pages.length - 1
+  //
+  // const goToNextPage = () => {
+  //   if (noMoreNextPageCondition) {
+  //     return toast.error("No more job orders")
+  //   }
+  //
+  //   if (page === data.pages.length - 1 && hasNextPage) {
+  //     fetchNextPage().then(() => setPage((i) => i + 1))
+  //   } else {
+  //     setPage((i) => i + 1)
+  //   }
+  // }
+  //
+  // const goToPreviousPage = () => {
+  //   if (page > 0) {
+  //     setPage((prev) => prev - 1)
+  //   }
+  // }
+
+  const [parent] = useAutoAnimate()
   return (
     <div className="flex flex-col gap-4">
       <Table className="table-fixed">
@@ -132,24 +157,20 @@ function JobOrderList() {
             <TableHead>Pickup Date</TableHead>
             <TableHead>Contact Number</TableHead>
             <TableHead className="text-right">Total Value</TableHead>
-            <TableHead className="w-32 text-center last:rounded-r-lg">Actions</TableHead>
+            <TableHead className="w-36 text-end last:rounded-r-lg"></TableHead>
           </TableRow>
         </TableHeader>
-        <TableBody>
+        <TableBody ref={parent}>
           <JobOrderListBody jos={jos} />
         </TableBody>
       </Table>
       <Separator />
       <div className="flex w-full flex-row-reverse gap-2">
-        <Button
-          onClick={() => goToNextPage()}
-          disabled={isFetching || noMoreNextPageCondition}
-        >
+        <Button onClick={() => handleNext()} disabled={isFetching}>
           Next <ArrowRightIcon />
         </Button>
-        <Button onClick={() => goToPreviousPage()} disabled={page === 0}>
-          <ArrowLeftIcon />
-          Prev
+        <Button onClick={() => handlePrev()} disabled={isFetching}>
+          <ArrowLeftIcon /> Prev
         </Button>
       </div>
     </div>
@@ -166,6 +187,7 @@ function JobOrderListBody({ jos }: { jos: JoWithItems[] }) {
   // )
 
   const navigate = useNavigate()
+  const { preloadRoute } = useRouter()
 
   return (
     <>
@@ -174,6 +196,10 @@ function JobOrderListBody({ jos }: { jos: JoWithItems[] }) {
           key={jo._id}
           className="cursor-pointer border-none"
           onClick={() => navigate({ to: "/jo/$joId", params: { joId: jo._id } })}
+          onMouseDown={(e) => {
+            e.preventDefault()
+            preloadRoute({ to: "/jo/$joId", params: { joId: jo._id } })
+          }}
           onKeyDown={(e) => {
             if (e.key === "Enter" || e.key === " ") {
               e.preventDefault()
@@ -197,7 +223,7 @@ function JobOrderListBody({ jos }: { jos: JoWithItems[] }) {
               jo.items.reduce((sum, item) => sum + item.quantity * item.price, 0),
             )}
           </TableCell>
-          <TableCell className="flex justify-center">
+          <TableCell className="flex justify-end">
             <PrintButton jo={jo} />
           </TableCell>
         </TableRow>
