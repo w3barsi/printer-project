@@ -135,7 +135,7 @@ function JobOrderList() {
     <div className="flex flex-col">
       <Table className="table-fixed">
         <TableHeader className="bg-foreground rounded-lg">
-          <TableRow className="*:text-background border-none hover:bg-gray-50">
+          <TableRow className="*:text-background hover:bg-foreground border-none">
             <TableHead className="w-16 font-semibold first:rounded-l-lg">
               <HashIcon className="h-4 w-4" />
             </TableHead>
