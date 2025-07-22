@@ -4,7 +4,6 @@ import { CreateDialog } from "@/components/create-jo"
 import { Container } from "@/components/layouts/container"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
-import { Skeleton } from "@/components/ui/skeleton"
 import {
   Table,
   TableBody,
@@ -18,9 +17,8 @@ import { printReceipt } from "@/lib/printer"
 import type { JoWithItems } from "@/types/convex"
 import { convexQuery } from "@convex-dev/react-query"
 import { api } from "@convex/_generated/api"
-import { useAutoAnimate } from "@formkit/auto-animate/react"
 import { useSuspenseQuery } from "@tanstack/react-query"
-import { ArrowLeftIcon, ArrowRightIcon } from "lucide-react"
+import { ArrowLeftIcon, ArrowRightIcon, HashIcon, PrinterIcon } from "lucide-react"
 import { Suspense, useState } from "react"
 import { toast } from "sonner"
 
@@ -42,43 +40,12 @@ function RouteComponent() {
           <CreateDialog />
         </div>
         <div className="w-full">
-          <Suspense fallback={<JobOrderSkeleton />}>
+          <Suspense fallback={<div>Loading...</div>}>
             <JobOrderList />
           </Suspense>
         </div>
       </Container>
     </>
-  )
-}
-
-function JobOrderSkeleton() {
-  return (
-    <div className="flex flex-col gap-4">
-      <Table className="table-fixed">
-        <TableHeader className="bg-foreground rounded-lg">
-          <TableRow className="*:text-background hover:bg-foreground border-none">
-            <TableHead className="py-4 pl-6 first:rounded-l-lg">Name</TableHead>
-            <TableHead>Pickup Date</TableHead>
-            <TableHead>Contact Number</TableHead>
-            <TableHead className="text-right">Total Value</TableHead>
-            <TableHead className="text-center last:rounded-r-lg"></TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          <JobOrderListBodySkeleton />
-        </TableBody>
-      </Table>
-      <Separator />
-      <div className="flex w-full flex-row-reverse gap-2">
-        <Button>
-          Next <ArrowRightIcon />
-        </Button>
-        <Button>
-          <ArrowLeftIcon />
-          Prev
-        </Button>
-      </div>
-    </div>
   )
 }
 
@@ -96,10 +63,8 @@ function JobOrderList() {
     }),
   )
 
-  const jos = data.jos
-
   const handleNext = () => {
-    if (data.nextCursor !== undefined) {
+    if (data.nextCursor) {
       const a = data.nextCursor
       setHistory((prev) => [...prev, a])
     }
@@ -109,68 +74,42 @@ function JobOrderList() {
     setHistory((prev) => prev.slice(0, prev.length - 1))
   }
 
-  // const convex = useConvex()
-  // const { data, hasNextPage, fetchNextPage, isFetching } = useSuspenseInfiniteQuery({
-  //   queryKey: ["jo"],
-  //   async queryFn({ pageParam }: { pageParam: string | null }) {
-  //     const result = await convex.query(api.jo.getWithPagination, {
-  //       paginationOptions: {
-  //         cursor: pageParam,
-  //         numItems: 10,
-  //       },
-  //     })
-  //     return result
-  //   },
-  //   getNextPageParam: (lastPage) => lastPage.nextCursor,
-  //   initialPageParam: null,
-  // })
-  //
-  // const jos = data.pages[page].jos
-  //
-  // const noMoreNextPageCondition = !hasNextPage && page === data.pages.length - 1
-  //
-  // const goToNextPage = () => {
-  //   if (noMoreNextPageCondition) {
-  //     return toast.error("No more job orders")
-  //   }
-  //
-  //   if (page === data.pages.length - 1 && hasNextPage) {
-  //     fetchNextPage().then(() => setPage((i) => i + 1))
-  //   } else {
-  //     setPage((i) => i + 1)
-  //   }
-  // }
-  //
-  // const goToPreviousPage = () => {
-  //   if (page > 0) {
-  //     setPage((prev) => prev - 1)
-  //   }
-  // }
+  const jos = data.jos
 
-  const [parent] = useAutoAnimate()
   return (
     <div className="flex flex-col gap-4">
       <Table className="table-fixed">
         <TableHeader className="bg-foreground rounded-lg">
-          <TableRow className="*:text-background hover:bg-foreground border-none">
-            <TableHead className="py-4 pl-6 first:rounded-l-lg">Name</TableHead>
-            <TableHead>Pickup Date</TableHead>
-            <TableHead>Contact Number</TableHead>
-            <TableHead className="text-right">Total Value</TableHead>
-            <TableHead className="w-36 text-end last:rounded-r-lg"></TableHead>
+          <TableRow className="*:text-background border-none hover:bg-gray-50">
+            <TableHead className="w-16 font-semibold first:rounded-l-lg">
+              <HashIcon className="h-4 w-4" />
+            </TableHead>
+            <TableHead className="font-semibold">Name</TableHead>
+            <TableHead className="text-center font-semibold">Pickup Date</TableHead>
+            <TableHead className="text-center font-semibold">Contact Number</TableHead>
+            <TableHead className="text-right font-semibold">Total Value</TableHead>
+            <TableHead className="w-12 font-semibold last:rounded-r-lg"></TableHead>
           </TableRow>
         </TableHeader>
-        <TableBody ref={parent}>
+        <TableBody>
           <JobOrderListBody jos={jos} />
         </TableBody>
       </Table>
       <Separator />
-      <div className="flex w-full flex-row-reverse gap-2">
-        <Button onClick={() => handleNext()} disabled={isFetching}>
-          Next <ArrowRightIcon />
-        </Button>
-        <Button onClick={() => handlePrev()} disabled={isFetching}>
+      <div className="flex w-full justify-center gap-2">
+        <Button
+          onClick={handlePrev}
+          variant="outline"
+          disabled={isFetching || history.length === 0}
+        >
           <ArrowLeftIcon /> Prev
+        </Button>
+        <Button
+          variant="outline"
+          onClick={handleNext}
+          disabled={isFetching || !data.nextCursor}
+        >
+          Next <ArrowRightIcon />
         </Button>
       </div>
     </div>
@@ -194,7 +133,7 @@ function JobOrderListBody({ jos }: { jos: JoWithItems[] }) {
       {jos.map((jo) => (
         <TableRow
           key={jo._id}
-          className="cursor-pointer border-none"
+          className="focus-within:bg-muted/50 cursor-pointer border-none"
           onClick={() => navigate({ to: "/jo/$joId", params: { joId: jo._id } })}
           onMouseDown={(e) => {
             e.preventDefault()
@@ -210,11 +149,14 @@ function JobOrderListBody({ jos }: { jos: JoWithItems[] }) {
           role="button"
           aria-label={`View job order details for ${jo.name}`}
         >
-          <TableCell className="py-4 pl-6 first:rounded-l-lg">{jo.name}</TableCell>
-          <TableCell className="">
+          <TableCell className="flex w-16">
+            <span>{jo.joNumber}</span>
+          </TableCell>
+          <TableCell className="">{jo.name}</TableCell>
+          <TableCell className="text-center">
             {new Date(jo._creationTime).toLocaleDateString()}
           </TableCell>
-          <TableCell className="">
+          <TableCell className="text-center">
             {jo.contactNumber ? jo.contactNumber : "N/A"}
           </TableCell>
 
@@ -223,22 +165,11 @@ function JobOrderListBody({ jos }: { jos: JoWithItems[] }) {
               jo.items.reduce((sum, item) => sum + item.quantity * item.price, 0),
             )}
           </TableCell>
-          <TableCell className="flex justify-end">
+          <TableCell className="w-12">
             <PrintButton jo={jo} />
           </TableCell>
         </TableRow>
       ))}
-      {jos.length < 10 &&
-        Array.from({ length: 10 - jos.length }).map((_, idx) => (
-          // eslint-disable-next-line @eslint-react/no-array-index-key
-          <TableRow key={idx} className="border-none">
-            <TableCell className="py-4 pl-6 first:rounded-l-lg">&nbsp;</TableCell>
-            <TableCell className="">&nbsp;</TableCell>
-            <TableCell className="">&nbsp;</TableCell>
-            <TableCell className="text-right">&nbsp;</TableCell>
-            <TableCell className="flex justify-center">&nbsp;</TableCell>
-          </TableRow>
-        ))}
     </>
   )
 }
@@ -255,36 +186,9 @@ function PrintButton({ jo }: { jo: JoWithItems }) {
   }
 
   return (
-    <Button onClick={handlePrint} variant="outline">
-      Print
+    <Button onClick={handlePrint} variant="ghost">
+      <PrinterIcon />
     </Button>
-  )
-}
-
-function JobOrderListBodySkeleton() {
-  return (
-    <>
-      {Array.from({ length: 10 }).map((_, idx) => (
-        // eslint-disable-next-line @eslint-react/no-array-index-key
-        <TableRow key={idx} className="border-none">
-          <TableCell className="py-4 pl-6 first:rounded-l-lg">
-            <Skeleton className="h-5 w-32" />
-          </TableCell>
-          <TableCell>
-            <Skeleton className="h-5 w-24" />
-          </TableCell>
-          <TableCell>
-            <Skeleton className="h-5 w-28" />
-          </TableCell>
-          <TableCell className="text-right">
-            <Skeleton className="ml-auto h-5 w-20" />
-          </TableCell>
-          <TableCell className="flex justify-center">
-            <Skeleton className="h-9 w-20 rounded-md" />
-          </TableCell>
-        </TableRow>
-      ))}
-    </>
   )
 }
 
