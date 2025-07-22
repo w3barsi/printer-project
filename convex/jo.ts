@@ -1,5 +1,6 @@
 import { v } from "convex/values"
 
+import { paginationOptsValidator } from "convex/server"
 import type { Doc } from "./_generated/dataModel"
 import { internalMutation } from "./_generated/server"
 import { authedMutation, authedQuery } from "./auth"
@@ -67,10 +68,35 @@ export const getRecent = authedQuery({
   },
 })
 
+export const getWithPagination = authedQuery({
+  args: v.object({ paginationOptions: paginationOptsValidator }),
+  handler: async (ctx, { paginationOptions: { cursor, numItems } }) => {
+    const res = await ctx.db.query("jo").order("desc").paginate({ cursor, numItems })
+    const { page, isDone, continueCursor } = res
+
+    const joWithItems = page.map(async (jo) => {
+      const items = await ctx.db
+        .query("items")
+        .withIndex("by_joId", (q) => q.eq("joId", jo._id))
+        .collect()
+
+      return { ...jo, items }
+    })
+
+    const all = await Promise.all(joWithItems)
+
+    return {
+      jos: all,
+      nextCursor: isDone ? undefined : continueCursor,
+    }
+  },
+})
+
 export const getWithItems = authedQuery({
   args: {},
   handler: async (ctx) => {
     const jos = await ctx.db.query("jo").order("desc").collect()
+
     const joWithItems = jos.map(async (jo) => {
       const items = await ctx.db
         .query("items")
