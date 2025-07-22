@@ -4,6 +4,7 @@ import { CreateDialog } from "@/components/create-jo"
 import { Container } from "@/components/layouts/container"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
+import { Skeleton } from "@/components/ui/skeleton"
 import {
   Table,
   TableBody,
@@ -40,12 +41,66 @@ function RouteComponent() {
           <CreateDialog />
         </div>
         <div className="w-full">
-          <Suspense fallback={<div>Loading...</div>}>
+          <Suspense fallback={<JobOrderListSkeleton />}>
             <JobOrderList />
           </Suspense>
         </div>
       </Container>
     </>
+  )
+}
+
+function JobOrderListSkeleton() {
+  return (
+    <div className="flex flex-col">
+      <Table className="table-fixed">
+        <TableHeader className="bg-foreground rounded-lg">
+          <TableRow className="*:text-background border-none hover:bg-gray-50">
+            <TableHead className="w-16 font-semibold first:rounded-l-lg">
+              <HashIcon className="h-4 w-4" />
+            </TableHead>
+            <TableHead className="font-semibold">Name</TableHead>
+            <TableHead className="text-center font-semibold">Pickup Date</TableHead>
+            <TableHead className="text-center font-semibold">Contact Number</TableHead>
+            <TableHead className="text-right font-semibold">Total Value</TableHead>
+            <TableHead className="w-12 font-semibold last:rounded-r-lg" />
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {Array.from({ length: 10 }).map((_, i) => (
+            <TableRow key={i} className="border-none">
+              <TableCell className="flex w-16">
+                <Skeleton className="h-4 w-8" />
+              </TableCell>
+              <TableCell>
+                <Skeleton className="h-4 w-[250px]" />
+              </TableCell>
+              <TableCell>
+                <Skeleton className="mx-auto h-4 w-24" />
+              </TableCell>
+              <TableCell>
+                <Skeleton className="mx-auto h-4 w-24" />
+              </TableCell>
+              <TableCell className="text-right">
+                <Skeleton className="ml-auto h-4 w-20" />
+              </TableCell>
+              <TableCell className="w-12">
+                <Skeleton className="h-9 w-10" />
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+      <Separator />
+      <div className="flex w-full justify-center gap-2 pt-2">
+        <Button variant="outline" disabled>
+          <ArrowLeftIcon /> Prev
+        </Button>
+        <Button variant="outline" disabled>
+          Next <ArrowRightIcon />
+        </Button>
+      </div>
+    </div>
   )
 }
 
@@ -77,7 +132,7 @@ function JobOrderList() {
   const jos = data.jos
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col">
       <Table className="table-fixed">
         <TableHeader className="bg-foreground rounded-lg">
           <TableRow className="*:text-background border-none hover:bg-gray-50">
@@ -95,8 +150,8 @@ function JobOrderList() {
           <JobOrderListBody jos={jos} />
         </TableBody>
       </Table>
-      <Separator />
-      <div className="flex w-full justify-center gap-2">
+      <Separator className="" />
+      <div className="flex w-full justify-center gap-2 pt-2">
         <Button
           onClick={handlePrev}
           variant="outline"
@@ -149,9 +204,7 @@ function JobOrderListBody({ jos }: { jos: JoWithItems[] }) {
           role="button"
           aria-label={`View job order details for ${jo.name}`}
         >
-          <TableCell className="flex w-16">
-            <span>{jo.joNumber}</span>
-          </TableCell>
+          <TableCell className="w-16">{jo.joNumber}</TableCell>
           <TableCell className="">{jo.name}</TableCell>
           <TableCell className="text-center">
             {new Date(jo._creationTime).toLocaleDateString()}
