@@ -26,12 +26,6 @@ import { toast } from "sonner"
 export const Route = createFileRoute("/(main)/jo/")({
   component: RouteComponent,
   loader: () => {
-    // void context.queryClient.prefetchQuery(
-    //   convexQuery(api.jo.getWithItems, {
-    //     paginationopts: { cursor: null, numItems: 10 },
-    //   }),
-    // )
-
     return {
       crumb: [{ value: "Job Order", href: "/jo/", type: "static" }],
     }
@@ -47,34 +41,67 @@ function RouteComponent() {
           <CreateDialog />
         </div>
         <div className="w-full">
-          <JobOrderList />
+          <Suspense fallback={<JobOrderSkeleton />}>
+            <JobOrderList />
+          </Suspense>
         </div>
       </Container>
     </>
   )
 }
+
+function JobOrderSkeleton() {
+  return (
+    <div className="flex flex-col gap-4">
+      <Table className="table-fixed">
+        <TableHeader className="bg-foreground rounded-lg">
+          <TableRow className="*:text-background hover:bg-foreground border-none">
+            <TableHead className="py-4 pl-6 first:rounded-l-lg">Name</TableHead>
+            <TableHead>Pickup Date</TableHead>
+            <TableHead>Contact Number</TableHead>
+            <TableHead className="text-right">Total Value</TableHead>
+            <TableHead className="w-32 text-center last:rounded-r-lg">Actions</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          <JobOrderListBodySkeleton />
+        </TableBody>
+      </Table>
+      <Separator />
+      <div className="flex w-full flex-row-reverse gap-2">
+        <Button>
+          Next <ArrowRightIcon />
+        </Button>
+        <Button>
+          <ArrowLeftIcon />
+          Prev
+        </Button>
+      </div>
+    </div>
+  )
+}
+
 function JobOrderList() {
   const convex = useConvex()
-  const { data, hasNextPage, fetchNextPage, isFetching } = useSuspenseInfiniteQuery({
-    queryKey: ["jo"],
-    async queryFn({ pageParam }: { pageParam: string | null }) {
-      console.log("pageParam", pageParam)
-      const result = await convex.query(api.jo.getWithPagination, {
-        paginationOptions: {
-          cursor: pageParam,
-          numItems: 10,
-        },
-      })
-      return result
-    },
-    getNextPageParam: (lastPage) => lastPage.nextCursor,
-    initialPageParam: null,
-  })
+  const { data, hasNextPage, fetchNextPage, isFetching, isLoading } =
+    useSuspenseInfiniteQuery({
+      queryKey: ["jo"],
+      async queryFn({ pageParam }: { pageParam: string | null }) {
+        const result = await convex.query(api.jo.getWithPagination, {
+          paginationOptions: {
+            cursor: pageParam,
+            numItems: 10,
+          },
+        })
+        return result
+      },
+      getNextPageParam: (lastPage) => lastPage.nextCursor,
+      initialPageParam: null,
+    })
 
   const [page, setPage] = useState(0)
 
   const jos = data.pages[page].jos
-  console.log(data.pages)
 
   const noMoreNextPageCondition = !hasNextPage && page === data.pages.length - 1
 
@@ -82,7 +109,6 @@ function JobOrderList() {
     if (noMoreNextPageCondition) {
       return toast.error("No more job orders")
     }
-    console.log("WHAT")
 
     if (page === data.pages.length - 1 && hasNextPage) {
       fetchNextPage().then(() => setPage((i) => i + 1))
@@ -99,7 +125,7 @@ function JobOrderList() {
 
   return (
     <div className="flex flex-col gap-4">
-      <Table>
+      <Table className="table-fixed">
         <TableHeader className="bg-foreground rounded-lg">
           <TableRow className="*:text-background hover:bg-foreground border-none">
             <TableHead className="py-4 pl-6 first:rounded-l-lg">Name</TableHead>
@@ -110,9 +136,7 @@ function JobOrderList() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          <Suspense fallback={<JobOrderListBodySkeleton />}>
-            <JobOrderListBody jos={jos} />
-          </Suspense>
+          <JobOrderListBody jos={jos} />
         </TableBody>
       </Table>
       <Separator />
@@ -180,13 +204,13 @@ function JobOrderListBody({ jos }: { jos: JoWithItems[] }) {
       ))}
       {jos.length < 10 &&
         Array.from({ length: 10 - jos.length }).map((_, idx) => (
-          <TableRow key={idx}>
-            <TableCell className="py-4 pl-6 first:rounded-l-lg"></TableCell>
-            <TableCell className=""></TableCell>
-            <TableCell className=""></TableCell>
-
-            <TableCell className="text-right"></TableCell>
-            <TableCell className="flex justify-center"></TableCell>
+          // eslint-disable-next-line @eslint-react/no-array-index-key
+          <TableRow key={idx} className="border-none">
+            <TableCell className="py-4 pl-6 first:rounded-l-lg">&nbsp;</TableCell>
+            <TableCell className="">&nbsp;</TableCell>
+            <TableCell className="">&nbsp;</TableCell>
+            <TableCell className="text-right">&nbsp;</TableCell>
+            <TableCell className="flex justify-center">&nbsp;</TableCell>
           </TableRow>
         ))}
     </>
@@ -214,24 +238,23 @@ function PrintButton({ jo }: { jo: JoWithItems }) {
 function JobOrderListBodySkeleton() {
   return (
     <>
-      {Array.from({ length: 5 }).map((_, idx) => (
+      {Array.from({ length: 10 }).map((_, idx) => (
         // eslint-disable-next-line @eslint-react/no-array-index-key
         <TableRow key={idx} className="border-none">
           <TableCell className="py-4 pl-6 first:rounded-l-lg">
-            <Skeleton />
+            <Skeleton className="h-5 w-32" />
           </TableCell>
-          <TableCell className="">
-            <Skeleton className="h-8 w-full" />
+          <TableCell>
+            <Skeleton className="h-5 w-24" />
           </TableCell>
-          <TableCell className="">
-            <Skeleton className="h-8 w-full" />
+          <TableCell>
+            <Skeleton className="h-5 w-28" />
           </TableCell>
-
           <TableCell className="text-right">
-            <Skeleton className="h-8 w-full" />
+            <Skeleton className="ml-auto h-5 w-20" />
           </TableCell>
           <TableCell className="flex justify-center">
-            <Skeleton className="h-8 w-full" />
+            <Skeleton className="h-9 w-20 rounded-md" />
           </TableCell>
         </TableRow>
       ))}
