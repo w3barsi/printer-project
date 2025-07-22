@@ -1,4 +1,4 @@
-import type { JoWithItems } from "@/types/printer"
+import type { JoWithItems } from "@/types/convex"
 import ReceiptPrinterEncoder from "@point-of-sale/receipt-printer-encoder"
 
 const encoder = new ReceiptPrinterEncoder()
@@ -88,7 +88,7 @@ export async function printReceipt({
       .align("center")
       .image(logo, 320, 160, "atkinson")
       .align("left")
-      .line(lineBuilder([jo.jo.name, `${new Date().toLocaleDateString()}`]))
+      .line(lineBuilder([jo.name, `${new Date().toLocaleDateString()}`]))
       .line("--------------------------------")
       .encode()
     await device.transferOut(endpoint.endpointNumber, header)

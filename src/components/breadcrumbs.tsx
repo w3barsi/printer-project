@@ -75,7 +75,7 @@ function JoCrumb({ crumb }: { crumb: CrumbType }) {
     <BreadcrumbItem>
       <BreadcrumbLink asChild>
         <Link to={crumb.href}>
-          <BreadcrumbPage>{data?.jo.name}</BreadcrumbPage>
+          <BreadcrumbPage>{data?.name}</BreadcrumbPage>
         </Link>
       </BreadcrumbLink>
     </BreadcrumbItem>

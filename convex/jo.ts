@@ -103,7 +103,7 @@ export const getWithItems = authedQuery({
         .withIndex("by_joId", (q) => q.eq("joId", jo._id))
         .collect()
 
-      return { jo, items }
+      return { ...jo, items }
     })
 
     const all = await Promise.all(joWithItems)
@@ -128,7 +128,7 @@ export const getOneWithItems = authedQuery({
       .withIndex("by_joId", (q) => q.eq("joId", jo._id))
       .collect()
 
-    return { jo, items }
+    return { ...jo, items }
   },
 })
 

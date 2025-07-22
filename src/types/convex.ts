@@ -10,7 +10,6 @@ export type GetOneWithItemsReturnTypeNotNull = NonNullable<
 export type Item = Doc<"items">
 export type Jo = Doc<"jo">
 
-export type JoWithItems = {
-  jo: Jo
+export type JoWithItems = Jo & {
   items: Item[]
 }
