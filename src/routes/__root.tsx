@@ -95,7 +95,7 @@ function RootComponent() {
     <ConvexBetterAuthProvider client={context.convexClient} authClient={authClient}>
       <DeviceProvider>
         <RootDocument>
-          <Toaster richColors />
+          <Toaster richColors position="top-center" />
           <Outlet />
           <ReactQueryDevtools />
           <TanStackRouterDevtools position="bottom-right" />

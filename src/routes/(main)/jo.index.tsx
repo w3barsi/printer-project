@@ -140,7 +140,9 @@ function JobOrderList() {
               <HashIcon className="h-4 w-4" />
             </TableHead>
             <TableHead className="font-semibold">Name</TableHead>
-            <TableHead className="text-center font-semibold">Pickup Date</TableHead>
+            <TableHead className="hidden text-center font-semibold sm:table-cell">
+              Pickup Date
+            </TableHead>
             <TableHead className="text-center font-semibold">Contact Number</TableHead>
             <TableHead className="text-right font-semibold">Total Value</TableHead>
             <TableHead className="w-12 font-semibold last:rounded-r-lg"></TableHead>
@@ -206,8 +208,8 @@ function JobOrderListBody({ jos }: { jos: JoWithItems[] }) {
         >
           <TableCell className="w-16">{jo.joNumber}</TableCell>
           <TableCell className="">{jo.name}</TableCell>
-          <TableCell className="text-center">
-            {new Date(jo._creationTime).toLocaleDateString()}
+          <TableCell className="hidden text-center sm:table-cell">
+            {new Date(jo.pickupDate ?? jo._creationTime).toLocaleDateString()}
           </TableCell>
           <TableCell className="text-center">
             {jo.contactNumber ? jo.contactNumber : "N/A"}
