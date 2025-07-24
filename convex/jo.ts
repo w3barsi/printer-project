@@ -68,6 +68,35 @@ export const getRecent = authedQuery({
   },
 })
 
+export const getWithPages = authedQuery({
+  args: { page: v.number() },
+  handler: async (ctx, { page }) => {
+    const pageSize = 10
+    const allJos = await ctx.db.query("jo").order("desc").collect()
+    const total = allJos.length
+    const start = (page - 1) * pageSize
+    const end = start + pageSize
+    const josOnPage = allJos.slice(start, end)
+
+    const joWithItems = josOnPage.map(async (jo) => {
+      const items = await ctx.db
+        .query("items")
+        .withIndex("by_joId", (q) => q.eq("joId", jo._id))
+        .collect()
+      return {
+        ...jo,
+        items,
+      }
+    })
+
+    const pageWithItems = await Promise.all(joWithItems)
+    return {
+      page: pageWithItems,
+      total,
+    }
+  },
+})
+
 export const getWithPagination = authedQuery({
   args: v.object({ paginationOptions: paginationOptsValidator }),
   handler: async (ctx, { paginationOptions: { cursor, numItems } }) => {
