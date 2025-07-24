@@ -4,13 +4,13 @@ import { betterAuth } from "better-auth"
 import type { GenericCtx } from "../../convex/_generated/server"
 import { betterAuthComponent } from "../../convex/auth"
 
-// const URL = process.env.VERCEL_URL ?? "http://localhost:3000"
+const URL = process.env.VERCEL_URL ?? "http://localhost:3000"
 
 export const createAuth = (ctx: GenericCtx) =>
   // Configure your Better Auth instance here
   betterAuth({
     // All auth requests will be proxied through your TanStack Start server
-    baseURL: "https://printer-project.vercel.app/",
+    baseURL: URL,
     session: {
       cookieCache: {
         enabled: true,
