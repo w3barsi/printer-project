@@ -66,7 +66,7 @@ function JoDetailComponent() {
           </Link>
         </Button>
       </div>
-      <Card>
+      <Card className="shadow-none">
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
@@ -106,16 +106,8 @@ function JoDetailComponent() {
               </div>
             </div>
           </div>
-        </CardContent>
-      </Card>
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Package className="h-5 w-5" />
-            Order Items ({jo.items.length})
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
+          <Package className="h-5 w-5" />
+          Order Items ({jo.items.length})
           <div className="rounded-md border">
             <Table>
               <TableHeader>
