@@ -2,6 +2,17 @@ import { Container } from "@/components/layouts/container"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import {
   Table,
   TableBody,
   TableCell,
@@ -9,12 +20,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { convexQuery } from "@convex-dev/react-query"
+import { convexQuery, useConvexMutation } from "@convex-dev/react-query"
 import { api } from "@convex/_generated/api"
 import type { Id } from "@convex/_generated/dataModel"
-import { useSuspenseQuery } from "@tanstack/react-query"
+import { useMutation, useSuspenseQuery } from "@tanstack/react-query"
 import { createFileRoute, Link } from "@tanstack/react-router"
-import { ArrowLeftIcon, Calendar, Clock, Package } from "lucide-react"
+import { ArrowLeftIcon, Calendar, Clock, Package, PlusIcon, Trash2 } from "lucide-react"
+import { useState } from "react"
 
 export const Route = createFileRoute("/(main)/jo/$joId")({
   component: JoDetailComponent,
@@ -59,7 +71,7 @@ function JoDetailComponent() {
 
   return (
     <Container className="flex flex-col gap-4">
-      <div>
+      <div className="flex items-center justify-between">
         <Button variant="ghost" asChild>
           <Link to="/jo">
             <ArrowLeftIcon /> Back
@@ -76,9 +88,10 @@ function JoDetailComponent() {
               </CardTitle>
               <p className="text-muted-foreground mt-1">Job Order #{jo.joNumber}</p>
             </div>
+            <AddItemDialog joId={joId as Id<"jo">} />
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="flex flex-col gap-4">
           <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
             <div className="flex items-center gap-3">
               <Calendar className="text-muted-foreground h-5 w-5" />
@@ -106,45 +119,153 @@ function JoDetailComponent() {
               </div>
             </div>
           </div>
-          <Package className="h-5 w-5" />
-          Order Items ({jo.items.length})
-          <div className="rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Item Name</TableHead>
-                  <TableHead className="text-center">Quantity</TableHead>
-                  <TableHead className="text-right">Unit Price</TableHead>
-                  <TableHead className="text-right">Total</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {jo.items.map((item) => (
-                  <TableRow key={item._id}>
-                    <TableCell className="font-medium">{item.name}</TableCell>
-                    <TableCell className="text-center">{item.quantity}</TableCell>
-                    <TableCell className="text-right">
-                      {formatCurrency(item.price)}
-                    </TableCell>
-                    <TableCell className="text-right font-medium">
-                      {formatCurrency(item.quantity * item.price)}
-                    </TableCell>
-                  </TableRow>
-                ))}
-                <TableRow className="border-t-2">
-                  <TableCell colSpan={3} className="font-semibold">
-                    Total Order Value
-                  </TableCell>
-                  <TableCell className="text-right text-lg font-bold">
-                    {formatCurrency(totalValue)}
-                  </TableCell>
-                </TableRow>
-              </TableBody>
-            </Table>
+          <div className="flex items-center gap-2">
+            <Package className="h-5 w-5" />
+            <h3 className="text-lg font-semibold">Order Items ({jo.items.length})</h3>
           </div>
+          {jo.items.length === 0 ? (
+            <div className="text-muted-foreground text-center">No Items</div>
+          ) : (
+            <div className="rounded-md border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Item Name</TableHead>
+                    <TableHead className="text-center">Quantity</TableHead>
+                    <TableHead className="text-right">Unit Price</TableHead>
+                    <TableHead className="text-right">Total</TableHead>
+                    <TableHead className="w-12"></TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {jo.items.map((item) => (
+                    <TableRow key={item._id} className="group">
+                      <TableCell className="font-medium">{item.name}</TableCell>
+                      <TableCell className="text-center">{item.quantity}</TableCell>
+                      <TableCell className="text-right">
+                        {formatCurrency(item.price)}
+                      </TableCell>
+                      <TableCell className="text-right font-medium">
+                        {formatCurrency(item.quantity * item.price)}
+                      </TableCell>
+                      <TableCell className="w-12 text-right">
+                        <DeleteItemButton itemId={item._id} />
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                  <TableRow className="border-t-2">
+                    <TableCell colSpan={3} className="text-right font-semibold">
+                      Total Order Value
+                    </TableCell>
+                    <TableCell className="text-right text-lg font-bold">
+                      {formatCurrency(totalValue)}
+                    </TableCell>
+                    <TableCell className="w-12 text-right"></TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </div>
+          )}
         </CardContent>
       </Card>
     </Container>
+  )
+}
+
+function AddItemDialog({ joId }: { joId: Id<"jo"> }) {
+  const [name, setName] = useState("")
+  const [quantity, setQuantity] = useState(1)
+  const [price, setPrice] = useState(0)
+  const [isOpen, setIsOpen] = useState(false)
+
+  const { mutate: createItem, isPending } = useMutation({
+    mutationFn: useConvexMutation(api.items.createItem),
+    onSuccess: () => {
+      setIsOpen(false)
+    },
+  })
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    createItem({ joId, name, quantity, price })
+  }
+
+  return (
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        <Button>
+          <PlusIcon className="mr-2" /> Add Item
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="w-sm">
+        <DialogHeader>
+          <DialogTitle>Add New Item</DialogTitle>
+          <DialogDescription>
+            Fill in the details below to add a new item to the job order.
+          </DialogDescription>
+        </DialogHeader>
+        <form onSubmit={handleSubmit} className="grid gap-4 py-4">
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="name" className="text-right">
+              Name
+            </Label>
+            <Input
+              id="name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="col-span-3"
+            />
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="quantity" className="text-right">
+              Quantity
+            </Label>
+            <Input
+              id="quantity"
+              type="number"
+              value={quantity}
+              onChange={(e) => setQuantity(Number(e.target.value))}
+              className="col-span-3"
+            />
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="price" className="text-right">
+              Price
+            </Label>
+            <Input
+              id="price"
+              type="number"
+              value={price}
+              onChange={(e) => setPrice(Number(e.target.value))}
+              className="col-span-3"
+            />
+          </div>
+          <DialogFooter>
+            <Button type="submit" disabled={isPending}>
+              {isPending ? "Adding..." : "Add Item"}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+function DeleteItemButton({ itemId }: { itemId: Id<"items"> }) {
+  const { mutate: deleteItem, isPending } = useMutation({
+    mutationFn: useConvexMutation(api.items.deleteItem),
+  })
+
+  return (
+    <Button
+      variant="ghost"
+      size="sm"
+      className="h-7 w-7 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+      onClick={() => deleteItem({ itemId })}
+      disabled={isPending}
+    >
+      <Trash2 className="h-4 w-4" />
+    </Button>
   )
 }
 

@@ -21,6 +21,7 @@
 
 ## Restrictions
 - Do not run `pnpm dev` (tanstack-router dev server)
+- Do not run `convex dev` or any dev server commands
 - Do not modify `routeTree.gen.ts`
 
 ## Convex Rules
