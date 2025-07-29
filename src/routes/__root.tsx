@@ -56,7 +56,10 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
     // const user = await ctx.context.queryClient.fetchQuery(
     // 	convexQuery(api.auth.getCurrentUser, {}),
     // )
-    console.log("[BEFORE-LOAD] ", user ? "User is populated" : "No user")
+    console.log(
+      "[BEFORE-LOAD] ",
+      user ? `User is populated ${JSON.stringify(user)}` : "No user",
+    )
 
     return { user: user, token: token }
   },

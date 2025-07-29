@@ -17,6 +17,7 @@ import { Route as mainRouteRouteImport } from "./routes/(main)/route";
 import { Route as authRouteRouteImport } from "./routes/(auth)/route";
 import { Route as IndexRouteImport } from "./routes/index";
 import { Route as mainTestRouteImport } from "./routes/(main)/test";
+import { Route as mainAdminRouteImport } from "./routes/(main)/admin";
 import { Route as authSignupRouteImport } from "./routes/(auth)/signup";
 import { Route as authLoginRouteImport } from "./routes/(auth)/login";
 import { Route as mainJoIndexRouteImport } from "./routes/(main)/jo.index";
@@ -53,6 +54,11 @@ const mainTestRoute = mainTestRouteImport.update({
   path: "/test",
   getParentRoute: () => mainRouteRoute,
 } as any);
+const mainAdminRoute = mainAdminRouteImport.update({
+  id: "/admin",
+  path: "/admin",
+  getParentRoute: () => mainRouteRoute,
+} as any);
 const authSignupRoute = authSignupRouteImport.update({
   id: "/signup",
   path: "/signup",
@@ -85,6 +91,7 @@ export interface FileRoutesByFullPath {
   "/testfruits": typeof TestfruitsRoute;
   "/login": typeof authLoginRoute;
   "/signup": typeof authSignupRoute;
+  "/admin": typeof mainAdminRoute;
   "/test": typeof mainTestRoute;
   "/jo/$joId": typeof mainJoJoIdRoute;
   "/jo": typeof mainJoIndexRoute;
@@ -95,6 +102,7 @@ export interface FileRoutesByTo {
   "/testfruits": typeof TestfruitsRoute;
   "/login": typeof authLoginRoute;
   "/signup": typeof authSignupRoute;
+  "/admin": typeof mainAdminRoute;
   "/test": typeof mainTestRoute;
   "/jo/$joId": typeof mainJoJoIdRoute;
   "/jo": typeof mainJoIndexRoute;
@@ -108,6 +116,7 @@ export interface FileRoutesById {
   "/testfruits": typeof TestfruitsRoute;
   "/(auth)/login": typeof authLoginRoute;
   "/(auth)/signup": typeof authSignupRoute;
+  "/(main)/admin": typeof mainAdminRoute;
   "/(main)/test": typeof mainTestRoute;
   "/(main)/jo/$joId": typeof mainJoJoIdRoute;
   "/(main)/jo/": typeof mainJoIndexRoute;
@@ -120,6 +129,7 @@ export interface FileRouteTypes {
     | "/testfruits"
     | "/login"
     | "/signup"
+    | "/admin"
     | "/test"
     | "/jo/$joId"
     | "/jo";
@@ -130,6 +140,7 @@ export interface FileRouteTypes {
     | "/testfruits"
     | "/login"
     | "/signup"
+    | "/admin"
     | "/test"
     | "/jo/$joId"
     | "/jo";
@@ -142,6 +153,7 @@ export interface FileRouteTypes {
     | "/testfruits"
     | "/(auth)/login"
     | "/(auth)/signup"
+    | "/(main)/admin"
     | "/(main)/test"
     | "/(main)/jo/$joId"
     | "/(main)/jo/";
@@ -220,6 +232,13 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof mainTestRouteImport;
       parentRoute: typeof mainRouteRoute;
     };
+    "/(main)/admin": {
+      id: "/(main)/admin";
+      path: "/admin";
+      fullPath: "/admin";
+      preLoaderRoute: typeof mainAdminRouteImport;
+      parentRoute: typeof mainRouteRoute;
+    };
     "/(auth)/signup": {
       id: "/(auth)/signup";
       path: "/signup";
@@ -277,12 +296,14 @@ const authRouteRouteWithChildren = authRouteRoute._addFileChildren(
 );
 
 interface mainRouteRouteChildren {
+  mainAdminRoute: typeof mainAdminRoute;
   mainTestRoute: typeof mainTestRoute;
   mainJoJoIdRoute: typeof mainJoJoIdRoute;
   mainJoIndexRoute: typeof mainJoIndexRoute;
 }
 
 const mainRouteRouteChildren: mainRouteRouteChildren = {
+  mainAdminRoute: mainAdminRoute,
   mainTestRoute: mainTestRoute,
   mainJoJoIdRoute: mainJoJoIdRoute,
   mainJoIndexRoute: mainJoIndexRoute,

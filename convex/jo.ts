@@ -3,7 +3,7 @@ import { v } from "convex/values"
 import { paginationOptsValidator } from "convex/server"
 import type { Doc } from "./_generated/dataModel"
 import { internalMutation, query } from "./_generated/server"
-import { authedMutation } from "./auth"
+import { authedMutation, betterAuthComponent } from "./auth"
 
 export type Item = Doc<"items">
 export type Jo = Doc<"jo">
@@ -21,6 +21,8 @@ export const createJo = authedMutation({
   handler: async (ctx, args) => {
     const { name, pickupDate, contactNumber } = args
 
+    const userMetadata = await betterAuthComponent.getAuthUser(ctx)
+
     const lastJoNumber = await ctx.db
       .query("jo")
       .withIndex("by_joNumber")
@@ -34,6 +36,7 @@ export const createJo = authedMutation({
       pickupDate,
       contactNumber,
       status: "pending",
+      createdBy: userMetadata?.userId,
     })
     return joId
   },

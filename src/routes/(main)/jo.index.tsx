@@ -3,6 +3,7 @@ import { createFileRoute, useNavigate, useRouter } from "@tanstack/react-router"
 import { CreateDialog } from "@/components/create-jo"
 import { Container } from "@/components/layouts/container"
 import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { Skeleton } from "@/components/ui/skeleton"
 import {
@@ -36,15 +37,21 @@ function RouteComponent() {
   return (
     <>
       <Container className="flex flex-col gap-2 md:gap-4">
-        <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold tracking-tight">Job Orders</h1>
-          <CreateDialog />
-        </div>
-        <div className="w-full">
-          <Suspense fallback={<JobOrderListSkeleton />}>
-            <JobOrderList />
-          </Suspense>
-        </div>
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <h1 className="text-3xl font-bold tracking-tight">Job Orders</h1>
+              <CreateDialog />
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="w-full">
+              <Suspense fallback={<JobOrderListSkeleton />}>
+                <JobOrderList />
+              </Suspense>
+            </div>
+          </CardContent>
+        </Card>
       </Container>
     </>
   )
@@ -152,6 +159,7 @@ function JobOrderList() {
           <JobOrderListBody jos={jos} />
         </TableBody>
       </Table>
+
       <Separator className="" />
       <div className="flex w-full justify-center gap-2 pt-2">
         <Button

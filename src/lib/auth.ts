@@ -1,6 +1,7 @@
 import { convexAdapter } from "@convex-dev/better-auth"
 import { convex } from "@convex-dev/better-auth/plugins"
 import { betterAuth } from "better-auth"
+import { admin } from "better-auth/plugins"
 import type { GenericCtx } from "../../convex/_generated/server"
 import { betterAuthComponent } from "../../convex/auth"
 
@@ -11,6 +12,16 @@ const URL = process.env.VERCEL_URL
 export const createAuth = (ctx: GenericCtx) =>
   // Configure your Better Auth instance here
   betterAuth({
+    user: {
+      additionalFields: {
+        role: {
+          type: "string",
+          required: false,
+          defaultValue: "user",
+          input: false, // prevent users from setting role themselves
+        },
+      },
+    },
     // All auth requests will be proxied through your TanStack Start server
     baseURL: URL,
     session: {
@@ -28,7 +39,10 @@ export const createAuth = (ctx: GenericCtx) =>
       requireEmailVerification: false,
     },
     plugins: [
+      admin(),
       // The Convex plugin is required
       convex(),
     ],
   })
+
+export type SessionWithRole = ReturnType<typeof createAuth>["$Infer"]["Session"]
