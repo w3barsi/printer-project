@@ -10,6 +10,7 @@
 
 ## Style
 - **Imports**: `@/` for src/, `@convex` for convex/
+- **Lucide**: Import with "Icon" suffix (e.g., `Trash2Icon` not `Trash2`)
 - **Format**: Tabs (2), no semicolons, double quotes
 - **Types**: Full TypeScript, strict mode
 - **Naming**: PascalCase components, camelCase vars
