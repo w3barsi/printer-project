@@ -29,8 +29,8 @@ function RouteComponent() {
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset>
-        <Container className="h-16">
-          <header className="mx-auto flex shrink-0 items-center justify-between">
+        <Container className="flex h-16 items-center justify-center">
+          <header className="mx-auto flex w-full shrink-0 items-center justify-between">
             <div className="flex items-center gap-2">
               <SidebarTrigger className="-ml-1 size-9" />
               <Separator
