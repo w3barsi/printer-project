@@ -1,4 +1,15 @@
 import { Container } from "@/components/layouts/container"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
@@ -24,8 +35,15 @@ import { convexQuery, useConvexMutation } from "@convex-dev/react-query"
 import { api } from "@convex/_generated/api"
 import type { Id } from "@convex/_generated/dataModel"
 import { useMutation, useSuspenseQuery } from "@tanstack/react-query"
-import { createFileRoute, Link } from "@tanstack/react-router"
-import { ArrowLeftIcon, Calendar, Clock, Package, PlusIcon, Trash2 } from "lucide-react"
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router"
+import {
+  ArrowLeftIcon,
+  Calendar,
+  Clock,
+  Package,
+  PlusIcon,
+  Trash2Icon,
+} from "lucide-react"
 import { useState } from "react"
 
 export const Route = createFileRoute("/(main)/jo/$joId")({
@@ -45,10 +63,19 @@ export const Route = createFileRoute("/(main)/jo/$joId")({
 
 function JoDetailComponent() {
   const { joId } = Route.useParams()
+  const navigate = useNavigate()
 
   const { data: jo } = useSuspenseQuery(
     convexQuery(api.jo.getOneWithItems, { id: joId as Id<"jo"> }),
   )
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: useConvexMutation(api.jo.deleteJo),
+    onSuccess: () => {
+      navigate({ to: "/jo" })
+    },
+  })
+  const deleteJo = () => mutate({ joId: joId as Id<"jo"> })
 
   if (jo === null) {
     return (
@@ -78,7 +105,7 @@ function JoDetailComponent() {
           </Link>
         </Button>
       </div>
-      <Card className="shadow-none">
+      <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
@@ -88,7 +115,36 @@ function JoDetailComponent() {
               </CardTitle>
               <p className="text-muted-foreground mt-1">Job Order #{jo.joNumber}</p>
             </div>
-            <AddItemDialog joId={joId as Id<"jo">} />
+            <div className="flex gap-2">
+              <AlertDialog>
+                <AlertDialogTrigger>
+                  <Button variant="destructive-ghost">
+                    <Trash2Icon />
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent className="sm:max-w-sm">
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This action cannot be undone. This will permanently delete your
+                      account and remove your data from our servers.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction
+                      variant="destructive"
+                      onClick={deleteJo}
+                      disabled={isPending}
+                    >
+                      <Trash2Icon />
+                      Delete
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+              <AddItemDialog joId={joId as Id<"jo">} />
+            </div>
           </div>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
@@ -260,11 +316,11 @@ function DeleteItemButton({ itemId }: { itemId: Id<"items"> }) {
     <Button
       variant="ghost"
       size="sm"
-      className="h-7 w-7 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+      className="h-7 w-7 p-0 opacity-0 transition-opacity group-hover:opacity-100"
       onClick={() => deleteItem({ itemId })}
       disabled={isPending}
     >
-      <Trash2 className="h-4 w-4" />
+      <Trash2Icon className="h-4 w-4" />
     </Button>
   )
 }
