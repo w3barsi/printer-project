@@ -29,6 +29,18 @@ function lineBuilder(arrString: string[]) {
   return final
 }
 
+function leftRightText({ left, right }: { left: string; right: string }) {
+  const rightLength = right.length
+  const availableSpace = MAX_LENGTH - rightLength
+
+  if (left.length > availableSpace - 3) {
+    left = left.slice(0, availableSpace - 4) + "... "
+  }
+
+  const spaces = MAX_LENGTH - left.length - rightLength
+  return left + " ".repeat(spaces) + right
+}
+
 // function itemLineBuilder(arrString: string[]) {
 // 	const name = arrString[0]
 // 	const total = arrString[1]
@@ -83,25 +95,26 @@ export async function printReceipt({
       return total + item.quantity * item.price
     }, 0)
 
-    const header = encoder
-      .initialize()
-      .align("center")
-      .image(logo, 320, 160, "atkinson")
-      .align("left")
-      .line(lineBuilder([jo.name, `${new Date().toLocaleDateString()}`]))
-      .line("--------------------------------")
-      .encode()
-    await device.transferOut(endpoint.endpointNumber, header)
+    // const header = encoder
+    //   .initialize()
+    //   .align("center")
+    //   .image(logo, 320, 160, "atkinson")
+    //   .align("left")
+    //   .line(lineBuilder(["Customer Name", "JO Number", jo.name, jo.joNumber.toString()]))
+    //   .line("--------------------------------")
+    //   .encode()
+    // await device.transferOut(endpoint.endpointNumber, header)
 
     jo.items.forEach(async (item) => {
       const total = item.quantity * item.price
       const body = encoder
         .initialize()
         .align("left")
-        .line(lineBuilder([item.name, `${item.quantity} x ${item.price}`]))
-        .bold()
-        .line(rightText(`PHP ${total}`))
-        .bold()
+        .line(leftRightText({ left: item.name, right: `PHP ${total.toFixed(2)}` }))
+        .line(
+          `${item.quantity}${item.quantity > 1 ? "pcs" : "pc"} x @ PHP ${item.price.toFixed(2)}`,
+        )
+        // .line(rightText(`PHP ${total}`))
         .newline()
         .encode()
 
@@ -111,7 +124,7 @@ export async function printReceipt({
     const footer = encoder
       .initialize()
       .align("left")
-      .line(rightText("Total: " + totalPrice))
+      .line(rightText("Total: " + totalPrice.toFixed(2)))
       .line("--------------------------------")
       .line("This serves as your claim slip.")
       .newline(2)
