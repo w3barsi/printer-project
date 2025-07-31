@@ -12,6 +12,13 @@ export type JoWithItems = {
   items: Item[]
 }
 
+export const deleteJo = authedMutation({
+  args: v.object({ joId: v.id("jo") }),
+  handler: async (ctx, args) => {
+    await ctx.db.delete(args.joId)
+  },
+})
+
 export const createJo = authedMutation({
   args: v.object({
     name: v.string(),

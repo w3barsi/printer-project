@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate, useRouter } from "@tanstack/react-router"
 
 import { CreateDialog } from "@/components/create-jo"
 import { Container } from "@/components/layouts/container"
+import { PrintJoButton } from "@/components/printer/print-jo-button"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
@@ -14,15 +15,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { useDevice } from "@/contexts/DeviceContext"
-import { printReceipt } from "@/lib/printer"
 import type { JoWithItems } from "@/types/convex"
 import { convexQuery } from "@convex-dev/react-query"
 import { api } from "@convex/_generated/api"
 import { useSuspenseQuery } from "@tanstack/react-query"
-import { ArrowLeftIcon, ArrowRightIcon, HashIcon, PrinterIcon } from "lucide-react"
+import { ArrowLeftIcon, ArrowRightIcon, HashIcon } from "lucide-react"
 import { Suspense, useState } from "react"
-import { toast } from "sonner"
 
 export const Route = createFileRoute("/(main)/jo/")({
   component: RouteComponent,
@@ -31,6 +29,13 @@ export const Route = createFileRoute("/(main)/jo/")({
       crumb: [{ value: "Job Order", href: "/jo/", type: "static" }],
     }
   },
+  head: () => ({
+    meta: [
+      {
+        title: `Job Orders | DG`,
+      },
+    ],
+  }),
 })
 
 function RouteComponent() {
@@ -229,29 +234,11 @@ function JobOrderListBody({ jos }: { jos: JoWithItems[] }) {
             )}
           </TableCell>
           <TableCell className="w-12">
-            <PrintButton jo={jo} />
+            <PrintJoButton jo={jo} />
           </TableCell>
         </TableRow>
       ))}
     </>
-  )
-}
-
-function PrintButton({ jo }: { jo: JoWithItems }) {
-  const { device, isConnected } = useDevice()
-
-  const handlePrint = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.stopPropagation()
-    if (!isConnected) {
-      return toast.error("Printer not connected")
-    }
-    printReceipt({ jo, device })
-  }
-
-  return (
-    <Button onClick={handlePrint} variant="ghost">
-      <PrinterIcon />
-    </Button>
   )
 }
 

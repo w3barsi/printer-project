@@ -1,6 +1,6 @@
 import type { AuthFunctions, PublicAuthFunctions } from "@convex-dev/better-auth"
 import { BetterAuth } from "@convex-dev/better-auth"
-import { customCtx, customMutation } from "convex-helpers/server/customFunctions"
+import { customCtx, customMutation, customQuery } from "convex-helpers/server/customFunctions"
 import { api, components, internal } from "./_generated/api"
 import type { DataModel, Id } from "./_generated/dataModel"
 import { mutation, query } from "./_generated/server"
@@ -51,6 +51,15 @@ export const getCurrentUser = query({
 
 export const authedMutation = customMutation(
   mutation,
+  customCtx(async (ctx) => {
+    const user = await ctx.auth.getUserIdentity()
+    if (!user) throw new Error("Authentication required")
+    return { user }
+  }),
+)
+
+export const authedQuery = customQuery(
+  query,
   customCtx(async (ctx) => {
     const user = await ctx.auth.getUserIdentity()
     if (!user) throw new Error("Authentication required")

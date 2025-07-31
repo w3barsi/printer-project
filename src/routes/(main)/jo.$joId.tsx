@@ -1,4 +1,5 @@
 import { Container } from "@/components/layouts/container"
+import { PrintJoButton } from "@/components/printer/print-jo-button"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -50,22 +51,40 @@ export const Route = createFileRoute("/(main)/jo/$joId")({
   component: JoDetailComponent,
   loader: async ({ context: { queryClient: qc }, params }) => {
     const id = params.joId as Id<"jo">
-    await qc.ensureQueryData(convexQuery(api.jo.getOneWithItems, { id }))
+    const jo = await qc.ensureQueryData(convexQuery(api.jo.getOneWithItems, { id }))
 
     return {
+      joNumber: jo?.joNumber,
       crumb: [
         { value: "Job Order", href: "/jo/", type: "static" },
         { value: params.joId, href: `/jo/${params.joId}`, type: "jo" },
       ],
     }
   },
+  head: ({ loaderData }) => ({
+    meta: [
+      {
+        name: "description",
+        content: "My App is a web application",
+      },
+      {
+        title: `Job Order #${loaderData?.joNumber} | DG`,
+      },
+    ],
+  }),
 })
 
 function JoDetailComponent() {
   const { joId } = Route.useParams()
   const navigate = useNavigate()
 
+  // Fetch job order with items using Convex API
+  // Suspense query for /jo/${joId} route
+  // Fetch job order with items using Convex API
+  // Suspense query for /jo/${joId} route
   const { data: jo } = useSuspenseQuery(
+    // Fetch job order with items using Convex API
+    // Suspense query for /jo/${joId} route
     convexQuery(api.jo.getOneWithItems, { id: joId as Id<"jo"> }),
   )
 
@@ -143,6 +162,7 @@ function JoDetailComponent() {
                   </AlertDialogFooter>
                 </AlertDialogContent>
               </AlertDialog>
+              <PrintJoButton jo={jo} />
               <AddItemDialog joId={joId as Id<"jo">} />
             </div>
           </div>
