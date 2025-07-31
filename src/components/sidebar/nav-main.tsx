@@ -1,20 +1,21 @@
 "use client"
 
-import { ChevronRight, CircuitBoardIcon, FileTextIcon } from "lucide-react"
+import { ChevronRight, FileTextIcon, TrelloIcon } from "lucide-react"
 
 import {
   SidebarGroup,
   SidebarMenu,
+  SidebarMenuAction,
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar"
+import { useLocalStorage } from "@/hooks/use-local-storage"
 import { getTrelloLists } from "@/server/trello"
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
-import { Suspense } from "react"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../ui/collapsible"
 
 export function NavMain() {
@@ -35,19 +36,6 @@ export function NavMain() {
           </SidebarMenuButton>
         </SidebarMenuItem>
 
-        <SidebarMenuItem>
-          <SidebarMenuButton asChild tooltip="Trello">
-            <Link
-              to="/trello"
-              activeProps={{
-                className: "bg-sidebar-accent text-sidebar-accent-foreground",
-              }}
-            >
-              <CircuitBoardIcon />
-              <span>Trello</span>
-            </Link>
-          </SidebarMenuButton>
-        </SidebarMenuItem>
         <TrelloSidebar />
       </SidebarMenu>
     </SidebarGroup>
@@ -55,58 +43,48 @@ export function NavMain() {
 }
 
 function TrelloSidebar() {
-  return (
-    <Collapsible defaultOpen className="group/collapsible">
-      <SidebarMenuItem>
-        <div className="flex">
-          <SidebarMenuButton asChild tooltip="Trello">
-            <Link
-              to="/trello"
-              activeProps={{
-                className: "bg-sidebar-accent text-sidebar-accent-foreground",
-              }}
-            >
-              <CircuitBoardIcon />
-              <span>Trello</span>
-            </Link>
-          </SidebarMenuButton>
-        </div>
-        <CollapsibleTrigger asChild>
-          <SidebarMenuButton className="w-full">
-            <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
-          </SidebarMenuButton>
-        </CollapsibleTrigger>
-        <CollapsibleContent>
-          <Suspense fallback={<div>Loading...</div>}>
-            <TrelloSidebarSubMenu />
-          </Suspense>
-        </CollapsibleContent>
-      </SidebarMenuItem>
-    </Collapsible>
-  )
-}
-
-function TrelloSidebarSubMenu() {
+  const [isOpen, setIsOpen] = useLocalStorage("trello-lists-open", false)
   const { data: lists } = useSuspenseQuery({
     queryKey: ["trelloLists"],
     queryFn: getTrelloLists,
   })
+
   return (
-    <SidebarMenuSub>
-      {lists.map((list) => (
-        <SidebarMenuSubItem key={list.id}>
-          <SidebarMenuSubButton asChild>
-            <Link
-              to={`/trello/$listId`}
-              params={{ listId: list.id }}
-              activeProps={{ className: "bg-sidebar-accent" }}
-              className="truncate"
-            >
-              {list.name}
-            </Link>
-          </SidebarMenuSubButton>
-        </SidebarMenuSubItem>
-      ))}
-    </SidebarMenuSub>
+    <Collapsible asChild defaultOpen={isOpen}>
+      <SidebarMenuItem>
+        <SidebarMenuButton asChild tooltip="Trello">
+          <Link to="/trello" activeProps={{ className: "bg-sidebar-accent" }}>
+            <TrelloIcon />
+            <span>Trello</span>
+          </Link>
+        </SidebarMenuButton>
+        {lists.length ? (
+          <>
+            <CollapsibleTrigger asChild>
+              <SidebarMenuAction
+                className="hover:bg-neutral-500/10 data-[state=open]:rotate-90 dark:hover:bg-neutral-500/70"
+                onClick={() => setIsOpen(!isOpen)}
+              >
+                <ChevronRight />
+                <span className="sr-only">Toggle</span>
+              </SidebarMenuAction>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <SidebarMenuSub>
+                {lists.map((list) => (
+                  <SidebarMenuSubItem key={list.id}>
+                    <SidebarMenuSubButton asChild>
+                      <Link to={`/trello/$listId`} params={{ listId: list.id }}>
+                        <span>{list.name}</span>
+                      </Link>
+                    </SidebarMenuSubButton>
+                  </SidebarMenuSubItem>
+                ))}
+              </SidebarMenuSub>
+            </CollapsibleContent>
+          </>
+        ) : null}
+      </SidebarMenuItem>
+    </Collapsible>
   )
 }

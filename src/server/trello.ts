@@ -19,6 +19,15 @@ const trelloListSchema = z.object({
   idBoard: z.string(),
 })
 
+const cardAttachmentSchema = z.array(
+  z.object({
+    id: z.string(),
+    url: z.string(),
+    name: z.string(),
+    mimeType: z.string(),
+  }),
+)
+
 export const getList = createServerFn({ method: "GET" }).handler(async () => {
   const TRELLO_KEY = process.env.TRELLO_KEY
   const TRELLO_TOKEN = process.env.TRELLO_TOKEN
@@ -100,3 +109,57 @@ export const getTrelloLists = createServerFn({ method: "GET" }).handler(async ()
   const data = await response.json()
   return trelloListsSchema.parse(data)
 })
+
+export const getCardAttachmentsServerFn = createServerFn({ method: "POST" })
+  .validator((data: unknown) => z.object({ id: z.string() }).parse(data))
+  .handler(async ({ data }) => {
+    const TRELLO_KEY = process.env.TRELLO_KEY
+    const TRELLO_TOKEN = process.env.TRELLO_TOKEN
+    const res = await fetch(
+      `https://api.trello.com/1/cards/${data.id}/attachments?key=${TRELLO_KEY}&token=${TRELLO_TOKEN}`,
+      {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+        },
+      },
+    )
+    const atts = cardAttachmentSchema.parse(await res.json())
+    return atts
+  })
+
+export const downloadCardAttachmentsServerFn = createServerFn({ method: "POST" })
+  .validator((data: unknown) =>
+    z.array(z.object({ url: z.string(), name: z.string() })).parse(data),
+  )
+  .handler(async ({ data }) => {
+    const TRELLO_KEY = process.env.TRELLO_KEY
+    const TRELLO_TOKEN = process.env.TRELLO_TOKEN
+
+    const fetchImage = async ({ url, name }: { url: string; name: string }) => {
+      try {
+        const response = await fetch(url, {
+          headers: {
+            Authorization: `OAuth oauth_consumer_key="${TRELLO_KEY}", oauth_token="${TRELLO_TOKEN}"`,
+          },
+        })
+        if (!response.ok) {
+          throw new Error(`Failed to fetch image: ${response.statusText}`)
+        }
+
+        const arrayBuffer = await response.arrayBuffer()
+        const base64Image = Buffer.from(arrayBuffer).toString("base64")
+        const contentType = response.headers.get("content-type") ?? "image/jpeg"
+
+        return { base64Image, contentType, name }
+      } catch (error) {
+        console.error(`Error fetching image ${url}:`, error)
+        return null
+      }
+    }
+
+    const results = await Promise.all(data.map(fetchImage))
+    return results.filter(
+      (result): result is NonNullable<typeof result> => result !== null,
+    )
+  })
