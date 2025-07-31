@@ -35,9 +35,15 @@ function RecentSubMenu() {
       {recent.map((item) => (
         <SidebarMenuSub key={item.id}>
           <SidebarMenuSubItem>
-            <Link to={`/jo/$joId`} params={{ joId: item.id }}>
-              <SidebarMenuSubButton>{item.name}</SidebarMenuSubButton>
-            </Link>
+            <SidebarMenuSubButton asChild>
+              <Link
+                to={`/jo/$joId`}
+                params={{ joId: item.id }}
+                activeProps={{ className: "bg-sidebar-accent" }}
+              >
+                {item.name}
+              </Link>
+            </SidebarMenuSubButton>
           </SidebarMenuSubItem>
         </SidebarMenuSub>
       ))}
