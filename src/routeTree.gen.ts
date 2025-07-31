@@ -17,7 +17,6 @@ import { Route as mainRouteRouteImport } from "./routes/(main)/route";
 import { Route as authRouteRouteImport } from "./routes/(auth)/route";
 import { Route as IndexRouteImport } from "./routes/index";
 import { Route as mainTrelloRouteImport } from "./routes/(main)/trello";
-import { Route as mainTestRouteImport } from "./routes/(main)/test";
 import { Route as mainAdminRouteImport } from "./routes/(main)/admin";
 import { Route as authSignupRouteImport } from "./routes/(auth)/signup";
 import { Route as authLoginRouteImport } from "./routes/(auth)/login";
@@ -53,11 +52,6 @@ const IndexRoute = IndexRouteImport.update({
 const mainTrelloRoute = mainTrelloRouteImport.update({
   id: "/trello",
   path: "/trello",
-  getParentRoute: () => mainRouteRoute,
-} as any);
-const mainTestRoute = mainTestRouteImport.update({
-  id: "/test",
-  path: "/test",
   getParentRoute: () => mainRouteRoute,
 } as any);
 const mainAdminRoute = mainAdminRouteImport.update({
@@ -98,7 +92,6 @@ export interface FileRoutesByFullPath {
   "/login": typeof authLoginRoute;
   "/signup": typeof authSignupRoute;
   "/admin": typeof mainAdminRoute;
-  "/test": typeof mainTestRoute;
   "/trello": typeof mainTrelloRoute;
   "/jo/$joId": typeof mainJoJoIdRoute;
   "/jo": typeof mainJoIndexRoute;
@@ -110,7 +103,6 @@ export interface FileRoutesByTo {
   "/login": typeof authLoginRoute;
   "/signup": typeof authSignupRoute;
   "/admin": typeof mainAdminRoute;
-  "/test": typeof mainTestRoute;
   "/trello": typeof mainTrelloRoute;
   "/jo/$joId": typeof mainJoJoIdRoute;
   "/jo": typeof mainJoIndexRoute;
@@ -125,7 +117,6 @@ export interface FileRoutesById {
   "/(auth)/login": typeof authLoginRoute;
   "/(auth)/signup": typeof authSignupRoute;
   "/(main)/admin": typeof mainAdminRoute;
-  "/(main)/test": typeof mainTestRoute;
   "/(main)/trello": typeof mainTrelloRoute;
   "/(main)/jo/$joId": typeof mainJoJoIdRoute;
   "/(main)/jo/": typeof mainJoIndexRoute;
@@ -139,7 +130,6 @@ export interface FileRouteTypes {
     | "/login"
     | "/signup"
     | "/admin"
-    | "/test"
     | "/trello"
     | "/jo/$joId"
     | "/jo";
@@ -151,7 +141,6 @@ export interface FileRouteTypes {
     | "/login"
     | "/signup"
     | "/admin"
-    | "/test"
     | "/trello"
     | "/jo/$joId"
     | "/jo";
@@ -165,7 +154,6 @@ export interface FileRouteTypes {
     | "/(auth)/login"
     | "/(auth)/signup"
     | "/(main)/admin"
-    | "/(main)/test"
     | "/(main)/trello"
     | "/(main)/jo/$joId"
     | "/(main)/jo/";
@@ -244,13 +232,6 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof mainTrelloRouteImport;
       parentRoute: typeof mainRouteRoute;
     };
-    "/(main)/test": {
-      id: "/(main)/test";
-      path: "/test";
-      fullPath: "/test";
-      preLoaderRoute: typeof mainTestRouteImport;
-      parentRoute: typeof mainRouteRoute;
-    };
     "/(main)/admin": {
       id: "/(main)/admin";
       path: "/admin";
@@ -316,7 +297,6 @@ const authRouteRouteWithChildren = authRouteRoute._addFileChildren(
 
 interface mainRouteRouteChildren {
   mainAdminRoute: typeof mainAdminRoute;
-  mainTestRoute: typeof mainTestRoute;
   mainTrelloRoute: typeof mainTrelloRoute;
   mainJoJoIdRoute: typeof mainJoJoIdRoute;
   mainJoIndexRoute: typeof mainJoIndexRoute;
@@ -324,7 +304,6 @@ interface mainRouteRouteChildren {
 
 const mainRouteRouteChildren: mainRouteRouteChildren = {
   mainAdminRoute: mainAdminRoute,
-  mainTestRoute: mainTestRoute,
   mainTrelloRoute: mainTrelloRoute,
   mainJoJoIdRoute: mainJoJoIdRoute,
   mainJoIndexRoute: mainJoIndexRoute,

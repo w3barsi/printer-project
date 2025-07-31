@@ -1,8 +1,9 @@
 import { v } from "convex/values"
 
 import { paginationOptsValidator } from "convex/server"
+import { internal } from "./_generated/api"
 import type { Doc } from "./_generated/dataModel"
-import { internalMutation, query } from "./_generated/server"
+import { internalMutation, internalQuery, query } from "./_generated/server"
 import { authedMutation, betterAuthComponent } from "./auth"
 
 export type Item = Doc<"items">
@@ -16,6 +17,14 @@ export const deleteJo = authedMutation({
   args: v.object({ joId: v.id("jo") }),
   handler: async (ctx, args) => {
     await ctx.db.delete(args.joId)
+  },
+})
+
+export const getOne = internalQuery({
+  args: { id: v.id("jo") },
+  handler: async (ctx, args) => {
+    const jo = await ctx.db.get(args.id)
+    return jo
   },
 })
 
@@ -45,6 +54,8 @@ export const createJo = authedMutation({
       status: "pending",
       createdBy: userMetadata?.userId,
     })
+
+    await ctx.scheduler.runAfter(0, internal.trello.createTrelloCard, { joId })
     return joId
   },
 })
@@ -73,37 +84,12 @@ export const createRandomJo = internalMutation({
 export const getRecent = query({
   args: {},
   handler: async (ctx) => {
-    const recent = await ctx.db.query("jo").order("desc").take(5)
+    const recent = await ctx.db
+      .query("jo")
+      .withIndex("by_lastUpdated")
+      .order("desc")
+      .take(5)
     return recent.map((jo) => ({ id: jo._id, name: jo.name }))
-  },
-})
-
-export const getWithPages = query({
-  args: { page: v.number() },
-  handler: async (ctx, { page }) => {
-    const pageSize = 10
-    const allJos = await ctx.db.query("jo").order("desc").collect()
-    const total = allJos.length
-    const start = (page - 1) * pageSize
-    const end = start + pageSize
-    const josOnPage = allJos.slice(start, end)
-
-    const joWithItems = josOnPage.map(async (jo) => {
-      const items = await ctx.db
-        .query("items")
-        .withIndex("by_joId", (q) => q.eq("joId", jo._id))
-        .collect()
-      return {
-        ...jo,
-        items,
-      }
-    })
-
-    const pageWithItems = await Promise.all(joWithItems)
-    return {
-      page: pageWithItems,
-      total,
-    }
   },
 })
 

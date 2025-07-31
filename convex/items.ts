@@ -25,5 +25,7 @@ export const createItem = mutation({
       quantity,
       price,
     })
+
+    await ctx.db.patch(args.joId, { updatedAt: new Date().getTime() })
   },
 })

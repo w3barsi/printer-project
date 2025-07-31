@@ -13,6 +13,7 @@ import type * as http from "../http.js";
 import type * as items from "../items.js";
 import type * as jo from "../jo.js";
 import type * as products from "../products.js";
+import type * as trello from "../trello.js";
 
 import type {
   ApiFromModules,
@@ -34,6 +35,7 @@ declare const fullApi: ApiFromModules<{
   items: typeof items;
   jo: typeof jo;
   products: typeof products;
+  trello: typeof trello;
 }>;
 declare const fullApiWithMounts: typeof fullApi;
 
