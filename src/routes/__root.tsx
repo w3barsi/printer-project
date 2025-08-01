@@ -1,5 +1,6 @@
 import { Toaster } from "@/components/ui/sonner"
 import { DeviceProvider } from "@/contexts/DeviceContext"
+import type { SessionWithRole } from "@/lib/auth"
 import { authClient } from "@/lib/auth-client.ts"
 import { fetchSession, getCookieName } from "@/lib/auth-utils"
 import { ConvexBetterAuthProvider } from "@convex-dev/better-auth/react"
@@ -26,7 +27,8 @@ const fetchAuth = createServerFn({ method: "GET" }).handler(async () => {
   const sessionCookieName = await getCookieName()
   const token = getCookie(sessionCookieName)
   const request = getWebRequest()
-  const { session } = await fetchSession(request)
+  const { session: rawSession } = await fetchSession(request)
+  const session = rawSession as SessionWithRole
   console.log("[BEFORE-LOAD (fetchAuth)] ", "fetching auth details")
   return {
     user: session?.user ?? undefined,
