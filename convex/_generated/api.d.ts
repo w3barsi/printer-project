@@ -8,6 +8,7 @@
  * @module
  */
 
+import type * as admin_users from "../admin/users.js";
 import type * as auth from "../auth.js";
 import type * as http from "../http.js";
 import type * as items from "../items.js";
@@ -30,6 +31,7 @@ import type {
  * ```
  */
 declare const fullApi: ApiFromModules<{
+  "admin/users": typeof admin_users;
   auth: typeof auth;
   http: typeof http;
   items: typeof items;

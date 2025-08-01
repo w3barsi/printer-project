@@ -35,19 +35,33 @@ export function NavMain() {
         </SidebarMenuItem>
 
         {user.role === "admin" ? (
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild tooltip="Admin">
-              <Link
-                to="/admin/users"
-                activeProps={{
-                  className: "bg-sidebar-accent text-sidebar-accent-foreground",
-                }}
-              >
-                <UserRoundCogIcon />
-                <span>Admin</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
+          <Collapsible className="group/collapsible">
+            <SidebarMenuItem>
+              <CollapsibleTrigger asChild>
+                <SidebarMenuButton>
+                  <UserRoundCogIcon />
+                  <span>Admin</span>
+                  <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                </SidebarMenuButton>
+              </CollapsibleTrigger>
+              <CollapsibleContent>
+                <SidebarMenuSub>
+                  <SidebarMenuItem>
+                    <SidebarMenuSubButton asChild>
+                      <Link
+                        to={`/admin/users`}
+                        activeProps={{
+                          className: "bg-sidebar-accent text-sidebar-accent-foreground",
+                        }}
+                      >
+                        <span>User Management</span>
+                      </Link>
+                    </SidebarMenuSubButton>
+                  </SidebarMenuItem>
+                </SidebarMenuSub>
+              </CollapsibleContent>
+            </SidebarMenuItem>
+          </Collapsible>
         ) : null}
 
         <TrelloSidebar />
@@ -67,7 +81,11 @@ function TrelloSidebar() {
     <Collapsible asChild defaultOpen={isOpen}>
       <SidebarMenuItem>
         <SidebarMenuButton asChild tooltip="Trello">
-          <Link to="/trello" activeProps={{ className: "bg-sidebar-accent" }}>
+          <Link
+            to="/trello"
+            activeOptions={{ exact: true }}
+            activeProps={{ className: "bg-sidebar-accent" }}
+          >
             <TrelloIcon />
             <span>Trello</span>
           </Link>
@@ -79,7 +97,7 @@ function TrelloSidebar() {
                 className="border border-neutral-500/20 hover:bg-neutral-500/10 data-[state=open]:rotate-90 dark:hover:bg-neutral-500/70"
                 onClick={() => setIsOpen(!isOpen)}
               >
-                <ChevronRight className="" />
+                <ChevronRight />
                 <span className="sr-only">Toggle</span>
               </SidebarMenuAction>
             </CollapsibleTrigger>
@@ -88,7 +106,11 @@ function TrelloSidebar() {
                 {lists.map((list) => (
                   <SidebarMenuSubItem key={list.id}>
                     <SidebarMenuSubButton asChild>
-                      <Link to={`/trello/$listId`} params={{ listId: list.id }}>
+                      <Link
+                        to={`/trello/$listId`}
+                        params={{ listId: list.id }}
+                        activeProps={{ className: "bg-sidebar-accent" }}
+                      >
                         <span>{list.name}</span>
                       </Link>
                     </SidebarMenuSubButton>
