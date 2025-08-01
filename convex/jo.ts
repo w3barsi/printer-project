@@ -3,7 +3,7 @@ import { v } from "convex/values"
 import { paginationOptsValidator } from "convex/server"
 import { internal } from "./_generated/api"
 import type { Doc } from "./_generated/dataModel"
-import { internalMutation, internalQuery, query } from "./_generated/server"
+import { internalMutation, internalQuery } from "./_generated/server"
 import { authedMutation, authedQuery, betterAuthComponent } from "./auth"
 
 export type Item = Doc<"items">
@@ -81,7 +81,7 @@ export const createRandomJo = internalMutation({
   },
 })
 
-export const getRecent = query({
+export const getRecent = authedQuery({
   args: {},
   handler: async (ctx) => {
     const recent = await ctx.db

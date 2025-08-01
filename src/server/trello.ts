@@ -1,4 +1,4 @@
-import { env } from "@/env"
+import { env } from "@/env/server"
 import { createServerFn } from "@tanstack/react-start"
 import z from "zod"
 

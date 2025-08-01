@@ -7,12 +7,11 @@ import { ConvexProvider, ConvexReactClient } from "convex/react"
 import "./styles.css"
 
 import { NotFound } from "./components/not-found"
-import { env } from "./env"
 import { routeTree } from "./routeTree.gen"
 
 // Create a new router instance
 export function createRouter() {
-  const CONVEX_URL = env.VITE_CONVEX_URL
+  const CONVEX_URL = import.meta.env.VITE_CONVEX_URL
   if (!CONVEX_URL) {
     console.error("missing envar VITE_CONVEX_URL")
   }

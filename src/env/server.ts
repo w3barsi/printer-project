@@ -9,17 +9,6 @@ export const env = createEnv({
   },
 
   /**
-   * The prefix that client-side variables must have. This is enforced both at
-   * a type-level and at runtime.
-   */
-  clientPrefix: "VITE_",
-
-  client: {
-    VITE_APP_TITLE: z.string().min(1).optional(),
-    VITE_CONVEX_URL: z.string(),
-  },
-
-  /**
    * What object holds the environment variables at runtime. This is usually
    * `process.env` or `import.meta.env`.
    */

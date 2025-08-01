@@ -136,7 +136,7 @@ function JoDetailComponent() {
             </div>
             <div className="flex gap-2">
               <AlertDialog>
-                <AlertDialogTrigger>
+                <AlertDialogTrigger asChild>
                   <Button variant="destructive-ghost">
                     <Trash2Icon />
                   </Button>
