@@ -6,7 +6,6 @@ export const env = createEnv({
     TRELLO_KEY: z.string().min(1),
     TRELLO_TOKEN: z.string().min(1),
     SERVER_URL: z.string().url().optional(),
-    VERCEL_URL: z.string().url().optional(),
   },
 
   /**
