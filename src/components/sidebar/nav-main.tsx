@@ -16,7 +16,6 @@ import { ChevronRight, FileTextIcon, TrelloIcon, UserRoundCogIcon } from "lucide
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../ui/collapsible"
 
 export function NavMain() {
-  const { user } = useRouteContext({ from: "/(main)" })
   return (
     <SidebarGroup>
       <SidebarMenu>
@@ -34,39 +33,49 @@ export function NavMain() {
           </SidebarMenuButton>
         </SidebarMenuItem>
 
-        {user.role === "admin" ? (
-          <Collapsible className="group/collapsible">
-            <SidebarMenuItem>
-              <CollapsibleTrigger asChild>
-                <SidebarMenuButton>
-                  <UserRoundCogIcon />
-                  <span>Admin</span>
-                  <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
-                </SidebarMenuButton>
-              </CollapsibleTrigger>
-              <CollapsibleContent>
-                <SidebarMenuSub>
-                  <SidebarMenuItem>
-                    <SidebarMenuSubButton asChild>
-                      <Link
-                        to={`/admin/users`}
-                        activeProps={{
-                          className: "bg-sidebar-accent text-sidebar-accent-foreground",
-                        }}
-                      >
-                        <span>User Management</span>
-                      </Link>
-                    </SidebarMenuSubButton>
-                  </SidebarMenuItem>
-                </SidebarMenuSub>
-              </CollapsibleContent>
-            </SidebarMenuItem>
-          </Collapsible>
-        ) : null}
+        <AdminSidebar />
 
         <TrelloSidebar />
       </SidebarMenu>
     </SidebarGroup>
+  )
+}
+
+function AdminSidebar() {
+  const [isOpen, setIsOpen] = useLocalStorage("admin-sidebar-open", false)
+  const { user } = useRouteContext({ from: "/(main)" })
+  return (
+    <>
+      {user.role === "admin" ? (
+        <Collapsible className="group/collapsible" defaultOpen={isOpen}>
+          <SidebarMenuItem>
+            <CollapsibleTrigger asChild>
+              <SidebarMenuButton onClick={() => setIsOpen(!isOpen)}>
+                <UserRoundCogIcon />
+                <span>Admin</span>
+                <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+              </SidebarMenuButton>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <SidebarMenuSub>
+                <SidebarMenuItem>
+                  <SidebarMenuSubButton asChild>
+                    <Link
+                      to={`/admin/users`}
+                      activeProps={{
+                        className: "bg-sidebar-accent text-sidebar-accent-foreground",
+                      }}
+                    >
+                      <span>User Management</span>
+                    </Link>
+                  </SidebarMenuSubButton>
+                </SidebarMenuItem>
+              </SidebarMenuSub>
+            </CollapsibleContent>
+          </SidebarMenuItem>
+        </Collapsible>
+      ) : null}
+    </>
   )
 }
 

@@ -1,5 +1,6 @@
 import { Container } from "@/components/layouts/container"
 import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,7 +20,7 @@ import { convexQuery, useConvexMutation } from "@convex-dev/react-query"
 import { api } from "@convex/_generated/api"
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { createFileRoute } from "@tanstack/react-router"
-import { MoreVerticalIcon, Trash2Icon } from "lucide-react"
+import { GavelIcon, MoreVerticalIcon } from "lucide-react"
 import { toast } from "sonner"
 
 export const Route = createFileRoute("/(main)/(admin)/admin/users")({
@@ -29,7 +30,7 @@ export const Route = createFileRoute("/(main)/(admin)/admin/users")({
 function RouteComponent() {
   const { data } = useSuspenseQuery(convexQuery(api.admin.users.listUsers, {}))
   const setRole = useConvexMutation(api.admin.users.setRole)
-  const deleteUser = useConvexMutation(api.admin.users.deleteUser)
+  const banOrUnbanUser = useConvexMutation(api.admin.users.banOrUnbanUser)
 
   async function onChangeRole(userId: string, role: "user" | "admin") {
     try {
@@ -41,9 +42,10 @@ function RouteComponent() {
     }
   }
 
-  async function onDelete(userId: string) {
+  async function banHandler(userId: string, isBanned: boolean) {
+    console.log(userId, isBanned)
     try {
-      await deleteUser({ userId })
+      await banOrUnbanUser({ userId, isBanned })
       toast.success("User deleted")
     } catch (e: unknown) {
       const error = e as { message?: string }
@@ -53,65 +55,78 @@ function RouteComponent() {
 
   return (
     <Container>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Name</TableHead>
-            <TableHead>Email</TableHead>
-            <TableHead>Role</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Created</TableHead>
-            <TableHead className="w-0" />
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {!data?.users ? (
-            <span>No users</span>
-          ) : (
-            data.users.map((u) => (
-              <TableRow key={u.id}>
-                <TableCell>{u.name || "-"}</TableCell>
-                <TableCell>{u.email || "-"}</TableCell>
-                <TableCell>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="outline" size="sm">
-                        {u.role || "user"}
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="start">
-                      <DropdownMenuItem onClick={() => onChangeRole(u.id, "user")}>
-                        user
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => onChangeRole(u.id, "admin")}>
-                        admin
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </TableCell>
-                <TableCell>{u.banned ? "banned" : "active"}</TableCell>
-                <TableCell>
-                  {u.createdAt ? new Date(u.createdAt).toLocaleString() : "-"}
-                </TableCell>
-                <TableCell className="text-right">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" aria-label="Actions">
-                        <MoreVerticalIcon className="size-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => onDelete(u.id)}>
-                        <Trash2Icon className="size-4" /> Delete
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </TableCell>
-              </TableRow>
-            ))
-          )}
-        </TableBody>
-      </Table>
+      <Card>
+        <CardHeader>
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">User Management</h1>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="overflow-hidden rounded-lg border">
+            <Table>
+              <TableHeader className="bg-muted sticky top-0 z-10">
+                <TableRow>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Role</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Created</TableHead>
+                  <TableHead className="w-0" />
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {!data?.users ? (
+                  <span>No users</span>
+                ) : (
+                  data.users.map((u) => (
+                    <TableRow key={u.id}>
+                      <TableCell>{u.name || "-"}</TableCell>
+                      <TableCell>{u.email || "-"}</TableCell>
+                      <TableCell>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="outline" size="sm">
+                              {u.role || "user"}
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="start">
+                            <DropdownMenuItem onClick={() => onChangeRole(u.id, "user")}>
+                              user
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => onChangeRole(u.id, "admin")}>
+                              admin
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                      <TableCell>{u.banned ? "banned" : "active"}</TableCell>
+                      <TableCell>
+                        {u.createdAt ? new Date(u.createdAt).toLocaleString() : "-"}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" aria-label="Actions">
+                              <MoreVerticalIcon className="size-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem
+                              onClick={() => banHandler(u.id, u.banned ?? false)}
+                            >
+                              <GavelIcon /> {u.banned ? "Unban User" : "Ban User"}
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </div>
+        </CardContent>
+      </Card>
       <Toaster richColors />
     </Container>
   )
