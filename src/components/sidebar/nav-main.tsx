@@ -34,7 +34,7 @@ export function NavMain() {
           </SidebarMenuButton>
         </SidebarMenuItem>
 
-        {user?.role === "admin" ? (
+        {user.role === "admin" ? (
           <SidebarMenuItem>
             <SidebarMenuButton asChild tooltip="Admin">
               <Link
@@ -76,10 +76,10 @@ function TrelloSidebar() {
           <>
             <CollapsibleTrigger asChild>
               <SidebarMenuAction
-                className="hover:bg-neutral-500/10 data-[state=open]:rotate-90 dark:hover:bg-neutral-500/70"
+                className="border border-neutral-500/20 hover:bg-neutral-500/10 data-[state=open]:rotate-90 dark:hover:bg-neutral-500/70"
                 onClick={() => setIsOpen(!isOpen)}
               >
-                <ChevronRight />
+                <ChevronRight className="" />
                 <span className="sr-only">Toggle</span>
               </SidebarMenuAction>
             </CollapsibleTrigger>
