@@ -11,11 +11,12 @@ import {
 import { useLocalStorage } from "@/hooks/use-local-storage"
 import { getTrelloLists } from "@/server/trello"
 import { useSuspenseQuery } from "@tanstack/react-query"
-import { Link } from "@tanstack/react-router"
-import { ChevronRight, FileTextIcon, TrelloIcon } from "lucide-react"
+import { Link, useRouteContext } from "@tanstack/react-router"
+import { ChevronRight, FileTextIcon, TrelloIcon, UserRoundCogIcon } from "lucide-react"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../ui/collapsible"
 
 export function NavMain() {
+  const { user } = useRouteContext({ from: "/(main)" })
   return (
     <SidebarGroup>
       <SidebarMenu>
@@ -32,6 +33,22 @@ export function NavMain() {
             </Link>
           </SidebarMenuButton>
         </SidebarMenuItem>
+
+        {user?.role === "admin" ? (
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild tooltip="Admin">
+              <Link
+                to="/admin/users"
+                activeProps={{
+                  className: "bg-sidebar-accent text-sidebar-accent-foreground",
+                }}
+              >
+                <UserRoundCogIcon />
+                <span>Admin</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        ) : null}
 
         <TrelloSidebar />
       </SidebarMenu>
