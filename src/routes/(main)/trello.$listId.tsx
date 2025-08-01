@@ -9,7 +9,7 @@ import {
 } from "@/server/trello"
 import { useMutation, useSuspenseQuery } from "@tanstack/react-query"
 import { createFileRoute } from "@tanstack/react-router"
-import { saveAs } from "file-saver"
+import fileSaver from "file-saver"
 import JSZip from "jszip"
 import { RefreshCwIcon } from "lucide-react"
 import { Suspense } from "react"
@@ -114,7 +114,7 @@ function CardList() {
 
     zip.generateAsync({ type: "blob" }).then(function (content) {
       // Use FileSaver.js to trigger the download
-      saveAs(content, "attachments.zip")
+      fileSaver.saveAs(content, "attachments.zip")
     })
   }
 

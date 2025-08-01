@@ -3,7 +3,10 @@ import { z } from "zod"
 
 export const env = createEnv({
   server: {
+    TRELLO_KEY: z.string().min(1),
+    TRELLO_TOKEN: z.string().min(1),
     SERVER_URL: z.string().url().optional(),
+    VERCEL_URL: z.string().url().optional(),
   },
 
   /**
@@ -21,7 +24,7 @@ export const env = createEnv({
    * What object holds the environment variables at runtime. This is usually
    * `process.env` or `import.meta.env`.
    */
-  runtimeEnv: import.meta.env,
+  runtimeEnv: process.env,
 
   /**
    * By default, this library will feed the environment variables directly to

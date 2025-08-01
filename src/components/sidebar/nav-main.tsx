@@ -1,7 +1,3 @@
-"use client"
-
-import { ChevronRight, FileTextIcon, TrelloIcon } from "lucide-react"
-
 import {
   SidebarGroup,
   SidebarMenu,
@@ -16,6 +12,7 @@ import { useLocalStorage } from "@/hooks/use-local-storage"
 import { getTrelloLists } from "@/server/trello"
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
+import { ChevronRight, FileTextIcon, TrelloIcon } from "lucide-react"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../ui/collapsible"
 
 export function NavMain() {

@@ -1,3 +1,4 @@
+import { env } from "@/env"
 import { createServerFn } from "@tanstack/react-start"
 import z from "zod"
 
@@ -90,15 +91,9 @@ export const getListCards = createServerFn({ method: "GET" })
   })
 
 export const getTrelloLists = createServerFn({ method: "GET" }).handler(async () => {
-  const TRELLO_KEY = process.env.TRELLO_KEY
-  const TRELLO_TOKEN = process.env.TRELLO_TOKEN
   const BOARD_ID = "1ELaQNZb"
 
-  if (!TRELLO_KEY || !TRELLO_TOKEN) {
-    throw new Error("Missing Trello credentials")
-  }
-
-  const url = `https://api.trello.com/1/boards/${BOARD_ID}/lists?key=${TRELLO_KEY}&token=${TRELLO_TOKEN}`
+  const url = `https://api.trello.com/1/boards/${BOARD_ID}/lists?key=${env.TRELLO_KEY}&token=${env.TRELLO_TOKEN}`
 
   const response = await fetch(url)
 
@@ -113,10 +108,8 @@ export const getTrelloLists = createServerFn({ method: "GET" }).handler(async ()
 export const getCardAttachmentsServerFn = createServerFn({ method: "POST" })
   .validator((data: unknown) => z.object({ id: z.string() }).parse(data))
   .handler(async ({ data }) => {
-    const TRELLO_KEY = process.env.TRELLO_KEY
-    const TRELLO_TOKEN = process.env.TRELLO_TOKEN
     const res = await fetch(
-      `https://api.trello.com/1/cards/${data.id}/attachments?key=${TRELLO_KEY}&token=${TRELLO_TOKEN}`,
+      `https://api.trello.com/1/cards/${data.id}/attachments?key=${env.TRELLO_KEY}&token=${env.TRELLO_TOKEN}`,
       {
         method: "GET",
         headers: {
@@ -133,14 +126,11 @@ export const downloadCardAttachmentsServerFn = createServerFn({ method: "POST" }
     z.array(z.object({ url: z.string(), name: z.string() })).parse(data),
   )
   .handler(async ({ data }) => {
-    const TRELLO_KEY = process.env.TRELLO_KEY
-    const TRELLO_TOKEN = process.env.TRELLO_TOKEN
-
     const fetchImage = async ({ url, name }: { url: string; name: string }) => {
       try {
         const response = await fetch(url, {
           headers: {
-            Authorization: `OAuth oauth_consumer_key="${TRELLO_KEY}", oauth_token="${TRELLO_TOKEN}"`,
+            Authorization: `OAuth oauth_consumer_key="${env.TRELLO_KEY}", oauth_token="${env.TRELLO_TOKEN}"`,
           },
         })
         if (!response.ok) {
