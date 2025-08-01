@@ -35,8 +35,9 @@ function RouteComponent() {
     try {
       await setRole({ userId, role })
       toast.success("Role updated")
-    } catch (e: any) {
-      toast.error(e?.message || "Failed to update role")
+    } catch (e: unknown) {
+      const error = e as { message?: string }
+      toast.error(error?.message || "Failed to update role")
     }
   }
 
@@ -44,8 +45,9 @@ function RouteComponent() {
     try {
       await deleteUser({ userId })
       toast.success("User deleted")
-    } catch (e: any) {
-      toast.error(e?.message || "Failed to delete user")
+    } catch (e: unknown) {
+      const error = e as { message?: string }
+      toast.error(error?.message || "Failed to delete user")
     }
   }
 
@@ -63,47 +65,51 @@ function RouteComponent() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {(data?.users ?? []).map((u: any) => (
-            <TableRow key={u.id}>
-              <TableCell>{u.name || "-"}</TableCell>
-              <TableCell>{u.email || "-"}</TableCell>
-              <TableCell>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="outline" size="sm">
-                      {u.role || "user"}
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="start">
-                    <DropdownMenuItem onClick={() => onChangeRole(u.id, "user")}>
-                      user
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => onChangeRole(u.id, "admin")}>
-                      admin
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </TableCell>
-              <TableCell>{u.status || "active"}</TableCell>
-              <TableCell>
-                {u.createdAt ? new Date(u.createdAt).toLocaleString() : "-"}
-              </TableCell>
-              <TableCell className="text-right">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" aria-label="Actions">
-                      <MoreVerticalIcon className="size-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={() => onDelete(u.id)}>
-                      <Trash2Icon className="size-4" /> Delete
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </TableCell>
-            </TableRow>
-          ))}
+          {!data?.users ? (
+            <span>No users</span>
+          ) : (
+            data.users.map((u) => (
+              <TableRow key={u.id}>
+                <TableCell>{u.name || "-"}</TableCell>
+                <TableCell>{u.email || "-"}</TableCell>
+                <TableCell>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="outline" size="sm">
+                        {u.role || "user"}
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="start">
+                      <DropdownMenuItem onClick={() => onChangeRole(u.id, "user")}>
+                        user
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => onChangeRole(u.id, "admin")}>
+                        admin
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </TableCell>
+                <TableCell>{u.banned ? "banned" : "active"}</TableCell>
+                <TableCell>
+                  {u.createdAt ? new Date(u.createdAt).toLocaleString() : "-"}
+                </TableCell>
+                <TableCell className="text-right">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon" aria-label="Actions">
+                        <MoreVerticalIcon className="size-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => onDelete(u.id)}>
+                        <Trash2Icon className="size-4" /> Delete
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </TableCell>
+              </TableRow>
+            ))
+          )}
         </TableBody>
       </Table>
       <Toaster richColors />

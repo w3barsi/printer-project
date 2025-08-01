@@ -24,6 +24,7 @@
 - Do not run `pnpm dev` (tanstack-router dev server)
 - Do not run `convex dev` or any dev server commands
 - Do not modify `routeTree.gen.ts`
+- NEVER run `pnpm check`
 
 ## Convex Rules
 - Use new function syntax: `query/mutation({ args, returns, handler })`
