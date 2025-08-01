@@ -1,10 +1,15 @@
 import { Button } from "@/components/ui/button"
 import { authClient } from "@/lib/auth-client"
 import { useQueryClient } from "@tanstack/react-query"
-import { Link, createFileRoute, useRouter } from "@tanstack/react-router"
+import { Link, createFileRoute, redirect, useRouter } from "@tanstack/react-router"
 
 export const Route = createFileRoute("/")({
   component: Home,
+  beforeLoad: () => {
+    if (import.meta.env.PROD) {
+      throw redirect({ to: "/jo" })
+    }
+  },
   loader: ({ context }) => {
     return { user: context.user }
   },
