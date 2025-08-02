@@ -1,7 +1,7 @@
 import { convexAdapter } from "@convex-dev/better-auth"
 import { convex } from "@convex-dev/better-auth/plugins"
 import { betterAuth } from "better-auth"
-import { admin } from "better-auth/plugins"
+import { admin, username } from "better-auth/plugins"
 import type { GenericCtx } from "../../convex/_generated/server"
 import { betterAuthComponent } from "../../convex/auth"
 
@@ -39,6 +39,7 @@ export const createAuth = (ctx: GenericCtx) =>
       requireEmailVerification: false,
     },
     plugins: [
+      username(),
       admin(),
       // The Convex plugin is required
       convex(),
