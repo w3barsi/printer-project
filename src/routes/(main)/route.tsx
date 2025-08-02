@@ -10,9 +10,9 @@ import { Outlet, createFileRoute, redirect } from "@tanstack/react-router"
 
 export const Route = createFileRoute("/(main)")({
   component: RouteComponent,
-  beforeLoad: ({ context }) => {
+  beforeLoad: ({ context, location }) => {
     if (!context.user) {
-      throw redirect({ to: "/login" })
+      throw redirect({ to: "/login", search: { redirectUrl: location.pathname } })
     }
 
     // `context.queryClient` is also available in our loaders

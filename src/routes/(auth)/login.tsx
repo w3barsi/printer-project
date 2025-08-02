@@ -7,13 +7,15 @@ import { GalleryVerticalEnd, LoaderCircle } from "lucide-react"
 import { useState } from "react"
 
 import { authClient } from "@/lib/auth-client"
+import z from "zod"
 
 export const Route = createFileRoute("/(auth)/login")({
   component: LoginForm,
+  validateSearch: z.object({ redirectUrl: z.string().optional() }),
 })
 
 function LoginForm() {
-  const { redirectUrl } = Route.useRouteContext()
+  const { redirectUrl } = Route.useSearch()
   const queryClient = useQueryClient()
   const navigate = useNavigate()
 
@@ -45,7 +47,7 @@ function LoginForm() {
         },
         onSuccess: async () => {
           await queryClient.invalidateQueries({ queryKey: ["user"] })
-          navigate({ to: redirectUrl })
+          navigate({ to: redirectUrl, replace: true })
         },
       },
     )
