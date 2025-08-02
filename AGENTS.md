@@ -26,6 +26,13 @@
 - Do not modify `routeTree.gen.ts`
 - NEVER run `pnpm check`
 
+## Todo Management
+- When asked to add a todo, add it to README.md under "## Todos" section
+- Break todos into small, actionable parts (max 2-3 lines each)
+- Use markdown checkboxes: `- [ ] Task description`
+- Group related todos under sub-headers
+- After completing a todo task, add comment: `<!-- Completed: YYYY-MM-DD HH:MM:SS -->`
+
 ## Convex Rules
 - Use new function syntax: `query/mutation({ args, returns, handler })`
 - Always include validators: `v.string()`, `v.null()`, etc.
