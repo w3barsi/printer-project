@@ -1,3 +1,4 @@
+import { CreateUserDialog } from "@/components/create-user"
 import { Container } from "@/components/layouts/container"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
@@ -57,8 +58,9 @@ function RouteComponent() {
     <Container>
       <Card>
         <CardHeader>
-          <div>
+          <div className="flex justify-between">
             <h1 className="text-3xl font-bold tracking-tight">User Management</h1>
+            <CreateUserDialog />
           </div>
         </CardHeader>
         <CardContent>

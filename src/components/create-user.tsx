@@ -1,3 +1,10 @@
+import { useState } from "react"
+import { useForm } from "react-hook-form"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { convexQuery, useConvexMutation } from "@convex-dev/react-query"
+import { api } from "@convex/_generated/api"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { z } from "zod"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -8,33 +15,56 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { useConvexMutation } from "@convex-dev/react-query"
-import { api } from "@convex/_generated/api"
-import { useMutation } from "@tanstack/react-query"
+import { toast } from "sonner"
 import { PlusIcon } from "lucide-react"
-import { useState } from "react"
 
-export function CreateUser() {
+const createUserSchema = z.object({
+  name: z.string().min(2, "Name must be at least 2 characters"),
+  email: z.string().email("Please enter a valid email address"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
+})
+
+type CreateUserFormData = z.infer<typeof createUserSchema>
+
+export function CreateUserDialog() {
   const [open, setOpen] = useState(false)
-  const [name, setName] = useState("")
-  const [contact, setContact] = useState("")
+  const queryClient = useQueryClient()
+  const createUser = useConvexMutation(api.admin.users.createUser)
 
-  const { mutate: createJo, isPending } = useMutation({
-    mutationFn: useConvexMutation(api.jo.createJo),
-    onSuccess: () => {
-      setOpen(false)
-      setName("")
-      setContact("")
+  const form = useForm<CreateUserFormData>({
+    resolver: zodResolver(createUserSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      password: "",
     },
   })
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (name.trim()) {
-      console.log({ name, contactNumber: contact.length === 0 ? undefined : contact })
-      createJo({ name, contactNumber: contact.length === 0 ? undefined : contact })
-    }
+
+  const mutation = useMutation({
+    mutationFn: createUser,
+    onSuccess: () => {
+      toast.success("User created successfully")
+      queryClient.invalidateQueries(convexQuery(api.admin.users.listUsers, {}))
+      setOpen(false)
+      form.reset()
+    },
+    onError: (error) => {
+      toast.error(error?.message || "Failed to create user")
+    },
+  })
+
+  function onSubmit(data: CreateUserFormData) {
+    mutation.mutate(data)
   }
 
   return (
@@ -42,45 +72,76 @@ export function CreateUser() {
       <DialogTrigger asChild>
         <Button>
           <PlusIcon className="mr-2 h-4 w-4" />
-          Create
+          Create User
         </Button>
       </DialogTrigger>
-      <DialogContent className="w-sm">
+      <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Create Job Orderz</DialogTitle>
+          <DialogTitle>Create New User</DialogTitle>
           <DialogDescription>
-            Create a new job order to start tracking items and progress.
+            Add a new user to the system. They will receive an email to verify
+            their account.
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit}>
-          <div className="grid gap-4 py-4">
-            <div className="grid gap-2">
-              <Label htmlFor="name">Name</Label>
-              <Input
-                id="name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Enter job order name"
-                required
-              />
-            </div>
-
-            <div className="grid gap-2">
-              <Label htmlFor="contact">Contact Number</Label>
-              <Input
-                id="contact"
-                value={contact}
-                onChange={(e) => setContact(e.target.value)}
-                placeholder="Enter cotnact number (optional)"
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button type="submit" disabled={isPending}>
-              {isPending ? "Creating..." : "Create"}
-            </Button>
-          </DialogFooter>
-        </form>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Name</FormLabel>
+                  <FormControl>
+                    <Input placeholder="John Doe" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="email"
+                      placeholder="john@example.com"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Password</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="password"
+                      placeholder="••••••••"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    Must be at least 8 characters long
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <DialogFooter>
+              <Button type="submit" disabled={mutation.isPending}>
+                {mutation.isPending ? "Creating..." : "Create User"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   )

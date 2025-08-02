@@ -1,5 +1,6 @@
 import { v } from "convex/values"
 import { createAuth } from "../../src/lib/auth"
+import { mutation } from "../_generated/server"
 import { authedMutation, authedQuery, betterAuthComponent } from "../auth"
 
 export const listUsers = authedQuery({
@@ -11,6 +12,7 @@ export const listUsers = authedQuery({
       query: {},
       headers,
     })
+    console.log(users)
     return users
   },
 })
@@ -32,10 +34,11 @@ export const createUser = authedMutation({
   },
 })
 
-export const setRole = authedMutation({
+export const setRole = mutation({
   args: { userId: v.string(), role: v.union(v.literal("user"), v.literal("admin")) },
   handler: async (ctx, args) => {
     const auth = createAuth(ctx)
+    console.log(args.userId)
     const headers = await betterAuthComponent.getHeaders(ctx)
     await auth.api.setRole({
       body: {
@@ -48,7 +51,7 @@ export const setRole = authedMutation({
   },
 })
 
-export const banOrUnbanUser = authedMutation({
+export const banOrUnbanUser = mutation({
   args: { userId: v.string(), isBanned: v.boolean() },
   handler: async (ctx, args) => {
     const auth = createAuth(ctx)

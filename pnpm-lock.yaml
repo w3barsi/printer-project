@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@convex-dev/better-auth':
-        specifier: ^0.7.8
-        version: 0.7.8(@standard-schema/spec@1.0.0)(better-auth@1.2.12)(convex@1.25.4(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(typescript@5.8.3)
+        specifier: ^0.7.13
+        version: 0.7.13(@standard-schema/spec@1.0.0)(better-auth@1.3.4(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(convex@1.25.4(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(typescript@5.8.3)
       '@convex-dev/react-query':
         specifier: 0.0.0-alpha.11
         version: 0.0.0-alpha.11(@standard-schema/spec@1.0.0)(@tanstack/react-query@5.83.0(react@19.1.0))(convex@1.25.4(react@19.1.0))(react@19.1.0)(typescript@5.8.3)(zod@3.25.76)
@@ -132,8 +132,8 @@ importers:
         specifier: ^1.128.6
         version: 1.128.6(@tanstack/react-router@1.128.6(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(vite@6.3.5(@types/node@24.0.15)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3))
       better-auth:
-        specifier: 1.2.12
-        version: 1.2.12
+        specifier: 1.3.4
+        version: 1.3.4(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -485,10 +485,10 @@ packages:
       react:
         optional: true
 
-  '@convex-dev/better-auth@0.7.8':
-    resolution: {integrity: sha512-guIQyGRc4IFBZ+MNh+IFR9WaJ/4lPkrxnzwjiSOmX6AtDqpYIitWBgtQ4L7X4PCaVn7pFrSb1RHVKbk2m695QQ==}
+  '@convex-dev/better-auth@0.7.13':
+    resolution: {integrity: sha512-QOfbsDXScdBPggalZY85cSUPmwT1sABrlBd8kWjtQbAg0iy8CgKpK9ALlQ8QCHZv7FdQIwK0AsKUYTPFK5Ua6w==}
     peerDependencies:
-      better-auth: ~1.2.12
+      better-auth: 1.3.4
       convex: '>=1.25.0 <1.35.0'
       react: ^18.3.1 || ^19.0.0
       react-dom: ^18.3.1 || ^19.0.0
@@ -2837,11 +2837,19 @@ packages:
   base64-js@1.5.1:
     resolution: {integrity: sha512-AKpaYlHn8t4SVbOHCy+b5+KKgvR4vrsD8vbvrbiQJps7fKDTkjkDry6ji0rUJjC0kzbNePLwzxq8iypo41qeWA==}
 
-  better-auth@1.2.12:
-    resolution: {integrity: sha512-YicCyjQ+lxb7YnnaCewrVOjj3nPVa0xcfrOJK7k5MLMX9Mt9UnJ8GYaVQNHOHLyVxl92qc3C758X1ihqAUzm4w==}
+  better-auth@1.3.4:
+    resolution: {integrity: sha512-JbZYam6Cs3Eu5CSoMK120zSshfaKvrCftSo/+v7524H1RvhryQ7UtMbzagBcXj0Digjj8hZtVkkR4tTZD/wK2g==}
+    peerDependencies:
+      react: ^18.0.0 || ^19.0.0
+      react-dom: ^18.0.0 || ^19.0.0
+    peerDependenciesMeta:
+      react:
+        optional: true
+      react-dom:
+        optional: true
 
-  better-call@1.0.11:
-    resolution: {integrity: sha512-MOM01EMZFMzApWq9+WfqAnl2+DzFoMNp4H+lTFE1p7WF4evMeaQAAcOhI1WwMjITV4PGIWJ3Vn5GciQ5VHXbIA==}
+  better-call@1.0.12:
+    resolution: {integrity: sha512-ssq5OfB9Ungv2M1WVrRnMBomB0qz1VKuhkY2WxjHaLtlsHoSe9EPolj1xf7xf8LY9o3vfk3Rx6rCWI4oVHeBRg==}
 
   binary-extensions@2.3.0:
     resolution: {integrity: sha512-Ceh+7ox5qe7LJuLHoY0feh3pHuUDHAcRUeyL2VYghZwfpkNIy/+8Ocg0a3UuSoYzavmylwuLWQOf3hl0jjMMIw==}
@@ -4047,9 +4055,6 @@ packages:
 
   jose@5.10.0:
     resolution: {integrity: sha512-s+3Al/p9g32Iq+oqXxkW//7jk2Vig6FF1CFqzVXoTUXt2qz89YWbL+OwS17NFYEvxC35n0FKeGO2LGYSxeM2Gg==}
-
-  jose@6.0.11:
-    resolution: {integrity: sha512-QxG7EaliDARm1O1S8BGakqncGT9s25bKL1WSf6/oa17Tkqwi8D2ZNglqCF+DsYF88/rV66Q/Q2mFAy697E1DUg==}
 
   js-tokens@4.0.0:
     resolution: {integrity: sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==}
@@ -6005,9 +6010,9 @@ snapshots:
     optionalDependencies:
       react: 19.1.0
 
-  '@convex-dev/better-auth@0.7.8(@standard-schema/spec@1.0.0)(better-auth@1.2.12)(convex@1.25.4(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(typescript@5.8.3)':
+  '@convex-dev/better-auth@0.7.13(@standard-schema/spec@1.0.0)(better-auth@1.3.4(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(convex@1.25.4(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(typescript@5.8.3)':
     dependencies:
-      better-auth: 1.2.12
+      better-auth: 1.3.4(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       common-tags: 1.8.2
       convex: 1.25.4(react@19.1.0)
       convex-helpers: 0.1.99(@standard-schema/spec@1.0.0)(convex@1.25.4(react@19.1.0))(react@19.1.0)(typescript@5.8.3)(zod@3.25.76)
@@ -8550,7 +8555,7 @@ snapshots:
 
   base64-js@1.5.1: {}
 
-  better-auth@1.2.12:
+  better-auth@1.3.4(react-dom@19.1.0(react@19.1.0))(react@19.1.0):
     dependencies:
       '@better-auth/utils': 0.2.5
       '@better-fetch/fetch': 1.1.18
@@ -8558,14 +8563,17 @@ snapshots:
       '@noble/hashes': 1.8.0
       '@simplewebauthn/browser': 13.1.2
       '@simplewebauthn/server': 13.1.2
-      better-call: 1.0.11
+      better-call: 1.0.12
       defu: 6.1.4
-      jose: 6.0.11
+      jose: 5.10.0
       kysely: 0.28.2
       nanostores: 0.11.4
-      zod: 3.25.76
+      zod: 4.0.5
+    optionalDependencies:
+      react: 19.1.0
+      react-dom: 19.1.0(react@19.1.0)
 
-  better-call@1.0.11:
+  better-call@1.0.12:
     dependencies:
       '@better-fetch/fetch': 1.1.18
       rou3: 0.5.1
@@ -9848,8 +9856,6 @@ snapshots:
   jiti@2.4.2: {}
 
   jose@5.10.0: {}
-
-  jose@6.0.11: {}
 
   js-tokens@4.0.0: {}
 
