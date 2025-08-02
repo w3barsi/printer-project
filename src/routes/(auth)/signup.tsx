@@ -10,7 +10,8 @@ import { useState } from "react"
 export const Route = createFileRoute("/(auth)/signup")({
   component: SignupForm,
   beforeLoad: () => {
-    if (!import.meta.env.FLAG_SIGNUP) {
+    const FLAG = import.meta.env.VITE_FLAG_SIGNUP
+    if (!FLAG) {
       throw redirect({ to: "/login" })
     }
   },
