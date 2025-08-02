@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { env } from "@/env/client"
 import { authClient } from "@/lib/auth-client"
 import { useQueryClient } from "@tanstack/react-query"
 import { Link, createFileRoute, redirect, useNavigate } from "@tanstack/react-router"
@@ -10,8 +11,9 @@ import { useState } from "react"
 export const Route = createFileRoute("/(auth)/signup")({
   component: SignupForm,
   beforeLoad: () => {
-    const FLAG = import.meta.env.VITE_FLAG_SIGNUP
+    const FLAG = env.VITE_FLAG_SIGNUP
     if (!FLAG) {
+      console.error("[SIGNUP] Flag is false, cannot signup.")
       throw redirect({ to: "/login" })
     }
   },

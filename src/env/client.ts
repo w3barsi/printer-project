@@ -4,8 +4,10 @@ import { z } from "zod"
 export const env = createEnv({
   clientPrefix: "VITE_",
   client: {
-    VITE_APP_TITLE: z.string().min(1).optional(),
-    VITE_CONVEX_URL: z.string(),
+    VITE_FLAG_SIGNUP: z
+      .string()
+      .refine((v) => v === "true" || v === "false")
+      .transform((v) => v === "true"),
   },
 
   /**
