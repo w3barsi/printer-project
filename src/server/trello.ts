@@ -53,13 +53,16 @@ export const getList = createServerFn({ method: "GET" }).handler(async () => {
 const trelloCardsSchema = z.array(
   z.object({
     id: z.string(),
+    badges: z.object({
+      attachments: z.number(),
+    }),
     closed: z.boolean(),
     desc: z.string().optional(),
     due: z.string().nullable(),
     idList: z.string(),
     name: z.string(),
     pos: z.number(),
-    url: z.string(),
+    shortUrl: z.string().url(),
   }),
 )
 
@@ -80,6 +83,7 @@ export const getListCards = createServerFn({ method: "GET" })
     const response = await fetch(url)
 
     const data = await response.json()
+    console.log(data)
 
     const { data: parsedData, success, error } = trelloCardsSchema.safeParse(data)
 

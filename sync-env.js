@@ -5,10 +5,11 @@ import { execSync } from 'child_process'
 const isProd = process.argv.includes('--prod')
 const envFlag = isProd ? '--prod' : ''
 
-const envPath = path.join(process.cwd(), '.env.local')
+const envFile = isProd ? '.env.prod' : '.env.local'
+const envPath = path.join(process.cwd(), envFile)
 
 if (!fs.existsSync(envPath)) {
-  console.error('.env.local not found')
+  console.error(`${envFile} not found`)
   process.exit(1)
 }
 

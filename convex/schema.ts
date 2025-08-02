@@ -43,5 +43,21 @@ export default defineSchema({
     createdBy: v.optional(v.id("users")),
   }).index("by_joId", ["joId"]),
 
-  users: defineTable({ nickname: v.optional(v.string()) }),
+  users: defineTable({
+    name: v.string(),
+    username: v.optional(v.union(v.null(), v.string())),
+    displayUsername: v.optional(v.union(v.null(), v.string())),
+    email: v.string(),
+    emailVerified: v.boolean(),
+    image: v.optional(v.union(v.null(), v.string())),
+    phoneNumber: v.optional(v.union(v.null(), v.string())),
+    role: v.optional(v.union(v.null(), v.string())),
+    banned: v.optional(v.union(v.null(), v.boolean())),
+    banReason: v.optional(v.union(v.null(), v.string())),
+    createdAt: v.optional(v.union(v.null(), v.float64())),
+  })
+    .index("email_name", ["email", "name"])
+    .index("name", ["name"])
+    .index("phoneNumber", ["phoneNumber"])
+    .index("username", ["username"]),
 })

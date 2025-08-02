@@ -77,11 +77,11 @@ function RouteComponent() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {!data?.users ? (
+                {data.length === 0 ? (
                   <span>No users</span>
                 ) : (
-                  data.users.map((u) => (
-                    <TableRow key={u.id}>
+                  data.map((u) => (
+                    <TableRow key={u._id}>
                       <TableCell>{u.name || "-"}</TableCell>
                       <TableCell>{u.email || "-"}</TableCell>
                       <TableCell>
@@ -92,10 +92,12 @@ function RouteComponent() {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="start">
-                            <DropdownMenuItem onClick={() => onChangeRole(u.id, "user")}>
+                            <DropdownMenuItem onClick={() => onChangeRole(u._id, "user")}>
                               user
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => onChangeRole(u.id, "admin")}>
+                            <DropdownMenuItem
+                              onClick={() => onChangeRole(u._id, "admin")}
+                            >
                               admin
                             </DropdownMenuItem>
                           </DropdownMenuContent>
@@ -114,7 +116,7 @@ function RouteComponent() {
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
                             <DropdownMenuItem
-                              onClick={() => banHandler(u.id, u.banned ?? false)}
+                              onClick={() => banHandler(u._id, u.banned ?? false)}
                             >
                               <GavelIcon /> {u.banned ? "Unban User" : "Ban User"}
                             </DropdownMenuItem>

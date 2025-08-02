@@ -8,7 +8,7 @@ import {
   getListCards,
 } from "@/server/trello"
 import { useMutation, useSuspenseQuery } from "@tanstack/react-query"
-import { createFileRoute } from "@tanstack/react-router"
+import { createFileRoute, Link } from "@tanstack/react-router"
 import fileSaver from "file-saver"
 import JSZip from "jszip"
 import { RefreshCwIcon } from "lucide-react"
@@ -136,7 +136,11 @@ function CardList() {
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {cards.map((card) => (
             <Card key={card.id} className="pb-0">
-              <CardContent>{card.name}</CardContent>
+              <CardContent>
+                <Link to={card.shortUrl} target="_blank" className="hover:underline">
+                  {card.name}
+                </Link>
+              </CardContent>
               <CardFooter className="p-0">
                 <Button
                   className="w-full rounded-t-none"
@@ -147,8 +151,10 @@ function CardList() {
                       error: "Error downloading attachments!",
                     })
                   }
+                  disabled={card.badges.attachments === 0}
                 >
-                  Download Attachments
+                  Download Attachments{" "}
+                  {card.badges.attachments > 0 && `(${card.badges.attachments})`}
                 </Button>
               </CardFooter>
             </Card>
