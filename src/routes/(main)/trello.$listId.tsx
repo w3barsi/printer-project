@@ -29,6 +29,13 @@ export const Route = createFileRoute("/(main)/trello/$listId")({
       queryFn: () => getListCards({ data: { listId: params.listId } }),
     })
   },
+  head: () => ({
+    meta: [
+      {
+        title: `Trello | DG`,
+      },
+    ],
+  }),
 })
 
 function RouteComponent() {

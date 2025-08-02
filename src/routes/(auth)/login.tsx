@@ -12,6 +12,13 @@ import z from "zod"
 export const Route = createFileRoute("/(auth)/login")({
   component: LoginForm,
   validateSearch: z.object({ redirectUrl: z.string().optional() }),
+  head: () => ({
+    meta: [
+      {
+        title: `Login | DG`,
+      },
+    ],
+  }),
 })
 
 function LoginForm() {

@@ -13,6 +13,13 @@ export const Route = createFileRoute("/(main)/trello/")({
       queryFn: getTrelloLists,
     })
   },
+  head: () => ({
+    meta: [
+      {
+        title: `Trello | DG`,
+      },
+    ],
+  }),
 })
 
 function TrelloPage() {

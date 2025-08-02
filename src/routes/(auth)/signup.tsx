@@ -15,6 +15,13 @@ export const Route = createFileRoute("/(auth)/signup")({
       throw redirect({ to: "/login" })
     }
   },
+  head: () => ({
+    meta: [
+      {
+        title: `Sign Up | DG`,
+      },
+    ],
+  }),
 })
 
 function SignupForm() {
