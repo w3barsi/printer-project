@@ -2,7 +2,6 @@ import { createFileRoute, useNavigate, useRouter } from "@tanstack/react-router"
 
 import { CreateDialog } from "@/components/create-jo"
 import { Container } from "@/components/layouts/container"
-import { PrintJoButton } from "@/components/printer/print-jo-button"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
@@ -156,8 +155,9 @@ function JobOrderList() {
               Pickup Date
             </TableHead>
             <TableHead className="text-center font-semibold">Contact Number</TableHead>
-            <TableHead className="text-right font-semibold">Total Value</TableHead>
-            <TableHead className="w-12 font-semibold last:rounded-r-lg"></TableHead>
+            <TableHead className="text-right font-semibold last:rounded-r-lg">
+              Total Value
+            </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -187,14 +187,6 @@ function JobOrderList() {
 }
 
 function JobOrderListBody({ jos }: { jos: JoWithItems[] }) {
-  // const [page, setPage] = useState(1)
-
-  // const { data } = useSuspenseQuery(
-  //   convexQuery(api.jo.getWithItems, {
-  //     paginationopts: { cursor: null, numItems: 10 },
-  //   }),
-  // )
-
   const navigate = useNavigate()
   const { preloadRoute } = useRouter()
 
@@ -232,9 +224,6 @@ function JobOrderListBody({ jos }: { jos: JoWithItems[] }) {
             {formatCurrency(
               jo.items.reduce((sum, item) => sum + item.quantity * item.price, 0),
             )}
-          </TableCell>
-          <TableCell className="w-12">
-            <PrintJoButton jo={jo} />
           </TableCell>
         </TableRow>
       ))}
