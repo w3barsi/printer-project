@@ -13,6 +13,7 @@ import type * as auth from "../auth.js";
 import type * as http from "../http.js";
 import type * as items from "../items.js";
 import type * as jo from "../jo.js";
+import type * as payment from "../payment.js";
 import type * as products from "../products.js";
 import type * as trello from "../trello.js";
 
@@ -36,6 +37,7 @@ declare const fullApi: ApiFromModules<{
   http: typeof http;
   items: typeof items;
   jo: typeof jo;
+  payment: typeof payment;
   products: typeof products;
   trello: typeof trello;
 }>;

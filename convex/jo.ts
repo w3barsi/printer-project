@@ -120,27 +120,7 @@ export const getWithPagination = authedQuery({
   },
 })
 
-export const getWithItems = authedQuery({
-  args: {},
-  handler: async (ctx) => {
-    const jos = await ctx.db.query("jo").order("desc").collect()
-
-    const joWithItems = jos.map(async (jo) => {
-      const items = await ctx.db
-        .query("items")
-        .withIndex("by_joId", (q) => q.eq("joId", jo._id))
-        .collect()
-
-      return { ...jo, items }
-    })
-
-    const all = await Promise.all(joWithItems)
-
-    return all
-  },
-})
-
-export const getOneWithItems = authedQuery({
+export const getOneComplete = authedQuery({
   args: { id: v.id("jo") },
   handler: async (ctx, args) => {
     const jo = await ctx.db
@@ -156,7 +136,18 @@ export const getOneWithItems = authedQuery({
       .withIndex("by_joId", (q) => q.eq("joId", jo._id))
       .collect()
 
-    return { ...jo, items }
+    const payments = await ctx.db
+      .query("payment")
+      .withIndex("by_joId", (q) => q.eq("joId", jo._id))
+      .collect()
+
+    const totalPayments = payments.reduce((sum, payment) => sum + payment.amount, 0)
+    const totalOrderValue = items.reduce(
+      (sum, item) => sum + item.quantity * item.price,
+      0,
+    )
+
+    return { ...jo, totalPayments, totalOrderValue, items, payments }
   },
 })
 
