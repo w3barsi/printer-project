@@ -69,7 +69,7 @@ function Crumb({ idx, crumb }: { idx: number; crumb: CrumbType }) {
 
 function JoCrumb({ crumb }: { crumb: CrumbType }) {
   const { data } = useSuspenseQuery(
-    convexQuery(api.jo.getOneWithItems, { id: crumb.value as Id<"jo"> }),
+    convexQuery(api.jo.getOneComplete, { id: crumb.value as Id<"jo"> }),
   )
   return (
     <BreadcrumbItem>

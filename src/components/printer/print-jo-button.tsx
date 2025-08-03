@@ -1,11 +1,11 @@
 import { Button } from "@/components/ui/button"
 import { useDevice } from "@/contexts/DeviceContext"
 import { printReceipt } from "@/lib/printer"
-import type { JoWithItems } from "@/types/convex"
+import type { GetOneComplete } from "@/types/convex"
 import { PrinterIcon } from "lucide-react"
 import { toast } from "sonner"
 
-export function PrintJoButton({ jo }: { jo: JoWithItems }) {
+export function PrintJoButton({ jo }: { jo: GetOneComplete }) {
   const { device, isConnected } = useDevice()
 
   const handlePrint = (e: React.MouseEvent<HTMLButtonElement>) => {

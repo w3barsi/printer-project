@@ -13,16 +13,21 @@ import { useAutoAnimate } from "@formkit/auto-animate/react"
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
 import { Suspense } from "react"
+import { Card, CardContent } from "./ui/card"
 
 export function RecentJobOrders() {
   return (
     <SidebarGroup>
-      <SidebarGroupLabel>Recent Job Orders</SidebarGroupLabel>
-      <SidebarMenu>
-        <Suspense fallback={<RecentSubMenuSkeleton />}>
-          <RecentSubMenu />
-        </Suspense>
-      </SidebarMenu>
+      <Card className="px-2 pt-2 pb-3">
+        <CardContent className="p-0">
+          <SidebarGroupLabel>Recent Job Orders</SidebarGroupLabel>
+          <SidebarMenu>
+            <Suspense fallback={<RecentSubMenuSkeleton />}>
+              <RecentSubMenu />
+            </Suspense>
+          </SidebarMenu>
+        </CardContent>
+      </Card>
     </SidebarGroup>
   )
 }

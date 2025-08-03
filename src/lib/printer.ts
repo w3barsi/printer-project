@@ -1,4 +1,5 @@
-import type { JoWithItems } from "@/types/convex"
+import type { GetOneComplete } from "@/types/convex"
+
 import ReceiptPrinterEncoder from "@point-of-sale/receipt-printer-encoder"
 
 const encoder = new ReceiptPrinterEncoder()
@@ -64,7 +65,7 @@ export async function printReceipt({
   jo,
 }: {
   device: USBDevice | null
-  jo: JoWithItems
+  jo: GetOneComplete
 }) {
   if (!device) {
     console.error("No device connected.")
@@ -91,31 +92,30 @@ export async function printReceipt({
       logo.src = "/logo.jpg"
     })
 
-    const totalPrice = jo.items.reduce((total, item) => {
-      return total + item.quantity * item.price
-    }, 0)
-
-    // const header = encoder
-    //   .initialize()
-    //   .align("center")
-    //   .image(logo, 320, 160, "atkinson")
-    //   .align("left")
-    //   .line(lineBuilder(["Customer Name", "JO Number", jo.name, jo.joNumber.toString()]))
-    //   .line("--------------------------------")
-    //   .encode()
-    // await device.transferOut(endpoint.endpointNumber, header)
+    const header = encoder
+      .initialize()
+      .align("center")
+      .image(logo, 320, 160, "atkinson")
+      .align("left")
+      .line(lineBuilder(["Customer Name", jo.name, "JO Number", jo.joNumber.toString()]))
+      .line("--------------------------------")
+      .encode()
+    await device.transferOut(endpoint.endpointNumber, header)
 
     jo.items.forEach(async (item) => {
       const total = item.quantity * item.price
+      const leftText = `${item.quantity}${item.quantity > 1 ? "pcs" : "pc"}`
       const body = encoder
         .initialize()
         .align("left")
-        .line(leftRightText({ left: item.name, right: `PHP ${total.toFixed(2)}` }))
         .line(
-          `${item.quantity}${item.quantity > 1 ? "pcs" : "pc"} x @ PHP ${item.price.toFixed(2)}`,
+          leftRightText({
+            left: `${leftText}${" ".repeat(10 - leftText.length)}@ ${item.price.toFixed(2)}`,
+            right: `${total.toFixed(2)}`,
+          }),
         )
+        .line(`-   ${item.name}`)
         // .line(rightText(`PHP ${total}`))
-        .newline()
         .encode()
 
       await device.transferOut(endpoint.endpointNumber, body)
@@ -123,8 +123,17 @@ export async function printReceipt({
 
     const footer = encoder
       .initialize()
+      .line("--------------------------------")
       .align("left")
-      .line(rightText("Total: " + totalPrice.toFixed(2)))
+      .line(leftRightText({ left: "TOTAL DUE", right: jo.totalOrderValue.toFixed(2) }))
+      .line(leftRightText({ left: "TOTAL PAYMENT", right: jo.totalPayments.toFixed(2) }))
+      .line("--------------------------------")
+      .line(
+        leftRightText({
+          left: "BALANCE",
+          right: (jo.totalOrderValue - jo.totalPayments).toFixed(2),
+        }),
+      )
       .line("--------------------------------")
       .line("This serves as your claim slip.")
       .newline(2)

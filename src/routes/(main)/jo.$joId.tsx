@@ -1,3 +1,5 @@
+import { AddItemDialog } from "@/components/jo/add-item-dialog"
+import { AddPaymentDialog } from "@/components/jo/add-payment-dialog"
 import { Container } from "@/components/layouts/container"
 import { PrintJoButton } from "@/components/printer/print-jo-button"
 import {
@@ -13,17 +15,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import { Separator } from "@/components/ui/separator"
 import {
   Table,
   TableBody,
@@ -32,6 +24,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { cn } from "@/lib/utils"
 import { convexQuery, useConvexMutation } from "@convex-dev/react-query"
 import { api } from "@convex/_generated/api"
 import type { Id } from "@convex/_generated/dataModel"
@@ -39,19 +32,18 @@ import { useMutation, useSuspenseQuery } from "@tanstack/react-query"
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router"
 import {
   ArrowLeftIcon,
+  BanknoteIcon,
   Calendar,
   Clock,
   Package,
-  PlusIcon,
   Trash2Icon,
 } from "lucide-react"
-import { useState } from "react"
 
 export const Route = createFileRoute("/(main)/jo/$joId")({
   component: JoDetailComponent,
   loader: async ({ context: { queryClient: qc }, params }) => {
     const id = params.joId as Id<"jo">
-    const jo = await qc.ensureQueryData(convexQuery(api.jo.getOneWithItems, { id }))
+    const jo = await qc.ensureQueryData(convexQuery(api.jo.getOneComplete, { id }))
 
     return {
       joNumber: jo?.joNumber,
@@ -75,17 +67,167 @@ export const Route = createFileRoute("/(main)/jo/$joId")({
 })
 
 function JoDetailComponent() {
-  const { joId } = Route.useParams()
-  const navigate = useNavigate()
+  // Fetch job order with items using Convex API
+  // Suspense query for /jo/${joId} route
+  // Fetch job order with items using Convex API
+  // Suspense query for /jo/${joId} route
 
-  // Fetch job order with items using Convex API
-  // Suspense query for /jo/${joId} route
-  // Fetch job order with items using Convex API
-  // Suspense query for /jo/${joId} route
+  return (
+    <Container className="flex flex-col gap-4">
+      <div className="flex items-center justify-between">
+        <Button variant="ghost" asChild>
+          <Link to="/jo">
+            <ArrowLeftIcon /> Back
+          </Link>
+        </Button>
+      </div>
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
+        <JobOrderCard />
+        <PaymentCard />
+      </div>
+      <JoItemsCard />
+    </Container>
+  )
+}
+function PaymentCard() {
+  const { joId } = Route.useParams()
   const { data: jo } = useSuspenseQuery(
     // Fetch job order with items using Convex API
     // Suspense query for /jo/${joId} route
-    convexQuery(api.jo.getOneWithItems, { id: joId as Id<"jo"> }),
+    convexQuery(api.jo.getOneComplete, { id: joId as Id<"jo"> }),
+  )
+  if (!jo) {
+    return null
+  }
+  return (
+    <Card>
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <CardTitle className="flex items-center gap-2 text-lg font-bold">
+            <BanknoteIcon className="h-6 w-6" />
+            <p className="">Payment/s</p>
+          </CardTitle>
+          <div>
+            <AddPaymentDialog
+              joId={joId as Id<"jo">}
+              totalPayments={jo.totalPayments}
+              totalOrderValue={jo.totalPayments}
+            />
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent id="payments">
+        {jo.payments && jo.payments.length > 0 ? (
+          <div className="overflow-hidden rounded-md border">
+            <Table>
+              <TableHeader className="bg-muted">
+                <TableRow>
+                  <TableHead>Date</TableHead>
+                  <TableHead>Received By</TableHead>
+                  <TableHead className="text-right">Amount</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {jo.payments.map((payment) => (
+                  <TableRow key={payment._id}>
+                    <TableCell>
+                      {new Date(payment.createdAt).toLocaleDateString()}
+                    </TableCell>
+
+                    <TableCell className="font-medium">{payment.createdByName}</TableCell>
+                    <TableCell className="text-right font-medium">
+                      {formatCurrency(payment.amount)}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        ) : (
+          <div className="text-muted-foreground text-center">No payments yet</div>
+        )}
+      </CardContent>
+    </Card>
+  )
+}
+
+function JoItemsCard() {
+  const { joId } = Route.useParams()
+
+  const { data: jo } = useSuspenseQuery(
+    // Fetch job order with items using Convex API
+    // Suspense query for /jo/${joId} route
+    convexQuery(api.jo.getOneComplete, { id: joId as Id<"jo"> }),
+  )
+  if (jo === null) {
+    return null
+  }
+
+  return (
+    <Card className="gap-4">
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Package className="h-5 w-5" />
+            <h3 className="text-lg font-bold">Order Items ({jo.items.length})</h3>
+          </div>
+
+          <AddItemDialog joId={joId as Id<"jo">} />
+        </div>
+      </CardHeader>
+      <CardContent>
+        <div className="overflow-hidden rounded-md border">
+          <Table>
+            <TableHeader className="bg-muted">
+              <TableRow>
+                <TableHead>Item Name</TableHead>
+                <TableHead className="text-center">Quantity</TableHead>
+                <TableHead className="text-right">Unit Price</TableHead>
+                <TableHead className="text-right">Total</TableHead>
+                <TableHead className="w-12"></TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {jo.items.map((item) => (
+                <TableRow key={item._id} className="group">
+                  <TableCell className="font-medium">{item.name}</TableCell>
+                  <TableCell className="text-center">{item.quantity}</TableCell>
+                  <TableCell className="text-right">
+                    {formatCurrency(item.price)}
+                  </TableCell>
+                  <TableCell className="text-right font-medium">
+                    {formatCurrency(item.quantity * item.price)}
+                  </TableCell>
+                  <TableCell className="w-12 text-right">
+                    <DeleteItemButton itemId={item._id} />
+                  </TableCell>
+                </TableRow>
+              ))}
+              <TableRow className="border-t-2">
+                <TableCell colSpan={3} className="text-right font-semibold">
+                  Total Order Value
+                </TableCell>
+                <TableCell className="text-right text-lg font-bold">
+                  {formatCurrency(jo.totalOrderValue)}
+                </TableCell>
+                <TableCell className="w-12 text-right"></TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
+
+function JobOrderCard() {
+  const { joId } = Route.useParams()
+  const navigate = useNavigate()
+
+  const { data: jo } = useSuspenseQuery(
+    // Fetch job order with items using Convex API
+    // Suspense query for /jo/${joId} route
+    convexQuery(api.jo.getOneComplete, { id: joId as Id<"jo"> }),
   )
 
   const { mutate, isPending } = useMutation({
@@ -97,233 +239,108 @@ function JoDetailComponent() {
   const deleteJo = () => mutate({ joId: joId as Id<"jo"> })
 
   if (jo === null) {
-    return (
-      <div className="container mx-auto max-w-4xl px-4 py-8">
-        <Card>
-          <CardContent className="p-8 text-center">
-            <Package className="text-muted-foreground mx-auto mb-4 h-12 w-12" />
-            <h2 className="mb-2 text-xl font-semibold">Job Order Not Found</h2>
-            <p className="text-muted-foreground">
-              The requested job order could not be found.
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-    )
+    return <div className="text-muted-foreground text-center">No Items</div>
   }
 
-  const totalValue = jo.items.reduce((sum, item) => sum + item.quantity * item.price, 0)
-  const totalItems = jo.items.reduce((sum, item) => sum + item.quantity, 0)
-
   return (
-    <Container className="flex flex-col gap-4">
-      <div className="flex items-center justify-between">
-        <Button variant="ghost" asChild>
-          <Link to="/jo">
-            <ArrowLeftIcon /> Back
-          </Link>
-        </Button>
-      </div>
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="flex items-center gap-2 text-2xl font-bold">
-                <Package className="h-6 w-6" />
-                {jo.name}
-              </CardTitle>
-              <p className="text-muted-foreground mt-1">Job Order #{jo.joNumber}</p>
-            </div>
-            <div className="flex gap-2">
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button variant="destructive-ghost">
+    <Card className="col-span-1 shadow md:col-span-2">
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle className="flex items-center gap-2 text-2xl font-bold">
+              <Package className="h-6 w-6" />
+              {jo.name}
+            </CardTitle>
+            <p className="text-muted-foreground mt-1">Job Order #{jo.joNumber}</p>
+          </div>
+          <div className="flex gap-2">
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="destructive-ghost">
+                  <Trash2Icon />
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent className="sm:max-w-sm">
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This action cannot be undone. This will permanently delete your
+                    account and remove your data from our servers.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction
+                    variant="destructive"
+                    onClick={deleteJo}
+                    disabled={isPending}
+                  >
                     <Trash2Icon />
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent className="sm:max-w-sm">
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      This action cannot be undone. This will permanently delete your
-                      account and remove your data from our servers.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction
-                      variant="destructive"
-                      onClick={deleteJo}
-                      disabled={isPending}
-                    >
-                      <Trash2Icon />
-                      Delete
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-              <PrintJoButton jo={jo} />
-              <AddItemDialog joId={joId as Id<"jo">} />
+                    Delete
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+            <PrintJoButton jo={jo} />
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent className="flex flex-col gap-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+          <div className="flex items-center gap-3">
+            <Calendar className="text-muted-foreground h-5 w-5" />
+            <div>
+              <p className="text-sm font-medium">Pickup Date</p>
+              <p className="text-muted-foreground text-sm">
+                {new Date(Number(jo.pickupDate)).toLocaleDateString()}
+              </p>
             </div>
           </div>
-        </CardHeader>
-        <CardContent className="flex flex-col gap-4">
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-            <div className="flex items-center gap-3">
-              <Calendar className="text-muted-foreground h-5 w-5" />
-              <div>
-                <p className="text-sm font-medium">Pickup Date</p>
-                <p className="text-muted-foreground text-sm">
-                  {new Date(Number(jo.pickupDate)).toLocaleDateString()}
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <Clock className="text-muted-foreground h-5 w-5" />
-              <div>
-                <p className="text-sm font-medium">Created</p>
-                <p className="text-muted-foreground text-sm">
-                  {new Date(jo._creationTime).toLocaleDateString()}
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <Package className="text-muted-foreground h-5 w-5" />
-              <div>
-                <p className="text-sm font-medium">Total Items</p>
-                <p className="text-muted-foreground text-sm">{totalItems} items</p>
-              </div>
+          <div className="flex items-center gap-3">
+            <Clock className="text-muted-foreground h-5 w-5" />
+            <div>
+              <p className="text-sm font-medium">Created</p>
+              <p className="text-muted-foreground text-sm">
+                {new Date(jo._creationTime).toLocaleDateString()}
+              </p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <Package className="h-5 w-5" />
-            <h3 className="text-lg font-semibold">Order Items ({jo.items.length})</h3>
-          </div>
-          {jo.items.length === 0 ? (
-            <div className="text-muted-foreground text-center">No Items</div>
-          ) : (
-            <div className="rounded-md border">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Item Name</TableHead>
-                    <TableHead className="text-center">Quantity</TableHead>
-                    <TableHead className="text-right">Unit Price</TableHead>
-                    <TableHead className="text-right">Total</TableHead>
-                    <TableHead className="w-12"></TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {jo.items.map((item) => (
-                    <TableRow key={item._id} className="group">
-                      <TableCell className="font-medium">{item.name}</TableCell>
-                      <TableCell className="text-center">{item.quantity}</TableCell>
-                      <TableCell className="text-right">
-                        {formatCurrency(item.price)}
-                      </TableCell>
-                      <TableCell className="text-right font-medium">
-                        {formatCurrency(item.quantity * item.price)}
-                      </TableCell>
-                      <TableCell className="w-12 text-right">
-                        <DeleteItemButton itemId={item._id} />
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                  <TableRow className="border-t-2">
-                    <TableCell colSpan={3} className="text-right font-semibold">
-                      Total Order Value
-                    </TableCell>
-                    <TableCell className="text-right text-lg font-bold">
-                      {formatCurrency(totalValue)}
-                    </TableCell>
-                    <TableCell className="w-12 text-right"></TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
+          <div className="flex items-center gap-3">
+            <Package className="text-muted-foreground h-5 w-5" />
+            <div>
+              <p className="text-sm font-medium">Total Items</p>
+              <p className="text-muted-foreground text-sm">{jo.items.length} items</p>
             </div>
-          )}
-        </CardContent>
-      </Card>
-    </Container>
-  )
-}
-
-function AddItemDialog({ joId }: { joId: Id<"jo"> }) {
-  const [name, setName] = useState("")
-  const [quantity, setQuantity] = useState(1)
-  const [price, setPrice] = useState(0)
-  const [isOpen, setIsOpen] = useState(false)
-
-  const { mutate: createItem, isPending } = useMutation({
-    mutationFn: useConvexMutation(api.items.createItem),
-    onSuccess: () => {
-      setIsOpen(false)
-    },
-  })
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    createItem({ joId, name, quantity, price })
-  }
-
-  return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button>
-          <PlusIcon className="mr-2" /> Add Item
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="w-sm">
-        <DialogHeader>
-          <DialogTitle>Add New Item</DialogTitle>
-          <DialogDescription>
-            Fill in the details below to add a new item to the job order.
-          </DialogDescription>
-        </DialogHeader>
-        <form onSubmit={handleSubmit} className="grid gap-4 py-4">
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="name" className="text-right">
-              Name
-            </Label>
-            <Input
-              id="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="col-span-3"
-            />
           </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="quantity" className="text-right">
-              Quantity
-            </Label>
-            <Input
-              id="quantity"
-              type="number"
-              value={quantity}
-              onChange={(e) => setQuantity(Number(e.target.value))}
-              className="col-span-3"
-            />
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="price" className="text-right">
-              Price
-            </Label>
-            <Input
-              id="price"
-              type="number"
-              value={price}
-              onChange={(e) => setPrice(Number(e.target.value))}
-              className="col-span-3"
-            />
-          </div>
-          <DialogFooter>
-            <Button type="submit" disabled={isPending}>
-              {isPending ? "Adding..." : "Add Item"}
-            </Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
+        </div>
+        <Separator />
+        <div className="flex items-center justify-between">
+          <p>Total Order Value</p>
+          <p>₱{jo.totalOrderValue.toFixed(2)}</p>
+        </div>
+        <div className="flex items-center justify-between">
+          <p>Total Payments</p>
+          <p className="text-xl font-bold text-green-600">
+            ₱{jo.totalPayments.toFixed(2)}
+          </p>
+        </div>
+        <Separator />
+        <div className="flex items-center justify-between">
+          <p>Total Payments</p>
+          <p
+            className={cn(
+              jo.totalPayments === jo.totalOrderValue ||
+                jo.totalPayments > jo.totalOrderValue
+                ? "text-green-600"
+                : "text-red-700",
+              "text-xl font-bold",
+            )}
+          >
+            ₱{jo.totalPayments.toFixed(2)}
+          </p>
+        </div>
+      </CardContent>
+    </Card>
   )
 }
 
