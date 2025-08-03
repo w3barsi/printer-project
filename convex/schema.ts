@@ -25,13 +25,15 @@ export default defineSchema({
     .index("by_joNumber", ["joNumber"])
     .index("by_lastUpdated", ["updatedAt"]),
 
-  invoice: defineTable({
+  payment: defineTable({
     updatedAt: v.optional(v.number()),
+    createdAt: v.number(),
 
     joId: v.id("jo"),
-    total: v.number(),
+    amount: v.number(),
     createdBy: v.optional(v.id("users")),
-  }),
+    createdByName: v.optional(v.string()),
+  }).index("by_joId", ["joId"]),
 
   items: defineTable({
     updatedAt: v.optional(v.number()),
