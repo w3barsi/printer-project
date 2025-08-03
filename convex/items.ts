@@ -1,5 +1,7 @@
 import { v } from "convex/values"
+import { Id } from "./_generated/dataModel"
 import { mutation } from "./_generated/server"
+import { authedMutation } from "./auth"
 
 export const deleteItem = mutation({
   args: {
@@ -10,7 +12,7 @@ export const deleteItem = mutation({
   },
 })
 
-export const createItem = mutation({
+export const createItem = authedMutation({
   args: {
     joId: v.id("jo"),
     name: v.string(),
@@ -24,6 +26,7 @@ export const createItem = mutation({
       name,
       quantity,
       price,
+      createdBy: ctx.user.subject as Id<"users">,
     })
 
     await ctx.db.patch(args.joId, { updatedAt: new Date().getTime() })

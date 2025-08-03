@@ -2,9 +2,9 @@ import { v } from "convex/values"
 
 import { paginationOptsValidator } from "convex/server"
 import { internal } from "./_generated/api"
-import type { Doc } from "./_generated/dataModel"
+import type { Doc, Id } from "./_generated/dataModel"
 import { internalMutation, internalQuery } from "./_generated/server"
-import { authedMutation, authedQuery, betterAuthComponent } from "./auth"
+import { authedMutation, authedQuery } from "./auth"
 
 export type Item = Doc<"items">
 export type Jo = Doc<"jo">
@@ -37,8 +37,6 @@ export const createJo = authedMutation({
   handler: async (ctx, args) => {
     const { name, pickupDate, contactNumber } = args
 
-    const userMetadata = await betterAuthComponent.getAuthUser(ctx)
-
     const lastJoNumber = await ctx.db
       .query("jo")
       .withIndex("by_joNumber")
@@ -52,7 +50,8 @@ export const createJo = authedMutation({
       pickupDate,
       contactNumber,
       status: "pending",
-      createdBy: userMetadata?.userId,
+      createdBy: ctx.user.subject as Id<"users">,
+      updatedAt: new Date().getTime(),
     })
 
     await ctx.scheduler.runAfter(0, internal.trello.createTrelloCard, { joId })
