@@ -13,6 +13,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
@@ -243,7 +244,7 @@ function JobOrderCard() {
   }
 
   return (
-    <Card className="col-span-1 shadow md:col-span-2">
+    <Card className="col-span-1 md:col-span-2">
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
@@ -326,7 +327,12 @@ function JobOrderCard() {
         </div>
         <Separator />
         <div className="flex items-center justify-between">
-          <p>Total Payments</p>
+          <p>
+            Balance{" "}
+            {jo.totalPayments > jo.totalOrderValue - 1 && (
+              <Badge className="bg-green-100 text-green-700">Fully Paid</Badge>
+            )}
+          </p>
           <p
             className={cn(
               jo.totalPayments === jo.totalOrderValue ||
@@ -336,7 +342,7 @@ function JobOrderCard() {
               "text-xl font-bold",
             )}
           >
-            ₱{jo.totalPayments.toFixed(2)}
+            ₱{(jo.totalPayments - jo.totalOrderValue).toFixed(2)}
           </p>
         </div>
       </CardContent>
