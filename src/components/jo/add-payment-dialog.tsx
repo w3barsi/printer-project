@@ -61,17 +61,7 @@ export function AddPaymentDialog({
   }
 
   const handleTotalPayment = async () => {
-    try {
-      await createPayment({
-        joId,
-        amount: totalOrderValue - totalPayments,
-      })
-      toast.success("Payment added successfully")
-      setOpen(false)
-      form.reset()
-    } catch {
-      toast.error("Failed to add payment")
-    }
+    form.setValue("amount", totalOrderValue - totalPayments)
   }
 
   return (

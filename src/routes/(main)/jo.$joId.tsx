@@ -16,6 +16,7 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
 import {
   Table,
@@ -37,7 +38,9 @@ import {
   Calendar,
   Clock,
   Package,
+  PhilippinePesoIcon,
   Trash2Icon,
+  UserIcon,
 } from "lucide-react"
 
 export const Route = createFileRoute("/(main)/jo/$joId")({
@@ -74,7 +77,7 @@ function JoDetailComponent() {
   // Suspense query for /jo/${joId} route
 
   return (
-    <Container className="flex flex-col gap-4">
+    <Container className="flex flex-col gap-2 md:gap-4">
       <div className="flex items-center justify-between">
         <Button variant="ghost" asChild>
           <Link to="/jo">
@@ -82,7 +85,7 @@ function JoDetailComponent() {
           </Link>
         </Button>
       </div>
-      <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
+      <div className="grid grid-cols-1 gap-2 md:gap-4 lg:grid-cols-2">
         <JobOrderCard />
         <PaymentCard />
       </div>
@@ -97,11 +100,16 @@ function PaymentCard() {
     // Suspense query for /jo/${joId} route
     convexQuery(api.jo.getOneComplete, { id: joId as Id<"jo"> }),
   )
+
+  const { mutateAsync: deletePayment, isPending } = useMutation({
+    mutationFn: useConvexMutation(api.payment.deletePayment),
+  })
+
   if (!jo) {
     return null
   }
   return (
-    <Card>
+    <Card className="">
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2 text-lg font-bold">
@@ -112,38 +120,51 @@ function PaymentCard() {
             <AddPaymentDialog
               joId={joId as Id<"jo">}
               totalPayments={jo.totalPayments}
-              totalOrderValue={jo.totalPayments}
+              totalOrderValue={jo.totalOrderValue}
             />
           </div>
         </div>
       </CardHeader>
-      <CardContent id="payments">
+      <CardContent>
         {jo.payments && jo.payments.length > 0 ? (
-          <div className="overflow-hidden rounded-md border">
-            <Table>
-              <TableHeader className="bg-muted">
-                <TableRow>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Received By</TableHead>
-                  <TableHead className="text-right">Amount</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {jo.payments.map((payment) => (
-                  <TableRow key={payment._id}>
-                    <TableCell>
-                      {new Date(payment.createdAt).toLocaleDateString()}
-                    </TableCell>
-
-                    <TableCell className="font-medium">{payment.createdByName}</TableCell>
-                    <TableCell className="text-right font-medium">
-                      {formatCurrency(payment.amount)}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+          <ScrollArea className="h-56">
+            <div className="flex flex-col gap-2 md:gap-4">
+              {jo.payments.map((payment) => (
+                <div
+                  key={payment._id}
+                  className="bg-accent dark:bg-accent/20 flex items-center justify-between rounded pr-4"
+                >
+                  <div className="flex gap-2 rounded p-2 md:gap-4 md:p-4">
+                    <span className="size-10 rounded-full bg-green-200 p-2 text-center text-green-700">
+                      <PhilippinePesoIcon className="s-4" />
+                    </span>
+                    <div className="flex w-full flex-col justify-between">
+                      <div>₱{payment.amount.toFixed(2)}</div>
+                      <div className="flex items-center gap-2 text-sm text-gray-500">
+                        <span>{new Date(payment.createdAt).toLocaleDateString()}</span>
+                        {payment.createdByName && (
+                          <>
+                            <span>•</span>
+                            <div className="flex items-center gap-1">
+                              <UserIcon className="h-3 w-3" />
+                              <span>{payment.createdByName}</span>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                  <Button
+                    variant="destructive-ghost"
+                    onClick={() => deletePayment({ paymentId: payment._id })}
+                    disabled={isPending}
+                  >
+                    <Trash2Icon />
+                  </Button>
+                </div>
+              ))}
+            </div>
+          </ScrollArea>
         ) : (
           <div className="text-muted-foreground text-center">No payments yet</div>
         )}
@@ -244,7 +265,7 @@ function JobOrderCard() {
   }
 
   return (
-    <Card className="col-span-1 md:col-span-2">
+    <Card className="">
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
@@ -328,7 +349,7 @@ function JobOrderCard() {
         <Separator />
         <div className="flex items-center justify-between">
           <p>
-            Balance{" "}
+            Balance
             {jo.totalPayments > jo.totalOrderValue - 1 && (
               <Badge className="bg-green-100 text-green-700">Fully Paid</Badge>
             )}
@@ -357,7 +378,7 @@ function DeleteItemButton({ itemId }: { itemId: Id<"items"> }) {
 
   return (
     <Button
-      variant="ghost"
+      variant="destructive-ghost"
       size="sm"
       className="h-7 w-7 p-0 opacity-0 transition-opacity group-hover:opacity-100"
       onClick={() => deleteItem({ itemId })}

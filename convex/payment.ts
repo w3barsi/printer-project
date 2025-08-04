@@ -18,3 +18,13 @@ export const createPayment = authedMutation({
     })
   },
 })
+
+export const deletePayment = authedMutation({
+  args: {
+    paymentId: v.id("payment"),
+  },
+  handler: async (ctx, args) => {
+    const { paymentId } = args
+    await ctx.db.delete(paymentId)
+  },
+})

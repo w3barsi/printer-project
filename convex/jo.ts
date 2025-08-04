@@ -139,6 +139,7 @@ export const getOneComplete = authedQuery({
     const payments = await ctx.db
       .query("payment")
       .withIndex("by_joId", (q) => q.eq("joId", jo._id))
+      .order("desc")
       .collect()
 
     const totalPayments = payments.reduce((sum, payment) => sum + payment.amount, 0)
