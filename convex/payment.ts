@@ -13,7 +13,6 @@ export const createPayment = authedMutation({
       joId,
       amount,
       createdBy: ctx.user.subject as Id<"users">,
-      createdByName: ctx.user.name,
       createdAt: new Date().getTime(),
     })
   },

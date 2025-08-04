@@ -32,7 +32,6 @@ export default defineSchema({
     joId: v.id("jo"),
     amount: v.number(),
     createdBy: v.optional(v.id("users")),
-    createdByName: v.optional(v.string()),
   }).index("by_joId", ["joId"]),
 
   items: defineTable({

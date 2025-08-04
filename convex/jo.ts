@@ -142,13 +142,22 @@ export const getOneComplete = authedQuery({
       .order("desc")
       .collect()
 
+    const paymentWithNamePromise = payments.map(async (payment) => {
+      if (payment.createdBy === undefined) return { ...payment, createdByname: "Unknown" }
+
+      const user = await ctx.db.get(payment.createdBy)
+      return { ...payment, createdByName: user?.name }
+    })
+
+    const paymentWithName = await Promise.all(paymentWithNamePromise)
+
     const totalPayments = payments.reduce((sum, payment) => sum + payment.amount, 0)
     const totalOrderValue = items.reduce(
       (sum, item) => sum + item.quantity * item.price,
       0,
     )
 
-    return { ...jo, totalPayments, totalOrderValue, items, payments }
+    return { ...jo, totalPayments, totalOrderValue, items, payments: paymentWithName }
   },
 })
 
