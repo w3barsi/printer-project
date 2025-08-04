@@ -12,7 +12,13 @@ import { useLocalStorage } from "@/hooks/use-local-storage"
 import { getTrelloLists } from "@/server/trello"
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { Link, useRouteContext } from "@tanstack/react-router"
-import { ChevronRight, FileTextIcon, TrelloIcon, UserRoundCogIcon } from "lucide-react"
+import {
+  ChevronRight,
+  FileTextIcon,
+  PiggyBankIcon,
+  TrelloIcon,
+  UserRoundCogIcon,
+} from "lucide-react"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../ui/collapsible"
 
 export function NavMain() {
@@ -29,6 +35,17 @@ export function NavMain() {
             >
               <FileTextIcon />
               <span>Job Orders</span>
+            </Link>
+          </SidebarMenuButton>
+          <SidebarMenuButton asChild tooltip="Job Order">
+            <Link
+              to="/cashflow"
+              activeProps={{
+                className: "bg-sidebar-accent text-sidebar-accent-foreground",
+              }}
+            >
+              <PiggyBankIcon />
+              <span>Cash Flow</span>
             </Link>
           </SidebarMenuButton>
         </SidebarMenuItem>

@@ -26,13 +26,22 @@ export default defineSchema({
     .index("by_lastUpdated", ["updatedAt"]),
 
   payment: defineTable({
-    updatedAt: v.optional(v.number()),
     createdAt: v.number(),
 
     joId: v.id("jo"),
     amount: v.number(),
     createdBy: v.optional(v.id("users")),
-  }).index("by_joId", ["joId"]),
+  })
+    .index("by_joId", ["joId"])
+    .index("by_createdAt", ["createdAt"]),
+
+  expenses: defineTable({
+    createdAt: v.number(),
+    createdBy: v.optional(v.id("users")),
+
+    amount: v.number(),
+    description: v.string(),
+  }).index("by_createdAt", ["createdAt"]),
 
   items: defineTable({
     updatedAt: v.optional(v.number()),
