@@ -4,6 +4,9 @@ import type { FunctionReturnType } from "convex/server"
 
 export type GetOneWithItemsReturnType = FunctionReturnType<typeof api.jo.getOneComplete>
 export type GetOneComplete = NonNullable<FunctionReturnType<typeof api.jo.getOneComplete>>
+export type CashflowType = NonNullable<
+  FunctionReturnType<typeof api.cashier.listDayData>["cashflow"]
+>
 
 export type Item = Doc<"items">
 export type Jo = Doc<"jo">

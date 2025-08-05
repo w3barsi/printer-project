@@ -143,10 +143,8 @@ export const getOneComplete = authedQuery({
       .collect()
 
     const paymentWithNamePromise = payments.map(async (payment) => {
-      if (payment.createdBy === undefined) return { ...payment, createdByname: "Unknown" }
-
       const user = await ctx.db.get(payment.createdBy)
-      return { ...payment, createdByName: user?.name }
+      return { ...payment, createdByName: user?.name ?? "Unknown" }
     })
 
     const paymentWithName = await Promise.all(paymentWithNamePromise)

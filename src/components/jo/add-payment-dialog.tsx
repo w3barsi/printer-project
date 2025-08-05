@@ -47,10 +47,12 @@ export function AddPaymentDialog({
   })
 
   const onSubmit = async (data: FormData) => {
+    const full = data.amount >= totalOrderValue - totalPayments
     try {
       await createPayment({
         joId,
         amount: data.amount,
+        full,
       })
       toast.success("Payment added successfully")
       setOpen(false)

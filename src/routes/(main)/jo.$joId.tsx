@@ -31,7 +31,7 @@ import { convexQuery, useConvexMutation } from "@convex-dev/react-query"
 import { api } from "@convex/_generated/api"
 import type { Id } from "@convex/_generated/dataModel"
 import { useMutation, useSuspenseQuery } from "@tanstack/react-query"
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router"
+import { createFileRoute, useNavigate, useRouter } from "@tanstack/react-router"
 import {
   ArrowLeftIcon,
   BanknoteIcon,
@@ -71,6 +71,19 @@ export const Route = createFileRoute("/(main)/jo/$joId")({
 })
 
 function JoDetailComponent() {
+  const router = useRouter()
+  const handleGoBackOrJo = () => {
+    // Check if there's a previous entry in the history that we can go back to.
+    // The history.length check is a common heuristic, though not foolproof
+    // in all edge cases (e.g., if the user opened a new tab directly to this page).
+    // However, for typical in-app navigation, it works well.
+    if (router.history.length > 1) {
+      router.history.back()
+    } else {
+      // No discernible previous history, so navigate to "/jo"
+      router.navigate({ to: "/jo" })
+    }
+  }
   // Fetch job order with items using Convex API
   // Suspense query for /jo/${joId} route
   // Fetch job order with items using Convex API
@@ -79,10 +92,8 @@ function JoDetailComponent() {
   return (
     <Container className="flex flex-col gap-2 md:gap-4">
       <div className="flex items-center justify-between">
-        <Button variant="ghost" asChild>
-          <Link to="/jo">
-            <ArrowLeftIcon /> Back
-          </Link>
+        <Button variant="ghost" onClick={handleGoBackOrJo}>
+          <ArrowLeftIcon /> Back
         </Button>
       </div>
       <div className="grid grid-cols-1 gap-2 md:gap-4 lg:grid-cols-2">
@@ -141,7 +152,9 @@ function PaymentCard() {
                     <div className="flex w-full flex-col justify-between">
                       <div>₱{payment.amount.toFixed(2)}</div>
                       <div className="flex items-center gap-2 text-sm text-gray-500">
-                        <span>{new Date(payment.createdAt).toLocaleDateString()}</span>
+                        <span>
+                          {new Date(payment._creationTime).toLocaleDateString()}
+                        </span>
                         {payment.createdByName && (
                           <>
                             <span>•</span>
