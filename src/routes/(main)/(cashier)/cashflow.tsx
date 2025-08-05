@@ -1,16 +1,8 @@
+import { AddExpense } from "@/components/cashier/add-expense"
 import { Container } from "@/components/layouts/container"
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -24,7 +16,7 @@ import {
 } from "@/components/ui/table"
 import { useLocalStorage } from "@/hooks/use-local-storage"
 import { cn } from "@/lib/utils"
-import { convexQuery, useConvex, useConvexMutation } from "@convex-dev/react-query"
+import { convexQuery, useConvexMutation } from "@convex-dev/react-query"
 import { api } from "@convex/_generated/api"
 import { useMutation, useSuspenseQuery } from "@tanstack/react-query"
 import { createFileRoute } from "@tanstack/react-router"
@@ -382,61 +374,6 @@ function ExpenseSummary({
         </CardContent>
       </Card>
     </div>
-  )
-}
-
-function AddExpense() {
-  const [open, setOpen] = useState(false)
-  const [description, setDescription] = useState("")
-  const [amount, setAmount] = useState(0)
-  const convex = useConvex()
-
-  async function onSave() {
-    await convex.mutation(api.cashier.addExpense, {
-      description,
-      amount: Number(amount),
-    })
-    setOpen(false)
-    setDescription("")
-    setAmount(0)
-  }
-
-  return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button>Add expense</Button>
-      </DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Add expense</DialogTitle>
-        </DialogHeader>
-        <div className="grid gap-4 py-2">
-          <div className="grid gap-2">
-            <Label htmlFor="desc">Description</Label>
-            <Input
-              id="desc"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-            />
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="amt">Amount</Label>
-            <Input
-              id="amt"
-              type="number"
-              inputMode="decimal"
-              value={amount}
-              onChange={(e) => setAmount(Number(e.target.value))}
-            />
-          </div>
-        </div>
-        <DialogFooter>
-          <Button onClick={onSave} disabled={!description || amount <= 0}>
-            Save
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
   )
 }
 
