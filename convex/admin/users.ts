@@ -28,7 +28,10 @@ export const createUser = authedMutation({
 })
 
 export const setRole = authedMutation({
-  args: { userId: v.string(), role: v.union(v.literal("user"), v.literal("admin")) },
+  args: {
+    userId: v.string(),
+    role: v.union(v.literal("user"), v.literal("admin"), v.literal("cashier")),
+  },
   handler: async (ctx, args) => {
     const auth = createAuth(ctx)
     const headers = await betterAuthComponent.getHeaders(ctx)

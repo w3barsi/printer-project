@@ -43,7 +43,7 @@ function RouteComponent() {
   const setRole = useConvexMutation(api.admin.users.setRole)
   const banOrUnbanUser = useConvexMutation(api.admin.users.banOrUnbanUser)
 
-  async function onChangeRole(userId: string, role: "user" | "admin") {
+  async function onChangeRole(userId: string, role: "user" | "admin" | "cashier") {
     try {
       await setRole({ userId, role })
       toast.success("Role updated")
@@ -102,13 +102,18 @@ function RouteComponent() {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="start">
-                            <DropdownMenuItem onClick={() => onChangeRole(u._id, "user")}>
-                              user
-                            </DropdownMenuItem>
                             <DropdownMenuItem
                               onClick={() => onChangeRole(u._id, "admin")}
                             >
                               admin
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => onChangeRole(u._id, "user")}>
+                              user
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => onChangeRole(u._id, "cashier")}
+                            >
+                              cashier
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
