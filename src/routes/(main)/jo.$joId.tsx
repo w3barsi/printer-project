@@ -143,7 +143,7 @@ function PaymentCard() {
               {jo.payments.map((payment) => (
                 <div
                   key={payment._id}
-                  className="bg-accent dark:bg-accent/20 flex items-center justify-between rounded pr-4"
+                  className="bg-accent/20 dark:bg-accent/20 flex items-center justify-between rounded pr-4"
                 >
                   <div className="flex gap-2 rounded p-2 md:gap-4 md:p-4">
                     <span className="size-10 rounded-full bg-green-200 p-2 text-center text-green-700">

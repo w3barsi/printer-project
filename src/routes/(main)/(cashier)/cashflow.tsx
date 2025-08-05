@@ -14,11 +14,19 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Skeleton } from "@/components/ui/skeleton"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
 import { useLocalStorage } from "@/hooks/use-local-storage"
 import { cn } from "@/lib/utils"
-import { convexQuery, useConvex } from "@convex-dev/react-query"
+import { convexQuery, useConvex, useConvexMutation } from "@convex-dev/react-query"
 import { api } from "@convex/_generated/api"
-import { useSuspenseQuery } from "@tanstack/react-query"
+import { useMutation, useSuspenseQuery } from "@tanstack/react-query"
 import { createFileRoute, Link } from "@tanstack/react-router"
 import {
   CalendarIcon,
@@ -97,10 +105,199 @@ function RouteComponent() {
       <Suspense fallback={<ExpenseSumamrySkeleton />}>
         <ExpenseSummary dayStart={dayStart} dayEnd={dayEnd} date={selected} />
       </Suspense>
+
       <Suspense>
-        <DailyTransactions dayStart={dayStart} dayEnd={dayEnd} date={selected} />
+        <DailyTransactionsTable dayStart={dayStart} dayEnd={dayEnd} date={selected} />
       </Suspense>
     </Container>
+  )
+}
+
+function DailyTransactionsTable({
+  dayStart,
+  dayEnd,
+  date,
+}: {
+  dayStart: number
+  dayEnd: number
+  date?: Date
+}) {
+  const [filter, setFilter] = useLocalStorage<"all" | "income" | "expenses">(
+    "filter",
+    "all",
+  )
+
+  const { data } = useSuspenseQuery(
+    convexQuery(api.cashier.listDayData, { dayStart, dayEnd }),
+  )
+
+  const payments = data.paymentsData.map((payment) => ({
+    id: payment._id,
+    type: "Income" as const,
+    amount: payment.amount,
+    description: `JO #${payment.joNumber} - ${payment.joName}`,
+    status: payment.full ? "Full Payment" : "Partial Payment",
+    createdBy: payment.createdByName,
+    createdAt: new Date(payment._creationTime),
+  }))
+
+  const expenses = data.expensesData.map((expense) => ({
+    id: expense._id,
+    type: "Expense" as const,
+    amount: expense.amount,
+    description: expense.description,
+    status: "-",
+    createdBy: expense.createdByName,
+    createdAt: new Date(expense._creationTime),
+  }))
+
+  const allTransactions = [...payments, ...expenses].sort(
+    (b, a) => b.createdAt.getTime() - a.createdAt.getTime(),
+  )
+
+  // prettier-ignore
+  const filteredData =
+    filter === "all"
+      ? allTransactions :
+    filter === "expenses"
+      ? expenses :
+    filter === "income"
+      ? payments
+        : null
+
+  const { mutateAsync: deleteExpense } = useMutation({
+    mutationFn: useConvexMutation(api.cashier.deleteExpense),
+  })
+
+  return (
+    <Card>
+      <CardHeader className="flex items-center justify-between">
+        <div>
+          <h3 className="text-lg font-semibold">Daily Transactions Table</h3>
+          <p className="text-muted-foreground text-sm">{date?.toLocaleDateString()}</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <FilterIcon size={18} />
+          <div className="flex gap-2 rounded-lg border p-1">
+            <Button
+              variant="ghost"
+              onClick={() => setFilter("all")}
+              className={cn(
+                "w-24 hover:bg-neutral-100 dark:hover:bg-neutral-500/10",
+                filter === "all" &&
+                  "border-neutral-300 bg-neutral-200 hover:bg-neutral-200 dark:border-neutral-900 dark:bg-neutral-500/20 dark:hover:bg-neutral-500/20",
+              )}
+            >
+              All
+            </Button>
+            <Button
+              variant="ghost"
+              onClick={() => setFilter("income")}
+              className={cn(
+                "w-24 hover:bg-green-100 dark:hover:bg-green-500/10",
+                filter === "income" &&
+                  "border-green-300 bg-green-200 hover:bg-green-200 dark:border-green-900 dark:bg-green-500/20 dark:hover:bg-green-500/20",
+              )}
+            >
+              Income
+            </Button>
+            <Button
+              variant="ghost"
+              onClick={() => setFilter("expenses")}
+              className={cn(
+                "w-24 hover:bg-red-100 dark:hover:bg-red-500/10",
+                filter === "expenses" &&
+                  "border-red-300 bg-red-200 hover:bg-red-200 dark:border-red-900 dark:bg-red-500/20 dark:hover:bg-red-500/20",
+              )}
+            >
+              Expenses
+            </Button>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <div className="overflow-hidden rounded-lg border">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Time</TableHead>
+                <TableHead>Type</TableHead>
+                <TableHead>Description</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead className="text-right">Amount</TableHead>
+                <TableHead>Received By</TableHead>
+                <TableHead className="text-center">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredData.map((transaction) => (
+                <TableRow key={transaction.id}>
+                  <TableCell>
+                    {transaction.createdAt.toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </TableCell>
+                  <TableCell>
+                    <span
+                      className={cn(
+                        "inline-flex rounded-full px-2 py-1 text-xs font-medium",
+                        transaction.type === "Income"
+                          ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
+                          : "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
+                      )}
+                    >
+                      {transaction.type}
+                    </span>
+                  </TableCell>
+                  <TableCell>{transaction.description}</TableCell>
+                  <TableCell>
+                    {transaction.status !== "-" && (
+                      <span
+                        className={cn(
+                          "inline-flex rounded-full px-2 py-1 text-xs font-medium",
+                          transaction.status === "Full Payment"
+                            ? "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400"
+                            : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400",
+                        )}
+                      >
+                        {transaction.status}
+                      </span>
+                    )}
+                  </TableCell>
+                  <TableCell
+                    className={cn(
+                      "text-right font-medium",
+                      transaction.type === "Income"
+                        ? "text-green-600 dark:text-green-400"
+                        : "text-red-600 dark:text-red-400",
+                    )}
+                  >
+                    {transaction.type === "Income" ? "+" : "-"}₱
+                    {transaction.amount.toFixed(2)}
+                  </TableCell>
+                  <TableCell className="text-muted-foreground">
+                    {transaction.createdBy}
+                  </TableCell>
+                  <TableCell className="text-center">
+                    {transaction.type === "Expense" && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => deleteExpense({ expenseId: transaction.id })}
+                        className="text-red-600 hover:bg-red-100 hover:text-red-700 dark:hover:bg-red-900/20"
+                      >
+                        Delete
+                      </Button>
+                    )}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      </CardContent>
+    </Card>
   )
 }
 
@@ -205,18 +402,20 @@ function DailyTransactions({
           </div>
         </div>
       </CardHeader>
-      <CardContent>{filter === "all" && <TransactionList data={allData} />}</CardContent>
       <CardContent>
-        {filter === "expenses" && <TransactionList data={expenseElements} />}
+        {filter === "all" && <TransactionElement data={allData} />}
       </CardContent>
       <CardContent>
-        {filter === "income" && <TransactionList data={paymentsData} />}
+        {filter === "expenses" && <TransactionElement data={expenseElements} />}
+      </CardContent>
+      <CardContent>
+        {filter === "income" && <TransactionElement data={paymentsData} />}
       </CardContent>
     </Card>
   )
 }
 
-function TransactionList({
+function TransactionElement({
   data,
 }: {
   data: Array<{ createdAt: number; elem: JSX.Element }>
