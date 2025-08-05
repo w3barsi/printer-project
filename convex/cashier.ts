@@ -16,6 +16,15 @@ export const addExpense = authedMutation({
   },
 })
 
+export const deleteExpense = authedMutation({
+  args: {
+    expenseId: v.id("expenses"),
+  },
+  handler: async (ctx, args) => {
+    await ctx.db.delete(args.expenseId)
+  },
+})
+
 export const listDayData = authedQuery({
   args: {
     dayStart: v.number(),

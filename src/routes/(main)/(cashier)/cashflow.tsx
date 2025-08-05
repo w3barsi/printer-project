@@ -158,7 +158,7 @@ function DailyTransactions({
   }))
 
   const allData = [...paymentsData, ...expenseElements]
-  allData.sort((a, b) => a.createdAt - b.createdAt)
+  allData.sort((b, a) => a.createdAt - b.createdAt)
 
   return (
     <Card>

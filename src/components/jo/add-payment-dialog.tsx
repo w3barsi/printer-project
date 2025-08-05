@@ -23,9 +23,13 @@ import {
   FormMessage,
 } from "../ui/form"
 import { Input } from "../ui/input"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select"
+import { Textarea } from "../ui/textarea"
 
 interface FormData {
   amount: number
+  paymentType: "cash" | "bank"
+  note: string
 }
 
 export function AddPaymentDialog({
@@ -43,6 +47,8 @@ export function AddPaymentDialog({
   const form = useForm<FormData>({
     defaultValues: {
       amount: 0,
+      paymentType: "cash",
+      note: "",
     },
   })
 
@@ -53,6 +59,8 @@ export function AddPaymentDialog({
         joId,
         amount: data.amount,
         full,
+        mop: data.paymentType,
+        note: data.note,
       })
       toast.success("Payment added successfully")
       setOpen(false)
@@ -116,6 +124,44 @@ export function AddPaymentDialog({
                         Full Payment
                       </Button>
                     </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="paymentType"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Payment Type</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select payment type" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="cash">Cash</SelectItem>
+                      <SelectItem value="bank">Bank</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="note"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Note (optional)</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="Add any notes..."
+                      className="resize-none"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

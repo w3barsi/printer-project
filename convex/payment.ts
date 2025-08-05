@@ -7,6 +7,7 @@ export const createPayment = authedMutation({
     joId: v.id("jo"),
     amount: v.number(),
     mop: v.optional(v.union(v.literal("cash"), v.literal("bank"))),
+    note: v.optional(v.string()),
     full: v.boolean(),
   },
   handler: async (ctx, args) => {
@@ -18,6 +19,7 @@ export const createPayment = authedMutation({
       full,
       mop,
     })
+    await ctx.db.patch(args.joId, { updatedAt: new Date().getTime() })
   },
 })
 

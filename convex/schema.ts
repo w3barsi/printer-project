@@ -28,12 +28,14 @@ export default defineSchema({
   payment: defineTable({
     createdBy: v.id("users"),
 
+    joId: v.id("jo"),
+
+    // full payment
     full: v.optional(v.boolean()),
     // mode of payment
     mop: v.optional(v.union(v.literal("cash"), v.literal("bank"))),
     note: v.optional(v.string()),
     amount: v.number(),
-    joId: v.id("jo"),
   }).index("by_joId", ["joId"]),
 
   expenses: defineTable({
