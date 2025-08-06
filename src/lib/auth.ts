@@ -3,6 +3,7 @@ import { convex } from "@convex-dev/better-auth/plugins"
 import { betterAuth } from "better-auth"
 import { admin, username } from "better-auth/plugins"
 import { createAccessControl } from "better-auth/plugins/access"
+import { adminAc, defaultStatements } from "better-auth/plugins/admin/access"
 import type { GenericCtx } from "../../convex/_generated/server"
 import { betterAuthComponent } from "../../convex/auth"
 
@@ -11,37 +12,17 @@ const URL = process.env.VERCEL_URL
   : "http://localhost:3000"
 
 const statements = {
-  project: ["create", "share", "update", "delete"],
-  organization: ["update", "delete"],
-  member: ["create", "update", "delete"],
-  invitation: ["create", "cancel"],
-  team: ["create", "update", "delete"],
-  user: ["create", "list", "set-role", "ban", "impersonate", "delete", "set-password"],
-  session: ["list", "revoke", "delete"],
+  ...defaultStatements,
 } as const
 
-const ac = createAccessControl(statements)
-export const userRole = ac.newRole({
-  organization: ["update", "delete"],
-  member: ["create", "update", "delete"],
-  invitation: ["create", "cancel"],
-  team: ["create", "update", "delete"],
-})
+export const ac = createAccessControl(statements)
 
 export const adminRole = ac.newRole({
-  organization: ["update", "delete"],
-  member: ["create", "update", "delete"],
-  invitation: ["create", "cancel"],
-  team: ["create", "update", "delete"],
-  user: ["create", "list", "set-role", "ban", "impersonate", "delete", "set-password"],
-  session: ["list", "revoke", "delete"],
+  ...adminAc.statements,
 })
 
-export const cashierRole = ac.newRole({
-  organization: ["update", "delete"],
-  member: ["create", "update", "delete"],
-  invitation: ["create", "cancel"],
-  team: ["create", "update", "delete"],
+export const basicRole = ac.newRole({
+  user: ["create", "list"],
 })
 
 export const createAuth = (ctx: GenericCtx) =>
@@ -79,8 +60,8 @@ export const createAuth = (ctx: GenericCtx) =>
         ac,
         roles: {
           admin: adminRole,
-          user: userRole,
-          cashier: cashierRole,
+          user: basicRole,
+          cashier: basicRole,
         },
       }),
       // The Convex plugin is required

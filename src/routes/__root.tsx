@@ -32,6 +32,7 @@ const fetchAuth = createServerFn({ method: "GET" }).handler(async () => {
   console.log("[BEFORE-LOAD (fetchAuth)] ", "fetching auth details")
   return {
     user: session?.user ?? undefined,
+    impersonatedBy: session?.session.impersonatedBy ?? undefined,
     token,
   }
 })
@@ -63,7 +64,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
       user ? `User is populated ${JSON.stringify(user)}` : "No user",
     )
 
-    return { user: user, token: token }
+    return { user: user, token: token, impersonatedBy: auth.impersonatedBy }
   },
   head: () => ({
     meta: [

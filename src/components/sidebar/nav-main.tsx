@@ -22,6 +22,7 @@ import {
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../ui/collapsible"
 
 export function NavMain() {
+  const { user } = useRouteContext({ from: "/(main)" })
   return (
     <SidebarGroup>
       <SidebarMenu>
@@ -37,17 +38,19 @@ export function NavMain() {
               <span>Job Orders</span>
             </Link>
           </SidebarMenuButton>
-          <SidebarMenuButton asChild tooltip="Job Order">
-            <Link
-              to="/cashflow"
-              activeProps={{
-                className: "bg-sidebar-accent text-sidebar-accent-foreground",
-              }}
-            >
-              <PiggyBankIcon />
-              <span>Cash Flow</span>
-            </Link>
-          </SidebarMenuButton>
+          {(user.role === "cashier" || user.role === "admin") && (
+            <SidebarMenuButton asChild tooltip="Job Order">
+              <Link
+                to="/cashflow"
+                activeProps={{
+                  className: "bg-sidebar-accent text-sidebar-accent-foreground",
+                }}
+              >
+                <PiggyBankIcon />
+                <span>Cash Flow</span>
+              </Link>
+            </SidebarMenuButton>
+          )}
         </SidebarMenuItem>
 
         <AdminSidebar />
