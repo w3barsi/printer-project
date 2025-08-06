@@ -208,7 +208,7 @@ function DailyTransactionsTable({
         </div>
       </CardHeader>
       <CardContent>
-        <div className="overflow-hidden rounded-lg border">
+        <div className="overflow-hidden rounded-lg">
           <Table>
             <TableHeader>
               <TableRow>
@@ -223,7 +223,7 @@ function DailyTransactionsTable({
             </TableHeader>
             <TableBody>
               {filteredData?.map((transaction) => (
-                <TableRow key={transaction.id}>
+                <TableRow key={transaction.id} className="">
                   <TableCell>
                     {transaction.createdAt.toLocaleTimeString([], {
                       hour: "2-digit",

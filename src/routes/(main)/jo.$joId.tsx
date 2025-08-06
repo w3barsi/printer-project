@@ -121,20 +121,16 @@ function PaymentCard() {
   }
   return (
     <Card className="">
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-2 text-lg font-bold">
-            <BanknoteIcon className="h-6 w-6" />
-            <p className="">Payment/s</p>
-          </CardTitle>
-          <div>
-            <AddPaymentDialog
-              joId={joId as Id<"jo">}
-              totalPayments={jo.totalPayments}
-              totalOrderValue={jo.totalOrderValue}
-            />
-          </div>
-        </div>
+      <CardHeader className="flex items-center justify-between">
+        <CardTitle className="flex items-center gap-2 text-lg font-bold">
+          <BanknoteIcon className="h-6 w-6" />
+          <p className="">Payment/s</p>
+        </CardTitle>
+        <AddPaymentDialog
+          joId={joId as Id<"jo">}
+          totalPayments={jo.totalPayments}
+          totalOrderValue={jo.totalOrderValue}
+        />
       </CardHeader>
       <CardContent>
         {jo.payments && jo.payments.length > 0 ? (
@@ -211,9 +207,9 @@ function JoItemsCard() {
         </div>
       </CardHeader>
       <CardContent>
-        <div className="overflow-hidden rounded-md border">
+        <div className="overflow-hidden rounded-md">
           <Table>
-            <TableHeader className="bg-muted">
+            <TableHeader className="">
               <TableRow>
                 <TableHead>Item Name</TableHead>
                 <TableHead className="text-center">Quantity</TableHead>

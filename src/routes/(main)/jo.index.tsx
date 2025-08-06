@@ -3,7 +3,7 @@ import { createFileRoute, useNavigate, useRouter } from "@tanstack/react-router"
 import { CreateDialog } from "@/components/create-jo"
 import { Container } from "@/components/layouts/container"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { Skeleton } from "@/components/ui/skeleton"
 import {
@@ -41,13 +41,11 @@ function RouteComponent() {
   return (
     <>
       <Container className="flex flex-col gap-2 md:gap-4">
+        <div className="flex items-center justify-between">
+          <h1 className="text-3xl font-bold tracking-tight">Job Orders</h1>
+          <CreateDialog />
+        </div>
         <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <h1 className="text-3xl font-bold tracking-tight">Job Orders</h1>
-              <CreateDialog />
-            </div>
-          </CardHeader>
           <CardContent>
             <div className="w-full">
               <Suspense fallback={<JobOrderListSkeleton />}>
@@ -58,60 +56,6 @@ function RouteComponent() {
         </Card>
       </Container>
     </>
-  )
-}
-
-function JobOrderListSkeleton() {
-  return (
-    <div className="flex flex-col">
-      <Table className="table-fixed">
-        <TableHeader className="bg-foreground rounded-lg">
-          <TableRow className="*:text-background border-none hover:bg-gray-50">
-            <TableHead className="w-16 font-semibold first:rounded-l-lg">
-              <HashIcon className="h-4 w-4" />
-            </TableHead>
-            <TableHead className="font-semibold">Name</TableHead>
-            <TableHead className="text-center font-semibold">Pickup Date</TableHead>
-            <TableHead className="text-center font-semibold">Contact Number</TableHead>
-            <TableHead className="text-right font-semibold">Total Value</TableHead>
-            <TableHead className="w-12 font-semibold last:rounded-r-lg" />
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {Array.from({ length: 10 }).map((_, i) => (
-            <TableRow key={i} className="border-none">
-              <TableCell className="flex w-16">
-                <Skeleton className="h-4 w-8" />
-              </TableCell>
-              <TableCell>
-                <Skeleton className="h-4 w-[250px]" />
-              </TableCell>
-              <TableCell>
-                <Skeleton className="mx-auto h-4 w-24" />
-              </TableCell>
-              <TableCell>
-                <Skeleton className="mx-auto h-4 w-24" />
-              </TableCell>
-              <TableCell className="text-right">
-                <Skeleton className="ml-auto h-4 w-20" />
-              </TableCell>
-              <TableCell className="w-12">
-                <Skeleton className="h-9 w-10" />
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-      <Separator />
-      <div className="flex w-full justify-center gap-2 pt-2">
-        <Button variant="outline" disabled>
-          <ArrowLeftIcon /> Prev
-        </Button>
-        <Button variant="outline" disabled>
-          Next <ArrowRightIcon />
-        </Button>
-      </div>
-    </div>
   )
 }
 
@@ -143,21 +87,19 @@ function JobOrderList() {
   const jos = data.jos
 
   return (
-    <div className="flex flex-col">
-      <Table className="table-fixed">
-        <TableHeader className="bg-foreground rounded-lg">
-          <TableRow className="*:text-background hover:bg-foreground border-none">
-            <TableHead className="w-16 font-semibold first:rounded-l-lg">
+    <div className="flex flex-col overflow-hidden rounded">
+      <Table className="">
+        <TableHeader className="">
+          <TableRow className="">
+            <TableHead className="w-16 font-semibold">
               <HashIcon className="h-4 w-4" />
             </TableHead>
             <TableHead className="font-semibold">Name</TableHead>
-            <TableHead className="hidden text-center font-semibold sm:table-cell">
+            <TableHead className="hidden font-semibold sm:table-cell">
               Pickup Date
             </TableHead>
-            <TableHead className="text-center font-semibold">Contact Number</TableHead>
-            <TableHead className="text-right font-semibold last:rounded-r-lg">
-              Total Value
-            </TableHead>
+            <TableHead className="font-semibold">Contact Number</TableHead>
+            <TableHead className="text-right font-semibold">Total Value</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -195,7 +137,7 @@ function JobOrderListBody({ jos }: { jos: JoWithItems[] }) {
       {jos.map((jo) => (
         <TableRow
           key={jo._id}
-          className="focus-within:bg-muted/50 cursor-pointer border-none"
+          className=""
           onClick={() => navigate({ to: "/jo/$joId", params: { joId: jo._id } })}
           onMouseDown={(e) => {
             e.preventDefault()
@@ -213,10 +155,10 @@ function JobOrderListBody({ jos }: { jos: JoWithItems[] }) {
         >
           <TableCell className="w-16">{jo.joNumber}</TableCell>
           <TableCell className="">{jo.name}</TableCell>
-          <TableCell className="hidden text-center sm:table-cell">
+          <TableCell className="hidden sm:table-cell">
             {new Date(jo.pickupDate ?? jo._creationTime).toLocaleDateString()}
           </TableCell>
-          <TableCell className="text-center">
+          <TableCell className="">
             {jo.contactNumber ? jo.contactNumber : "N/A"}
           </TableCell>
 
@@ -228,6 +170,60 @@ function JobOrderListBody({ jos }: { jos: JoWithItems[] }) {
         </TableRow>
       ))}
     </>
+  )
+}
+
+function JobOrderListSkeleton() {
+  return (
+    <div className="flex flex-col overflow-hidden rounded">
+      <Table>
+        <TableHeader>
+          <TableRow className="">
+            <TableHead className="w-16 font-semibold">
+              <Skeleton className="h-4 w-4" />
+            </TableHead>
+            <TableHead className="font-semibold">
+              <Skeleton className="h-4 w-16" />
+            </TableHead>
+            <TableHead className="hidden font-semibold sm:table-cell">
+              <Skeleton className="h-4 w-20" />
+            </TableHead>
+            <TableHead className="font-semibold">
+              <Skeleton className="h-4 w-24" />
+            </TableHead>
+            <TableHead className="text-right font-semibold">
+              <Skeleton className="ml-auto h-4 w-16" />
+            </TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {Array.from({ length: 10 }).map((_, index) => (
+            <TableRow key={index} className="">
+              <TableCell className="w-16">
+                <Skeleton className="h-4 w-8" />
+              </TableCell>
+              <TableCell>
+                <Skeleton className="h-4 w-32" />
+              </TableCell>
+              <TableCell className="hidden sm:table-cell">
+                <Skeleton className="h-4 w-24" />
+              </TableCell>
+              <TableCell>
+                <Skeleton className="h-4 w-28" />
+              </TableCell>
+              <TableCell className="text-right">
+                <Skeleton className="ml-auto h-4 w-20" />
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+      <Separator />
+      <div className="flex w-full justify-center gap-2 pt-2">
+        <Skeleton className="h-10 w-24" />
+        <Skeleton className="h-10 w-24" />
+      </div>
+    </div>
   )
 }
 

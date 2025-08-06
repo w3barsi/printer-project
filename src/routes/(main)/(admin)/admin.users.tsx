@@ -1,7 +1,7 @@
 import { CreateUserDialog } from "@/components/create-user"
 import { Container } from "@/components/layouts/container"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -43,14 +43,12 @@ export const Route = createFileRoute("/(main)/(admin)/admin/users")({
 
 function RouteComponent() {
   return (
-    <Container>
+    <Container className="flex flex-col">
+      <div className="flex justify-between">
+        <h1 className="text-3xl font-bold tracking-tight">User Management</h1>
+        <CreateUserDialog />
+      </div>
       <Card>
-        <CardHeader>
-          <div className="flex justify-between">
-            <h1 className="text-3xl font-bold tracking-tight">User Management</h1>
-            <CreateUserDialog />
-          </div>
-        </CardHeader>
         <CardContent>
           <Suspense fallback={<UserTableSkeleton />}>
             <UserManagementTable />
@@ -89,9 +87,9 @@ function UserManagementTable() {
   }
 
   return (
-    <div className="overflow-hidden rounded-lg border">
+    <div className="overflow-hidden rounded-lg">
       <Table>
-        <TableHeader className="bg-muted sticky top-0 z-10">
+        <TableHeader className="sticky top-0 z-10">
           <TableRow>
             <TableHead>Name</TableHead>
             <TableHead>Email</TableHead>
