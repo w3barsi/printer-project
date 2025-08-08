@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Separator } from "@/components/ui/separator"
+import { Skeleton } from "@/components/ui/skeleton"
 import {
   Table,
   TableBody,
@@ -55,7 +56,6 @@ type CashflowData =
     )[]
   | null
 
-// TODO: redesign to https://x.com/lamaandesign/status/1952285124680376786
 export const Route = createFileRoute("/(main)/(cashier)/cashflow")({
   loader: async ({ context }) => {
     const today = new Date()
@@ -90,7 +90,8 @@ function RouteComponent() {
               <p className="text-muted-foreground">Cashflow summary dashboard.</p>
             </div>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex flex-col items-center gap-4 md:flex-row-reverse">
+            <AddExpense />
             <div className="flex gap-1">
               <Label htmlFor="date" className="px-1">
                 <CalendarIcon className="size-4" />
@@ -119,15 +120,14 @@ function RouteComponent() {
                 </PopoverContent>
               </Popover>
             </div>
-            <AddExpense />
           </div>
         </div>
         <div className="flex flex-col gap-10">
-          <Suspense>
+          <Suspense fallback={<ExpenseSummarySkeleton />}>
             <ExpenseSummary dayStart={dayStart} dayEnd={dayEnd} date={selected} />
           </Suspense>
 
-          <Suspense>
+          <Suspense fallback={<DailyTransactionsSkeleton />}>
             <DailyTransactions dayStart={dayStart} dayEnd={dayEnd} date={selected} />
           </Suspense>
         </div>
@@ -206,7 +206,7 @@ function DailyTransactionsTable({ data }: { data: CashflowData }) {
   return (
     <TableWrapper>
       <Table className="">
-        <TableHeader className="bg-muted">
+        <TableHeader>
           <TableRow>
             <TableHead>Time</TableHead>
             <TableHead>Type</TableHead>
@@ -340,6 +340,114 @@ function ExpenseSummary({
           ₱{(data.paymentsTotal - data.expensesTotal).toFixed(2)}
         </CardContent>
       </Card>
+    </div>
+  )
+}
+
+function ExpenseSummarySkeleton() {
+  return (
+    <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between pb-2">
+          <Skeleton className="h-6 w-32" />
+          <Skeleton className="size-6" />
+        </CardHeader>
+        <Separator />
+        <CardContent>
+          <Skeleton className="h-8 w-40" />
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between pb-2">
+          <Skeleton className="h-6 w-32" />
+          <Skeleton className="size-6" />
+        </CardHeader>
+        <Separator />
+        <CardContent>
+          <Skeleton className="h-8 w-40" />
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between pb-2">
+          <Skeleton className="h-6 w-24" />
+          <Skeleton className="size-6" />
+        </CardHeader>
+        <Separator />
+        <CardContent>
+          <Skeleton className="h-8 w-40" />
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
+
+function DailyTransactionsSkeleton() {
+  return (
+    <div className="flex flex-col gap-2">
+      <div className="flex items-center justify-between gap-2 md:gap-4">
+        <Skeleton className="h-7 w-40" />
+        <div className="bg-muted flex h-10 items-center gap-1 rounded-md p-1">
+          <Skeleton className="h-8 w-12" />
+          <Skeleton className="h-8 w-20" />
+          <Skeleton className="h-8 w-24" />
+        </div>
+      </div>
+      <TableWrapper>
+        <Table>
+          <TableHeader className="bg-muted">
+            <TableRow>
+              <TableHead>
+                <Skeleton className="h-5 w-12" />
+              </TableHead>
+              <TableHead>
+                <Skeleton className="h-5 w-12" />
+              </TableHead>
+              <TableHead>
+                <Skeleton className="h-5 w-48" />
+              </TableHead>
+              <TableHead>
+                <Skeleton className="h-5 w-24" />
+              </TableHead>
+              <TableHead className="text-right">
+                <Skeleton className="ml-auto h-5 w-20" />
+              </TableHead>
+              <TableHead>
+                <Skeleton className="h-5 w-24" />
+              </TableHead>
+              <TableHead className="text-center">
+                <Skeleton className="mx-auto h-5 w-20" />
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {Array.from({ length: 5 }).map((_, i) => (
+              <TableRow key={i}>
+                <TableCell>
+                  <Skeleton className="h-5 w-16" />
+                </TableCell>
+                <TableCell>
+                  <Skeleton className="h-5 w-20" />
+                </TableCell>
+                <TableCell>
+                  <Skeleton className="h-5 w-56" />
+                </TableCell>
+                <TableCell>
+                  <Skeleton className="h-5 w-28" />
+                </TableCell>
+                <TableCell>
+                  <Skeleton className="ml-auto h-5 w-24" />
+                </TableCell>
+                <TableCell>
+                  <Skeleton className="h-5 w-20" />
+                </TableCell>
+                <TableCell>
+                  <Skeleton className="mx-auto h-5 w-16" />
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableWrapper>
     </div>
   )
 }
