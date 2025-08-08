@@ -83,7 +83,6 @@ export const getListCards = createServerFn({ method: "GET" })
     const response = await fetch(url)
 
     const data = await response.json()
-    console.log(data)
 
     const { data: parsedData, success, error } = trelloCardsSchema.safeParse(data)
 

@@ -6,7 +6,6 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Separator } from "@/components/ui/separator"
-import { Skeleton } from "@/components/ui/skeleton"
 import {
   Table,
   TableBody,
@@ -14,6 +13,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
+  TableWrapper,
 } from "@/components/ui/table"
 import { TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { cn } from "@/lib/utils"
@@ -122,13 +122,15 @@ function RouteComponent() {
             <AddExpense />
           </div>
         </div>
-        <Suspense fallback={<ExpenseSumamrySkeleton />}>
-          <ExpenseSummary dayStart={dayStart} dayEnd={dayEnd} date={selected} />
-        </Suspense>
+        <div className="flex flex-col gap-10">
+          <Suspense>
+            <ExpenseSummary dayStart={dayStart} dayEnd={dayEnd} date={selected} />
+          </Suspense>
 
-        <Suspense>
-          <DailyTransactions dayStart={dayStart} dayEnd={dayEnd} date={selected} />
-        </Suspense>
+          <Suspense>
+            <DailyTransactions dayStart={dayStart} dayEnd={dayEnd} date={selected} />
+          </Suspense>
+        </div>
       </Card>
     </Container>
   )
@@ -170,39 +172,30 @@ function DailyTransactions({
     (b, a) => b.createdAt.getTime() - a.createdAt.getTime(),
   )
 
-  // prettier-ignore
-
   return (
-    <Card>
-      <Tabs defaultValue="all">
-        <CardHeader className="flex items-center justify-between">
-          <div>
-            <h3 className="text-lg font-semibold">Transactions </h3>
-          </div>
-          <TabsList className="h-10">
-            <TabsTrigger value="all" className="w-12 shadow-none">
-              All
-            </TabsTrigger>
-            <TabsTrigger value="income">Income</TabsTrigger>
-            <TabsTrigger value="expenses">Expenses</TabsTrigger>
-          </TabsList>
-        </CardHeader>
-        <CardContent>
-          <div className="overflow-hidden rounded-lg">
-            <TabsContent value="all">
-              <DailyTransactionsTable data={allTransactions} />
-            </TabsContent>
+    <Tabs defaultValue="all" className="flex flex-col gap-2">
+      <div className="flex items-center justify-between gap-2 md:gap-4">
+        <h3 className="text-lg font-semibold">Transactions </h3>
 
-            <TabsContent value="income">
-              <DailyTransactionsTable data={payments} />
-            </TabsContent>
-            <TabsContent value="expenses">
-              <DailyTransactionsTable data={expenses} />
-            </TabsContent>
-          </div>
-        </CardContent>
-      </Tabs>
-    </Card>
+        <TabsList className="h-10">
+          <TabsTrigger value="all" className="w-12 shadow-none">
+            All
+          </TabsTrigger>
+          <TabsTrigger value="income">Income</TabsTrigger>
+          <TabsTrigger value="expenses">Expenses</TabsTrigger>
+        </TabsList>
+      </div>
+
+      <TabsContent value="all">
+        <DailyTransactionsTable data={allTransactions} />
+      </TabsContent>
+      <TabsContent value="income">
+        <DailyTransactionsTable data={payments} />
+      </TabsContent>
+      <TabsContent value="expenses">
+        <DailyTransactionsTable data={expenses} />
+      </TabsContent>
+    </Tabs>
   )
 }
 
@@ -211,83 +204,86 @@ function DailyTransactionsTable({ data }: { data: CashflowData }) {
     mutationFn: useConvexMutation(api.cashier.deleteExpense),
   })
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Time</TableHead>
-          <TableHead>Type</TableHead>
-          <TableHead>Description</TableHead>
-          <TableHead>Status</TableHead>
-          <TableHead className="text-right">Amount</TableHead>
-          <TableHead>Received By</TableHead>
-          <TableHead className="text-center">Actions</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {data?.map((transaction) => (
-          <TableRow key={transaction.id}>
-            <TableCell>
-              {transaction.createdAt.toLocaleTimeString([], {
-                hour: "2-digit",
-                minute: "2-digit",
-              })}
-            </TableCell>
-            <TableCell>
-              <span
-                className={cn(
-                  "inline-flex rounded-full px-2 py-1 text-xs font-medium",
-                  transaction.type === "Income"
-                    ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
-                    : "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
-                )}
-              >
-                {transaction.type}
-              </span>
-            </TableCell>
-            <TableCell>{transaction.description}</TableCell>
-            <TableCell>
-              {transaction.status !== "-" && (
+    <TableWrapper>
+      <Table className="">
+        <TableHeader className="bg-muted">
+          <TableRow>
+            <TableHead>Time</TableHead>
+            <TableHead>Type</TableHead>
+            <TableHead>Description</TableHead>
+            <TableHead>Status</TableHead>
+            <TableHead className="text-right">Amount</TableHead>
+            <TableHead>Received By</TableHead>
+            <TableHead className="text-center">Actions</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {data?.map((transaction) => (
+            <TableRow key={transaction.id}>
+              <TableCell>
+                {transaction.createdAt.toLocaleTimeString([], {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
+              </TableCell>
+              <TableCell>
                 <span
                   className={cn(
                     "inline-flex rounded-full px-2 py-1 text-xs font-medium",
-                    transaction.status === "Full Payment"
-                      ? "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400"
-                      : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400",
+                    transaction.type === "Income"
+                      ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
+                      : "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
                   )}
                 >
-                  {transaction.status}
+                  {transaction.type}
                 </span>
-              )}
-            </TableCell>
-            <TableCell
-              className={cn(
-                "text-right font-medium",
-                transaction.type === "Income"
-                  ? "text-green-600 dark:text-green-400"
-                  : "text-red-600 dark:text-red-400",
-              )}
-            >
-              {transaction.type === "Income" ? "+" : "-"}₱{transaction.amount.toFixed(2)}
-            </TableCell>
-            <TableCell className="text-muted-foreground">
-              {transaction.createdBy}
-            </TableCell>
-            <TableCell className="text-center">
-              {transaction.type === "Expense" && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => deleteExpense({ expenseId: transaction.id })}
-                  className="text-red-600 hover:bg-red-100 hover:text-red-700 dark:hover:bg-red-900/20"
-                >
-                  Delete
-                </Button>
-              )}
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+              </TableCell>
+              <TableCell>{transaction.description}</TableCell>
+              <TableCell>
+                {transaction.status !== "-" && (
+                  <span
+                    className={cn(
+                      "inline-flex rounded-full px-2 py-1 text-xs font-medium",
+                      transaction.status === "Full Payment"
+                        ? "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400"
+                        : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400",
+                    )}
+                  >
+                    {transaction.status}
+                  </span>
+                )}
+              </TableCell>
+              <TableCell
+                className={cn(
+                  "text-right font-medium",
+                  transaction.type === "Income"
+                    ? "text-green-600 dark:text-green-400"
+                    : "text-red-600 dark:text-red-400",
+                )}
+              >
+                {transaction.type === "Income" ? "+" : "-"}₱
+                {transaction.amount.toFixed(2)}
+              </TableCell>
+              <TableCell className="text-muted-foreground">
+                {transaction.createdBy}
+              </TableCell>
+              <TableCell className="text-center">
+                {transaction.type === "Expense" && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => deleteExpense({ expenseId: transaction.id })}
+                    className="text-red-600 hover:bg-red-100 hover:text-red-700 dark:hover:bg-red-900/20"
+                  >
+                    Delete
+                  </Button>
+                )}
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </TableWrapper>
   )
 }
 
@@ -342,46 +338,6 @@ function ExpenseSummary({
         <Separator />
         <CardContent className="text-xl font-bold">
           ₱{(data.paymentsTotal - data.expensesTotal).toFixed(2)}
-        </CardContent>
-      </Card>
-    </div>
-  )
-}
-
-function ExpenseSumamrySkeleton() {
-  return (
-    <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-      <Card className="h-40 justify-between">
-        <CardHeader className="flex justify-between gap-5">
-          <Skeleton className="h-8 w-full" />
-
-          <Skeleton className="h-8 w-11 rounded-full" />
-        </CardHeader>
-        <CardContent className="flex flex-col gap-1">
-          <Skeleton className="h-10 w-full" />
-          <Skeleton className="h-4 w-2/3" />
-        </CardContent>
-      </Card>
-      <Card className="h-40 justify-between">
-        <CardHeader className="flex justify-between gap-5">
-          <Skeleton className="h-8 w-full" />
-
-          <Skeleton className="h-8 w-11 rounded-full" />
-        </CardHeader>
-        <CardContent className="flex flex-col gap-1">
-          <Skeleton className="h-10 w-full" />
-          <Skeleton className="h-4 w-2/3" />
-        </CardContent>
-      </Card>
-      <Card className="h-40 justify-between">
-        <CardHeader className="flex justify-between gap-5">
-          <Skeleton className="h-8 w-full" />
-
-          <Skeleton className="h-8 w-11 rounded-full" />
-        </CardHeader>
-        <CardContent className="flex flex-col gap-1">
-          <Skeleton className="h-10 w-full" />
-          <Skeleton className="h-4 w-2/3" />
         </CardContent>
       </Card>
     </div>

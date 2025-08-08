@@ -2,6 +2,16 @@ import * as React from "react"
 
 import { cn } from "@/lib/utils"
 
+export function TableWrapper({ className, ...props }: React.ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="table-wrapper"
+      className={cn("overflow-hidden rounded border", className)}
+      {...props}
+    />
+  )
+}
+
 function Table({ className, ...props }: React.ComponentProps<"table">) {
   return (
     <div data-slot="table-container" className="relative w-full overflow-x-auto">
