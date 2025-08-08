@@ -1,9 +1,9 @@
 import { convexAdapter } from "@convex-dev/better-auth"
 import { convex } from "@convex-dev/better-auth/plugins"
-import type { GenericCtx } from "@convex/_generated/server"
-import { betterAuthComponent } from "@convex/auth"
 import { betterAuth } from "better-auth"
 import { admin, username } from "better-auth/plugins"
+import type { GenericCtx } from "../../convex/_generated/server"
+import { betterAuthComponent } from "../../convex/auth"
 import { ac, adminRole, basicRole } from "./auth-access-controls"
 
 const URL = process.env.VERCEL_URL
