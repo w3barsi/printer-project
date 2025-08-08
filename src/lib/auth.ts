@@ -1,29 +1,14 @@
 import { convexAdapter } from "@convex-dev/better-auth"
 import { convex } from "@convex-dev/better-auth/plugins"
+import type { GenericCtx } from "@convex/_generated/server"
+import { betterAuthComponent } from "@convex/auth"
 import { betterAuth } from "better-auth"
 import { admin, username } from "better-auth/plugins"
-import { createAccessControl } from "better-auth/plugins/access"
-import { adminAc, defaultStatements } from "better-auth/plugins/admin/access"
-import type { GenericCtx } from "../../convex/_generated/server"
-import { betterAuthComponent } from "../../convex/auth"
+import { ac, adminRole, basicRole } from "./auth-access-controls"
 
 const URL = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
   : "http://localhost:3000"
-
-const statements = {
-  ...defaultStatements,
-} as const
-
-export const ac = createAccessControl(statements)
-
-export const adminRole = ac.newRole({
-  ...adminAc.statements,
-})
-
-export const basicRole = ac.newRole({
-  user: ["create", "list"],
-})
 
 export const createAuth = (ctx: GenericCtx) =>
   // Configure your Better Auth instance here
