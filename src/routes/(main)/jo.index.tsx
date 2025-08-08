@@ -88,9 +88,9 @@ function JobOrderList() {
 
   return (
     <div className="flex flex-col overflow-hidden rounded">
-      <Table className="">
-        <TableHeader className="">
-          <TableRow className="">
+      <Table>
+        <TableHeader>
+          <TableRow>
             <TableHead className="w-16 font-semibold">
               <HashIcon className="h-4 w-4" />
             </TableHead>

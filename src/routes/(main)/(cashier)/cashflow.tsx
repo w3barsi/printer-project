@@ -5,6 +5,7 @@ import { Calendar } from "@/components/ui/calendar"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Separator } from "@/components/ui/separator"
 import { Skeleton } from "@/components/ui/skeleton"
 import {
   Table,
@@ -14,21 +15,48 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useLocalStorage } from "@/hooks/use-local-storage"
 import { cn } from "@/lib/utils"
 import { convexQuery, useConvexMutation } from "@convex-dev/react-query"
 import { api } from "@convex/_generated/api"
+import type { Id } from "@convex/_generated/dataModel"
+import { Tabs } from "@radix-ui/react-tabs"
 import { useMutation, useSuspenseQuery } from "@tanstack/react-query"
 import { createFileRoute } from "@tanstack/react-router"
 import {
   CalendarIcon,
   ChevronDownIcon,
-  FilterIcon,
   PhilippinePesoIcon,
+  TrendingDownIcon,
   TrendingUpIcon,
 } from "lucide-react"
 import { Suspense, useState } from "react"
 
+type CashflowData =
+  | (
+      | {
+          id: Id<"payment">
+          type: "Income"
+          amount: number
+          description: string
+          status: string
+          createdBy: string
+          createdAt: Date
+        }
+      | {
+          id: Id<"expenses">
+          type: "Expense"
+          amount: number
+          description: string
+          status: string
+          createdBy: string
+          createdAt: Date
+        }
+    )[]
+  | null
+
+// TODO: redesign to https://x.com/lamaandesign/status/1952285124680376786
 export const Route = createFileRoute("/(main)/(cashier)/cashflow")({
   loader: async ({ context }) => {
     const today = new Date()
@@ -54,58 +82,60 @@ function RouteComponent() {
 
   return (
     <Container className="flex flex-col">
-      <div className="flex justify-between">
-        <div className="flex items-center gap-4">
-          <TrendingUpIcon className="size-10" />
-          <div>
-            <h1 className="text-xl font-bold">Cashflow</h1>
-            <p className="text-muted-foreground">Cashflow summary dashboard.</p>
+      <Card className="p-2 md:p-8">
+        <div className="flex justify-between">
+          <div className="flex items-center gap-4">
+            <TrendingUpIcon className="size-10" />
+            <div>
+              <h1 className="text-xl font-bold">Cashflow</h1>
+              <p className="text-muted-foreground">Cashflow summary dashboard.</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="flex gap-1">
+              <Label htmlFor="date" className="px-1">
+                <CalendarIcon className="size-4" />
+              </Label>
+              <Popover open={open} onOpenChange={setOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    id="date"
+                    className="w-48 justify-between font-normal"
+                  >
+                    {selected ? selected.toLocaleDateString() : "Select date"}
+                    <ChevronDownIcon />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto overflow-hidden p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={selected}
+                    captionLayout="label"
+                    onSelect={(date) => {
+                      setSelected(date)
+                      setOpen(false)
+                    }}
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+            <AddExpense />
           </div>
         </div>
-        <div className="flex items-center gap-4">
-          <div className="flex gap-1">
-            <Label htmlFor="date" className="px-1">
-              <CalendarIcon className="size-4" />
-            </Label>
-            <Popover open={open} onOpenChange={setOpen}>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  id="date"
-                  className="w-48 justify-between font-normal"
-                >
-                  {selected ? selected.toLocaleDateString() : "Select date"}
-                  <ChevronDownIcon />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto overflow-hidden p-0" align="start">
-                <Calendar
-                  mode="single"
-                  selected={selected}
-                  captionLayout="label"
-                  onSelect={(date) => {
-                    setSelected(date)
-                    setOpen(false)
-                  }}
-                />
-              </PopoverContent>
-            </Popover>
-          </div>
-          <AddExpense />
-        </div>
-      </div>
-      <Suspense fallback={<ExpenseSumamrySkeleton />}>
-        <ExpenseSummary dayStart={dayStart} dayEnd={dayEnd} date={selected} />
-      </Suspense>
+        <Suspense fallback={<ExpenseSumamrySkeleton />}>
+          <ExpenseSummary dayStart={dayStart} dayEnd={dayEnd} date={selected} />
+        </Suspense>
 
-      <Suspense>
-        <DailyTransactionsTable dayStart={dayStart} dayEnd={dayEnd} date={selected} />
-      </Suspense>
+        <Suspense>
+          <DailyTransactions dayStart={dayStart} dayEnd={dayEnd} date={selected} />
+        </Suspense>
+      </Card>
     </Container>
   )
 }
 
-function DailyTransactionsTable({
+function DailyTransactions({
   dayStart,
   dayEnd,
   date,
@@ -157,139 +187,122 @@ function DailyTransactionsTable({
       ? payments
         : null
 
+  return (
+    <Card>
+      <Tabs defaultValue="all">
+        <CardHeader className="flex items-center justify-between">
+          <div>
+            <h3 className="text-lg font-semibold">Transactions </h3>
+          </div>
+          <TabsList className="h-10">
+            <TabsTrigger value="all" className="w-12 shadow-none">
+              All
+            </TabsTrigger>
+            <TabsTrigger value="income">Income</TabsTrigger>
+            <TabsTrigger value="expenses">Expenses</TabsTrigger>
+          </TabsList>
+        </CardHeader>
+        <CardContent>
+          <div className="overflow-hidden rounded-lg">
+            <TabsContent value="all">
+              <DailyTransactionsTable data={allTransactions} />
+            </TabsContent>
+
+            <TabsContent value="income">
+              <DailyTransactionsTable data={payments} />
+            </TabsContent>
+            <TabsContent value="expenses">
+              <DailyTransactionsTable data={expenses} />
+            </TabsContent>
+          </div>
+        </CardContent>
+      </Tabs>
+    </Card>
+  )
+}
+
+function DailyTransactionsTable({ data }: { data: CashflowData }) {
   const { mutateAsync: deleteExpense } = useMutation({
     mutationFn: useConvexMutation(api.cashier.deleteExpense),
   })
-
   return (
-    <Card>
-      <CardHeader className="flex items-center justify-between">
-        <div>
-          <h3 className="text-lg font-semibold">Daily Transactions Table</h3>
-          <p className="text-muted-foreground text-sm">{date?.toLocaleDateString()}</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <FilterIcon size={18} />
-          <div className="flex gap-2 rounded-lg border p-1">
-            <Button
-              variant="ghost"
-              onClick={() => setFilter("all")}
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead>Time</TableHead>
+          <TableHead>Type</TableHead>
+          <TableHead>Description</TableHead>
+          <TableHead>Status</TableHead>
+          <TableHead className="text-right">Amount</TableHead>
+          <TableHead>Received By</TableHead>
+          <TableHead className="text-center">Actions</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {data?.map((transaction) => (
+          <TableRow key={transaction.id} className="">
+            <TableCell>
+              {transaction.createdAt.toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
+            </TableCell>
+            <TableCell>
+              <span
+                className={cn(
+                  "inline-flex rounded-full px-2 py-1 text-xs font-medium",
+                  transaction.type === "Income"
+                    ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
+                    : "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
+                )}
+              >
+                {transaction.type}
+              </span>
+            </TableCell>
+            <TableCell>{transaction.description}</TableCell>
+            <TableCell>
+              {transaction.status !== "-" && (
+                <span
+                  className={cn(
+                    "inline-flex rounded-full px-2 py-1 text-xs font-medium",
+                    transaction.status === "Full Payment"
+                      ? "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400"
+                      : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400",
+                  )}
+                >
+                  {transaction.status}
+                </span>
+              )}
+            </TableCell>
+            <TableCell
               className={cn(
-                "w-24 hover:bg-neutral-100 dark:hover:bg-neutral-500/10",
-                filter === "all" &&
-                  "border-neutral-300 bg-neutral-200 hover:bg-neutral-200 dark:border-neutral-900 dark:bg-neutral-500/20 dark:hover:bg-neutral-500/20",
+                "text-right font-medium",
+                transaction.type === "Income"
+                  ? "text-green-600 dark:text-green-400"
+                  : "text-red-600 dark:text-red-400",
               )}
             >
-              All
-            </Button>
-            <Button
-              variant="ghost"
-              onClick={() => setFilter("income")}
-              className={cn(
-                "w-24 hover:bg-green-100 dark:hover:bg-green-500/10",
-                filter === "income" &&
-                  "border-green-300 bg-green-200 hover:bg-green-200 dark:border-green-900 dark:bg-green-500/20 dark:hover:bg-green-500/20",
+              {transaction.type === "Income" ? "+" : "-"}₱{transaction.amount.toFixed(2)}
+            </TableCell>
+            <TableCell className="text-muted-foreground">
+              {transaction.createdBy}
+            </TableCell>
+            <TableCell className="text-center">
+              {transaction.type === "Expense" && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => deleteExpense({ expenseId: transaction.id })}
+                  className="text-red-600 hover:bg-red-100 hover:text-red-700 dark:hover:bg-red-900/20"
+                >
+                  Delete
+                </Button>
               )}
-            >
-              Income
-            </Button>
-            <Button
-              variant="ghost"
-              onClick={() => setFilter("expenses")}
-              className={cn(
-                "w-24 hover:bg-red-100 dark:hover:bg-red-500/10",
-                filter === "expenses" &&
-                  "border-red-300 bg-red-200 hover:bg-red-200 dark:border-red-900 dark:bg-red-500/20 dark:hover:bg-red-500/20",
-              )}
-            >
-              Expenses
-            </Button>
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent>
-        <div className="overflow-hidden rounded-lg">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Time</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>Description</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Amount</TableHead>
-                <TableHead>Received By</TableHead>
-                <TableHead className="text-center">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredData?.map((transaction) => (
-                <TableRow key={transaction.id} className="">
-                  <TableCell>
-                    {transaction.createdAt.toLocaleTimeString([], {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </TableCell>
-                  <TableCell>
-                    <span
-                      className={cn(
-                        "inline-flex rounded-full px-2 py-1 text-xs font-medium",
-                        transaction.type === "Income"
-                          ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
-                          : "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
-                      )}
-                    >
-                      {transaction.type}
-                    </span>
-                  </TableCell>
-                  <TableCell>{transaction.description}</TableCell>
-                  <TableCell>
-                    {transaction.status !== "-" && (
-                      <span
-                        className={cn(
-                          "inline-flex rounded-full px-2 py-1 text-xs font-medium",
-                          transaction.status === "Full Payment"
-                            ? "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400"
-                            : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400",
-                        )}
-                      >
-                        {transaction.status}
-                      </span>
-                    )}
-                  </TableCell>
-                  <TableCell
-                    className={cn(
-                      "text-right font-medium",
-                      transaction.type === "Income"
-                        ? "text-green-600 dark:text-green-400"
-                        : "text-red-600 dark:text-red-400",
-                    )}
-                  >
-                    {transaction.type === "Income" ? "+" : "-"}₱
-                    {transaction.amount.toFixed(2)}
-                  </TableCell>
-                  <TableCell className="text-muted-foreground">
-                    {transaction.createdBy}
-                  </TableCell>
-                  <TableCell className="text-center">
-                    {transaction.type === "Expense" && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => deleteExpense({ expenseId: transaction.id })}
-                        className="text-red-600 hover:bg-red-100 hover:text-red-700 dark:hover:bg-red-900/20"
-                      >
-                        Delete
-                      </Button>
-                    )}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
-      </CardContent>
-    </Card>
+            </TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
   )
 }
 
@@ -306,71 +319,45 @@ function ExpenseSummary({
     convexQuery(api.cashier.listDayData, { dayStart, dayEnd }),
   )
 
-  const paymentCount = data?.paymentsData.length
-  const expenseCount = data?.expensesData.length
-
   const isPositive = data.paymentsTotal > data.expensesTotal ? true : false
 
   return (
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-      <Card className="h-40 justify-between">
+      <Card className="">
         <CardHeader className="flex justify-between">
-          <h2>Today's Gross Income</h2>
-          <span>
-            <TrendingUpIcon className="text-green-500 dark:text-green-600" />
-          </span>
+          <h2>Gross Income</h2>
+          <TrendingUpIcon className="text-green-500 dark:text-green-600" />
         </CardHeader>
-        <CardContent className="flex flex-col gap-1">
-          <span className="w-full rounded-full border border-green-300 bg-green-200 py-2 pl-5 dark:border-green-900 dark:bg-green-500/10">
-            ₱{data.paymentsTotal.toFixed(2)}
-          </span>
-          <span className="text-muted-foreground text-sm">
-            {paymentCount} transaction/s on {date?.toLocaleDateString()}
-          </span>
+        <Separator />
+        <CardContent className="text-xl font-bold">
+          ₱{data.paymentsTotal.toFixed(2)}
         </CardContent>
       </Card>
-      <Card className="h-40 justify-between">
+      <Card className="">
         <CardHeader className="flex justify-between">
           <h2>Total Expenses</h2>
-          <span>
-            <TrendingUpIcon className="text-red-500 dark:text-red-600" />
-          </span>
+          <TrendingDownIcon className="text-red-500 dark:text-red-600" />
         </CardHeader>
-        <CardContent className="flex flex-col gap-1">
-          <span className="w-full rounded-full border border-red-300 bg-red-200 py-2 pl-5 dark:border-red-900 dark:bg-red-500/10">
-            ₱{data.expensesTotal.toFixed(2)}
-          </span>
-          <span className="text-muted-foreground text-sm">
-            {expenseCount} transaction/s on {date?.toLocaleDateString()}
-          </span>
+        <Separator />
+        <CardContent className="text-xl font-bold">
+          ₱{data.expensesTotal.toFixed(2)}
         </CardContent>
       </Card>
-      <Card className="h-40 justify-between">
+      <Card className="">
         <CardHeader className="flex justify-between">
-          <h2>Net Income</h2>
+          Net Income
           <PhilippinePesoIcon
             className={cn(
+              "transition-colors",
               isPositive
                 ? "text-green-500 dark:text-green-600"
                 : "text-red-500 dark:text-red-600",
             )}
           />
         </CardHeader>
-        <CardContent className="flex flex-col gap-1">
-          <span
-            className={cn(
-              "w-full rounded-full border py-2 pl-5",
-              !isPositive &&
-                "border-red-300 bg-red-200 dark:border-red-900 dark:bg-red-500/10",
-              isPositive &&
-                "border-green-300 bg-green-200 py-2 pl-5 dark:border-green-900 dark:bg-green-500/10",
-            )}
-          >
-            ₱{(data.paymentsTotal - data.expensesTotal).toFixed(2)}
-          </span>
-          <span className="text-muted-foreground text-sm">
-            {date?.toLocaleDateString()}
-          </span>
+        <Separator />
+        <CardContent className="text-xl font-bold">
+          ₱{(data.paymentsTotal - data.expensesTotal).toFixed(2)}
         </CardContent>
       </Card>
     </div>
