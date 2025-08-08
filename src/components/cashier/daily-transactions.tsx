@@ -42,7 +42,7 @@ export function DailyTransactions({
             params={{ joId: d.joId }}
             className="underline-offset-4 hover:underline"
           >
-            <span className="">Jo Number #{d.joNumber}</span> -{" "}
+            <span>Jo Number #{d.joNumber}</span> -{" "}
             <span className="font-semibold">{d.joName}</span>
           </Link>
           <p className="text-muted-foreground text-sm">Received by: {d.createdByName}</p>

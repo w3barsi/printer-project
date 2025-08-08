@@ -120,11 +120,11 @@ function PaymentCard() {
     return null
   }
   return (
-    <Card className="">
+    <Card>
       <CardHeader className="flex items-center justify-between">
         <CardTitle className="flex items-center gap-2 text-lg font-bold">
           <BanknoteIcon className="h-6 w-6" />
-          <p className="">Payment/s</p>
+          <p>Payment/s</p>
         </CardTitle>
         <AddPaymentDialog
           joId={joId as Id<"jo">}
@@ -209,7 +209,7 @@ function JoItemsCard() {
       <CardContent>
         <div className="overflow-hidden rounded-md">
           <Table>
-            <TableHeader className="">
+            <TableHeader>
               <TableRow>
                 <TableHead>Item Name</TableHead>
                 <TableHead className="text-center">Quantity</TableHead>
@@ -274,7 +274,7 @@ function JobOrderCard() {
   }
 
   return (
-    <Card className="">
+    <Card>
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>

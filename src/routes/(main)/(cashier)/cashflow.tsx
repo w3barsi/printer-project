@@ -225,7 +225,7 @@ function DailyTransactionsTable({ data }: { data: CashflowData }) {
       </TableHeader>
       <TableBody>
         {data?.map((transaction) => (
-          <TableRow key={transaction.id} className="">
+          <TableRow key={transaction.id}>
             <TableCell>
               {transaction.createdAt.toLocaleTimeString([], {
                 hour: "2-digit",
@@ -307,7 +307,7 @@ function ExpenseSummary({
 
   return (
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-      <Card className="">
+      <Card>
         <CardHeader className="flex justify-between">
           <h2>Gross Income</h2>
           <TrendingUpIcon className="text-green-500 dark:text-green-600" />
@@ -317,7 +317,7 @@ function ExpenseSummary({
           ₱{data.paymentsTotal.toFixed(2)}
         </CardContent>
       </Card>
-      <Card className="">
+      <Card>
         <CardHeader className="flex justify-between">
           <h2>Total Expenses</h2>
           <TrendingDownIcon className="text-red-500 dark:text-red-600" />
@@ -327,7 +327,7 @@ function ExpenseSummary({
           ₱{data.expensesTotal.toFixed(2)}
         </CardContent>
       </Card>
-      <Card className="">
+      <Card>
         <CardHeader className="flex justify-between">
           Net Income
           <PhilippinePesoIcon

@@ -107,7 +107,7 @@ function JobOrderList() {
         </TableBody>
       </Table>
 
-      <Separator className="" />
+      <Separator />
       <div className="flex w-full justify-center gap-2 pt-2">
         <Button
           onClick={handlePrev}
@@ -154,13 +154,11 @@ function JobOrderListBody({ jos }: { jos: JoWithItems[] }) {
           aria-label={`View job order details for ${jo.name}`}
         >
           <TableCell className="w-16">{jo.joNumber}</TableCell>
-          <TableCell className="">{jo.name}</TableCell>
+          <TableCell>{jo.name}</TableCell>
           <TableCell className="hidden sm:table-cell">
             {new Date(jo.pickupDate ?? jo._creationTime).toLocaleDateString()}
           </TableCell>
-          <TableCell className="">
-            {jo.contactNumber ? jo.contactNumber : "N/A"}
-          </TableCell>
+          <TableCell>{jo.contactNumber ? jo.contactNumber : "N/A"}</TableCell>
 
           <TableCell className="text-right">
             {formatCurrency(
@@ -178,7 +176,7 @@ function JobOrderListSkeleton() {
     <div className="flex flex-col overflow-hidden rounded">
       <Table>
         <TableHeader>
-          <TableRow className="">
+          <TableRow>
             <TableHead className="w-16 font-semibold">
               <Skeleton className="h-4 w-4" />
             </TableHead>
@@ -198,7 +196,7 @@ function JobOrderListSkeleton() {
         </TableHeader>
         <TableBody>
           {Array.from({ length: 10 }).map((_, index) => (
-            <TableRow key={index} className="">
+            <TableRow key={index}>
               <TableCell className="w-16">
                 <Skeleton className="h-4 w-8" />
               </TableCell>
