@@ -16,7 +16,6 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { useLocalStorage } from "@/hooks/use-local-storage"
 import { cn } from "@/lib/utils"
 import { convexQuery, useConvexMutation } from "@convex-dev/react-query"
 import { api } from "@convex/_generated/api"
@@ -138,17 +137,11 @@ function RouteComponent() {
 function DailyTransactions({
   dayStart,
   dayEnd,
-  date,
 }: {
   dayStart: number
   dayEnd: number
   date?: Date
 }) {
-  const [filter, setFilter] = useLocalStorage<"all" | "income" | "expenses">(
-    "filter",
-    "all",
-  )
-
   const { data } = useSuspenseQuery(
     convexQuery(api.cashier.listDayData, { dayStart, dayEnd }),
   )
@@ -178,14 +171,6 @@ function DailyTransactions({
   )
 
   // prettier-ignore
-  const filteredData =
-    filter === "all"
-      ? allTransactions :
-    filter === "expenses"
-      ? expenses :
-    filter === "income"
-      ? payments
-        : null
 
   return (
     <Card>
@@ -309,7 +294,6 @@ function DailyTransactionsTable({ data }: { data: CashflowData }) {
 function ExpenseSummary({
   dayStart,
   dayEnd,
-  date,
 }: {
   dayStart: number
   dayEnd: number
