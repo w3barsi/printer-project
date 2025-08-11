@@ -27,6 +27,7 @@ import { createFileRoute } from "@tanstack/react-router"
 import {
   CalendarIcon,
   ChevronDownIcon,
+  OctagonAlertIcon,
   PhilippinePesoIcon,
   TrendingDownIcon,
   TrendingUpIcon,
@@ -86,7 +87,7 @@ function RouteComponent() {
           <div className="flex items-center gap-4">
             <TrendingUpIcon className="size-10" />
             <div>
-              <h1 className="text-xl font-bold">Cashflow</h1>
+              <h1 className="text-2xl font-bold">Cashflow</h1>
               <p className="text-muted-foreground">Cashflow summary dashboard.</p>
             </div>
           </div>
@@ -122,7 +123,7 @@ function RouteComponent() {
             </div>
           </div>
         </div>
-        <div className="flex flex-col gap-10">
+        <div className="flex flex-col gap-4 md:gap-10">
           <Suspense fallback={<ExpenseSummarySkeleton />}>
             <ExpenseSummary dayStart={dayStart} dayEnd={dayEnd} date={selected} />
           </Suspense>
@@ -147,6 +148,10 @@ function DailyTransactions({
   const { data } = useSuspenseQuery(
     convexQuery(api.cashier.listDayData, { dayStart, dayEnd }),
   )
+
+  if (data.expensesData.length === 0 && data.paymentsData.length === 0) {
+    return <></>
+  }
 
   const payments = data.paymentsData.map((payment) => ({
     id: payment._id,
@@ -175,7 +180,7 @@ function DailyTransactions({
   return (
     <Tabs defaultValue="all" className="flex flex-col gap-2">
       <div className="flex items-center justify-between gap-2 md:gap-4">
-        <h3 className="text-lg font-semibold">Transactions </h3>
+        <h3 className="text-2xl font-semibold">Transactions </h3>
 
         <TabsList className="h-10">
           <TabsTrigger value="all" className="w-12 shadow-none">
@@ -300,6 +305,15 @@ function ExpenseSummary({
   )
 
   const isPositive = data.paymentsTotal > data.expensesTotal ? true : false
+
+  if (data.expensesData.length === 0 && data.paymentsData.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center gap-4 text-center">
+        <OctagonAlertIcon className="size-10" />
+        <p className="text-muted-foreground">No data available for this period.</p>
+      </div>
+    )
+  }
 
   return (
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">

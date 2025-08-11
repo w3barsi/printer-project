@@ -16,14 +16,6 @@ import { Link } from "@tanstack/react-router"
 import { PrinterButton } from "../printer/printer-button"
 import { RecentJobOrders } from "../recent-job-orders"
 
-const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
-}
-
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar {...props}>
