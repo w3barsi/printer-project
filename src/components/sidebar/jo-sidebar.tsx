@@ -1,7 +1,8 @@
 import {
   SidebarGroup,
-  SidebarGroupLabel,
   SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
   SidebarMenuSkeleton,
   SidebarMenuSub,
   SidebarMenuSubButton,
@@ -12,22 +13,31 @@ import { api } from "@convex/_generated/api"
 import { useAutoAnimate } from "@formkit/auto-animate/react"
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { Link } from "@tanstack/react-router"
+import { FileTextIcon } from "lucide-react"
 import { Suspense } from "react"
-import { Card, CardContent } from "./ui/card"
 
 export function RecentJobOrders() {
   return (
     <SidebarGroup>
-      <Card className="px-2 pt-2 pb-3">
-        <CardContent className="p-0">
-          <SidebarGroupLabel>Recent Job Orders</SidebarGroupLabel>
-          <SidebarMenu>
-            <Suspense fallback={<RecentSubMenuSkeleton />}>
-              <RecentSubMenu />
-            </Suspense>
-          </SidebarMenu>
-        </CardContent>
-      </Card>
+      <SidebarMenu>
+        <SidebarMenuItem>
+          <SidebarMenuButton asChild tooltip="Job Order">
+            <Link
+              to="/jo"
+              activeProps={{
+                className: "bg-sidebar-accent text-sidebar-accent-foreground",
+              }}
+              activeOptions={{ exact: true }}
+            >
+              <FileTextIcon />
+              <span>Job Orders</span>
+            </Link>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+        <Suspense fallback={<RecentSubMenuSkeleton />}>
+          <RecentSubMenu />
+        </Suspense>
+      </SidebarMenu>
     </SidebarGroup>
   )
 }

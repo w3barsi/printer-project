@@ -11,10 +11,11 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarSeparator,
 } from "@/components/ui/sidebar"
 import { Link } from "@tanstack/react-router"
 import { PrinterButton } from "../printer/printer-button"
-import { RecentJobOrders } from "../recent-job-orders"
+import { RecentJobOrders } from "./jo-sidebar"
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
@@ -37,8 +38,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain />
         <RecentJobOrders />
+        <SidebarSeparator className="mx-0" />
+        <NavMain />
       </SidebarContent>
       <SidebarFooter>
         <PrinterButton />
