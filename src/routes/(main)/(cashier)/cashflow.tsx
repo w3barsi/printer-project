@@ -192,22 +192,40 @@ function DailyTransactions({
       </div>
 
       <TabsContent value="all">
-        <DailyTransactionsTable data={allTransactions} />
+        <DailyTransactionsTable data={allTransactions} dataType="all" />
       </TabsContent>
       <TabsContent value="income">
-        <DailyTransactionsTable data={payments} />
+        <DailyTransactionsTable data={payments} dataType="income" />
       </TabsContent>
       <TabsContent value="expenses">
-        <DailyTransactionsTable data={expenses} />
+        <DailyTransactionsTable data={expenses} dataType="expenses" />
       </TabsContent>
     </Tabs>
   )
 }
 
-function DailyTransactionsTable({ data }: { data: CashflowData }) {
+function DailyTransactionsTable({
+  data,
+  dataType,
+}: {
+  data: CashflowData
+  dataType: "all" | "income" | "expenses"
+}) {
   const { mutateAsync: deleteExpense } = useMutation({
     mutationFn: useConvexMutation(api.cashier.deleteExpense),
   })
+
+  if (!data || data.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center gap-4 text-center">
+        <OctagonAlertIcon className="size-10" />
+        <p className="text-muted-foreground">
+          No {dataType === "income" ? "income" : "expenses"} available for this period.
+        </p>
+      </div>
+    )
+  }
+
   return (
     <TableWrapper>
       <Table className="">
