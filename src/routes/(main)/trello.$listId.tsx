@@ -23,12 +23,6 @@ type ImagesFromCard = {
 
 export const Route = createFileRoute("/(main)/trello/$listId")({
   component: RouteComponent,
-  loader: async ({ context, params }) => {
-    context.queryClient.prefetchQuery({
-      queryKey: ["listCards", params.listId],
-      queryFn: () => getListCards({ data: { listId: params.listId } }),
-    })
-  },
   head: () => ({
     meta: [
       {
