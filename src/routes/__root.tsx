@@ -1,12 +1,12 @@
-import { Toaster } from "@/components/ui/sonner"
-import { DeviceProvider } from "@/contexts/DeviceContext"
-import type { SessionWithRole } from "@/lib/auth"
-import { authClient } from "@/lib/auth-client.ts"
-import { fetchSession, getCookieName } from "@/lib/auth-utils"
-import { ConvexBetterAuthProvider } from "@convex-dev/better-auth/react"
-import type { ConvexQueryClient } from "@convex-dev/react-query"
-import type { QueryClient } from "@tanstack/react-query"
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
+import { Toaster } from "@/components/ui/sonner";
+import { DeviceProvider } from "@/contexts/DeviceContext";
+import type { SessionWithRole } from "@/lib/auth";
+import { authClient } from "@/lib/auth-client.ts";
+import { fetchSession, getCookieName } from "@/lib/auth-utils";
+import { ConvexBetterAuthProvider } from "@convex-dev/better-auth/react";
+import type { ConvexQueryClient } from "@convex-dev/react-query";
+import type { QueryClient } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import {
   HeadContent,
   Outlet,
@@ -14,54 +14,58 @@ import {
   Scripts,
   createRootRouteWithContext,
   useRouteContext,
-} from "@tanstack/react-router"
-import { TanStackRouterDevtools } from "@tanstack/react-router-devtools"
-import { createServerFn } from "@tanstack/react-start"
-import { getCookie, getWebRequest } from "@tanstack/react-start/server"
-import type { ConvexReactClient } from "convex/react"
-import appCss from "../styles.css?url"
+} from "@tanstack/react-router";
+import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
+import { createServerFn } from "@tanstack/react-start";
+import { getCookie, getWebRequest } from "@tanstack/react-start/server";
+import type { ConvexReactClient } from "convex/react";
+import appCss from "../styles.css?url";
 
 // import { fetchAuth } from "@/server/functions.ts"
 
 const fetchAuth = createServerFn({ method: "GET" }).handler(async () => {
-  const sessionCookieName = await getCookieName()
-  const token = getCookie(sessionCookieName)
-  const request = getWebRequest()
-  const { session: rawSession } = await fetchSession(request)
-  const session = rawSession as SessionWithRole
-  console.log("[BEFORE-LOAD (fetchAuth)] ", "fetching auth details")
+  const sessionCookieName = await getCookieName();
+  const token = getCookie(sessionCookieName);
+  const request = getWebRequest();
+  const { session: rawSession } = await fetchSession(request);
+  const session = rawSession as SessionWithRole;
+  console.log("[BEFORE-LOAD (fetchAuth)] ", "fetching auth details");
   return {
-    user: session?.user ?? undefined,
+    user: session?.user ?? null,
     impersonatedBy: session?.session.impersonatedBy ?? undefined,
     token,
-  }
-})
+  };
+});
 
 interface MyRouterContext {
-  queryClient: QueryClient
-  convexClient: ConvexReactClient
-  convexQueryClient: ConvexQueryClient
+  queryClient: QueryClient;
+  convexClient: ConvexReactClient;
+  convexQueryClient: ConvexQueryClient;
+  user: Awaited<ReturnType<typeof fetchAuth>>["user"] | null;
+  token: string | null;
+  impersonatedBy: string | null;
 }
 
 export const Route = createRootRouteWithContext<MyRouterContext>()({
   beforeLoad: async (ctx) => {
-    const auth = await ctx.context.queryClient.fetchQuery({
+    const auth = await ctx.context.queryClient.ensureQueryData({
       queryKey: ["user"],
       queryFn: ({ signal }) => fetchAuth({ signal }),
-    }) // we're using react-query for caching, see router.tsx
+      revalidateIfStale: true,
+    }); // we're using react-query for caching, see router.tsx
 
-    const { user, token } = auth
+    const { user, token } = auth;
 
     if (token) {
-      ctx.context.convexQueryClient.serverHttpClient?.setAuth(token)
+      ctx.context.convexQueryClient.serverHttpClient?.setAuth(token);
     }
 
     console.log(
       "[BEFORE-LOAD] ",
       user ? `User is populated ${JSON.stringify(user)}` : "No user",
-    )
+    );
 
-    return { user: user, token: token, impersonatedBy: auth.impersonatedBy }
+    return { user: user, token: token, impersonatedBy: auth.impersonatedBy };
   },
   head: () => ({
     meta: [
@@ -89,10 +93,10 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
     ],
   }),
   component: RootComponent,
-})
+});
 
 function RootComponent() {
-  const context = useRouteContext({ from: Route.id })
+  const context = useRouteContext({ from: Route.id });
 
   return (
     <ConvexBetterAuthProvider client={context.convexClient} authClient={authClient}>
@@ -105,7 +109,7 @@ function RootComponent() {
         </RootDocument>
       </DeviceProvider>
     </ConvexBetterAuthProvider>
-  )
+  );
 }
 
 function RootDocument({ children }: { children: React.ReactNode }) {
@@ -125,5 +129,5 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <Scripts />
       </body>
     </html>
-  )
+  );
 }
