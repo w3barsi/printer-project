@@ -1,9 +1,9 @@
-import { Container } from "@/components/layouts/container"
-import { Skeleton } from "@/components/ui/skeleton"
-import { getTrelloLists } from "@/server/trello"
-import { useSuspenseQuery } from "@tanstack/react-query"
-import { createFileRoute, Link } from "@tanstack/react-router"
-import { Suspense } from "react"
+import { Container } from "@/components/layouts/container";
+import { SuspenseAuthenticated } from "@/components/suspense-authenticated";
+import { Skeleton } from "@/components/ui/skeleton";
+import { getTrelloLists } from "@/server/trello";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { createFileRoute, Link } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/(main)/trello/")({
   component: TrelloPage,
@@ -11,7 +11,7 @@ export const Route = createFileRoute("/(main)/trello/")({
     await context.queryClient.ensureQueryData({
       queryKey: ["trelloLists"],
       queryFn: getTrelloLists,
-    })
+    });
   },
   head: () => ({
     meta: [
@@ -20,19 +20,19 @@ export const Route = createFileRoute("/(main)/trello/")({
       },
     ],
   }),
-})
+});
 
 function TrelloPage() {
   return (
     <Container>
       <h1 className="mb-6 text-3xl font-bold">Trello Board Lists</h1>
       <div className="grid auto-rows-fr gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <Suspense fallback={<ListViewSkeleton />}>
+        <SuspenseAuthenticated fallback={<ListViewSkeleton />}>
           <ListView />
-        </Suspense>
+        </SuspenseAuthenticated>
       </div>
     </Container>
-  )
+  );
 }
 function ListViewSkeleton() {
   return (
@@ -51,14 +51,14 @@ function ListViewSkeleton() {
         </div>
       ))}
     </>
-  )
+  );
 }
 
 function ListView() {
   const { data: lists } = useSuspenseQuery({
     queryKey: ["trelloLists"],
     queryFn: getTrelloLists,
-  })
+  });
   return (
     <>
       {lists.map((list: { id: string; name: string; closed: boolean; pos: number }) => (
@@ -82,5 +82,5 @@ function ListView() {
         </Link>
       ))}
     </>
-  )
+  );
 }

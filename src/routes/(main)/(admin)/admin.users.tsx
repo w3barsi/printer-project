@@ -1,15 +1,14 @@
-import { CreateUserDialog } from "@/components/create-user"
-import { Container } from "@/components/layouts/container"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
+import { CreateUserDialog } from "@/components/create-user";
+import { Container } from "@/components/layouts/container";
+import { SuspenseAuthenticated } from "@/components/suspense-authenticated";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Skeleton } from "@/components/ui/skeleton"
-import { Toaster } from "@/components/ui/sonner"
+} from "@/components/ui/dropdown-menu";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
   TableBody,
@@ -17,20 +16,20 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
-import { authClient } from "@/lib/auth-client"
-import { convexQuery, useConvexMutation } from "@convex-dev/react-query"
-import { api } from "@convex/_generated/api"
-import { useSuspenseQuery } from "@tanstack/react-query"
-import { createFileRoute } from "@tanstack/react-router"
-import { GavelIcon, MoreVerticalIcon, User2Icon } from "lucide-react"
-import { Suspense } from "react"
-import { toast } from "sonner"
+  TableWrapper,
+} from "@/components/ui/table";
+import { authClient } from "@/lib/auth-client";
+import { convexQuery, useConvexMutation } from "@convex-dev/react-query";
+import { api } from "@convex/_generated/api";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { createFileRoute } from "@tanstack/react-router";
+import { GavelIcon, MoreVerticalIcon, User2Icon } from "lucide-react";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/(main)/(admin)/admin/users")({
   component: RouteComponent,
   loader: ({ context }) => {
-    context.queryClient.ensureQueryData(convexQuery(api.admin.users.listUsers, {}))
+    context.queryClient.ensureQueryData(convexQuery(api.admin.users.listUsers, {}));
   },
   head: () => ({
     meta: [
@@ -39,7 +38,7 @@ export const Route = createFileRoute("/(main)/(admin)/admin/users")({
       },
     ],
   }),
-})
+});
 
 function RouteComponent() {
   return (
@@ -48,55 +47,51 @@ function RouteComponent() {
         <h1 className="text-3xl font-bold tracking-tight">User Management</h1>
         <CreateUserDialog />
       </div>
-      <Card>
-        <CardContent>
-          <Suspense fallback={<UserTableSkeleton />}>
-            <UserManagementTable />
-          </Suspense>
-        </CardContent>
-      </Card>
-      <Toaster richColors />
+
+      <SuspenseAuthenticated fallback={<UserTableSkeleton />}>
+        <UserManagementTable />
+      </SuspenseAuthenticated>
     </Container>
-  )
+  );
 }
 
 function UserManagementTable() {
-  const { data } = useSuspenseQuery(convexQuery(api.admin.users.listUsers, {}))
-  const setRole = useConvexMutation(api.admin.users.setRole)
-  const banOrUnbanUser = useConvexMutation(api.admin.users.banOrUnbanUser)
+  const { data } = useSuspenseQuery(convexQuery(api.admin.users.listUsers, {}));
+  const setRole = useConvexMutation(api.admin.users.setRole);
+  const banOrUnbanUser = useConvexMutation(api.admin.users.banOrUnbanUser);
 
   async function onChangeRole(userId: string, role: "user" | "admin" | "cashier") {
     try {
-      await setRole({ userId, role })
-      toast.success("Role updated")
+      await setRole({ userId, role });
+      toast.success("Role updated");
     } catch (e: unknown) {
-      const error = e as { message?: string }
-      toast.error(error?.message || "Failed to update role")
+      const error = e as { message?: string };
+      toast.error(error?.message || "Failed to update role");
     }
   }
 
   async function banHandler(userId: string, isBanned: boolean) {
-    console.log(userId, isBanned)
+    console.log(userId, isBanned);
     try {
-      await banOrUnbanUser({ userId, isBanned })
-      toast.success("User deleted")
+      await banOrUnbanUser({ userId, isBanned });
+      toast.success("User deleted");
     } catch (e: unknown) {
-      const error = e as { message?: string }
-      toast.error(error?.message || "Failed to delete user")
+      const error = e as { message?: string };
+      toast.error(error?.message || "Failed to delete user");
     }
   }
 
   return (
-    <div className="overflow-hidden rounded-lg">
+    <TableWrapper>
       <Table>
         <TableHeader className="sticky top-0 z-10">
           <TableRow>
-            <TableHead>Name</TableHead>
+            <TableHead className="md:pl-4">Name</TableHead>
             <TableHead>Email</TableHead>
             <TableHead>Role</TableHead>
             <TableHead>Status</TableHead>
             <TableHead>Created</TableHead>
-            <TableHead className="w-0" />
+            <TableHead className="w-0 md:pr-4" />
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -105,7 +100,7 @@ function UserManagementTable() {
           ) : (
             data.map((u) => (
               <TableRow key={u._id}>
-                <TableCell>{u.name || "-"}</TableCell>
+                <TableCell className="pl-4">{u.name || "-"}</TableCell>
                 <TableCell>{u.email || "-"}</TableCell>
                 <TableCell>
                   <DropdownMenu>
@@ -131,7 +126,7 @@ function UserManagementTable() {
                 <TableCell>
                   {u.createdAt ? new Date(u.createdAt).toLocaleString() : "-"}
                 </TableCell>
-                <TableCell className="text-right">
+                <TableCell className="pr-4 text-right">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" size="icon" aria-label="Actions">
@@ -149,11 +144,11 @@ function UserManagementTable() {
                         onClick={async () => {
                           const { error } = await authClient.admin.impersonateUser({
                             userId: u._id,
-                          })
+                          });
                           if (error) {
-                            toast.error(error.message)
+                            toast.error(error.message);
                           } else {
-                            window.location.reload()
+                            window.location.reload();
                           }
                         }}
                       >
@@ -167,13 +162,13 @@ function UserManagementTable() {
           )}
         </TableBody>
       </Table>
-    </div>
-  )
+    </TableWrapper>
+  );
 }
 
 function UserTableSkeleton() {
   return (
-    <div className="overflow-hidden rounded-lg border">
+    <TableWrapper>
       <Table>
         <TableHeader className="bg-muted sticky top-0 z-10">
           <TableRow>
@@ -210,6 +205,6 @@ function UserTableSkeleton() {
           ))}
         </TableBody>
       </Table>
-    </div>
-  )
+    </TableWrapper>
+  );
 }

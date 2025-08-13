@@ -7,14 +7,14 @@ import {
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuSubItem,
-} from "@/components/ui/sidebar"
-import { convexQuery } from "@convex-dev/react-query"
-import { api } from "@convex/_generated/api"
-import { useAutoAnimate } from "@formkit/auto-animate/react"
-import { useSuspenseQuery } from "@tanstack/react-query"
-import { Link } from "@tanstack/react-router"
-import { FileTextIcon } from "lucide-react"
-import { Suspense } from "react"
+} from "@/components/ui/sidebar";
+import { convexQuery } from "@convex-dev/react-query";
+import { api } from "@convex/_generated/api";
+import { useAutoAnimate } from "@formkit/auto-animate/react";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { Link } from "@tanstack/react-router";
+import { FileTextIcon } from "lucide-react";
+import { SuspenseAuthenticated } from "../suspense-authenticated";
 
 export function RecentJobOrders() {
   return (
@@ -34,17 +34,17 @@ export function RecentJobOrders() {
             </Link>
           </SidebarMenuButton>
         </SidebarMenuItem>
-        <Suspense fallback={<RecentSubMenuSkeleton />}>
+        <SuspenseAuthenticated fallback={<RecentSubMenuSkeleton />}>
           <RecentSubMenu />
-        </Suspense>
+        </SuspenseAuthenticated>
       </SidebarMenu>
     </SidebarGroup>
-  )
+  );
 }
 
 function RecentSubMenu() {
-  const { data: recent } = useSuspenseQuery(convexQuery(api.jo.getRecent, {}))
-  const [parent] = useAutoAnimate(/* optional config */)
+  const { data: recent } = useSuspenseQuery(convexQuery(api.jo.getRecent, {}));
+  const [parent] = useAutoAnimate(/* optional config */);
   return (
     <div ref={parent}>
       {recent.map((item) => (
@@ -63,7 +63,7 @@ function RecentSubMenu() {
         </SidebarMenuSub>
       ))}
     </div>
-  )
+  );
 }
 
 function RecentSubMenuSkeleton() {
@@ -79,5 +79,5 @@ function RecentSubMenuSkeleton() {
         </SidebarMenuSub>
       ))}
     </>
-  )
+  );
 }

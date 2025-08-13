@@ -4,8 +4,6 @@ import { CreateDialog } from "@/components/create-jo";
 import { Container } from "@/components/layouts/container";
 import { SuspenseAuthenticated } from "@/components/suspense-authenticated";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
@@ -14,6 +12,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
+  TableWrapper,
 } from "@/components/ui/table";
 import type { JoWithItems } from "@/types/convex";
 import { convexQuery } from "@convex-dev/react-query";
@@ -55,15 +54,10 @@ function RouteComponent() {
           <h1 className="text-3xl font-bold tracking-tight">Job Orders</h1>
           <CreateDialog />
         </div>
-        <Card>
-          <CardContent>
-            <div className="w-full">
-              <SuspenseAuthenticated fallback={<JobOrderListSkeleton />}>
-                <JobOrderList />
-              </SuspenseAuthenticated>
-            </div>
-          </CardContent>
-        </Card>
+
+        <SuspenseAuthenticated fallback={<JobOrderListSkeleton />}>
+          <JobOrderList />
+        </SuspenseAuthenticated>
       </Container>
     </>
   );
@@ -97,27 +91,28 @@ function JobOrderList() {
   const jos = data.jos;
 
   return (
-    <div className="flex flex-col overflow-hidden rounded">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="w-16 font-semibold">
-              <HashIcon className="h-4 w-4" />
-            </TableHead>
-            <TableHead className="font-semibold">Name</TableHead>
-            <TableHead className="hidden font-semibold sm:table-cell">
-              Pickup Date
-            </TableHead>
-            <TableHead className="font-semibold">Contact Number</TableHead>
-            <TableHead className="text-right font-semibold">Total Value</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          <JobOrderListBody jos={jos} />
-        </TableBody>
-      </Table>
+    <div>
+      <TableWrapper>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-16 font-semibold md:pl-4">
+                <HashIcon className="h-4 w-4" />
+              </TableHead>
+              <TableHead className="font-semibold">Name</TableHead>
+              <TableHead className="hidden font-semibold sm:table-cell">
+                Pickup Date
+              </TableHead>
+              <TableHead className="font-semibold">Contact Number</TableHead>
+              <TableHead className="text-right font-semibold">Total Value</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            <JobOrderListBody jos={jos} />
+          </TableBody>
+        </Table>
+      </TableWrapper>
 
-      <Separator />
       <div className="flex w-full justify-center gap-2 pt-2">
         <Button
           onClick={handlePrev}
@@ -163,14 +158,14 @@ function JobOrderListBody({ jos }: { jos: JoWithItems[] }) {
           role="button"
           aria-label={`View job order details for ${jo.name}`}
         >
-          <TableCell className="w-16">{jo.joNumber}</TableCell>
+          <TableCell className="w-16 md:pl-4">{jo.joNumber}</TableCell>
           <TableCell>{jo.name}</TableCell>
           <TableCell className="hidden sm:table-cell">
             {new Date(jo.pickupDate ?? jo._creationTime).toLocaleDateString()}
           </TableCell>
           <TableCell>{jo.contactNumber ? jo.contactNumber : "N/A"}</TableCell>
 
-          <TableCell className="text-right">
+          <TableCell className="text-right md:pr-4">
             {formatCurrency(
               jo.items.reduce((sum, item) => sum + item.quantity * item.price, 0),
             )}
@@ -184,49 +179,50 @@ function JobOrderListBody({ jos }: { jos: JoWithItems[] }) {
 function JobOrderListSkeleton() {
   return (
     <div className="flex flex-col overflow-hidden rounded">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="w-16 font-semibold">
-              <Skeleton className="h-4 w-4" />
-            </TableHead>
-            <TableHead className="font-semibold">
-              <Skeleton className="h-4 w-16" />
-            </TableHead>
-            <TableHead className="hidden font-semibold sm:table-cell">
-              <Skeleton className="h-4 w-20" />
-            </TableHead>
-            <TableHead className="font-semibold">
-              <Skeleton className="h-4 w-24" />
-            </TableHead>
-            <TableHead className="text-right font-semibold">
-              <Skeleton className="ml-auto h-4 w-16" />
-            </TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {Array.from({ length: 10 }).map((_, index) => (
-            <TableRow key={index}>
-              <TableCell className="w-16">
-                <Skeleton className="h-4 w-8" />
-              </TableCell>
-              <TableCell>
-                <Skeleton className="h-4 w-32" />
-              </TableCell>
-              <TableCell className="hidden sm:table-cell">
+      <TableWrapper>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-16 font-semibold md:pl-4">
+                <Skeleton className="h-4 w-4" />
+              </TableHead>
+              <TableHead className="font-semibold">
+                <Skeleton className="h-4 w-16" />
+              </TableHead>
+              <TableHead className="hidden font-semibold sm:table-cell">
+                <Skeleton className="h-4 w-20" />
+              </TableHead>
+              <TableHead className="font-semibold">
                 <Skeleton className="h-4 w-24" />
-              </TableCell>
-              <TableCell>
-                <Skeleton className="h-4 w-28" />
-              </TableCell>
-              <TableCell className="text-right">
-                <Skeleton className="ml-auto h-4 w-20" />
-              </TableCell>
+              </TableHead>
+              <TableHead className="text-right font-semibold md:pr-4">
+                <Skeleton className="ml-auto h-4 w-16" />
+              </TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-      <Separator />
+          </TableHeader>
+          <TableBody>
+            {Array.from({ length: 10 }).map((_, index) => (
+              <TableRow key={index}>
+                <TableCell className="w-16 md:pl-4">
+                  <Skeleton className="h-4 w-4" />
+                </TableCell>
+                <TableCell>
+                  <Skeleton className="h-4 w-32" />
+                </TableCell>
+                <TableCell className="hidden sm:table-cell">
+                  <Skeleton className="h-4 w-24" />
+                </TableCell>
+                <TableCell>
+                  <Skeleton className="h-4 w-28" />
+                </TableCell>
+                <TableCell className="text-right md:pr-4">
+                  <Skeleton className="ml-auto h-4 w-20" />
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableWrapper>
       <div className="flex w-full justify-center gap-2 pt-2">
         <Skeleton className="h-10 w-24" />
         <Skeleton className="h-10 w-24" />

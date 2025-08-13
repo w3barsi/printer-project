@@ -1,21 +1,21 @@
-import { Link, createFileRoute } from "@tanstack/react-router"
-import { useMutation } from "convex/react"
-import { Suspense, useRef } from "react"
+import { Link, createFileRoute } from "@tanstack/react-router";
+import { useMutation } from "convex/react";
+import { Suspense, useRef } from "react";
 
-import { Button } from "@/components/ui/button"
-import { convexQuery } from "@convex-dev/react-query"
-import { useSuspenseQuery } from "@tanstack/react-query"
-import { api } from "../../convex/_generated/api"
+import { Button } from "@/components/ui/button";
+import { convexQuery } from "@convex-dev/react-query";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { api } from "../../convex/_generated/api";
 
 export const Route = createFileRoute("/convex")({
   component: App,
   loader: async ({ context }) => {
-    await context.queryClient.ensureQueryData(convexQuery(api.products.get, {}))
+    await context.queryClient.ensureQueryData(convexQuery(api.products.get, {}));
   },
-})
+});
 
 function Products() {
-  const products = useSuspenseQuery(convexQuery(api.products.get, {}))
+  const products = useSuspenseQuery(convexQuery(api.products.get, {}));
 
   return (
     <div className="mt-8">
@@ -32,12 +32,12 @@ function Products() {
         ))}
       </ul>
     </div>
-  )
+  );
 }
 
 function App() {
-  const ref = useRef<HTMLInputElement>(null)
-  const mutate = useMutation(api.products.add)
+  const ref = useRef<HTMLInputElement>(null);
+  const mutate = useMutation(api.products.add);
   return (
     <div className="min-h-screen bg-black p-8 font-sans text-white">
       <div className="mx-auto flex max-w-md flex-col gap-4">
@@ -59,8 +59,8 @@ function App() {
             className="rounded-md bg-white px-6 py-2 font-semibold text-black transition-colors hover:bg-gray-200"
             onClick={() => {
               if (ref.current?.value) {
-                mutate({ title: ref.current.value })
-                ref.current.value = ""
+                mutate({ title: ref.current.value });
+                ref.current.value = "";
               }
             }}
           >
@@ -73,5 +73,5 @@ function App() {
         </Suspense>
       </div>
     </div>
-  )
+  );
 }

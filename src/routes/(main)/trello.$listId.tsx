@@ -1,25 +1,25 @@
-import { Container } from "@/components/layouts/container"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardFooter } from "@/components/ui/card"
-import { Skeleton } from "@/components/ui/skeleton"
+import { Container } from "@/components/layouts/container";
+import { SuspenseAuthenticated } from "@/components/suspense-authenticated";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   downloadCardAttachmentsServerFn,
   getCardAttachmentsServerFn,
   getListCards,
-} from "@/server/trello"
-import { useMutation, useSuspenseQuery } from "@tanstack/react-query"
-import { createFileRoute, Link } from "@tanstack/react-router"
-import fileSaver from "file-saver"
-import JSZip from "jszip"
-import { RefreshCwIcon } from "lucide-react"
-import { Suspense } from "react"
-import { toast } from "sonner"
+} from "@/server/trello";
+import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import fileSaver from "file-saver";
+import JSZip from "jszip";
+import { RefreshCwIcon } from "lucide-react";
+import { toast } from "sonner";
 
 type ImagesFromCard = {
-  src: string
-  contentType: string
-  name: string
-}
+  src: string;
+  contentType: string;
+  name: string;
+};
 
 export const Route = createFileRoute("/(main)/trello/$listId")({
   component: RouteComponent,
@@ -30,16 +30,16 @@ export const Route = createFileRoute("/(main)/trello/$listId")({
       },
     ],
   }),
-})
+});
 
 function RouteComponent() {
   return (
     <Container className="flex flex-col">
-      <Suspense fallback={<CardListSkeleton />}>
+      <SuspenseAuthenticated fallback={<CardListSkeleton />}>
         <CardList />
-      </Suspense>
+      </SuspenseAuthenticated>
     </Container>
-  )
+  );
 }
 
 function CardListSkeleton() {
@@ -66,11 +66,11 @@ function CardListSkeleton() {
         ))}
       </div>
     </>
-  )
+  );
 }
 
 function CardList() {
-  const { listId } = Route.useParams()
+  const { listId } = Route.useParams();
   const {
     data: cards,
     refetch,
@@ -78,46 +78,46 @@ function CardList() {
   } = useSuspenseQuery({
     queryKey: ["listCards", listId],
     queryFn: () => getListCards({ data: { listId } }),
-  })
+  });
 
   const getCardAttachments = useMutation({
     mutationFn: getCardAttachmentsServerFn,
-  })
+  });
 
   const downloadCardAttachments = useMutation({
     mutationFn: downloadCardAttachmentsServerFn,
-  })
+  });
 
   const getAttachments = async (cardId: string) => {
-    const data = await getCardAttachments.mutateAsync({ data: { id: cardId } })
-    const i = data.map((d) => ({ url: d.url, name: d.name }))
-    const results = await downloadCardAttachments.mutateAsync({ data: i })
+    const data = await getCardAttachments.mutateAsync({ data: { id: cardId } });
+    const i = data.map((d) => ({ url: d.url, name: d.name }));
+    const results = await downloadCardAttachments.mutateAsync({ data: i });
     const images: ImagesFromCard[] = results.map((result) => ({
       src: `data:${result.contentType};base64,${result.base64Image}`,
       contentType: result.contentType,
       name: result.name,
-    }))
+    }));
 
-    const zip = new JSZip()
+    const zip = new JSZip();
 
     await Promise.all(
       images.map(async (image) => {
         try {
-          const res = await fetch(image.src)
-          const blob = await res.blob()
-          zip.file(image.name, blob)
-          console.log(zip)
+          const res = await fetch(image.src);
+          const blob = await res.blob();
+          zip.file(image.name, blob);
+          console.log(zip);
         } catch (e) {
-          console.log(e)
+          console.log(e);
         }
       }),
-    )
+    );
 
     zip.generateAsync({ type: "blob" }).then(function (content) {
       // Use FileSaver.js to trigger the download
-      fileSaver.saveAs(content, "attachments.zip")
-    })
-  }
+      fileSaver.saveAs(content, "attachments.zip");
+    });
+  };
 
   return (
     <>
@@ -165,5 +165,5 @@ function CardList() {
         <div className="mx-auto">No cards found on this list!</div>
       )}
     </>
-  )
+  );
 }
