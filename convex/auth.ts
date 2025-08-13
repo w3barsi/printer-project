@@ -91,7 +91,7 @@ export const authedQuery = customQuery(
   query,
   customCtx(async (ctx) => {
     const user = await ctx.auth.getUserIdentity();
-    if (!user) throw new Error("Authentication required");
+    if (!user) return;
     return { user };
   }),
 );
