@@ -1,11 +1,11 @@
-import { createFileRoute, useNavigate, useRouter } from "@tanstack/react-router"
+import { createFileRoute, useNavigate, useRouter } from "@tanstack/react-router";
 
-import { CreateDialog } from "@/components/create-jo"
-import { Container } from "@/components/layouts/container"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Separator } from "@/components/ui/separator"
-import { Skeleton } from "@/components/ui/skeleton"
+import { CreateDialog } from "@/components/create-jo";
+import { Container } from "@/components/layouts/container";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
   TableBody,
@@ -13,20 +13,21 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
-import type { JoWithItems } from "@/types/convex"
-import { convexQuery } from "@convex-dev/react-query"
-import { api } from "@convex/_generated/api"
-import { useSuspenseQuery } from "@tanstack/react-query"
-import { ArrowLeftIcon, ArrowRightIcon, HashIcon } from "lucide-react"
-import { Suspense, useState } from "react"
+} from "@/components/ui/table";
+import type { JoWithItems } from "@/types/convex";
+import { convexQuery } from "@convex-dev/react-query";
+import { api } from "@convex/_generated/api";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { Authenticated } from "convex/react";
+import { ArrowLeftIcon, ArrowRightIcon, HashIcon } from "lucide-react";
+import { Suspense, useState } from "react";
 
 export const Route = createFileRoute("/(main)/jo/")({
   component: RouteComponent,
   loader: () => {
     return {
       crumb: [{ value: "Job Order", href: "/jo/", type: "static" }],
-    }
+    };
   },
   head: () => ({
     meta: [
@@ -35,7 +36,7 @@ export const Route = createFileRoute("/(main)/jo/")({
       },
     ],
   }),
-})
+});
 
 function RouteComponent() {
   return (
@@ -49,20 +50,22 @@ function RouteComponent() {
           <CardContent>
             <div className="w-full">
               <Suspense fallback={<JobOrderListSkeleton />}>
-                <JobOrderList />
+                <Authenticated>
+                  <JobOrderList />
+                </Authenticated>
               </Suspense>
             </div>
           </CardContent>
         </Card>
       </Container>
     </>
-  )
+  );
 }
 
-type CursorHistory = (string | null)[]
+type CursorHistory = (string | null)[];
 
 function JobOrderList() {
-  const [history, setHistory] = useState<CursorHistory>([])
+  const [history, setHistory] = useState<CursorHistory>([]);
 
   const { data, isFetching } = useSuspenseQuery(
     convexQuery(api.jo.getWithPagination, {
@@ -71,20 +74,20 @@ function JobOrderList() {
         cursor: history.length > 0 ? history[history.length - 1] : null,
       },
     }),
-  )
+  );
 
   const handleNext = () => {
     if (data.nextCursor) {
-      const a = data.nextCursor
-      setHistory((prev) => [...prev, a])
+      const a = data.nextCursor;
+      setHistory((prev) => [...prev, a]);
     }
-  }
+  };
 
   const handlePrev = () => {
-    setHistory((prev) => prev.slice(0, prev.length - 1))
-  }
+    setHistory((prev) => prev.slice(0, prev.length - 1));
+  };
 
-  const jos = data.jos
+  const jos = data.jos;
 
   return (
     <div className="flex flex-col overflow-hidden rounded">
@@ -125,12 +128,12 @@ function JobOrderList() {
         </Button>
       </div>
     </div>
-  )
+  );
 }
 
 function JobOrderListBody({ jos }: { jos: JoWithItems[] }) {
-  const navigate = useNavigate()
-  const { preloadRoute } = useRouter()
+  const navigate = useNavigate();
+  const { preloadRoute } = useRouter();
 
   return (
     <>
@@ -140,13 +143,13 @@ function JobOrderListBody({ jos }: { jos: JoWithItems[] }) {
           className=""
           onClick={() => navigate({ to: "/jo/$joId", params: { joId: jo._id } })}
           onMouseDown={(e) => {
-            e.preventDefault()
-            preloadRoute({ to: "/jo/$joId", params: { joId: jo._id } })
+            e.preventDefault();
+            preloadRoute({ to: "/jo/$joId", params: { joId: jo._id } });
           }}
           onKeyDown={(e) => {
             if (e.key === "Enter" || e.key === " ") {
-              e.preventDefault()
-              navigate({ to: "/jo/$joId", params: { joId: jo._id } })
+              e.preventDefault();
+              navigate({ to: "/jo/$joId", params: { joId: jo._id } });
             }
           }}
           tabIndex={0}
@@ -168,7 +171,7 @@ function JobOrderListBody({ jos }: { jos: JoWithItems[] }) {
         </TableRow>
       ))}
     </>
-  )
+  );
 }
 
 function JobOrderListSkeleton() {
@@ -222,12 +225,12 @@ function JobOrderListSkeleton() {
         <Skeleton className="h-10 w-24" />
       </div>
     </div>
-  )
+  );
 }
 
 const formatCurrency = (amount: number) => {
   return new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "PHP",
-  }).format(amount)
-}
+  }).format(amount);
+};
