@@ -24,7 +24,16 @@ import { useState } from "react";
 
 export const Route = createFileRoute("/(main)/jo/")({
   component: RouteComponent,
-  loader: () => {
+  loader: ({ context }) => {
+    void context.queryClient.prefetchQuery(
+      convexQuery(api.jo.getWithPagination, {
+        paginationOptions: {
+          numItems: 10,
+          cursor: null,
+        },
+      }),
+    );
+
     return {
       crumb: [{ value: "Job Order", href: "/jo/", type: "static" }],
     };
