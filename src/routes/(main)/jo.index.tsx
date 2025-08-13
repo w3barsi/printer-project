@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate, useRouter } from "@tanstack/react-router"
 
 import { CreateDialog } from "@/components/create-jo";
 import { Container } from "@/components/layouts/container";
+import { SuspenseAuthenticated } from "@/components/suspense-authenticated";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -18,9 +19,8 @@ import type { JoWithItems } from "@/types/convex";
 import { convexQuery } from "@convex-dev/react-query";
 import { api } from "@convex/_generated/api";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { Authenticated, AuthLoading } from "convex/react";
 import { ArrowLeftIcon, ArrowRightIcon, HashIcon } from "lucide-react";
-import { Suspense, useState } from "react";
+import { useState } from "react";
 
 export const Route = createFileRoute("/(main)/jo/")({
   component: RouteComponent,
@@ -49,14 +49,9 @@ function RouteComponent() {
         <Card>
           <CardContent>
             <div className="w-full">
-              <Authenticated>
-                <Suspense fallback={<JobOrderListSkeleton />}>
-                  <JobOrderList />
-                </Suspense>
-              </Authenticated>
-              <AuthLoading>
-                <JobOrderListSkeleton />
-              </AuthLoading>
+              <SuspenseAuthenticated fallback={<JobOrderListSkeleton />}>
+                <JobOrderList />
+              </SuspenseAuthenticated>
             </div>
           </CardContent>
         </Card>
