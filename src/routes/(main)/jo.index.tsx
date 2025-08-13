@@ -18,7 +18,7 @@ import type { JoWithItems } from "@/types/convex";
 import { convexQuery } from "@convex-dev/react-query";
 import { api } from "@convex/_generated/api";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { Authenticated } from "convex/react";
+import { Authenticated, AuthLoading } from "convex/react";
 import { ArrowLeftIcon, ArrowRightIcon, HashIcon } from "lucide-react";
 import { Suspense, useState } from "react";
 
@@ -54,6 +54,9 @@ function RouteComponent() {
                   <JobOrderList />
                 </Suspense>
               </Authenticated>
+              <AuthLoading>
+                <JobOrderListSkeleton />
+              </AuthLoading>
             </div>
           </CardContent>
         </Card>
