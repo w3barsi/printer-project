@@ -49,11 +49,11 @@ function RouteComponent() {
         <Card>
           <CardContent>
             <div className="w-full">
-              <Suspense fallback={<JobOrderListSkeleton />}>
-                <Authenticated>
+              <Authenticated>
+                <Suspense fallback={<JobOrderListSkeleton />}>
                   <JobOrderList />
-                </Authenticated>
-              </Suspense>
+                </Suspense>
+              </Authenticated>
             </div>
           </CardContent>
         </Card>
