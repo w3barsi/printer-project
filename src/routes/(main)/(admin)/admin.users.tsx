@@ -2,11 +2,22 @@ import { CreateUserDialog } from "@/components/create-user";
 import { Container } from "@/components/layouts/container";
 import { Button } from "@/components/ui/button";
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
@@ -20,10 +31,11 @@ import {
 import { authClient } from "@/lib/auth-client";
 import { convexQuery, useConvexMutation } from "@convex-dev/react-query";
 import { api } from "@convex/_generated/api";
+import type { Id } from "@convex/_generated/dataModel";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { GavelIcon, MoreVerticalIcon, User2Icon } from "lucide-react";
-import { Suspense } from "react";
+import { GavelIcon, LockKeyholeIcon, MoreVerticalIcon, User2Icon } from "lucide-react";
+import { Suspense, useState, type Dispatch } from "react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/(main)/(admin)/admin/users")({
@@ -56,6 +68,9 @@ function RouteComponent() {
 }
 
 function UserManagementTable() {
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [user, setUser] = useState<{ name: string; id: Id<"users"> }>();
+
   const { data } = useSuspenseQuery(convexQuery(api.admin.users.listUsers, {}));
   const setRole = useConvexMutation(api.admin.users.setRole);
   const banOrUnbanUser = useConvexMutation(api.admin.users.banOrUnbanUser);
@@ -154,6 +169,14 @@ function UserManagementTable() {
                       >
                         <User2Icon /> Impersonate User
                       </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => {
+                          setIsDialogOpen(true);
+                          setUser({ name: u.name, id: u._id });
+                        }}
+                      >
+                        <LockKeyholeIcon /> Change Password
+                      </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </TableCell>
@@ -162,7 +185,76 @@ function UserManagementTable() {
           )}
         </TableBody>
       </Table>
+      <ChangePasswordDialog open={isDialogOpen} setOpen={setIsDialogOpen} user={user} />
     </TableWrapper>
+  );
+}
+
+function ChangePasswordDialog({
+  open,
+  setOpen,
+
+  user,
+}: {
+  open: boolean;
+  setOpen: Dispatch<React.SetStateAction<boolean>>;
+  user?: { name: string; id: Id<"users"> };
+}) {
+  const [password, setPassword] = useState("");
+
+  const changePassword = async () => {
+    setOpen(false);
+    await authClient.admin.setUserPassword({
+      userId: user!.id,
+      newPassword: password,
+    });
+    setPassword("");
+  };
+  const handleApply = () => {
+    if (password.trim().length < 8) {
+      setPassword((p) => p.trim());
+      return toast.error("Password must be at least 8 characters long");
+    }
+    toast.promise(changePassword, {
+      loading: `Changing password for ${user!.name}`,
+      success: "Password changed successfully!",
+      error: "Error changing password!",
+    });
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild></DialogTrigger>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>Change Password</DialogTitle>
+          <DialogDescription>Enter your new password below.</DialogDescription>
+        </DialogHeader>
+        <div className="grid gap-4 py-4">
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="new-password" className="text-right">
+              New Password
+            </Label>
+            <Input
+              id="new-password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="col-span-3"
+              placeholder="Enter new password"
+            />
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => setOpen(false)}>
+            Close
+          </Button>
+          <Button onClick={handleApply} disabled={password.length < 8}>
+            Apply
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 
