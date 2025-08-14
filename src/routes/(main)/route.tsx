@@ -6,9 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { authClient } from "@/lib/auth-client";
-import { convexQuery, useConvexAuth } from "@convex-dev/react-query";
-import { api } from "@convex/_generated/api";
-import { Outlet, createFileRoute, redirect, useRouter } from "@tanstack/react-router";
+import { useConvexAuth } from "@convex-dev/react-query";
+import { Outlet, createFileRoute, redirect } from "@tanstack/react-router";
 import { LoaderIcon } from "lucide-react";
 
 export const Route = createFileRoute("/(main)")({
@@ -23,7 +22,6 @@ export const Route = createFileRoute("/(main)")({
     // https://tanstack.com/router/latest/docs/framework/react/guide/external-data-loading
   },
   loader: ({ context }) => {
-    void context.queryClient.prefetchQuery(convexQuery(api.jo.getRecent, {}));
     return { impersonatedBy: context.impersonatedBy };
   },
 });
@@ -48,7 +46,6 @@ function RouteComponent() {
 
 function Authenticated() {
   const { impersonatedBy } = Route.useLoaderData();
-  const router = useRouter();
   return (
     <SidebarProvider>
       <AppSidebar />
