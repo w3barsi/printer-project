@@ -1,20 +1,21 @@
-import { MainBreadcrumbs } from "@/components/breadcrumbs"
-import { Container } from "@/components/layouts/container"
-import { AppSidebar } from "@/components/sidebar/app-sidebar"
-import { ThemeToggle } from "@/components/theme-toggle"
-import { Button } from "@/components/ui/button"
-import { Separator } from "@/components/ui/separator"
-import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
-import { authClient } from "@/lib/auth-client"
-import { convexQuery } from "@convex-dev/react-query"
-import { api } from "@convex/_generated/api"
-import { Outlet, createFileRoute, redirect, useRouter } from "@tanstack/react-router"
+import { MainBreadcrumbs } from "@/components/breadcrumbs";
+import { Container } from "@/components/layouts/container";
+import { AppSidebar } from "@/components/sidebar/app-sidebar";
+import { ThemeToggle } from "@/components/theme-toggle";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { authClient } from "@/lib/auth-client";
+import { convexQuery, useConvexAuth } from "@convex-dev/react-query";
+import { api } from "@convex/_generated/api";
+import { Outlet, createFileRoute, redirect, useRouter } from "@tanstack/react-router";
+import { LoaderIcon } from "lucide-react";
 
 export const Route = createFileRoute("/(main)")({
   component: RouteComponent,
   beforeLoad: ({ context, location }) => {
     if (!context.user) {
-      throw redirect({ to: "/login", search: { redirectUrl: location.pathname } })
+      throw redirect({ to: "/login", search: { redirectUrl: location.pathname } });
     }
 
     // `context.queryClient` is also available in our loaders
@@ -22,14 +23,32 @@ export const Route = createFileRoute("/(main)")({
     // https://tanstack.com/router/latest/docs/framework/react/guide/external-data-loading
   },
   loader: ({ context }) => {
-    void context.queryClient.prefetchQuery(convexQuery(api.jo.getRecent, {}))
-    return { impersonatedBy: context.impersonatedBy }
+    void context.queryClient.prefetchQuery(convexQuery(api.jo.getRecent, {}));
+    return { impersonatedBy: context.impersonatedBy };
   },
-})
+});
 
 function RouteComponent() {
-  const { impersonatedBy } = Route.useLoaderData()
-  const router = useRouter()
+  const { isAuthenticated, isLoading } = useConvexAuth();
+
+  if (isLoading) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <LoaderIcon size={64} className="animate-spin" />
+      </div>
+    );
+  }
+
+  if (isAuthenticated) {
+    return <Authenticated />;
+  }
+
+  throw redirect({ to: "/" });
+}
+
+function Authenticated() {
+  const { impersonatedBy } = Route.useLoaderData();
+  const router = useRouter();
   return (
     <SidebarProvider>
       <AppSidebar />
@@ -41,8 +60,8 @@ function RouteComponent() {
           <Button
             variant="secondary"
             onClick={async () => {
-              await authClient.admin.stopImpersonating()
-              window.location.reload()
+              await authClient.admin.stopImpersonating();
+              window.location.reload();
             }}
           >
             Stop Impersonation
@@ -68,5 +87,5 @@ function RouteComponent() {
         <Outlet />
       </SidebarInset>
     </SidebarProvider>
-  )
+  );
 }
