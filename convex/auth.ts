@@ -82,7 +82,7 @@ export const authedMutation = customMutation(
   mutation,
   customCtx(async (ctx) => {
     const user = await ctx.auth.getUserIdentity();
-    if (!user) return;
+    if (!user) throw new Error("Authentication required");
     return { user };
   }),
 );
@@ -91,7 +91,7 @@ export const authedQuery = customQuery(
   query,
   customCtx(async (ctx) => {
     const user = await ctx.auth.getUserIdentity();
-    if (!user) return;
+    if (!user) throw new Error("Authentication required");
     return { user };
   }),
 );
