@@ -14,7 +14,7 @@ import { useAutoAnimate } from "@formkit/auto-animate/react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { FileTextIcon } from "lucide-react";
-import { SuspenseAuthenticated } from "../suspense-authenticated";
+import { Suspense } from "react";
 
 export function RecentJobOrders() {
   return (
@@ -34,9 +34,9 @@ export function RecentJobOrders() {
             </Link>
           </SidebarMenuButton>
         </SidebarMenuItem>
-        <SuspenseAuthenticated fallback={<RecentSubMenuSkeleton />}>
+        <Suspense fallback={<RecentSubMenuSkeleton />}>
           <RecentSubMenu />
-        </SuspenseAuthenticated>
+        </Suspense>
       </SidebarMenu>
     </SidebarGroup>
   );

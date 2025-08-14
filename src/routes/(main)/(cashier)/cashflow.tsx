@@ -1,6 +1,5 @@
 import { AddExpense } from "@/components/cashier/add-expense";
 import { Container } from "@/components/layouts/container";
-import { SuspenseAuthenticated } from "@/components/suspense-authenticated";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -33,7 +32,7 @@ import {
   TrendingDownIcon,
   TrendingUpIcon,
 } from "lucide-react";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 
 type CashflowData =
   | (
@@ -128,13 +127,13 @@ function RouteComponent() {
       <Separator />
       <Container>
         <div className="flex flex-col gap-4 md:gap-4">
-          <SuspenseAuthenticated fallback={<ExpenseSummarySkeleton />}>
+          <Suspense fallback={<ExpenseSummarySkeleton />}>
             <ExpenseSummary dayStart={dayStart} dayEnd={dayEnd} date={selected} />
-          </SuspenseAuthenticated>
+          </Suspense>
 
-          <SuspenseAuthenticated fallback={<DailyTransactionsSkeleton />}>
+          <Suspense fallback={<DailyTransactionsSkeleton />}>
             <DailyTransactions dayStart={dayStart} dayEnd={dayEnd} date={selected} />
-          </SuspenseAuthenticated>
+          </Suspense>
         </div>
       </Container>
     </>

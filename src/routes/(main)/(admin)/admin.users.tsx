@@ -1,6 +1,5 @@
 import { CreateUserDialog } from "@/components/create-user";
 import { Container } from "@/components/layouts/container";
-import { SuspenseAuthenticated } from "@/components/suspense-authenticated";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -24,6 +23,7 @@ import { api } from "@convex/_generated/api";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { GavelIcon, MoreVerticalIcon, User2Icon } from "lucide-react";
+import { Suspense } from "react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/(main)/(admin)/admin/users")({
@@ -48,9 +48,9 @@ function RouteComponent() {
         <CreateUserDialog />
       </div>
 
-      <SuspenseAuthenticated fallback={<UserTableSkeleton />}>
+      <Suspense fallback={<UserTableSkeleton />}>
         <UserManagementTable />
-      </SuspenseAuthenticated>
+      </Suspense>
     </Container>
   );
 }

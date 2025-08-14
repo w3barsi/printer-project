@@ -1,5 +1,4 @@
 import { Container } from "@/components/layouts/container";
-import { SuspenseAuthenticated } from "@/components/suspense-authenticated";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -13,6 +12,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import fileSaver from "file-saver";
 import JSZip from "jszip";
 import { RefreshCwIcon } from "lucide-react";
+import { Suspense } from "react";
 import { toast } from "sonner";
 
 type ImagesFromCard = {
@@ -35,9 +35,9 @@ export const Route = createFileRoute("/(main)/trello/$listId")({
 function RouteComponent() {
   return (
     <Container className="flex flex-col">
-      <SuspenseAuthenticated fallback={<CardListSkeleton />}>
+      <Suspense fallback={<CardListSkeleton />}>
         <CardList />
-      </SuspenseAuthenticated>
+      </Suspense>
     </Container>
   );
 }

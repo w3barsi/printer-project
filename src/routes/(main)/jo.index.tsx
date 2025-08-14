@@ -2,7 +2,6 @@ import { createFileRoute, useNavigate, useRouter } from "@tanstack/react-router"
 
 import { CreateDialog } from "@/components/create-jo";
 import { Container } from "@/components/layouts/container";
-import { SuspenseAuthenticated } from "@/components/suspense-authenticated";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -19,7 +18,7 @@ import { convexQuery } from "@convex-dev/react-query";
 import { api } from "@convex/_generated/api";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { ArrowLeftIcon, ArrowRightIcon, HashIcon } from "lucide-react";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 
 export const Route = createFileRoute("/(main)/jo/")({
   component: RouteComponent,
@@ -46,9 +45,9 @@ function RouteComponent() {
           <CreateDialog />
         </div>
 
-        <SuspenseAuthenticated fallback={<JobOrderListSkeleton />}>
+        <Suspense fallback={<JobOrderListSkeleton />}>
           <JobOrderList />
-        </SuspenseAuthenticated>
+        </Suspense>
       </Container>
     </>
   );
