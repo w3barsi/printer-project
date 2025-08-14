@@ -1,24 +1,24 @@
-import { Button } from "@/components/ui/button"
-import { authClient } from "@/lib/auth-client"
-import { useQueryClient } from "@tanstack/react-query"
-import { Link, createFileRoute, redirect, useRouter } from "@tanstack/react-router"
+import { Button } from "@/components/ui/button";
+import { authClient } from "@/lib/auth-client";
+import { useQueryClient } from "@tanstack/react-query";
+import { Link, createFileRoute, redirect, useRouter } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/")({
   component: Home,
   beforeLoad: () => {
     if (import.meta.env.PROD) {
-      throw redirect({ to: "/jo" })
+      throw redirect({ to: "/jo" });
     }
   },
   loader: ({ context }) => {
-    return { user: context.user }
+    return { user: context.user };
   },
-})
+});
 
 function Home() {
-  const { user } = Route.useLoaderData()
-  const queryClient = useQueryClient()
-  const router = useRouter()
+  const { user } = Route.useLoaderData();
+  const queryClient = useQueryClient();
+  const router = useRouter();
 
   return (
     <div className="container mx-auto flex max-w-4xl flex-col items-center px-4 py-8">
@@ -53,9 +53,14 @@ function Home() {
 
           <Button
             onClick={async () => {
-              await authClient.signOut()
-              await queryClient.invalidateQueries({ queryKey: ["user"] })
-              await router.invalidate()
+              await authClient.signOut({
+                fetchOptions: {
+                  onResponse: async () => {
+                    await queryClient.setQueryData(["user"], null);
+                    await router.invalidate();
+                  },
+                },
+              });
             }}
             type="button"
             className="w-fit"
@@ -74,5 +79,5 @@ function Home() {
         </div>
       )}
     </div>
-  )
+  );
 }

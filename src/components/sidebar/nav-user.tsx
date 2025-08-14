@@ -1,13 +1,13 @@
-"use client"
+"use client";
 
-import { ChevronsUpDown, LogOut } from "lucide-react"
+import { ChevronsUpDown, LogOut } from "lucide-react";
 
 import {
   Avatar,
   AvatarFallback,
   AvatarImage,
   getFallbackFromName,
-} from "@/components/ui/avatar"
+} from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,25 +15,25 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "@/components/ui/dropdown-menu";
 import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
-} from "@/components/ui/sidebar"
-import { authClient } from "@/lib/auth-client"
-import { useQueryClient } from "@tanstack/react-query"
-import { useRouteContext, useRouter } from "@tanstack/react-router"
+} from "@/components/ui/sidebar";
+import { authClient } from "@/lib/auth-client";
+import { useQueryClient } from "@tanstack/react-query";
+import { useRouteContext, useRouter } from "@tanstack/react-router";
 
 export function NavUser() {
-  const { isMobile } = useSidebar()
-  const { user } = useRouteContext({ from: "/(main)" })
-  const image = user.image ?? undefined
-  const nameFallback = getFallbackFromName(user.name)
+  const { isMobile } = useSidebar();
+  const { user } = useRouteContext({ from: "/(main)" });
+  const image = user.image ?? undefined;
+  const nameFallback = getFallbackFromName(user.name);
 
-  const queryClient = useQueryClient()
-  const router = useRouter()
+  const queryClient = useQueryClient();
+  const router = useRouter();
 
   return (
     <SidebarMenu>
@@ -76,9 +76,14 @@ export function NavUser() {
             <DropdownMenuSeparator />
             <DropdownMenuItem
               onClick={async () => {
-                await authClient.signOut()
-                await queryClient.invalidateQueries({ queryKey: ["user"] })
-                await router.invalidate()
+                await authClient.signOut({
+                  fetchOptions: {
+                    onResponse: async () => {
+                      await queryClient.setQueryData(["user"], null);
+                      await router.invalidate();
+                    },
+                  },
+                });
               }}
             >
               <LogOut />
@@ -88,5 +93,5 @@ export function NavUser() {
         </DropdownMenu>
       </SidebarMenuItem>
     </SidebarMenu>
-  )
+  );
 }
