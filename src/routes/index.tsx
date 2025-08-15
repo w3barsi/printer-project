@@ -53,14 +53,9 @@ function Home() {
 
           <Button
             onClick={async () => {
-              await authClient.signOut({
-                fetchOptions: {
-                  onResponse: async () => {
-                    await queryClient.setQueryData(["user"], null);
-                    await router.invalidate();
-                  },
-                },
-              });
+              await authClient.signOut();
+              await queryClient.invalidateQueries({ queryKey: ["user"] });
+              await router.invalidate();
             }}
             type="button"
             className="w-fit"

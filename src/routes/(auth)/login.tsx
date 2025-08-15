@@ -1,13 +1,13 @@
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { useQueryClient } from "@tanstack/react-query"
-import { Link, createFileRoute, useNavigate } from "@tanstack/react-router"
-import { GalleryVerticalEnd, LoaderCircle } from "lucide-react"
-import { useState } from "react"
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useQueryClient } from "@tanstack/react-query";
+import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
+import { GalleryVerticalEnd, LoaderCircle } from "lucide-react";
+import { useState } from "react";
 
-import { authClient } from "@/lib/auth-client"
-import z from "zod"
+import { authClient } from "@/lib/auth-client";
+import z from "zod";
 
 export const Route = createFileRoute("/(auth)/login")({
   component: LoginForm,
@@ -19,27 +19,27 @@ export const Route = createFileRoute("/(auth)/login")({
       },
     ],
   }),
-})
+});
 
 function LoginForm() {
-  const { redirectUrl } = Route.useSearch()
-  const queryClient = useQueryClient()
-  const navigate = useNavigate()
+  const { redirectUrl } = Route.useSearch();
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
-  const [isLoading, setIsLoading] = useState(false)
-  const [errorMessage, setErrorMessage] = useState("")
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    if (isLoading) return
+    e.preventDefault();
+    if (isLoading) return;
 
-    const formData = new FormData(e.currentTarget)
-    const email = formData.get("email") as string
-    const password = formData.get("password") as string
-    if (!email || !password) return
+    const formData = new FormData(e.currentTarget);
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
+    if (!email || !password) return;
 
-    setIsLoading(true)
-    setErrorMessage("")
+    setIsLoading(true);
+    setErrorMessage("");
 
     authClient.signIn.email(
       {
@@ -49,16 +49,19 @@ function LoginForm() {
       },
       {
         onError: (ctx) => {
-          setErrorMessage(ctx.error.message)
-          setIsLoading(false)
+          setErrorMessage(ctx.error.message);
+          setIsLoading(false);
         },
         onSuccess: async () => {
-          await queryClient.invalidateQueries({ queryKey: ["user"] })
-          navigate({ to: redirectUrl, replace: true })
+          console.log("Invalidating Queries");
+          await queryClient.invalidateQueries({ queryKey: ["user"] });
+          console.log(`Redirecting to  "${redirectUrl}"`);
+          navigate({ to: redirectUrl ?? "/", replace: true });
+          console.log("Should be done redirecting");
         },
       },
-    )
-  }
+    );
+  };
 
   return (
     <div className="flex flex-col gap-6">
@@ -114,5 +117,5 @@ function LoginForm() {
         </Link>
       </div>
     </div>
-  )
+  );
 }
