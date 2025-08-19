@@ -68,6 +68,13 @@ export const Route = createFileRoute("/(main)/(cashier)/cashflow")({
     );
   },
   component: RouteComponent,
+  head: () => ({
+    meta: [
+      {
+        title: `Cashflow | DG`,
+      },
+    ],
+  }),
 });
 
 function RouteComponent() {
