@@ -1,24 +1,24 @@
-import { Button } from "@/components/ui/button"
-import { useDevice } from "@/contexts/DeviceContext"
-import { printReceipt } from "@/lib/printer"
-import type { GetOneComplete } from "@/types/convex"
-import { PrinterIcon } from "lucide-react"
-import { toast } from "sonner"
+import { Button } from "@/components/ui/button";
+import { useDevice } from "@/contexts/DeviceContext";
+import { printReceipt } from "@/lib/printer";
+import type { GetOneComplete } from "@/types/convex";
+import { PrinterIcon } from "lucide-react";
+import { toast } from "sonner";
 
 export function PrintJoButton({ jo }: { jo: GetOneComplete }) {
-  const { device, isConnected } = useDevice()
+  const { device, isConnected } = useDevice();
 
   const handlePrint = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.stopPropagation()
+    e.stopPropagation();
     if (!isConnected) {
-      return toast.error("Printer not connected")
+      return toast.error("Printer not connected");
     }
-    printReceipt({ jo, device })
-  }
+    printReceipt({ jo, device });
+  };
 
   return (
-    <Button onClick={handlePrint} variant="ghost">
-      <PrinterIcon />
+    <Button onClick={handlePrint}>
+      <PrinterIcon className="mr-2" /> Print Job Order
     </Button>
-  )
+  );
 }

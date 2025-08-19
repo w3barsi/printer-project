@@ -1,11 +1,11 @@
-import { api } from "@convex/_generated/api"
-import type { Id } from "@convex/_generated/dataModel"
-import { useMutation } from "convex/react"
-import { PlusIcon } from "lucide-react"
-import { useState } from "react"
-import { useForm } from "react-hook-form"
-import { toast } from "sonner"
-import { Button } from "../ui/button"
+import { api } from "@convex/_generated/api";
+import type { Id } from "@convex/_generated/dataModel";
+import { useMutation } from "convex/react";
+import { PlusIcon } from "lucide-react";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { Button } from "../ui/button";
 import {
   Dialog,
   DialogContent,
@@ -13,7 +13,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "../ui/dialog"
+} from "../ui/dialog";
 import {
   Form,
   FormControl,
@@ -21,15 +21,21 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "../ui/form"
-import { Input } from "../ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select"
-import { Textarea } from "../ui/textarea"
+} from "../ui/form";
+import { Input } from "../ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
+import { Textarea } from "../ui/textarea";
 
 interface FormData {
-  amount: number
-  paymentType: "cash" | "bank"
-  note: string
+  amount: number;
+  paymentType: "cash" | "bank";
+  note: string;
 }
 
 export function AddPaymentDialog({
@@ -37,12 +43,12 @@ export function AddPaymentDialog({
   totalPayments,
   totalOrderValue,
 }: {
-  joId: Id<"jo">
-  totalPayments: number
-  totalOrderValue: number
+  joId: Id<"jo">;
+  totalPayments: number;
+  totalOrderValue: number;
 }) {
-  const [open, setOpen] = useState(false)
-  const createPayment = useMutation(api.payment.createPayment)
+  const [open, setOpen] = useState(false);
+  const createPayment = useMutation(api.payment.createPayment);
 
   const form = useForm<FormData>({
     defaultValues: {
@@ -50,10 +56,10 @@ export function AddPaymentDialog({
       paymentType: "cash",
       note: "",
     },
-  })
+  });
 
   const onSubmit = async (data: FormData) => {
-    const full = data.amount >= totalOrderValue - totalPayments
+    const full = data.amount >= totalOrderValue - totalPayments;
     try {
       await createPayment({
         joId,
@@ -61,18 +67,18 @@ export function AddPaymentDialog({
         full,
         mop: data.paymentType,
         note: data.note,
-      })
-      toast.success("Payment added successfully")
-      setOpen(false)
-      form.reset()
+      });
+      toast.success("Payment added successfully");
+      setOpen(false);
+      form.reset();
     } catch {
-      toast.error("Failed to add payment")
+      toast.error("Failed to add payment");
     }
-  }
+  };
 
   const handleTotalPayment = async () => {
-    form.setValue("amount", totalOrderValue - totalPayments)
-  }
+    form.setValue("amount", totalOrderValue - totalPayments);
+  };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -178,5 +184,5 @@ export function AddPaymentDialog({
         </Form>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

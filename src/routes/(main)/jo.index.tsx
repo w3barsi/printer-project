@@ -132,7 +132,7 @@ function JobOrderListBody({ jos }: { jos: JoWithItems[] }) {
       {jos.map((jo) => (
         <TableRow
           key={jo._id}
-          className=""
+          className="cursor-pointer"
           onClick={() => navigate({ to: "/jo/$joId", params: { joId: jo._id } })}
           onMouseDown={(e) => {
             e.preventDefault();
