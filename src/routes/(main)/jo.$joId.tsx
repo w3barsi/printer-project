@@ -1,7 +1,7 @@
-import { AddItemDialog } from "@/components/jo/add-item-dialog"
-import { AddPaymentDialog } from "@/components/jo/add-payment-dialog"
-import { Container } from "@/components/layouts/container"
-import { PrintJoButton } from "@/components/printer/print-jo-button"
+import { AddItemDialog } from "@/components/jo/add-item-dialog";
+import { AddPaymentDialog } from "@/components/jo/add-payment-dialog";
+import { Container } from "@/components/layouts/container";
+import { PrintJoButton } from "@/components/printer/print-jo-button";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -12,12 +12,12 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { Separator } from "@/components/ui/separator"
+} from "@/components/ui/alert-dialog";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
 import {
   Table,
   TableBody,
@@ -25,13 +25,13 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
-import { cn } from "@/lib/utils"
-import { convexQuery, useConvexMutation } from "@convex-dev/react-query"
-import { api } from "@convex/_generated/api"
-import type { Id } from "@convex/_generated/dataModel"
-import { useMutation, useSuspenseQuery } from "@tanstack/react-query"
-import { createFileRoute, useNavigate, useRouter } from "@tanstack/react-router"
+} from "@/components/ui/table";
+import { cn } from "@/lib/utils";
+import { convexQuery, useConvexMutation } from "@convex-dev/react-query";
+import { api } from "@convex/_generated/api";
+import type { Id } from "@convex/_generated/dataModel";
+import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
+import { createFileRoute, useNavigate, useRouter } from "@tanstack/react-router";
 import {
   ArrowLeftIcon,
   BanknoteIcon,
@@ -41,13 +41,13 @@ import {
   PhilippinePesoIcon,
   Trash2Icon,
   UserIcon,
-} from "lucide-react"
+} from "lucide-react";
 
 export const Route = createFileRoute("/(main)/jo/$joId")({
   component: JoDetailComponent,
   loader: async ({ context: { queryClient: qc }, params }) => {
-    const id = params.joId as Id<"jo">
-    const jo = await qc.ensureQueryData(convexQuery(api.jo.getOneComplete, { id }))
+    const id = params.joId as Id<"jo">;
+    const jo = await qc.ensureQueryData(convexQuery(api.jo.getOneComplete, { id }));
 
     return {
       joNumber: jo?.joNumber,
@@ -55,7 +55,7 @@ export const Route = createFileRoute("/(main)/jo/$joId")({
         { value: "Job Order", href: "/jo/", type: "static" },
         { value: params.joId, href: `/jo/${params.joId}`, type: "jo" },
       ],
-    }
+    };
   },
   head: ({ loaderData }) => ({
     meta: [
@@ -68,22 +68,22 @@ export const Route = createFileRoute("/(main)/jo/$joId")({
       },
     ],
   }),
-})
+});
 
 function JoDetailComponent() {
-  const router = useRouter()
+  const router = useRouter();
   const handleGoBackOrJo = () => {
     // Check if there's a previous entry in the history that we can go back to.
     // The history.length check is a common heuristic, though not foolproof
     // in all edge cases (e.g., if the user opened a new tab directly to this page).
     // However, for typical in-app navigation, it works well.
     if (router.history.length > 1) {
-      router.history.back()
+      router.history.back();
     } else {
       // No discernible previous history, so navigate to "/jo"
-      router.navigate({ to: "/jo" })
+      router.navigate({ to: "/jo" });
     }
-  }
+  };
   // Fetch job order with items using Convex API
   // Suspense query for /jo/${joId} route
   // Fetch job order with items using Convex API
@@ -102,22 +102,22 @@ function JoDetailComponent() {
       </div>
       <JoItemsCard />
     </Container>
-  )
+  );
 }
 function PaymentCard() {
-  const { joId } = Route.useParams()
+  const { joId } = Route.useParams();
   const { data: jo } = useSuspenseQuery(
     // Fetch job order with items using Convex API
     // Suspense query for /jo/${joId} route
     convexQuery(api.jo.getOneComplete, { id: joId as Id<"jo"> }),
-  )
+  );
 
   const { mutateAsync: deletePayment, isPending } = useMutation({
     mutationFn: useConvexMutation(api.payment.deletePayment),
-  })
+  });
 
   if (!jo) {
-    return null
+    return null;
   }
   return (
     <Card>
@@ -165,6 +165,7 @@ function PaymentCard() {
                   </div>
                   <Button
                     variant="destructive-ghost"
+                    size="icon"
                     onClick={() => deletePayment({ paymentId: payment._id })}
                     disabled={isPending}
                   >
@@ -179,19 +180,19 @@ function PaymentCard() {
         )}
       </CardContent>
     </Card>
-  )
+  );
 }
 
 function JoItemsCard() {
-  const { joId } = Route.useParams()
+  const { joId } = Route.useParams();
 
   const { data: jo } = useSuspenseQuery(
     // Fetch job order with items using Convex API
     // Suspense query for /jo/${joId} route
     convexQuery(api.jo.getOneComplete, { id: joId as Id<"jo"> }),
-  )
+  );
   if (jo === null) {
-    return null
+    return null;
   }
 
   return (
@@ -248,29 +249,29 @@ function JoItemsCard() {
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }
 
 function JobOrderCard() {
-  const { joId } = Route.useParams()
-  const navigate = useNavigate()
+  const { joId } = Route.useParams();
+  const navigate = useNavigate();
 
   const { data: jo } = useSuspenseQuery(
     // Fetch job order with items using Convex API
     // Suspense query for /jo/${joId} route
     convexQuery(api.jo.getOneComplete, { id: joId as Id<"jo"> }),
-  )
+  );
 
   const { mutate, isPending } = useMutation({
     mutationFn: useConvexMutation(api.jo.deleteJo),
     onSuccess: () => {
-      navigate({ to: "/jo" })
+      navigate({ to: "/jo" });
     },
-  })
-  const deleteJo = () => mutate({ joId: joId as Id<"jo"> })
+  });
+  const deleteJo = () => mutate({ joId: joId as Id<"jo"> });
 
   if (jo === null) {
-    return <div className="text-muted-foreground text-center">No Items</div>
+    return <div className="text-muted-foreground text-center">No Items</div>;
   }
 
   return (
@@ -287,7 +288,7 @@ function JobOrderCard() {
           <div className="flex gap-2">
             <AlertDialog>
               <AlertDialogTrigger asChild>
-                <Button variant="destructive-ghost">
+                <Button variant="destructive-ghost" size="icon">
                   <Trash2Icon />
                 </Button>
               </AlertDialogTrigger>
@@ -377,30 +378,29 @@ function JobOrderCard() {
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }
 
 function DeleteItemButton({ itemId }: { itemId: Id<"items"> }) {
   const { mutate: deleteItem, isPending } = useMutation({
     mutationFn: useConvexMutation(api.items.deleteItem),
-  })
+  });
 
   return (
     <Button
       variant="destructive-ghost"
-      size="sm"
-      className="h-7 w-7 p-0 opacity-0 transition-opacity group-hover:opacity-100"
+      size="icon"
       onClick={() => deleteItem({ itemId })}
       disabled={isPending}
     >
-      <Trash2Icon className="h-4 w-4" />
+      <Trash2Icon />
     </Button>
-  )
+  );
 }
 
 function formatCurrency(amount: number) {
   return new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "PHP",
-  }).format(amount)
+  }).format(amount);
 }
