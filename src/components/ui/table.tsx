@@ -2,7 +2,7 @@ import * as React from "react";
 
 import { cn } from "@/lib/utils";
 
-export function TableWrapper({ className, ...props }: React.ComponentProps<"div">) {
+function TableWrapper({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="table-wrapper"
@@ -113,4 +113,5 @@ export {
   TableHead,
   TableHeader,
   TableRow,
+  TableWrapper,
 };

@@ -25,6 +25,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
+  TableWrapper,
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import { convexQuery, useConvexMutation } from "@convex-dev/react-query";
@@ -196,59 +197,54 @@ function JoItemsCard() {
   }
 
   return (
-    <Card className="gap-4">
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Package className="h-5 w-5" />
-            <h3 className="text-lg font-bold">Order Items ({jo.items.length})</h3>
-          </div>
+    <div className="flex flex-col gap-4">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Package className="h-5 w-5" />
+          <h3 className="text-lg font-bold">Order Items ({jo.items.length})</h3>
+        </div>
 
-          <AddItemDialog joId={joId as Id<"jo">} />
-        </div>
-      </CardHeader>
-      <CardContent>
-        <div className="overflow-hidden rounded-md">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Item Name</TableHead>
-                <TableHead className="text-center">Quantity</TableHead>
-                <TableHead className="text-right">Unit Price</TableHead>
-                <TableHead className="text-right">Total</TableHead>
-                <TableHead className="w-12"></TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {jo.items.map((item) => (
-                <TableRow key={item._id} className="group">
-                  <TableCell className="font-medium">{item.name}</TableCell>
-                  <TableCell className="text-center">{item.quantity}</TableCell>
-                  <TableCell className="text-right">
-                    {formatCurrency(item.price)}
-                  </TableCell>
-                  <TableCell className="text-right font-medium">
-                    {formatCurrency(item.quantity * item.price)}
-                  </TableCell>
-                  <TableCell className="w-12 text-right">
-                    <DeleteItemButton itemId={item._id} />
-                  </TableCell>
-                </TableRow>
-              ))}
-              <TableRow className="border-t-2">
-                <TableCell colSpan={3} className="text-right font-semibold">
-                  Total Order Value
+        <AddItemDialog joId={joId as Id<"jo">} />
+      </div>
+
+      <TableWrapper>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="font-semibold md:pl-4">Item Name</TableHead>
+              <TableHead className="text-center font-semibold">Quantity</TableHead>
+              <TableHead className="text-right font-semibold">Unit Price</TableHead>
+              <TableHead className="text-right font-semibold">Total</TableHead>
+              <TableHead className="w-12 font-semibold"></TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {jo.items.map((item) => (
+              <TableRow key={item._id} className="group">
+                <TableCell className="font-medium md:pl-4">{item.name}</TableCell>
+                <TableCell className="text-center">{item.quantity}</TableCell>
+                <TableCell className="text-right">{formatCurrency(item.price)}</TableCell>
+                <TableCell className="text-right font-medium">
+                  {formatCurrency(item.quantity * item.price)}
                 </TableCell>
-                <TableCell className="text-right text-lg font-bold">
-                  {formatCurrency(jo.totalOrderValue)}
+                <TableCell className="w-12 text-right">
+                  <DeleteItemButton itemId={item._id} />
                 </TableCell>
-                <TableCell className="w-12 text-right"></TableCell>
               </TableRow>
-            </TableBody>
-          </Table>
-        </div>
-      </CardContent>
-    </Card>
+            ))}
+            <TableRow className="border-t-2">
+              <TableCell colSpan={3} className="text-right font-semibold md:pr-4">
+                Total Order Value
+              </TableCell>
+              <TableCell className="text-right text-lg font-bold md:pr-4">
+                {formatCurrency(jo.totalOrderValue)}
+              </TableCell>
+              <TableCell className="w-12 text-right"></TableCell>
+            </TableRow>
+          </TableBody>
+        </Table>
+      </TableWrapper>
+    </div>
   );
 }
 
