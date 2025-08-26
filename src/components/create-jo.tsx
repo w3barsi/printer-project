@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -7,35 +7,36 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { useConvexMutation } from "@convex-dev/react-query"
-import { api } from "@convex/_generated/api"
-import { useMutation } from "@tanstack/react-query"
-import { PlusIcon } from "lucide-react"
-import { useState } from "react"
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useConvexMutation } from "@convex-dev/react-query";
+import { api } from "@convex/_generated/api";
+import { useMutation } from "@tanstack/react-query";
+import { PlusIcon } from "lucide-react";
+import { useState } from "react";
+import DateAndTimePicker from "./date-and-time-pciker";
 
 export function CreateDialog() {
-  const [open, setOpen] = useState(false)
-  const [name, setName] = useState("")
-  const [contact, setContact] = useState("")
+  const [open, setOpen] = useState(false);
+  const [name, setName] = useState("");
+  const [contact, setContact] = useState("");
 
   const { mutate: createJo, isPending } = useMutation({
     mutationFn: useConvexMutation(api.jo.createJo),
     onSuccess: () => {
-      setOpen(false)
-      setName("")
-      setContact("")
+      setOpen(false);
+      setName("");
+      setContact("");
     },
-  })
+  });
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     if (name.trim()) {
-      console.log({ name, contactNumber: contact.length === 0 ? undefined : contact })
-      createJo({ name, contactNumber: contact.length === 0 ? undefined : contact })
+      console.log({ name, contactNumber: contact.length === 0 ? undefined : contact });
+      createJo({ name, contactNumber: contact.length === 0 ? undefined : contact });
     }
-  }
+  };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -45,7 +46,7 @@ export function CreateDialog() {
           Create
         </Button>
       </DialogTrigger>
-      <DialogContent className="w-sm">
+      <DialogContent className="">
         <DialogHeader>
           <DialogTitle>Create Job Orderz</DialogTitle>
           <DialogDescription>
@@ -74,6 +75,7 @@ export function CreateDialog() {
                 placeholder="Enter cotnact number (optional)"
               />
             </div>
+            <DateAndTimePicker />
           </div>
           <DialogFooter>
             <Button type="submit" disabled={isPending}>
@@ -83,5 +85,5 @@ export function CreateDialog() {
         </form>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
