@@ -1,14 +1,14 @@
-import { convexAdapter } from "@convex-dev/better-auth"
-import { convex } from "@convex-dev/better-auth/plugins"
-import { betterAuth } from "better-auth"
-import { admin, username } from "better-auth/plugins"
-import type { GenericCtx } from "../../convex/_generated/server"
-import { betterAuthComponent } from "../../convex/auth"
-import { ac, adminRole, basicRole } from "./auth-access-controls"
+import { convexAdapter } from "@convex-dev/better-auth";
+import { convex } from "@convex-dev/better-auth/plugins";
+import { betterAuth } from "better-auth";
+import { admin, username } from "better-auth/plugins";
+import type { GenericCtx } from "../../convex/_generated/server";
+import { betterAuthComponent } from "../../convex/auth";
+import { ac, adminRole, basicRole } from "./auth-access-controls";
 
 const URL = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
-  : "http://localhost:3000"
+  : "http://localhost:3000";
 
 export const createAuth = (ctx: GenericCtx) =>
   // Configure your Better Auth instance here
@@ -30,6 +30,7 @@ export const createAuth = (ctx: GenericCtx) =>
         enabled: true,
         maxAge: 5 * 60,
       },
+      expiresIn: 60 * 60 * 24 * 30, // 30 days
     },
 
     database: convexAdapter(ctx, betterAuthComponent),
@@ -52,6 +53,6 @@ export const createAuth = (ctx: GenericCtx) =>
       // The Convex plugin is required
       convex(),
     ],
-  })
+  });
 
-export type SessionWithRole = ReturnType<typeof createAuth>["$Infer"]["Session"]
+export type SessionWithRole = ReturnType<typeof createAuth>["$Infer"]["Session"];
