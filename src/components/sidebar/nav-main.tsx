@@ -21,6 +21,7 @@ export function MainNavGroup() {
                 activeProps={{
                   className: "bg-sidebar-accent text-sidebar-accent-foreground",
                 }}
+                tabIndex={0}
               >
                 <PiggyBankIcon />
                 <span>Cash Flow</span>

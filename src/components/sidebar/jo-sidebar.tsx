@@ -48,19 +48,22 @@ function RecentSubMenu() {
   return (
     <div ref={parent}>
       {recent.map((item) => (
-        <SidebarMenuSub key={item.id}>
-          <SidebarMenuSubItem>
-            <SidebarMenuSubButton asChild>
-              <Link
-                to={`/jo/$joId`}
-                params={{ joId: item.id }}
-                activeProps={{ className: "bg-sidebar-accent" }}
-              >
-                {item.name}
-              </Link>
-            </SidebarMenuSubButton>
-          </SidebarMenuSubItem>
-        </SidebarMenuSub>
+        <SidebarMenuItem key={item.id}>
+          <SidebarMenuSub>
+            <SidebarMenuSubItem>
+              <SidebarMenuSubButton asChild>
+                <Link
+                  to={`/jo/$joId`}
+                  params={{ joId: item.id }}
+                  activeProps={{ className: "bg-sidebar-accent" }}
+                  tabIndex={0}
+                >
+                  {item.name}
+                </Link>
+              </SidebarMenuSubButton>
+            </SidebarMenuSubItem>
+          </SidebarMenuSub>
+        </SidebarMenuItem>
       ))}
     </div>
   );
@@ -70,13 +73,15 @@ function RecentSubMenuSkeleton() {
   return (
     <>
       {Array.from({ length: 5 }).map((_, idx) => (
-        <SidebarMenuSub key={idx}>
-          <SidebarMenuSubItem>
-            <SidebarMenuSubButton asChild>
-              <SidebarMenuSkeleton />
-            </SidebarMenuSubButton>
-          </SidebarMenuSubItem>
-        </SidebarMenuSub>
+        <SidebarMenuItem key={idx}>
+          <SidebarMenuSub>
+            <SidebarMenuSubItem>
+              <SidebarMenuSubButton asChild>
+                <SidebarMenuSkeleton />
+              </SidebarMenuSubButton>
+            </SidebarMenuSubItem>
+          </SidebarMenuSub>
+        </SidebarMenuItem>
       ))}
     </>
   );

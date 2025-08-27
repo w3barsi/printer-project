@@ -99,7 +99,7 @@ function UserManagementTable() {
   return (
     <TableWrapper>
       <Table>
-        <TableHeader className="sticky top-0 z-10">
+        <TableHeader className="bg-muted sticky top-0 z-10">
           <TableRow>
             <TableHead className="md:pl-4">Name</TableHead>
             <TableHead>Email</TableHead>

@@ -5,20 +5,20 @@ import {
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuSubItem,
-} from "@/components/ui/sidebar"
-import { useLocalStorage } from "@/hooks/use-local-storage"
-import { getTrelloLists } from "@/server/trello"
-import { useSuspenseQuery } from "@tanstack/react-query"
-import { Link } from "@tanstack/react-router"
-import { ChevronRight, TrelloIcon } from "lucide-react"
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../ui/collapsible"
+} from "@/components/ui/sidebar";
+import { useLocalStorage } from "@/hooks/use-local-storage";
+import { getTrelloLists } from "@/server/trello";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { Link } from "@tanstack/react-router";
+import { ChevronRight, TrelloIcon } from "lucide-react";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../ui/collapsible";
 
 export function TrelloSidebar() {
-  const [isOpen, setIsOpen] = useLocalStorage("trello-lists-open", false)
+  const [isOpen, setIsOpen] = useLocalStorage("trello-lists-open", false);
   const { data: lists } = useSuspenseQuery({
     queryKey: ["trelloLists"],
     queryFn: getTrelloLists,
-  })
+  });
 
   return (
     <Collapsible asChild defaultOpen={isOpen}>
@@ -28,6 +28,7 @@ export function TrelloSidebar() {
             to="/trello"
             activeOptions={{ exact: true }}
             activeProps={{ className: "bg-sidebar-accent" }}
+            tabIndex={0}
           >
             <TrelloIcon />
             <span>Trello</span>
@@ -54,6 +55,7 @@ export function TrelloSidebar() {
                         params={{ listId: list.id }}
                         activeProps={{ className: "bg-sidebar-accent" }}
                         preload={false}
+                        tabIndex={0}
                       >
                         <span>{list.name}</span>
                       </Link>
@@ -66,5 +68,5 @@ export function TrelloSidebar() {
         ) : null}
       </SidebarMenuItem>
     </Collapsible>
-  )
+  );
 }
