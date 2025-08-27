@@ -1,5 +1,5 @@
-import { defineSchema, defineTable } from "convex/server"
-import { v } from "convex/values"
+import { defineSchema, defineTable } from "convex/server";
+import { v } from "convex/values";
 
 export default defineSchema({
   products: defineTable({
@@ -14,6 +14,7 @@ export default defineSchema({
     name: v.string(),
     joNumber: v.number(),
     pickupDate: v.optional(v.number()),
+    pickupTime: v.optional(v.string()),
     contactNumber: v.optional(v.string()),
     status: v.union(
       v.literal("pending"),
@@ -72,4 +73,4 @@ export default defineSchema({
     .index("name", ["name"])
     .index("phoneNumber", ["phoneNumber"])
     .index("username", ["username"]),
-})
+});

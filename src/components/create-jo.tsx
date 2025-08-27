@@ -15,12 +15,15 @@ import { api } from "@convex/_generated/api";
 import { useMutation } from "@tanstack/react-query";
 import { PlusIcon } from "lucide-react";
 import { useState } from "react";
-import DateAndTimePicker from "./date-and-time-pciker";
+import DateAndTimePicker from "./date-and-time-picker";
 
 export function CreateDialog() {
+  const today = new Date();
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [contact, setContact] = useState("");
+  const [date, setDate] = useState<Date>(today);
+  const [time, setTime] = useState<string | null>(null);
 
   const { mutate: createJo, isPending } = useMutation({
     mutationFn: useConvexMutation(api.jo.createJo),
@@ -28,13 +31,25 @@ export function CreateDialog() {
       setOpen(false);
       setName("");
       setContact("");
+      setDate(today);
+      setTime(null);
     },
   });
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (name.trim()) {
-      console.log({ name, contactNumber: contact.length === 0 ? undefined : contact });
-      createJo({ name, contactNumber: contact.length === 0 ? undefined : contact });
+      console.log({
+        name,
+        contactNumber: contact.length === 0 ? undefined : contact,
+        pickupTime: time ?? undefined,
+        pickupDate: date.getTime(),
+      });
+      createJo({
+        name,
+        contactNumber: contact.length === 0 ? undefined : contact,
+        pickupTime: time ?? undefined,
+        pickupDate: date.getTime(),
+      });
     }
   };
 
@@ -46,43 +61,51 @@ export function CreateDialog() {
           Create
         </Button>
       </DialogTrigger>
-      <DialogContent className="">
-        <DialogHeader>
+      <DialogContent className="flex max-h-[95vh] flex-col">
+        <DialogHeader className="flex-shrink-0">
           <DialogTitle>Create Job Orderz</DialogTitle>
           <DialogDescription>
             Create a new job order to start tracking items and progress.
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit}>
-          <div className="grid gap-4 py-4">
-            <div className="grid gap-2">
-              <Label htmlFor="name">Name</Label>
-              <Input
-                id="name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Enter job order name"
-                required
-              />
-            </div>
+        <div className="flex-1 overflow-y-auto px-1">
+          <form onSubmit={handleSubmit}>
+            <div className="grid gap-4 py-4">
+              <div className="grid gap-2">
+                <Label htmlFor="name">Name</Label>
+                <Input
+                  id="name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Enter job order name"
+                  required
+                />
+              </div>
 
-            <div className="grid gap-2">
-              <Label htmlFor="contact">Contact Number</Label>
-              <Input
-                id="contact"
-                value={contact}
-                onChange={(e) => setContact(e.target.value)}
-                placeholder="Enter cotnact number (optional)"
+              <div className="grid gap-2">
+                <Label htmlFor="contact">Contact Number</Label>
+                <Input
+                  id="contact"
+                  value={contact}
+                  onChange={(e) => setContact(e.target.value)}
+                  placeholder="Enter cotnact number (optional)"
+                />
+              </div>
+              <DateAndTimePicker
+                date={date}
+                setDate={setDate}
+                time={time}
+                setTime={setTime}
+                today={today}
               />
             </div>
-            <DateAndTimePicker />
-          </div>
-          <DialogFooter>
-            <Button type="submit" disabled={isPending}>
-              {isPending ? "Creating..." : "Create"}
-            </Button>
-          </DialogFooter>
-        </form>
+            <DialogFooter className="flex-shrink-0">
+              <Button type="submit" disabled={isPending}>
+                {isPending ? "Creating..." : "Create"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </div>
       </DialogContent>
     </Dialog>
   );

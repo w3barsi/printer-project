@@ -47,9 +47,10 @@ export const createJo = authedMutation({
     name: v.string(),
     contactNumber: v.optional(v.string()),
     pickupDate: v.optional(v.number()),
+    pickupTime: v.optional(v.string()),
   }),
   handler: async (ctx, args) => {
-    const { name, pickupDate, contactNumber } = args;
+    const { name, pickupDate, contactNumber, pickupTime } = args;
 
     const lastJoNumber = await ctx.db
       .query("jo")
@@ -62,6 +63,7 @@ export const createJo = authedMutation({
       joNumber,
       name,
       pickupDate,
+      pickupTime,
       contactNumber,
       status: "pending",
       createdBy: ctx.user.subject as Id<"users">,
