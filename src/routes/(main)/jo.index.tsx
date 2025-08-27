@@ -219,8 +219,12 @@ function JobOrderListSkeleton() {
         </Table>
       </TableWrapper>
       <div className="flex w-full justify-center gap-2 pt-2">
-        <Skeleton className="h-10 w-24" />
-        <Skeleton className="h-10 w-24" />
+        <Button variant="outline" disabled>
+          <ArrowLeftIcon /> Prev
+        </Button>
+        <Button variant="outline" disabled>
+          Next <ArrowRightIcon />
+        </Button>
       </div>
     </div>
   );
