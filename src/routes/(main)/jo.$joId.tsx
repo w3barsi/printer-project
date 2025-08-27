@@ -32,7 +32,12 @@ import { convexQuery, useConvexMutation } from "@convex-dev/react-query";
 import { api } from "@convex/_generated/api";
 import type { Id } from "@convex/_generated/dataModel";
 import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute, useNavigate, useRouter } from "@tanstack/react-router";
+import {
+  createFileRoute,
+  useCanGoBack,
+  useNavigate,
+  useRouter,
+} from "@tanstack/react-router";
 import {
   ArrowLeftIcon,
   BanknoteIcon,
@@ -72,24 +77,18 @@ export const Route = createFileRoute("/(main)/jo/$joId")({
 });
 
 function JoDetailComponent() {
+  const canGoBack = useCanGoBack();
   const router = useRouter();
+  const navigate = Route.useNavigate();
+
   const handleGoBackOrJo = () => {
-    // Check if there's a previous entry in the history that we can go back to.
-    // The history.length check is a common heuristic, though not foolproof
-    // in all edge cases (e.g., if the user opened a new tab directly to this page).
-    // However, for typical in-app navigation, it works well.
-    if (router.history.length > 1) {
+    // https://x.com/reactreaper/status/1960062834877894823/photo/1
+    if (canGoBack) {
       router.history.back();
     } else {
-      // No discernible previous history, so navigate to "/jo"
-      router.navigate({ to: "/jo" });
+      navigate({ to: "/jo" });
     }
   };
-  // Fetch job order with items using Convex API
-  // Suspense query for /jo/${joId} route
-  // Fetch job order with items using Convex API
-  // Suspense query for /jo/${joId} route
-
   return (
     <Container className="flex flex-col gap-2 md:gap-4">
       <div className="flex items-center justify-between">
