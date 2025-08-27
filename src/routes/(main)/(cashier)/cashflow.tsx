@@ -1,4 +1,4 @@
-import { AddExpense } from "@/components/cashier/add-expense";
+import { AddTransaction } from "@/components/cashier/add-transaction";
 import { Container } from "@/components/layouts/container";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -18,12 +18,13 @@ import {
 } from "@/components/ui/table";
 import { TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
+import type { CashflowType } from "@/types/convex";
 import { convexQuery, useConvexMutation } from "@convex-dev/react-query";
 import { api } from "@convex/_generated/api";
 import type { Id } from "@convex/_generated/dataModel";
 import { Tabs } from "@radix-ui/react-tabs";
 import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   CalendarIcon,
   ChevronDownIcon,
@@ -33,12 +34,14 @@ import {
   TrendingUpIcon,
 } from "lucide-react";
 import { Suspense, useState } from "react";
+import z from "zod";
 
 type CashflowData =
   | (
       | {
           id: Id<"payment">;
-          type: "Income";
+          type: "Payment";
+          joId: Id<"jo">;
           amount: number;
           description: string;
           status: string;
@@ -46,8 +49,9 @@ type CashflowData =
           createdAt: Date;
         }
       | {
-          id: Id<"expenses">;
-          type: "Expense";
+          id: Id<"cashflow">;
+          type: "Cashflow";
+          cashflowType: CashflowType;
           amount: number;
           description: string;
           status: string;
@@ -58,6 +62,7 @@ type CashflowData =
   | null;
 
 export const Route = createFileRoute("/(main)/(cashier)/cashflow")({
+  validateSearch: z.object({ date: z.number().optional() }),
   loader: async ({ context }) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -99,7 +104,7 @@ function RouteComponent() {
             </div>
           </div>
           <div className="flex flex-col items-center gap-4 md:flex-row-reverse">
-            <AddExpense />
+            <AddTransaction />
             <div className="flex gap-1">
               <Label htmlFor="date" className="px-1">
                 <CalendarIcon className="size-4" />
@@ -165,7 +170,8 @@ function DailyTransactions({
 
   const payments = data.paymentsData.map((payment) => ({
     id: payment._id,
-    type: "Income" as const,
+    joId: payment.joId,
+    type: "Payment" as const,
     amount: payment.amount,
     description: `JO #${payment.joNumber} - ${payment.joName}`,
     status: payment.full ? "Full Payment" : "Partial Payment",
@@ -175,7 +181,8 @@ function DailyTransactions({
 
   const expenses = data.expensesData.map((expense) => ({
     id: expense._id,
-    type: "Expense" as const,
+    type: "Cashflow" as const,
+    cashflowType: expense.type,
     amount: expense.amount,
     description: expense.description,
     status: "-",
@@ -222,7 +229,7 @@ function DailyTransactionsTable({
   dataType: "all" | "income" | "expenses";
 }) {
   const { mutateAsync: deleteExpense } = useMutation({
-    mutationFn: useConvexMutation(api.cashier.deleteExpense),
+    mutationFn: useConvexMutation(api.cashier.deleteCashflowExpense),
   });
 
   if (!data || data.length === 0) {
@@ -263,15 +270,27 @@ function DailyTransactionsTable({
                 <span
                   className={cn(
                     "inline-flex rounded-full px-2 py-1 text-xs font-medium",
-                    transaction.type === "Income"
+                    transaction.type === "Payment"
                       ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
                       : "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
                   )}
                 >
-                  {transaction.type}
+                  {transaction.type === "Payment" ? "Payment" : transaction.cashflowType}
                 </span>
               </TableCell>
-              <TableCell>{transaction.description}</TableCell>
+              <TableCell>
+                {transaction.type === "Payment" ? (
+                  <Link
+                    to="/jo/$joId"
+                    params={{ joId: transaction.joId }}
+                    className="underline underline-offset-2"
+                  >
+                    {transaction.description}
+                  </Link>
+                ) : (
+                  transaction.description
+                )}
+              </TableCell>
               <TableCell>
                 {transaction.status !== "-" && (
                   <span
@@ -289,19 +308,19 @@ function DailyTransactionsTable({
               <TableCell
                 className={cn(
                   "text-right font-medium",
-                  transaction.type === "Income"
+                  transaction.type === "Payment"
                     ? "text-green-600 dark:text-green-400"
                     : "text-red-600 dark:text-red-400",
                 )}
               >
-                {transaction.type === "Income" ? "+" : "-"}₱
+                {transaction.type === "Payment" ? "+" : "-"}₱
                 {transaction.amount.toFixed(2)}
               </TableCell>
               <TableCell className="text-muted-foreground">
                 {transaction.createdBy}
               </TableCell>
               <TableCell className="text-center md:pr-4">
-                {transaction.type === "Expense" && (
+                {transaction.type === "Cashflow" && (
                   <Button
                     variant="ghost"
                     size="sm"

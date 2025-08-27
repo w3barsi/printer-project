@@ -1,6 +1,15 @@
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
+export const cashflowType = v.optional(
+  v.union(
+    v.literal("Income"),
+    v.literal("Expense"),
+    v.literal("Cash Advance"),
+    v.literal("Starting Cash"),
+  ),
+);
+
 export default defineSchema({
   products: defineTable({
     title: v.string(),
@@ -45,6 +54,14 @@ export default defineSchema({
     amount: v.number(),
     description: v.string(),
   }),
+
+  cashflow: defineTable({
+    createdBy: v.id("users"),
+    createdAt: v.number(),
+    amount: v.number(),
+    type: cashflowType,
+    description: v.string(),
+  }).index("by_created_at", ["createdAt"]),
 
   items: defineTable({
     updatedAt: v.optional(v.number()),
