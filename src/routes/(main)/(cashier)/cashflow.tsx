@@ -34,35 +34,31 @@ import {
   TrendingUpIcon,
 } from "lucide-react";
 import { Suspense, useState } from "react";
-import z from "zod";
 
-type CashflowData =
-  | (
-      | {
-          id: Id<"payment">;
-          type: "Payment";
-          joId: Id<"jo">;
-          amount: number;
-          description: string;
-          status: string;
-          createdBy: string;
-          createdAt: Date;
-        }
-      | {
-          id: Id<"cashflow">;
-          type: "Cashflow";
-          cashflowType: CashflowType;
-          amount: number;
-          description: string;
-          status: string;
-          createdBy: string;
-          createdAt: Date;
-        }
-    )[]
-  | null;
+type PaymentDataType = {
+  id: Id<"payment">;
+  type: "Payment";
+  joId: Id<"jo">;
+  amount: number;
+  description: string;
+  status: string;
+  createdBy: string;
+  createdAt: Date;
+};
+type CashflowDataType = {
+  id: Id<"cashflow">;
+  type: "Cashflow";
+  cashflowType: CashflowType;
+  amount: number;
+  description: string;
+  status: string;
+  createdBy: string;
+  createdAt: Date;
+};
+
+type CashflowData = (PaymentDataType | CashflowDataType)[] | null;
 
 export const Route = createFileRoute("/(main)/(cashier)/cashflow")({
-  validateSearch: z.object({ date: z.number().optional() }),
   loader: async ({ context }) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -168,7 +164,7 @@ function DailyTransactions({
     return <></>;
   }
 
-  const payments = data.paymentsData.map((payment) => ({
+  const payments: PaymentDataType[] = data.paymentsData.map((payment) => ({
     id: payment._id,
     joId: payment.joId,
     type: "Payment" as const,
@@ -179,7 +175,7 @@ function DailyTransactions({
     createdAt: new Date(payment._creationTime),
   }));
 
-  const expenses = data.expensesData.map((expense) => ({
+  const cashflow: CashflowDataType[] = data.expensesData.map((expense) => ({
     id: expense._id,
     type: "Cashflow" as const,
     cashflowType: expense.type,
@@ -190,7 +186,7 @@ function DailyTransactions({
     createdAt: new Date(expense._creationTime),
   }));
 
-  const allTransactions = [...payments, ...expenses].sort(
+  const allTransactions = [...payments, ...cashflow].sort(
     (b, a) => b.createdAt.getTime() - a.createdAt.getTime(),
   );
 
@@ -215,7 +211,7 @@ function DailyTransactions({
         <DailyTransactionsTable data={payments} dataType="income" />
       </TabsContent>
       <TabsContent value="expenses">
-        <DailyTransactionsTable data={expenses} dataType="expenses" />
+        <DailyTransactionsTable data={cashflow} dataType="expenses" />
       </TabsContent>
     </Tabs>
   );
