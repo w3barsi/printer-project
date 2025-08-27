@@ -84,7 +84,7 @@ function JobOrderList() {
     <div>
       <TableWrapper>
         <Table>
-          <TableHeader>
+          <TableHeader className="bg-muted">
             <TableRow>
               <TableHead className="w-16 font-semibold md:pl-4">
                 <HashIcon className="h-4 w-4" />

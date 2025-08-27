@@ -239,7 +239,7 @@ function DailyTransactionsTable({
   return (
     <TableWrapper>
       <Table className="">
-        <TableHeader>
+        <TableHeader className="bg-muted">
           <TableRow>
             <TableHead className="md:pl-4">Time</TableHead>
             <TableHead>Type</TableHead>

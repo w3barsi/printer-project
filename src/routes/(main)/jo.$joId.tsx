@@ -208,7 +208,7 @@ function JoItemsCard() {
 
       <TableWrapper>
         <Table>
-          <TableHeader>
+          <TableHeader className="bg-muted">
             <TableRow>
               <TableHead className="font-semibold md:pl-4">Item Name</TableHead>
               <TableHead className="text-center font-semibold">Quantity</TableHead>
