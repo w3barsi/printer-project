@@ -16,7 +16,7 @@ import { Link } from "@tanstack/react-router";
 import { FileTextIcon } from "lucide-react";
 import { Suspense } from "react";
 
-export function RecentJobOrders() {
+export function RecentJobOrdersGroup() {
   return (
     <SidebarGroup>
       <SidebarMenu>

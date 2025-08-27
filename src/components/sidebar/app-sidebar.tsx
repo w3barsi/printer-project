@@ -1,8 +1,8 @@
-import { Command } from "lucide-react"
-import * as React from "react"
+import { Command } from "lucide-react";
+import * as React from "react";
 
-import { NavMain } from "@/components/sidebar/nav-main"
-import { NavUser } from "@/components/sidebar/nav-user"
+import { MainNavGroup } from "@/components/sidebar/nav-main";
+import { NavUser } from "@/components/sidebar/nav-user";
 import {
   Sidebar,
   SidebarContent,
@@ -12,10 +12,11 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarSeparator,
-} from "@/components/ui/sidebar"
-import { Link } from "@tanstack/react-router"
-import { PrinterButton } from "../printer/printer-button"
-import { RecentJobOrders } from "./jo-sidebar"
+} from "@/components/ui/sidebar";
+import { Link } from "@tanstack/react-router";
+import { PrinterButton } from "../printer/printer-button";
+import { AdminSidebarGroup } from "./admin-sidebar";
+import { RecentJobOrdersGroup } from "./jo-sidebar";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
@@ -38,14 +39,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <RecentJobOrders />
+        <RecentJobOrdersGroup />
         <SidebarSeparator className="mx-0" />
-        <NavMain />
+        <MainNavGroup />
+        <SidebarSeparator className="mx-0" />
+        <AdminSidebarGroup />
       </SidebarContent>
       <SidebarFooter>
         <PrinterButton />
         <NavUser />
       </SidebarFooter>
     </Sidebar>
-  )
+  );
 }
