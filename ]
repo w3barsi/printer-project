@@ -1,53 +1,22 @@
 import { v } from "convex/values";
 import { Id } from "./_generated/dataModel";
+import { internalMutation } from "./_generated/server";
 import { authedMutation, authedQuery } from "./auth";
 import { cashflowType } from "./schema";
-
-export const createCashOnHand = authedMutation({
-  args: {
-    amount: v.number(),
-    description: v.string(),
-    date: v.number(),
-  },
-  handler: async (ctx, args) => {
-    const dateStart = new Date(args.date).setHours(0, 0, 0, 0);
-    const dateEnd = dateStart + 24 * 60 * 60 * 1000 - 1;
-
-    const todayStart = new Date().setHours(0, 0, 0, 0);
-
-    const dbdate = todayStart === dateStart ? args.date : dateStart;
-
-    const a = await ctx.db
-      .query("cashflow")
-      .withIndex("by_cashflow_type", (q) => q.eq("cashflowType", "COH"))
-      .filter((q) => q.gte(q.field("createdAt"), dateStart))
-      .filter((q) => q.lte(q.field("createdAt"), dateEnd))
-      .unique();
-
-    await ctx.db.insert("cashflow", {
-      amount: args.amount,
-      description: args.description,
-      createdBy: ctx.user.subject as Id<"users">,
-      createdAt: dbdate,
-      cashflowType: "COH",
-    });
-  },
-});
 
 export const createCashflow = authedMutation({
   args: {
     amount: v.number(),
     description: v.string(),
     type: cashflowType,
-    date: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
     await ctx.db.insert("cashflow", {
       amount: args.amount,
       description: args.description,
       createdBy: ctx.user.subject as Id<"users">,
-      createdAt: args.date ?? new Date().getTime(),
-      cashflowType: args.type ?? "Expense",
+      createdAt: new Date().getTime(),
+      type: args.type ?? "Expense",
     });
   },
 });
@@ -93,7 +62,7 @@ export const getCashflow = authedQuery({
     const rawCashflow = await ctx.db
       .query("cashflow")
       .withIndex("by_created_at", (q) => q.gte("createdAt", dayStart))
-      .filter((q) => q.lte(q.field("createdAt"), dayEnd))
+      .filter((q) => q.lte(q.field("_creationTime"), dayEnd))
       .collect();
 
     const cashflow = await Promise.all(
@@ -102,37 +71,17 @@ export const getCashflow = authedQuery({
         return {
           ...e,
           type: "Cashflow" as const,
+          cashflowType: e.type,
           createdByName: user.name,
         };
       }),
     );
 
-    const expenses = cashflow.filter((e) => e.cashflowType !== "COH");
-    const data = [...payments, ...expenses].sort((a, b) => {
-      const timeA = new Date(a._creationTime);
-      const timeB = new Date(b._creationTime);
-      if (timeA < timeB) return -1;
-      if (timeA > timeB) return 1;
-      // If equal, compare createdAt
-      const createdA = new Date(a.createdAt);
-      const createdB = new Date(b.createdAt);
-      return createdA.getTime() - createdB.getTime();
-    });
+    const data = [...payments, ...cashflow].sort((b, a) => b.createdAt - a.createdAt);
 
-    const startingCash = cashflow
-      .filter((d) => d.type === "Cashflow")
-      .filter((d) => d.cashflowType === "COH");
-
-
-    const paymentsTotal = payments.reduce((s, p) => s + p.amount, 0);
-    const expensesTotal = expenses.reduce((s, e) => s + e.amount, 0);
-
-    return {
-      data,
-      paymentsTotal,
-      expensesTotal,
-      startingCash: startingCash.length > 0 ? startingCash[0] : undefined,
-    };
+    const startingCash = data.filter(
+      (d) => d.type === "Cashflow" && d.cashflowType === "Starting Cash",
+    );
   },
 });
 
@@ -161,13 +110,13 @@ export const listDayData = authedQuery({
 
     const finalPayments = await Promise.all(shapedPayments);
 
-    const expenses = await ctx.db
-      .query("expenses")
-      .withIndex("by_creation_time", (q) => q.gte("_creationTime", args.dayStart))
+    const cashflow = await ctx.db
+      .query("cashflow")
+      .withIndex("by_created_at", (q) => q.gte("createdAt", args.dayStart))
       .filter((q) => q.lte(q.field("_creationTime"), args.dayEnd))
       .collect();
 
-    const expensesWithType = expenses.map(async (e) => {
+    const cashflowWithType = cashflow.map(async (e) => {
       const user = (await ctx.db.get(e.createdBy)) ?? { name: "Unknown" };
       return {
         ...e,
@@ -176,17 +125,45 @@ export const listDayData = authedQuery({
     });
 
     // ShiftKExpenseType taken from here
-    const finalExpenses = await Promise.all(expensesWithType);
+    const finalExpenses = await Promise.all(cashflowWithType);
 
-    const paymentsTotal = payments.reduce((s, p) => s + p.amount, 0);
-    const expensesTotal = expenses.reduce((s, e) => s + e.amount, 0);
+    const totalPayments = payments.reduce((s, p) => s + p.amount, 0);
+    const totalCashflowExpenses = cashflow
+      .filter((e) => e.type === "Cash Advance" || e.type === "Expense")
+      .reduce((s, e) => s + e.amount, 0);
+    const totalCashflowIncome = cashflow
+      .filter((e) => e.type === "Starting Cash" || e.type === "Income")
+      .reduce((s, e) => s + e.amount, 0);
+
+    const totalIncome = totalPayments + totalCashflowIncome;
 
     return {
       expensesData: finalExpenses,
-      expensesTotal,
+      totalCashflowExpenses,
       paymentsData: finalPayments,
-      paymentsTotal,
-      net: paymentsTotal - expensesTotal,
+      paymentsTotal: totalPayments,
+      net: totalIncome + totalCashflowExpenses,
     };
+  },
+});
+
+export const expenseToCashflow = internalMutation({
+  handler: async (ctx) => {
+    const expenses = await ctx.db.query("expenses").collect();
+
+    for (const expense of expenses) {
+      await ctx.db.insert("cashflow", {
+        createdBy: expense.createdBy,
+        createdAt: expense._creationTime,
+        amount: expense.amount,
+        type: "Expense",
+        description: expense.description,
+      });
+    }
+
+    // Delete all expenses after migration
+    for (const expense of expenses) {
+      await ctx.db.delete(expense._id);
+    }
   },
 });

@@ -24,6 +24,7 @@ import { Route as mainTrelloIndexRouteImport } from "./routes/(main)/trello.inde
 import { Route as mainJoIndexRouteImport } from "./routes/(main)/jo.index";
 import { Route as mainTrelloListIdRouteImport } from "./routes/(main)/trello.$listId";
 import { Route as mainJoJoIdRouteImport } from "./routes/(main)/jo.$joId";
+import { Route as maincashierCashflownewRouteImport } from "./routes/(main)/(cashier)/cashflownew";
 import { Route as maincashierCashflowRouteImport } from "./routes/(main)/(cashier)/cashflow";
 import { Route as mainadminAdminIndexRouteImport } from "./routes/(main)/(admin)/admin.index";
 import { Route as mainadminAdminUsersRouteImport } from "./routes/(main)/(admin)/admin.users";
@@ -92,6 +93,11 @@ const mainJoJoIdRoute = mainJoJoIdRouteImport.update({
   path: "/jo/$joId",
   getParentRoute: () => mainRouteRoute,
 } as any);
+const maincashierCashflownewRoute = maincashierCashflownewRouteImport.update({
+  id: "/cashflownew",
+  path: "/cashflownew",
+  getParentRoute: () => maincashierRouteRoute,
+} as any);
 const maincashierCashflowRoute = maincashierCashflowRouteImport.update({
   id: "/cashflow",
   path: "/cashflow",
@@ -120,6 +126,7 @@ export interface FileRoutesByFullPath {
   "/login": typeof authLoginRoute;
   "/signup": typeof authSignupRoute;
   "/cashflow": typeof maincashierCashflowRoute;
+  "/cashflownew": typeof maincashierCashflownewRoute;
   "/jo/$joId": typeof mainJoJoIdRoute;
   "/trello/$listId": typeof mainTrelloListIdRoute;
   "/jo": typeof mainJoIndexRoute;
@@ -134,6 +141,7 @@ export interface FileRoutesByTo {
   "/login": typeof authLoginRoute;
   "/signup": typeof authSignupRoute;
   "/cashflow": typeof maincashierCashflowRoute;
+  "/cashflownew": typeof maincashierCashflownewRoute;
   "/jo/$joId": typeof mainJoJoIdRoute;
   "/trello/$listId": typeof mainTrelloListIdRoute;
   "/jo": typeof mainJoIndexRoute;
@@ -153,6 +161,7 @@ export interface FileRoutesById {
   "/(auth)/login": typeof authLoginRoute;
   "/(auth)/signup": typeof authSignupRoute;
   "/(main)/(cashier)/cashflow": typeof maincashierCashflowRoute;
+  "/(main)/(cashier)/cashflownew": typeof maincashierCashflownewRoute;
   "/(main)/jo/$joId": typeof mainJoJoIdRoute;
   "/(main)/trello/$listId": typeof mainTrelloListIdRoute;
   "/(main)/jo/": typeof mainJoIndexRoute;
@@ -169,6 +178,7 @@ export interface FileRouteTypes {
     | "/login"
     | "/signup"
     | "/cashflow"
+    | "/cashflownew"
     | "/jo/$joId"
     | "/trello/$listId"
     | "/jo"
@@ -183,6 +193,7 @@ export interface FileRouteTypes {
     | "/login"
     | "/signup"
     | "/cashflow"
+    | "/cashflownew"
     | "/jo/$joId"
     | "/trello/$listId"
     | "/jo"
@@ -201,6 +212,7 @@ export interface FileRouteTypes {
     | "/(auth)/login"
     | "/(auth)/signup"
     | "/(main)/(cashier)/cashflow"
+    | "/(main)/(cashier)/cashflownew"
     | "/(main)/jo/$joId"
     | "/(main)/trello/$listId"
     | "/(main)/jo/"
@@ -331,6 +343,13 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof mainJoJoIdRouteImport;
       parentRoute: typeof mainRouteRoute;
     };
+    "/(main)/(cashier)/cashflownew": {
+      id: "/(main)/(cashier)/cashflownew";
+      path: "/cashflownew";
+      fullPath: "/cashflownew";
+      preLoaderRoute: typeof maincashierCashflownewRouteImport;
+      parentRoute: typeof maincashierRouteRoute;
+    };
     "/(main)/(cashier)/cashflow": {
       id: "/(main)/(cashier)/cashflow";
       path: "/cashflow";
@@ -396,10 +415,12 @@ const mainadminRouteRouteWithChildren = mainadminRouteRoute._addFileChildren(
 
 interface maincashierRouteRouteChildren {
   maincashierCashflowRoute: typeof maincashierCashflowRoute;
+  maincashierCashflownewRoute: typeof maincashierCashflownewRoute;
 }
 
 const maincashierRouteRouteChildren: maincashierRouteRouteChildren = {
   maincashierCashflowRoute: maincashierCashflowRoute,
+  maincashierCashflownewRoute: maincashierCashflownewRoute,
 };
 
 const maincashierRouteRouteWithChildren =

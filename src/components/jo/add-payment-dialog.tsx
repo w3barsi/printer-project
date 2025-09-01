@@ -87,7 +87,7 @@ export function AddPaymentDialog({
           <PlusIcon className="mr-2" /> Add Payment
         </Button>
       </DialogTrigger>
-      <DialogContent className="w-sm">
+      <DialogContent className="">
         <DialogHeader>
           <DialogTitle>Add New Payment</DialogTitle>
           <DialogDescription>

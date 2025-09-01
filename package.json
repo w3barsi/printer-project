@@ -24,6 +24,7 @@
   },
   "dependencies": {
     "@convex-dev/better-auth": "^0.7.13",
+    "@convex-dev/migrations": "^0.2.9",
     "@convex-dev/react-query": "0.0.0-alpha.11",
     "@formkit/auto-animate": "^0.8.2",
     "@hookform/resolvers": "^5.2.1",

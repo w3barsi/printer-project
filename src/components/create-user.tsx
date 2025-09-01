@@ -1,11 +1,4 @@
-import { useState } from "react"
-import { useForm } from "react-hook-form"
-import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { convexQuery, useConvexMutation } from "@convex-dev/react-query"
-import { api } from "@convex/_generated/api"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { z } from "zod"
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -14,7 +7,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
+} from "@/components/ui/dialog";
 import {
   Form,
   FormControl,
@@ -23,23 +16,30 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { toast } from "sonner"
-import { PlusIcon } from "lucide-react"
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { convexQuery, useConvexMutation } from "@convex-dev/react-query";
+import { api } from "@convex/_generated/api";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { PlusIcon } from "lucide-react";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { z } from "zod";
 
 const createUserSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email("Please enter a valid email address"),
   password: z.string().min(8, "Password must be at least 8 characters"),
-})
+});
 
-type CreateUserFormData = z.infer<typeof createUserSchema>
+type CreateUserFormData = z.infer<typeof createUserSchema>;
 
 export function CreateUserDialog() {
-  const [open, setOpen] = useState(false)
-  const queryClient = useQueryClient()
-  const createUser = useConvexMutation(api.admin.users.createUser)
+  const [open, setOpen] = useState(false);
+  const queryClient = useQueryClient();
+  const createUser = useConvexMutation(api.admin.users.createUser);
 
   const form = useForm<CreateUserFormData>({
     resolver: zodResolver(createUserSchema),
@@ -48,23 +48,23 @@ export function CreateUserDialog() {
       email: "",
       password: "",
     },
-  })
+  });
 
   const mutation = useMutation({
     mutationFn: createUser,
     onSuccess: () => {
-      toast.success("User created successfully")
-      queryClient.invalidateQueries(convexQuery(api.admin.users.listUsers, {}))
-      setOpen(false)
-      form.reset()
+      toast.success("User created successfully");
+      queryClient.invalidateQueries(convexQuery(api.admin.users.listUsers, {}));
+      setOpen(false);
+      form.reset();
     },
     onError: (error) => {
-      toast.error(error?.message || "Failed to create user")
+      toast.error(error?.message || "Failed to create user");
     },
-  })
+  });
 
   function onSubmit(data: CreateUserFormData) {
-    mutation.mutate(data)
+    mutation.mutate(data);
   }
 
   return (
@@ -75,12 +75,12 @@ export function CreateUserDialog() {
           Create User
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="">
         <DialogHeader>
           <DialogTitle>Create New User</DialogTitle>
           <DialogDescription>
-            Add a new user to the system. They will receive an email to verify
-            their account.
+            Add a new user to the system. They will receive an email to verify their
+            account.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -105,11 +105,7 @@ export function CreateUserDialog() {
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input
-                      type="email"
-                      placeholder="john@example.com"
-                      {...field}
-                    />
+                    <Input type="email" placeholder="john@example.com" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -122,15 +118,9 @@ export function CreateUserDialog() {
                 <FormItem>
                   <FormLabel>Password</FormLabel>
                   <FormControl>
-                    <Input
-                      type="password"
-                      placeholder="••••••••"
-                      {...field}
-                    />
+                    <Input type="password" placeholder="••••••••" {...field} />
                   </FormControl>
-                  <FormDescription>
-                    Must be at least 8 characters long
-                  </FormDescription>
+                  <FormDescription>Must be at least 8 characters long</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -144,5 +134,5 @@ export function CreateUserDialog() {
         </Form>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

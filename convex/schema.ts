@@ -2,12 +2,9 @@ import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
 export const cashflowType = v.optional(
-  v.union(
-    v.literal("Income"),
-    v.literal("Expense"),
-    v.literal("Cash Advance"),
-    v.literal("Starting Cash"),
-  ),
+  // CA = Cash Advance
+  // COH = Cash On Hand
+  v.union(v.literal("Expense"), v.literal("CA"), v.literal("COH")),
 );
 
 export default defineSchema({
@@ -39,7 +36,6 @@ export default defineSchema({
     createdBy: v.id("users"),
 
     joId: v.id("jo"),
-
     // full payment
     full: v.optional(v.boolean()),
     // mode of payment
@@ -48,20 +44,22 @@ export default defineSchema({
     amount: v.number(),
   }).index("by_joId", ["joId"]),
 
+  cashflow: defineTable({
+    createdBy: v.id("users"),
+    createdAt: v.number(),
+    amount: v.number(),
+    cashflowType,
+    description: v.string(),
+  })
+    .index("by_created_at", ["createdAt"])
+    .index("by_cashflow_type", ["cashflowType"]),
+
   expenses: defineTable({
     createdBy: v.id("users"),
 
     amount: v.number(),
     description: v.string(),
   }),
-
-  cashflow: defineTable({
-    createdBy: v.id("users"),
-    createdAt: v.number(),
-    amount: v.number(),
-    type: cashflowType,
-    description: v.string(),
-  }).index("by_created_at", ["createdAt"]),
 
   items: defineTable({
     updatedAt: v.optional(v.number()),

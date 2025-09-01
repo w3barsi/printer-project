@@ -225,7 +225,7 @@ function ChangePasswordDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild></DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="">
         <DialogHeader>
           <DialogTitle>Change Password</DialogTitle>
           <DialogDescription>Enter your new password below.</DialogDescription>
