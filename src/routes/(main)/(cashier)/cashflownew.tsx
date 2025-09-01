@@ -146,7 +146,14 @@ function CashflowTable() {
                 })}
               </TableCell>
               <TableCell>
-                <span className={cn()}>
+                <span
+                  className={cn(
+                    "inline-flex rounded-full px-2 py-1 text-xs font-medium",
+                    c.type === "Payment"
+                      ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
+                      : "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
+                  )}
+                >
                   {c.type === "Payment" ? "Payment" : c.cashflowType}
                 </span>
               </TableCell>
@@ -178,8 +185,15 @@ function CashflowTable() {
                 )}
               </TableCell>
               <TableCell className="text-muted-foreground">{c.createdByName}</TableCell>
-              <TableCell className={cn("text-right font-medium")}>
-                ₱{c.amount.toFixed(2)}
+              <TableCell
+                className={cn(
+                  "text-right font-medium",
+                  c.type === "Payment"
+                    ? "text-green-600 dark:text-green-400"
+                    : "text-red-600 dark:text-red-400",
+                )}
+              >
+                {c.type === "Cashflow" && "-"}₱{c.amount.toFixed(2)}
               </TableCell>
               <TableCell className="text-center md:pr-4">
                 {c.type === "Cashflow" && (
