@@ -10,25 +10,25 @@ export const createCashOnHand = authedMutation({
     date: v.number(),
   },
   handler: async (ctx, args) => {
-    const dateStart = new Date(args.date).setHours(0, 0, 0, 0);
+    const dateStart = args.date;
     const dateEnd = dateStart + 24 * 60 * 60 * 1000 - 1;
-
-    const todayStart = new Date().setHours(0, 0, 0, 0);
-
-    const dbdate = todayStart === dateStart ? args.date : dateStart;
 
     const a = await ctx.db
       .query("cashflow")
       .withIndex("by_cashflow_type", (q) => q.eq("cashflowType", "COH"))
       .filter((q) => q.gte(q.field("createdAt"), dateStart))
       .filter((q) => q.lte(q.field("createdAt"), dateEnd))
-      .unique();
+      .first();
+
+    if (a) {
+      throw new Error("Cash on hand already exists");
+    }
 
     await ctx.db.insert("cashflow", {
       amount: args.amount,
       description: args.description,
       createdBy: ctx.user.subject as Id<"users">,
-      createdAt: dbdate,
+      createdAt: dateStart,
       cashflowType: "COH",
     });
   },
@@ -71,8 +71,8 @@ export const getCashflow = authedQuery({
 
     const rawPayments = await ctx.db
       .query("payment")
-      .withIndex("by_creation_time", (q) => q.gte("_creationTime", dayStart))
-      .filter((q) => q.lte(q.field("_creationTime"), dayEnd))
+      .withIndex("by_created_at", (q) => q.gte("createdAt", dayStart))
+      .filter((q) => q.lte(q.field("createdAt"), dayEnd))
       .collect();
 
     const payments = await Promise.all(

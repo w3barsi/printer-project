@@ -43,7 +43,9 @@ export default defineSchema({
     mop: v.optional(v.union(v.literal("cash"), v.literal("bank"))),
     note: v.optional(v.string()),
     amount: v.number(),
-  }).index("by_joId", ["joId"]),
+  })
+    .index("by_joId", ["joId"])
+    .index("by_created_at", ["createdAt"]),
 
   cashflow: defineTable({
     createdBy: v.id("users"),
