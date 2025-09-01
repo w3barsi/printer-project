@@ -18,9 +18,16 @@ export const expenseToCashflow = migrations.define({
   },
 });
 
-export const deleteExpense = migrations.define({
+export const deleteExpenses = migrations.define({
   table: "expenses",
   migrateOne: async (ctx, expense) => {
     await ctx.db.delete(expense._id);
+  },
+});
+
+export const addCreatedAtToPayments = migrations.define({
+  table: "payment",
+  migrateOne: async (ctx, payment) => {
+    await ctx.db.patch(payment._id, { createdAt: payment._creationTime });
   },
 });

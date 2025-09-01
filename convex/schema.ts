@@ -34,6 +34,7 @@ export default defineSchema({
 
   payment: defineTable({
     createdBy: v.id("users"),
+    createdAt: v.number(),
 
     joId: v.id("jo"),
     // full payment

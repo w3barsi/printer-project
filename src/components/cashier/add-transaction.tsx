@@ -45,7 +45,7 @@ export function AddCashflow({ date }: { date?: number }) {
       description: data.description,
       amount: data.amount,
       type: data.type,
-      date,
+      date: date ? date + 24 * 60 * 60 * 1000 - 1 : new Date().getTime(),
     });
     setOpen(false);
     form.reset();

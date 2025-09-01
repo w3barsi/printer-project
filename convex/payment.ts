@@ -1,6 +1,6 @@
-import { v } from "convex/values"
-import { Id } from "./_generated/dataModel"
-import { authedMutation } from "./auth"
+import { v } from "convex/values";
+import { Id } from "./_generated/dataModel";
+import { authedMutation } from "./auth";
 
 export const createPayment = authedMutation({
   args: {
@@ -11,24 +11,25 @@ export const createPayment = authedMutation({
     full: v.boolean(),
   },
   handler: async (ctx, args) => {
-    const { joId, amount, mop, full } = args
+    const { joId, amount, mop, full } = args;
     await ctx.db.insert("payment", {
       joId,
       amount,
       createdBy: ctx.user.subject as Id<"users">,
+      createdAt: new Date().getTime(),
       full,
       mop,
-    })
-    await ctx.db.patch(args.joId, { updatedAt: new Date().getTime() })
+    });
+    await ctx.db.patch(args.joId, { updatedAt: new Date().getTime() });
   },
-})
+});
 
 export const deletePayment = authedMutation({
   args: {
     paymentId: v.id("payment"),
   },
   handler: async (ctx, args) => {
-    const { paymentId } = args
-    await ctx.db.delete(paymentId)
+    const { paymentId } = args;
+    await ctx.db.delete(paymentId);
   },
-})
+});

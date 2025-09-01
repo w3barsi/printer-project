@@ -39,14 +39,14 @@ export const createCashflow = authedMutation({
     amount: v.number(),
     description: v.string(),
     type: cashflowType,
-    date: v.optional(v.number()),
+    date: v.number(),
   },
   handler: async (ctx, args) => {
     await ctx.db.insert("cashflow", {
       amount: args.amount,
       description: args.description,
       createdBy: ctx.user.subject as Id<"users">,
-      createdAt: args.date ?? new Date().getTime(),
+      createdAt: args.date,
       cashflowType: args.type ?? "Expense",
     });
   },
@@ -108,21 +108,11 @@ export const getCashflow = authedQuery({
     );
 
     const expenses = cashflow.filter((e) => e.cashflowType !== "COH");
-    const data = [...payments, ...expenses].sort((a, b) => {
-      const timeA = new Date(a._creationTime);
-      const timeB = new Date(b._creationTime);
-      if (timeA < timeB) return -1;
-      if (timeA > timeB) return 1;
-      // If equal, compare createdAt
-      const createdA = new Date(a.createdAt);
-      const createdB = new Date(b.createdAt);
-      return createdA.getTime() - createdB.getTime();
-    });
+    const data = [...payments, ...expenses].sort((a, b) => a.createdAt - b.createdAt);
 
     const startingCash = cashflow
       .filter((d) => d.type === "Cashflow")
       .filter((d) => d.cashflowType === "COH");
-
 
     const paymentsTotal = payments.reduce((s, p) => s + p.amount, 0);
     const expensesTotal = expenses.reduce((s, e) => s + e.amount, 0);
