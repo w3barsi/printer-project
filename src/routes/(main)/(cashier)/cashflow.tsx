@@ -1,11 +1,16 @@
+import { AddCoh } from "@/components/cashier/add-coh";
+import { AddCashflow } from "@/components/cashier/add-transaction";
 import { Container } from "@/components/layouts/container";
+import {
+  CashflowSummarySkeleton,
+  CashflowTableSkeleton,
+} from "@/components/skeletons/cashflow";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
-import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
   TableBody,
@@ -15,55 +20,39 @@ import {
   TableRow,
   TableWrapper,
 } from "@/components/ui/table";
-import { TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
-import { convexQuery } from "@convex-dev/react-query";
+import { convexQuery, useConvexMutation } from "@convex-dev/react-query";
 import { api } from "@convex/_generated/api";
-import type { Id } from "@convex/_generated/dataModel";
-import { Tabs } from "@radix-ui/react-tabs";
-import { useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
+import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   CalendarIcon,
   ChevronDownIcon,
-  OctagonAlertIcon,
   PhilippinePesoIcon,
   TrendingDownIcon,
   TrendingUpIcon,
 } from "lucide-react";
-import { Suspense, useState } from "react";
-
-type CashflowData =
-  | (
-      | {
-          id: Id<"payment">;
-          type: "Income";
-          amount: number;
-          description: string;
-          status: string;
-          createdBy: string;
-          createdAt: Date;
-        }
-      | {
-          id: Id<"expenses">;
-          type: "Expense";
-          amount: number;
-          description: string;
-          status: string;
-          createdBy: string;
-          createdAt: Date;
-        }
-    )[]
-  | null;
+import { Suspense, useMemo, useState } from "react";
+import { z } from "zod";
 
 export const Route = createFileRoute("/(main)/(cashier)/cashflow")({
-  loader: async ({ context }) => {
+  validateSearch: z.object({
+    start: z.number().optional(),
+  }),
+  beforeLoad: ({ search }) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    const start = today.getTime();
-    const end = start + 24 * 60 * 60 * 1000 - 1;
+    const d = search && today.getTime();
+    console.log(d);
+    return {
+      search: {
+        start: d,
+      },
+    };
+  },
+  loader: async ({ context }) => {
     await context.queryClient.ensureQueryData(
-      convexQuery(api.cashier.listDayData, { dayStart: start, dayEnd: end }),
+      convexQuery(api.cashier.getCashflow, { dayStart: context.search.start }),
     );
   },
   component: RouteComponent,
@@ -77,178 +66,81 @@ export const Route = createFileRoute("/(main)/(cashier)/cashflow")({
 });
 
 function RouteComponent() {
-  const [selected, setSelected] = useState<Date | undefined>(() => {
-    const d = new Date();
-    d.setHours(0, 0, 0, 0);
-    return d;
-  });
-  const [open, setOpen] = useState(false);
-  const dayStart = selected ? selected.getTime() : 0;
-  const dayEnd = dayStart + 24 * 60 * 60 * 1000 - 1;
-
   return (
     <>
       <Container className="flex flex-col">
-        <div className="flex justify-between">
-          <div className="flex items-center gap-4">
-            <TrendingUpIcon className="size-10" />
-            <div>
-              <h1 className="text-2xl font-bold">Cashflow</h1>
-              <p className="text-muted-foreground">Cashflow summary dashboard.</p>
-            </div>
-          </div>
-          <div className="flex flex-col items-center gap-4 md:flex-row-reverse">
-            <div className="flex gap-1">
-              <Label htmlFor="date" className="px-1">
-                <CalendarIcon className="size-4" />
-              </Label>
-              <Popover open={open} onOpenChange={setOpen}>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    id="date"
-                    className="w-48 justify-between font-normal"
-                  >
-                    {selected ? selected.toLocaleDateString() : "Select date"}
-                    <ChevronDownIcon />
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto overflow-hidden p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={selected}
-                    captionLayout="label"
-                    onSelect={(date) => {
-                      setSelected(date);
-                      setOpen(false);
-                    }}
-                  />
-                </PopoverContent>
-              </Popover>
-            </div>
-          </div>
-        </div>
+        <CashflowHeader />
       </Container>
       <Separator />
-      <Container>
-        <div className="flex flex-col gap-4 md:gap-4">
-          <Suspense fallback={<ExpenseSummarySkeleton />}>
-            <ExpenseSummary dayStart={dayStart} dayEnd={dayEnd} date={selected} />
-          </Suspense>
-
-          <Suspense fallback={<DailyTransactionsSkeleton />}>
-            <DailyTransactions dayStart={dayStart} dayEnd={dayEnd} date={selected} />
-          </Suspense>
-        </div>
+      <Container className="flex flex-col gap-4">
+        <Suspense fallback={<CashflowSummarySkeleton />}>
+          <CashflowSummary />
+        </Suspense>
+        <Suspense fallback={<CashflowTableSkeleton />}>
+          <CashflowTable />
+        </Suspense>
       </Container>
     </>
   );
 }
 
-function DailyTransactions({
-  dayStart,
-  dayEnd,
-}: {
-  dayStart: number;
-  dayEnd: number;
-  date?: Date;
-}) {
-  const { data } = useSuspenseQuery(
-    convexQuery(api.cashier.listDayData, { dayStart, dayEnd }),
-  );
+function CashflowTable() {
+  const { start } = Route.useSearch();
+  const dayStart = start ?? todayZero().getTime();
 
-  if (data.expensesData.length === 0 && data.paymentsData.length === 0) {
-    return <></>;
-  }
+  const { data } = useSuspenseQuery(convexQuery(api.cashier.getCashflow, { dayStart }));
+  const { mutateAsync: deleteCashflow } = useMutation({
+    mutationFn: useConvexMutation(api.cashier.deleteCashflowExpense),
+  });
 
-  const payments = data.paymentsData.map((payment) => ({
-    id: payment._id,
-    type: "Income" as const,
-    amount: payment.amount,
-    description: `JO #${payment.joNumber} - ${payment.joName}`,
-    status: payment.full ? "Full Payment" : "Partial Payment",
-    createdBy: payment.createdByName,
-    createdAt: new Date(payment._creationTime),
-  }));
-
-  const expenses = data.expensesData.map((expense) => ({
-    id: expense._id,
-    type: "Expense" as const,
-    amount: expense.amount,
-    description: expense.description,
-    status: "-",
-    createdBy: expense.createdByName,
-    createdAt: new Date(expense._creationTime),
-  }));
-
-  const allTransactions = [...payments, ...expenses].sort(
-    (b, a) => b.createdAt.getTime() - a.createdAt.getTime(),
-  );
-
-  return (
-    <Tabs defaultValue="all" className="flex flex-col gap-4">
-      <div className="flex items-center justify-between gap-2 md:gap-4">
-        <h3 className="text-2xl font-semibold">Transactions </h3>
-
-        <TabsList className="h-10">
-          <TabsTrigger value="all" className="w-12 shadow-none">
-            All
-          </TabsTrigger>
-          <TabsTrigger value="income">Income</TabsTrigger>
-          <TabsTrigger value="expenses">Expenses</TabsTrigger>
-        </TabsList>
-      </div>
-
-      <TabsContent value="all">
-        <DailyTransactionsTable data={allTransactions} dataType="all" />
-      </TabsContent>
-      <TabsContent value="income">
-        <DailyTransactionsTable data={payments} dataType="income" />
-      </TabsContent>
-      <TabsContent value="expenses">
-        <DailyTransactionsTable data={expenses} dataType="expenses" />
-      </TabsContent>
-    </Tabs>
-  );
-}
-
-function DailyTransactionsTable({
-  data,
-  dataType,
-}: {
-  data: CashflowData;
-  dataType: "all" | "income" | "expenses";
-}) {
-  if (!data || data.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center gap-4 pt-8 text-center">
-        <OctagonAlertIcon className="size-10" />
-        <p className="text-muted-foreground">
-          No {dataType === "income" ? "income" : "expenses"} available for this period.
-        </p>
-      </div>
-    );
-  }
+  const sc = data.startingCash;
 
   return (
     <TableWrapper>
-      <Table className="">
-        <TableHeader>
+      <Table className="min-w-md">
+        <TableHeader className="bg-muted">
           <TableRow>
-            <TableHead className="md:pl-4">Time</TableHead>
-            <TableHead>Type</TableHead>
-            <TableHead>Description</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead className="text-right">Amount</TableHead>
-            <TableHead>Received By</TableHead>
-            <TableHead className="text-center md:pr-4">Actions</TableHead>
+            <TableHead className="w-1/11 md:pl-4">Time</TableHead>
+            <TableHead className="w-1/11">Type</TableHead>
+            <TableHead className="w-4/11">Description</TableHead>
+            <TableHead className="w-1/11">Status</TableHead>
+            <TableHead className="w-2/11">Received By</TableHead>
+            <TableHead className="w-1/11 text-right">Amount</TableHead>
+            <TableHead className="w-1/11 text-center md:pr-4">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {data?.map((transaction) => (
-            <TableRow key={transaction.id}>
+          {sc ? (
+            <TableRow className="bg-muted hover:bg-muted">
+              <TableCell colSpan={4} className="text-center">
+                Cash On Hand
+              </TableCell>
+              <TableCell>{sc.createdByName}</TableCell>
+              <TableCell className={cn("text-right font-medium")}>
+                ₱{sc.amount.toFixed(2)}
+              </TableCell>
+              <TableCell className="text-center md:pr-4">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => deleteCashflow({ expenseId: sc._id })}
+                  className="text-red-600 hover:bg-red-100 hover:text-red-700 dark:hover:bg-red-900/20"
+                >
+                  Delete
+                </Button>
+              </TableCell>
+            </TableRow>
+          ) : (
+            <TableRow className="hover:bg-transparent">
+              <TableCell colSpan={7} className="text-center">
+                <AddCoh start={start} />
+              </TableCell>
+            </TableRow>
+          )}
+          {data.data?.map((c) => (
+            <TableRow key={c._id}>
               <TableCell className="md:pl-4">
-                {transaction.createdAt.toLocaleTimeString([], {
+                {new Date(c.createdAt).toLocaleTimeString([], {
                   hour: "2-digit",
                   minute: "2-digit",
                 })}
@@ -257,50 +149,59 @@ function DailyTransactionsTable({
                 <span
                   className={cn(
                     "inline-flex rounded-full px-2 py-1 text-xs font-medium",
-                    transaction.type === "Income"
+                    c.type === "Payment"
                       ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
                       : "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
                   )}
                 >
-                  {transaction.type}
+                  {c.type === "Payment" ? "Payment" : c.cashflowType}
                 </span>
               </TableCell>
-              <TableCell>{transaction.description}</TableCell>
               <TableCell>
-                {transaction.status !== "-" && (
+                {c.type === "Payment" ? (
+                  <Link
+                    to="/jo/$joId"
+                    params={{ joId: c.joId }}
+                    className="underline underline-offset-2"
+                  >
+                    {`JO #${c.joNumber} - ${c.joName}`}
+                  </Link>
+                ) : (
+                  c.description
+                )}
+              </TableCell>
+              <TableCell>
+                {c.type === "Payment" && (
                   <span
                     className={cn(
                       "inline-flex rounded-full px-2 py-1 text-xs font-medium",
-                      transaction.status === "Full Payment"
+                      c.full
                         ? "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400"
                         : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400",
                     )}
                   >
-                    {transaction.status}
+                    {c.full ? "Full Payment" : "Partial Payment"}
                   </span>
                 )}
               </TableCell>
+              <TableCell className="text-muted-foreground">{c.createdByName}</TableCell>
               <TableCell
                 className={cn(
                   "text-right font-medium",
-                  transaction.type === "Income"
+                  c.type === "Payment"
                     ? "text-green-600 dark:text-green-400"
                     : "text-red-600 dark:text-red-400",
                 )}
               >
-                {transaction.type === "Income" ? "+" : "-"}₱
-                {transaction.amount.toFixed(2)}
-              </TableCell>
-              <TableCell className="text-muted-foreground">
-                {transaction.createdBy}
+                {c.type === "Cashflow" && "-"}₱{c.amount.toFixed(2)}
               </TableCell>
               <TableCell className="text-center md:pr-4">
-                {transaction.type === "Expense" && (
+                {c.type === "Cashflow" && (
                   <Button
                     variant="ghost"
                     size="sm"
+                    onClick={() => deleteCashflow({ expenseId: c._id })}
                     className="text-red-600 hover:bg-red-100 hover:text-red-700 dark:hover:bg-red-900/20"
-                    disabled
                   >
                     Delete
                   </Button>
@@ -314,28 +215,13 @@ function DailyTransactionsTable({
   );
 }
 
-function ExpenseSummary({
-  dayStart,
-  dayEnd,
-}: {
-  dayStart: number;
-  dayEnd: number;
-  date?: Date;
-}) {
-  const { data } = useSuspenseQuery(
-    convexQuery(api.cashier.listDayData, { dayStart, dayEnd }),
-  );
+function CashflowSummary() {
+  const { start } = Route.useSearch();
 
+  const dayStart = start ?? todayZero().getTime();
+  const { data } = useSuspenseQuery(convexQuery(api.cashier.getCashflow, { dayStart }));
   const isPositive = data.paymentsTotal > data.expensesTotal ? true : false;
-
-  if (data.expensesData.length === 0 && data.paymentsData.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center gap-4 pt-8 text-center">
-        <OctagonAlertIcon className="size-10" />
-        <p className="text-muted-foreground">No data available for this period.</p>
-      </div>
-    );
-  }
+  const net = data.paymentsTotal - data.expensesTotal;
 
   return (
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
@@ -372,118 +258,81 @@ function ExpenseSummary({
           />
         </CardHeader>
         <Separator />
-        <CardContent className="text-xl font-bold">
-          ₱{(data.paymentsTotal - data.expensesTotal).toFixed(2)}
-        </CardContent>
+        <CardContent className="text-xl font-bold">₱{net.toFixed(2)}</CardContent>
       </Card>
     </div>
   );
 }
 
-function ExpenseSummarySkeleton() {
-  return (
-    <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-      <Card>
-        <CardHeader className="flex justify-between">
-          <h2>Gross Income</h2>
-          <TrendingUpIcon className="text-green-500 dark:text-green-600" />
-        </CardHeader>
-        <Separator />
-        <CardContent>
-          <Skeleton className="h-7 w-40" />
-        </CardContent>
-      </Card>
-      <Card>
-        <CardHeader className="flex justify-between">
-          <h2>Total Expenses</h2>
-          <TrendingDownIcon className="text-red-500 dark:text-red-600" />
-        </CardHeader>
-        <Separator />
-        <CardContent>
-          <Skeleton className="h-7 w-40" />
-        </CardContent>
-      </Card>
-      <Card>
-        <CardHeader className="flex justify-between">
-          Net Income
-          <PhilippinePesoIcon />
-        </CardHeader>
-        <Separator />
-        <CardContent>
-          <Skeleton className="h-7 w-40" />
-        </CardContent>
-      </Card>
-    </div>
-  );
-}
+function CashflowHeader() {
+  const navigate = Route.useNavigate();
+  const search = Route.useSearch();
+  const [open, setOpen] = useState(false);
 
-function DailyTransactionsSkeleton() {
+  const selected = useMemo(() => {
+    if (search.start) {
+      return new Date(search.start);
+    } else {
+      return todayZero();
+    }
+  }, [search.start]);
+
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between gap-2 md:gap-4">
-        <Skeleton className="h-7 w-40" />
-        <div className="bg-muted flex h-10 items-center gap-1 rounded-md p-1">
-          <Skeleton className="h-8 w-12" />
-          <Skeleton className="h-8 w-20" />
-          <Skeleton className="h-8 w-24" />
+    <div className="flex justify-between">
+      <div className="flex items-center gap-4">
+        <TrendingUpIcon className="size-10" />
+        <div>
+          <h1 className="text-2xl font-bold">Cashflow</h1>
+          <p className="text-muted-foreground">Cashflow summary dashboard.</p>
         </div>
       </div>
-      <TableWrapper>
-        <Table>
-          <TableHeader className="bg-muted">
-            <TableRow>
-              <TableHead className="md:pl-4">
-                <Skeleton className="h-5 w-12" />
-              </TableHead>
-              <TableHead>
-                <Skeleton className="h-5 w-12" />
-              </TableHead>
-              <TableHead>
-                <Skeleton className="h-5 w-48" />
-              </TableHead>
-              <TableHead>
-                <Skeleton className="h-5 w-24" />
-              </TableHead>
-              <TableHead className="text-right">
-                <Skeleton className="ml-auto h-5 w-20" />
-              </TableHead>
-              <TableHead>
-                <Skeleton className="h-5 w-24" />
-              </TableHead>
-              <TableHead className="text-center md:pr-4">
-                <Skeleton className="mx-auto h-5 w-20" />
-              </TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {Array.from({ length: 5 }).map((_, i) => (
-              <TableRow key={i}>
-                <TableCell className="md:pl-4">
-                  <Skeleton className="h-5 w-16" />
-                </TableCell>
-                <TableCell>
-                  <Skeleton className="h-5 w-20" />
-                </TableCell>
-                <TableCell>
-                  <Skeleton className="h-5 w-56" />
-                </TableCell>
-                <TableCell>
-                  <Skeleton className="h-5 w-28" />
-                </TableCell>
-                <TableCell>
-                  <Skeleton className="ml-auto h-5 w-24" />
-                </TableCell>
-                <TableCell>
-                  <Skeleton className="h-5 w-20" />
-                </TableCell>
-                <TableCell className="md:pr-4">
-                  <Skeleton className="mx-auto h-5 w-16" />
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableWrapper>
+      <div className="flex flex-col items-center gap-4 md:flex-row-reverse">
+        <AddCashflow date={search.start} />
+        <div className="flex gap-1">
+          <Label htmlFor="date" className="px-1">
+            <CalendarIcon className="size-4" />
+          </Label>
+          <Popover open={open} onOpenChange={setOpen}>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                id="date"
+                className="w-48 justify-between font-normal"
+              >
+                {selected.toLocaleDateString()}
+                <ChevronDownIcon />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto overflow-hidden p-0" align="start">
+              <Calendar
+                mode="single"
+                selected={selected}
+                captionLayout="label"
+                onSelect={async (date) => {
+                  if (!date) return;
+                  if (todayZero().getTime() === date.getTime()) {
+                    await navigate({
+                      to: "/cashflow",
+                    });
+                  } else {
+                    await navigate({
+                      to: "/cashflow",
+                      search: { start: date.getTime() },
+                    });
+                  }
+                  setOpen(false);
+                }}
+              />
+            </PopoverContent>
+          </Popover>
+        </div>
+      </div>
     </div>
   );
+}
+
+function todayZero() {
+  const d = new Date();
+  d.setHours(0, 0, 0, 0);
+  return d;
 }
