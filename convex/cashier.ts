@@ -110,9 +110,7 @@ export const getCashflow = authedQuery({
     const expenses = cashflow.filter((e) => e.cashflowType !== "COH");
     const data = [...payments, ...expenses].sort((a, b) => a.createdAt - b.createdAt);
 
-    const startingCash = cashflow
-      .filter((d) => d.type === "Cashflow")
-      .filter((d) => d.cashflowType === "COH");
+    const startingCash = cashflow.filter((d) => d.cashflowType === "COH");
 
     const paymentsTotal = payments.reduce((s, p) => s + p.amount, 0);
     const expensesTotal = expenses.reduce((s, e) => s + e.amount, 0);

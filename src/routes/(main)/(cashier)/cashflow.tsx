@@ -221,13 +221,13 @@ function CashflowSummary() {
   const dayStart = start ?? todayZero().getTime();
   const { data } = useSuspenseQuery(convexQuery(api.cashier.getCashflow, { dayStart }));
   const isPositive = data.paymentsTotal > data.expensesTotal ? true : false;
-  const net = data.paymentsTotal - data.expensesTotal;
+  const net = data.paymentsTotal - data.expensesTotal + (data?.startingCash?.amount ?? 0);
 
   return (
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
       <Card>
         <CardHeader className="flex justify-between">
-          <h2>Gross Income</h2>
+          <h2>Total Income</h2>
           <TrendingUpIcon className="text-green-500 dark:text-green-600" />
         </CardHeader>
         <Separator />
@@ -247,7 +247,7 @@ function CashflowSummary() {
       </Card>
       <Card>
         <CardHeader className="flex justify-between">
-          Net Income
+          <h2>Total Cash</h2>
           <PhilippinePesoIcon
             className={cn(
               "transition-colors",
