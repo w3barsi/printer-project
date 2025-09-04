@@ -8,6 +8,22 @@ export const cashflowType = v.optional(
 );
 
 export default defineSchema({
+  file: defineTable({
+    createdBy: v.id("users"),
+    parent: v.union(v.literal("private"), v.literal("public"), v.id("folder")),
+    name: v.string(),
+    key: v.string(),
+    type: v.string(),
+    size: v.number(),
+  }).index("by_parent", ["parent"]),
+
+  folder: defineTable({
+    createdBy: v.id("users"),
+    parent: v.union(v.literal("private"), v.literal("public"), v.id("folder")),
+
+    name: v.string(),
+  }).index("by_parent", ["parent"]),
+
   products: defineTable({
     title: v.string(),
     quantity: v.optional(v.string()),

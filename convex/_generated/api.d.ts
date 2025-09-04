@@ -11,6 +11,7 @@
 import type * as admin_users from "../admin/users.js";
 import type * as auth from "../auth.js";
 import type * as cashier from "../cashier.js";
+import type * as drive from "../drive.js";
 import type * as http from "../http.js";
 import type * as items from "../items.js";
 import type * as jo from "../jo.js";
@@ -37,6 +38,7 @@ declare const fullApi: ApiFromModules<{
   "admin/users": typeof admin_users;
   auth: typeof auth;
   cashier: typeof cashier;
+  drive: typeof drive;
   http: typeof http;
   items: typeof items;
   jo: typeof jo;
