@@ -16,6 +16,7 @@ import { Route as ConvexRouteImport } from "./routes/convex";
 import { Route as mainRouteRouteImport } from "./routes/(main)/route";
 import { Route as authRouteRouteImport } from "./routes/(auth)/route";
 import { Route as IndexRouteImport } from "./routes/index";
+import { Route as mainDriveRouteImport } from "./routes/(main)/drive";
 import { Route as authSignupRouteImport } from "./routes/(auth)/signup";
 import { Route as authLoginRouteImport } from "./routes/(auth)/login";
 import { Route as maincashierRouteRouteImport } from "./routes/(main)/(cashier)/route";
@@ -28,6 +29,7 @@ import { Route as maincashierCashflowoldRouteImport } from "./routes/(main)/(cas
 import { Route as maincashierCashflowRouteImport } from "./routes/(main)/(cashier)/cashflow";
 import { Route as mainadminAdminIndexRouteImport } from "./routes/(main)/(admin)/admin.index";
 import { Route as mainadminAdminUsersRouteImport } from "./routes/(main)/(admin)/admin.users";
+import { ServerRoute as ApiUploadServerRouteImport } from "./routes/api/upload";
 import { ServerRoute as ApiAuthSplatServerRouteImport } from "./routes/api/auth.$";
 
 const rootServerRouteImport = createServerRootRoute();
@@ -54,6 +56,11 @@ const IndexRoute = IndexRouteImport.update({
   id: "/",
   path: "/",
   getParentRoute: () => rootRouteImport,
+} as any);
+const mainDriveRoute = mainDriveRouteImport.update({
+  id: "/drive",
+  path: "/drive",
+  getParentRoute: () => mainRouteRoute,
 } as any);
 const authSignupRoute = authSignupRouteImport.update({
   id: "/signup",
@@ -113,6 +120,11 @@ const mainadminAdminUsersRoute = mainadminAdminUsersRouteImport.update({
   path: "/admin/users",
   getParentRoute: () => mainadminRouteRoute,
 } as any);
+const ApiUploadServerRoute = ApiUploadServerRouteImport.update({
+  id: "/api/upload",
+  path: "/api/upload",
+  getParentRoute: () => rootServerRouteImport,
+} as any);
 const ApiAuthSplatServerRoute = ApiAuthSplatServerRouteImport.update({
   id: "/api/auth/$",
   path: "/api/auth/$",
@@ -125,6 +137,7 @@ export interface FileRoutesByFullPath {
   "/testfruits": typeof TestfruitsRoute;
   "/login": typeof authLoginRoute;
   "/signup": typeof authSignupRoute;
+  "/drive": typeof mainDriveRoute;
   "/cashflow": typeof maincashierCashflowRoute;
   "/cashflowold": typeof maincashierCashflowoldRoute;
   "/jo/$joId": typeof mainJoJoIdRoute;
@@ -140,6 +153,7 @@ export interface FileRoutesByTo {
   "/testfruits": typeof TestfruitsRoute;
   "/login": typeof authLoginRoute;
   "/signup": typeof authSignupRoute;
+  "/drive": typeof mainDriveRoute;
   "/cashflow": typeof maincashierCashflowRoute;
   "/cashflowold": typeof maincashierCashflowoldRoute;
   "/jo/$joId": typeof mainJoJoIdRoute;
@@ -160,6 +174,7 @@ export interface FileRoutesById {
   "/(main)/(cashier)": typeof maincashierRouteRouteWithChildren;
   "/(auth)/login": typeof authLoginRoute;
   "/(auth)/signup": typeof authSignupRoute;
+  "/(main)/drive": typeof mainDriveRoute;
   "/(main)/(cashier)/cashflow": typeof maincashierCashflowRoute;
   "/(main)/(cashier)/cashflowold": typeof maincashierCashflowoldRoute;
   "/(main)/jo/$joId": typeof mainJoJoIdRoute;
@@ -177,6 +192,7 @@ export interface FileRouteTypes {
     | "/testfruits"
     | "/login"
     | "/signup"
+    | "/drive"
     | "/cashflow"
     | "/cashflowold"
     | "/jo/$joId"
@@ -192,6 +208,7 @@ export interface FileRouteTypes {
     | "/testfruits"
     | "/login"
     | "/signup"
+    | "/drive"
     | "/cashflow"
     | "/cashflowold"
     | "/jo/$joId"
@@ -211,6 +228,7 @@ export interface FileRouteTypes {
     | "/(main)/(cashier)"
     | "/(auth)/login"
     | "/(auth)/signup"
+    | "/(main)/drive"
     | "/(main)/(cashier)/cashflow"
     | "/(main)/(cashier)/cashflowold"
     | "/(main)/jo/$joId"
@@ -229,24 +247,28 @@ export interface RootRouteChildren {
   TestfruitsRoute: typeof TestfruitsRoute;
 }
 export interface FileServerRoutesByFullPath {
+  "/api/upload": typeof ApiUploadServerRoute;
   "/api/auth/$": typeof ApiAuthSplatServerRoute;
 }
 export interface FileServerRoutesByTo {
+  "/api/upload": typeof ApiUploadServerRoute;
   "/api/auth/$": typeof ApiAuthSplatServerRoute;
 }
 export interface FileServerRoutesById {
   __root__: typeof rootServerRouteImport;
+  "/api/upload": typeof ApiUploadServerRoute;
   "/api/auth/$": typeof ApiAuthSplatServerRoute;
 }
 export interface FileServerRouteTypes {
   fileServerRoutesByFullPath: FileServerRoutesByFullPath;
-  fullPaths: "/api/auth/$";
+  fullPaths: "/api/upload" | "/api/auth/$";
   fileServerRoutesByTo: FileServerRoutesByTo;
-  to: "/api/auth/$";
-  id: "__root__" | "/api/auth/$";
+  to: "/api/upload" | "/api/auth/$";
+  id: "__root__" | "/api/upload" | "/api/auth/$";
   fileServerRoutesById: FileServerRoutesById;
 }
 export interface RootServerRouteChildren {
+  ApiUploadServerRoute: typeof ApiUploadServerRoute;
   ApiAuthSplatServerRoute: typeof ApiAuthSplatServerRoute;
 }
 
@@ -286,6 +308,13 @@ declare module "@tanstack/react-router" {
       fullPath: "/";
       preLoaderRoute: typeof IndexRouteImport;
       parentRoute: typeof rootRouteImport;
+    };
+    "/(main)/drive": {
+      id: "/(main)/drive";
+      path: "/drive";
+      fullPath: "/drive";
+      preLoaderRoute: typeof mainDriveRouteImport;
+      parentRoute: typeof mainRouteRoute;
     };
     "/(auth)/signup": {
       id: "/(auth)/signup";
@@ -375,6 +404,13 @@ declare module "@tanstack/react-router" {
 }
 declare module "@tanstack/react-start/server" {
   interface ServerFileRoutesByPath {
+    "/api/upload": {
+      id: "/api/upload";
+      path: "/api/upload";
+      fullPath: "/api/upload";
+      preLoaderRoute: typeof ApiUploadServerRouteImport;
+      parentRoute: typeof rootServerRouteImport;
+    };
     "/api/auth/$": {
       id: "/api/auth/$";
       path: "/api/auth/$";
@@ -429,6 +465,7 @@ const maincashierRouteRouteWithChildren =
 interface mainRouteRouteChildren {
   mainadminRouteRoute: typeof mainadminRouteRouteWithChildren;
   maincashierRouteRoute: typeof maincashierRouteRouteWithChildren;
+  mainDriveRoute: typeof mainDriveRoute;
   mainJoJoIdRoute: typeof mainJoJoIdRoute;
   mainTrelloListIdRoute: typeof mainTrelloListIdRoute;
   mainJoIndexRoute: typeof mainJoIndexRoute;
@@ -438,6 +475,7 @@ interface mainRouteRouteChildren {
 const mainRouteRouteChildren: mainRouteRouteChildren = {
   mainadminRouteRoute: mainadminRouteRouteWithChildren,
   maincashierRouteRoute: maincashierRouteRouteWithChildren,
+  mainDriveRoute: mainDriveRoute,
   mainJoJoIdRoute: mainJoJoIdRoute,
   mainTrelloListIdRoute: mainTrelloListIdRoute,
   mainJoIndexRoute: mainJoIndexRoute,
@@ -459,6 +497,7 @@ export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>();
 const rootServerRouteChildren: RootServerRouteChildren = {
+  ApiUploadServerRoute: ApiUploadServerRoute,
   ApiAuthSplatServerRoute: ApiAuthSplatServerRoute,
 };
 export const serverRouteTree = rootServerRouteImport
