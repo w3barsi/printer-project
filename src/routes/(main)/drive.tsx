@@ -1,7 +1,12 @@
+import { DetailsView } from "@/components/drive/details-view";
+import { Container } from "@/components/layouts/container";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { UploadDropzone } from "@/components/ui/upload-dropzone";
 import { cn } from "@/lib/utils";
+import { convexQuery } from "@convex-dev/react-query";
+import { api } from "@convex/_generated/api";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { useUploadFiles } from "better-upload/client";
 import { useState } from "react";
 
 export const Route = createFileRoute("/(main)/drive")({
@@ -11,14 +16,13 @@ export const Route = createFileRoute("/(main)/drive")({
 function RouteComponent() {
   const [drag, setDrag] = useState(false);
 
-  const { control, progresses } = useUploadFiles({
-    route: "drive",
-    onUploadComplete: ({ files, metadata }) => {
-      console.log("[FILES]", files);
-      console.log("[METADATA]", metadata);
-      setDrag(false);
-    },
-  });
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [image, setImage] = useState<string | undefined>(undefined);
+
+  const { data } = useSuspenseQuery(
+    convexQuery(api.drive.getDrive, { parent: "private" as const }),
+  );
+
   return (
     <div
       onDragEnter={() => setDrag(true)}
@@ -27,18 +31,22 @@ function RouteComponent() {
         setDrag(false);
       }}
       onDragOver={(e) => e.preventDefault()}
-      onDrop={(e) => console.log(e.target)}
-      className={cn(
-        "flex h-full w-full flex-col items-center justify-center",
-        drag && "bg-red-200",
-      )}
+      className={cn("relative h-full w-full flex-col")}
     >
-      {drag && <UploadDropzone control={control} />}
-      <div className="flex flex-col">
-        {progresses.map((progress) => (
-          <span key={progress.objectKey}>{progress.progress * 100}</span>
-        ))}
-      </div>
+      {/* NOTE: Disabled for now*/}
+      {/* drag && <DriveUploadDropzone setDrag={setDrag} parent="private" /> */}
+
+      <Container className="flex flex-col">
+        <UploadDropzone parent="private" />
+        <div className="space-y-1">
+          <DetailsView />
+        </div>
+      </Container>
+      <Dialog open={dialogOpen} onOpenChange={(open) => setDialogOpen(open)}>
+        <DialogContent className="min-h-1/2 min-w-9/10">
+          <img src={image} alt="Image" className="w-full" />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

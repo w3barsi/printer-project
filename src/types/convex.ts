@@ -9,6 +9,8 @@ export type GetOneComplete = NonNullable<
   FunctionReturnType<typeof api.jo.getOneComplete>
 >;
 
+export type GetDriveType = FunctionReturnType<typeof api.drive.getDrive>;
+
 export type Item = Doc<"items">;
 export type Jo = Doc<"jo">;
 
