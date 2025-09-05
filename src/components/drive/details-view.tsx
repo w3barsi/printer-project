@@ -3,7 +3,14 @@ import { cn } from "@/lib/utils";
 import type { GetDriveType } from "@/types/convex";
 import { convexQuery } from "@convex-dev/react-query";
 import { api } from "@convex/_generated/api";
-import { DndContext, useDraggable, useDroppable } from "@dnd-kit/core";
+import {
+  DndContext,
+  PointerSensor,
+  useDraggable,
+  useDroppable,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import {
   ArchiveIcon,
@@ -16,14 +23,23 @@ import {
   ImageIcon,
   MoreHorizontalIcon,
 } from "lucide-react";
-import type { ComponentProps } from "react";
+import type { ComponentPropsWithRef } from "react";
 
 export function DetailsView() {
   const { data } = useSuspenseQuery(
     convexQuery(api.drive.getDrive, { parent: "private" as const }),
   );
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 3,
+      },
+    }),
+  );
   return (
     <DndContext
+      sensors={sensors}
       onDragStart={(event) => {
         const { active } = event;
         console.log("Dragged item:", active.id);
@@ -48,10 +64,16 @@ function Folder({ d }: { d: GetDriveType }) {
     listeners,
     attributes,
     transform,
+    isDragging,
   } = useDraggable({
     id: `${d._id}-drag`,
   });
-  const { setNodeRef: setDroppableRef, isOver } = useDroppable({
+  const {
+    setNodeRef: setDroppableRef,
+    isOver,
+    over,
+    active,
+  } = useDroppable({
     id: `${d._id}-drop`,
   });
 
@@ -67,16 +89,21 @@ function Folder({ d }: { d: GetDriveType }) {
     <EntryWrapper
       style={style}
       ref={setNodeRef}
-      className={cn(isOver && "border-blue-500")}
+      className={cn(
+        isOver &&
+          over?.id.toString().split("-")[0] !== active?.id.toString().split("-")[0] &&
+          "border-blue-500",
+      )}
       {...listeners}
       {...attributes}
+      isDragging={isDragging}
     >
       <Entry d={d} />
     </EntryWrapper>
   );
 }
 function File({ d }: { d: GetDriveType }) {
-  const { setNodeRef, listeners, attributes, transform } = useDraggable({
+  const { setNodeRef, listeners, attributes, transform, isDragging } = useDraggable({
     id: `${d._id}-drag`,
   });
 
@@ -85,17 +112,30 @@ function File({ d }: { d: GetDriveType }) {
   };
 
   return (
-    <EntryWrapper style={style} ref={setNodeRef} {...listeners} {...attributes}>
+    <EntryWrapper
+      isDragging={isDragging}
+      style={style}
+      ref={setNodeRef}
+      {...listeners}
+      {...attributes}
+    >
       <Entry d={d} />
     </EntryWrapper>
   );
 }
 
-function EntryWrapper({ className, children }: ComponentProps<"div">) {
+function EntryWrapper({
+  className,
+  children,
+  isDragging,
+  ...props
+}: { isDragging: boolean } & ComponentPropsWithRef<"div">) {
   return (
     <div
+      {...props}
       className={cn(
-        "border-border hover:bg-muted/30 group bg-card flex cursor-pointer items-center gap-4 rounded-lg border p-2 transition-all duration-200 select-none",
+        "border-border hover:bg-muted/30 group bg-card flex cursor-pointer items-center gap-4 rounded-lg border p-2 transition-colors duration-200 select-none",
+        isDragging && "hover:bg-muted",
         className,
       )}
     >

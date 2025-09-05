@@ -24,17 +24,17 @@ function RouteComponent() {
   );
 
   return (
-    <div
+    <div className={cn("relative h-full w-full flex-col")}>
+      {/* NOTE: Disabled for now*/}
+      {/*
+
       onDragEnter={() => setDrag(true)}
       onDragLeave={(e) => {
         if (e.currentTarget.contains(e.relatedTarget as Node)) return;
         setDrag(false);
       }}
       onDragOver={(e) => e.preventDefault()}
-      className={cn("relative h-full w-full flex-col")}
-    >
-      {/* NOTE: Disabled for now*/}
-      {/* drag && <DriveUploadDropzone setDrag={setDrag} parent="private" /> */}
+        drag && <DriveUploadDropzone setDrag={setDrag} parent="private" /> */}
 
       <Container className="flex flex-col">
         <UploadDropzone parent="private" />

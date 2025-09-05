@@ -12,6 +12,7 @@ import { createServerRootRoute } from "@tanstack/react-start/server";
 
 import { Route as rootRouteImport } from "./routes/__root";
 import { Route as TestfruitsRouteImport } from "./routes/testfruits";
+import { Route as TestdndRouteImport } from "./routes/testdnd";
 import { Route as ConvexRouteImport } from "./routes/convex";
 import { Route as mainRouteRouteImport } from "./routes/(main)/route";
 import { Route as authRouteRouteImport } from "./routes/(auth)/route";
@@ -37,6 +38,11 @@ const rootServerRouteImport = createServerRootRoute();
 const TestfruitsRoute = TestfruitsRouteImport.update({
   id: "/testfruits",
   path: "/testfruits",
+  getParentRoute: () => rootRouteImport,
+} as any);
+const TestdndRoute = TestdndRouteImport.update({
+  id: "/testdnd",
+  path: "/testdnd",
   getParentRoute: () => rootRouteImport,
 } as any);
 const ConvexRoute = ConvexRouteImport.update({
@@ -134,6 +140,7 @@ const ApiAuthSplatServerRoute = ApiAuthSplatServerRouteImport.update({
 export interface FileRoutesByFullPath {
   "/": typeof maincashierRouteRouteWithChildren;
   "/convex": typeof ConvexRoute;
+  "/testdnd": typeof TestdndRoute;
   "/testfruits": typeof TestfruitsRoute;
   "/login": typeof authLoginRoute;
   "/signup": typeof authSignupRoute;
@@ -150,6 +157,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   "/": typeof maincashierRouteRouteWithChildren;
   "/convex": typeof ConvexRoute;
+  "/testdnd": typeof TestdndRoute;
   "/testfruits": typeof TestfruitsRoute;
   "/login": typeof authLoginRoute;
   "/signup": typeof authSignupRoute;
@@ -169,6 +177,7 @@ export interface FileRoutesById {
   "/(auth)": typeof authRouteRouteWithChildren;
   "/(main)": typeof mainRouteRouteWithChildren;
   "/convex": typeof ConvexRoute;
+  "/testdnd": typeof TestdndRoute;
   "/testfruits": typeof TestfruitsRoute;
   "/(main)/(admin)": typeof mainadminRouteRouteWithChildren;
   "/(main)/(cashier)": typeof maincashierRouteRouteWithChildren;
@@ -189,6 +198,7 @@ export interface FileRouteTypes {
   fullPaths:
     | "/"
     | "/convex"
+    | "/testdnd"
     | "/testfruits"
     | "/login"
     | "/signup"
@@ -205,6 +215,7 @@ export interface FileRouteTypes {
   to:
     | "/"
     | "/convex"
+    | "/testdnd"
     | "/testfruits"
     | "/login"
     | "/signup"
@@ -223,6 +234,7 @@ export interface FileRouteTypes {
     | "/(auth)"
     | "/(main)"
     | "/convex"
+    | "/testdnd"
     | "/testfruits"
     | "/(main)/(admin)"
     | "/(main)/(cashier)"
@@ -244,6 +256,7 @@ export interface RootRouteChildren {
   authRouteRoute: typeof authRouteRouteWithChildren;
   mainRouteRoute: typeof mainRouteRouteWithChildren;
   ConvexRoute: typeof ConvexRoute;
+  TestdndRoute: typeof TestdndRoute;
   TestfruitsRoute: typeof TestfruitsRoute;
 }
 export interface FileServerRoutesByFullPath {
@@ -279,6 +292,13 @@ declare module "@tanstack/react-router" {
       path: "/testfruits";
       fullPath: "/testfruits";
       preLoaderRoute: typeof TestfruitsRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/testdnd": {
+      id: "/testdnd";
+      path: "/testdnd";
+      fullPath: "/testdnd";
+      preLoaderRoute: typeof TestdndRouteImport;
       parentRoute: typeof rootRouteImport;
     };
     "/convex": {
@@ -491,6 +511,7 @@ const rootRouteChildren: RootRouteChildren = {
   authRouteRoute: authRouteRouteWithChildren,
   mainRouteRoute: mainRouteRouteWithChildren,
   ConvexRoute: ConvexRoute,
+  TestdndRoute: TestdndRoute,
   TestfruitsRoute: TestfruitsRoute,
 };
 export const routeTree = rootRouteImport
