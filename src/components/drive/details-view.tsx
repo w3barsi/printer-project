@@ -1,8 +1,9 @@
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import type { GetDriveType } from "@/types/convex";
-import { convexQuery } from "@convex-dev/react-query";
+import type { GetDriveParentFolderType, GetDriveType } from "@/types/convex";
+import { convexQuery, useConvexMutation } from "@convex-dev/react-query";
 import { api } from "@convex/_generated/api";
+import type { Id } from "@convex/_generated/dataModel";
 import {
   DndContext,
   PointerSensor,
@@ -11,9 +12,11 @@ import {
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
+import { useNavigate, useParams } from "@tanstack/react-router";
 import {
   ArchiveIcon,
+  CornerLeftUpIcon,
   DownloadIcon,
   FileAudioIcon,
   FileIcon,
@@ -24,11 +27,17 @@ import {
   MoreHorizontalIcon,
 } from "lucide-react";
 import type { ComponentPropsWithRef } from "react";
+import type { Parent } from "../ui/upload-dropzone";
 
 export function DetailsView() {
-  const { data } = useSuspenseQuery(
-    convexQuery(api.drive.getDrive, { parent: "private" as const }),
-  );
+  const { drive } = useParams({ from: "/(main)/drive/{-$drive}" });
+  const parent: Parent = drive ? (drive as Id<"folder">) : "private";
+
+  const { data } = useSuspenseQuery(convexQuery(api.drive.getDrive, { parent }));
+
+  const { mutate } = useMutation({
+    mutationFn: useConvexMutation(api.drive.moveFileOrFolder),
+  });
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -46,11 +55,16 @@ export function DetailsView() {
       }}
       onDragEnd={(event) => {
         const { active, over } = event;
-        console.log("Dragged item:", active.id);
-        console.log("Dropped over:", over?.id);
+        if (active && over) {
+          const activeId = active.id.toString().split("-")[0];
+          const overId = over.id.toString().split("-")[0];
+          console.log(overId, activeId);
+          mutate({ id: activeId as Id<"folder">, parent: overId as Parent });
+        }
       }}
     >
-      {data.map((d) => {
+      {data.currentFolder && <ParentFolder parentFolder={data.parentFolder} />}
+      {data.data.map((d) => {
         if (d.type === "folder") return <Folder key={d._id} d={d} />;
         return <File key={d._id} d={d} />;
       })}
@@ -58,7 +72,36 @@ export function DetailsView() {
   );
 }
 
+function ParentFolder({ parentFolder: p }: { parentFolder: GetDriveParentFolderType }) {
+  const navigate = useNavigate();
+  const { setNodeRef, isOver, over, active } = useDroppable({
+    id: `${p._id}-drop`,
+  });
+
+  return (
+    <EntryWrapper
+      onDoubleClick={async () => {
+        navigate({
+          to: "/drive/{-$drive}",
+          params: { drive: p._id === "private" ? undefined : p._id },
+        });
+        console.log("Double clicked");
+      }}
+      ref={setNodeRef}
+      className={cn(
+        isOver &&
+          over?.id.toString().split("-")[0] !== active?.id.toString().split("-")[0] &&
+          "border-blue-500",
+      )}
+    >
+      <CornerLeftUpIcon className="text-muted-foreground size-4" />
+      <h3 className="truncate text-sm font-medium">{p.name}</h3>
+    </EntryWrapper>
+  );
+}
+
 function Folder({ d }: { d: GetDriveType }) {
+  const navigate = useNavigate();
   const {
     setNodeRef: setDraggableRef,
     listeners,
@@ -87,6 +130,10 @@ function Folder({ d }: { d: GetDriveType }) {
 
   return (
     <EntryWrapper
+      onDoubleClick={async () => {
+        navigate({ to: "/drive/{-$drive}", params: { drive: d._id } });
+        console.log("Double clicked");
+      }}
       style={style}
       ref={setNodeRef}
       className={cn(
@@ -129,12 +176,12 @@ function EntryWrapper({
   children,
   isDragging,
   ...props
-}: { isDragging: boolean } & ComponentPropsWithRef<"div">) {
+}: { isDragging?: boolean } & ComponentPropsWithRef<"div">) {
   return (
     <div
       {...props}
       className={cn(
-        "border-border hover:bg-muted/30 group bg-card flex cursor-pointer items-center gap-4 rounded-lg border p-2 transition-colors duration-200 select-none",
+        "border-border hover:bg-muted/30 group bg-card flex h-14 cursor-pointer items-center gap-4 rounded-lg border px-4 transition-colors duration-200 select-none",
         isDragging && "hover:bg-muted",
         className,
       )}

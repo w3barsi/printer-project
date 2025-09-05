@@ -43,10 +43,45 @@ export const getDrive = authedQuery({
       .withIndex("by_parent", (q) => q.eq("parent", parent))
       .collect();
 
-    return [
-      ...folders.map((f) => ({ ...f, isFile: false, type: "folder" })),
-      ...files.map((f) => ({ ...f, isFile: true })),
-    ];
+    let currentFolder = null;
+    if (parent !== "private" && parent !== "public") {
+      const f = await ctx.db.get(parent as Id<"folder">);
+      currentFolder = {
+        ...f,
+        type: "folder",
+        isFile: false,
+      };
+    }
+
+    let parentFolder = null;
+    if (
+      currentFolder &&
+      currentFolder.parent !== "private" &&
+      currentFolder.parent !== "public"
+    ) {
+      const f = await ctx.db.get(currentFolder.parent as Id<"folder">);
+      parentFolder = {
+        ...f,
+        type: "folder",
+        isFile: false,
+      };
+    } else {
+      parentFolder = {
+        type: "folder",
+        _id: "private",
+        name: "Drive",
+        isFile: false,
+      };
+    }
+
+    return {
+      data: [
+        ...folders.map((f) => ({ ...f, isFile: false, type: "folder" })),
+        ...files.map((f) => ({ ...f, isFile: true })),
+      ],
+      currentFolder,
+      parentFolder,
+    };
   },
 });
 

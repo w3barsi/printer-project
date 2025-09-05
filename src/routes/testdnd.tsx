@@ -8,7 +8,7 @@ import {
   useSensors,
 } from "@dnd-kit/core";
 import { createFileRoute } from "@tanstack/react-router";
-import { useId } from "react";
+import { useId, type ComponentPropsWithRef } from "react";
 
 export const Route = createFileRoute("/testdnd")({
   component: RouteComponent,
@@ -77,3 +77,5 @@ function Droppable() {
     </div>
   );
 }
+
+function Wrapper({ className }: ComponentPropsWithRef<"div">) {}

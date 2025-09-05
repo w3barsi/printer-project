@@ -17,7 +17,6 @@ import { Route as ConvexRouteImport } from "./routes/convex";
 import { Route as mainRouteRouteImport } from "./routes/(main)/route";
 import { Route as authRouteRouteImport } from "./routes/(auth)/route";
 import { Route as IndexRouteImport } from "./routes/index";
-import { Route as mainDriveRouteImport } from "./routes/(main)/drive";
 import { Route as authSignupRouteImport } from "./routes/(auth)/signup";
 import { Route as authLoginRouteImport } from "./routes/(auth)/login";
 import { Route as maincashierRouteRouteImport } from "./routes/(main)/(cashier)/route";
@@ -26,6 +25,7 @@ import { Route as mainTrelloIndexRouteImport } from "./routes/(main)/trello.inde
 import { Route as mainJoIndexRouteImport } from "./routes/(main)/jo.index";
 import { Route as mainTrelloListIdRouteImport } from "./routes/(main)/trello.$listId";
 import { Route as mainJoJoIdRouteImport } from "./routes/(main)/jo.$joId";
+import { Route as mainDriveChar123DriveChar125RouteImport } from "./routes/(main)/drive.{-$drive}";
 import { Route as maincashierCashflowoldRouteImport } from "./routes/(main)/(cashier)/cashflowold";
 import { Route as maincashierCashflowRouteImport } from "./routes/(main)/(cashier)/cashflow";
 import { Route as mainadminAdminIndexRouteImport } from "./routes/(main)/(admin)/admin.index";
@@ -62,11 +62,6 @@ const IndexRoute = IndexRouteImport.update({
   id: "/",
   path: "/",
   getParentRoute: () => rootRouteImport,
-} as any);
-const mainDriveRoute = mainDriveRouteImport.update({
-  id: "/drive",
-  path: "/drive",
-  getParentRoute: () => mainRouteRoute,
 } as any);
 const authSignupRoute = authSignupRouteImport.update({
   id: "/signup",
@@ -106,6 +101,12 @@ const mainJoJoIdRoute = mainJoJoIdRouteImport.update({
   path: "/jo/$joId",
   getParentRoute: () => mainRouteRoute,
 } as any);
+const mainDriveChar123DriveChar125Route =
+  mainDriveChar123DriveChar125RouteImport.update({
+    id: "/drive/{-$drive}",
+    path: "/drive/{-$drive}",
+    getParentRoute: () => mainRouteRoute,
+  } as any);
 const maincashierCashflowoldRoute = maincashierCashflowoldRouteImport.update({
   id: "/cashflowold",
   path: "/cashflowold",
@@ -144,9 +145,9 @@ export interface FileRoutesByFullPath {
   "/testfruits": typeof TestfruitsRoute;
   "/login": typeof authLoginRoute;
   "/signup": typeof authSignupRoute;
-  "/drive": typeof mainDriveRoute;
   "/cashflow": typeof maincashierCashflowRoute;
   "/cashflowold": typeof maincashierCashflowoldRoute;
+  "/drive/{-$drive}": typeof mainDriveChar123DriveChar125Route;
   "/jo/$joId": typeof mainJoJoIdRoute;
   "/trello/$listId": typeof mainTrelloListIdRoute;
   "/jo": typeof mainJoIndexRoute;
@@ -161,9 +162,9 @@ export interface FileRoutesByTo {
   "/testfruits": typeof TestfruitsRoute;
   "/login": typeof authLoginRoute;
   "/signup": typeof authSignupRoute;
-  "/drive": typeof mainDriveRoute;
   "/cashflow": typeof maincashierCashflowRoute;
   "/cashflowold": typeof maincashierCashflowoldRoute;
+  "/drive/{-$drive}": typeof mainDriveChar123DriveChar125Route;
   "/jo/$joId": typeof mainJoJoIdRoute;
   "/trello/$listId": typeof mainTrelloListIdRoute;
   "/jo": typeof mainJoIndexRoute;
@@ -183,9 +184,9 @@ export interface FileRoutesById {
   "/(main)/(cashier)": typeof maincashierRouteRouteWithChildren;
   "/(auth)/login": typeof authLoginRoute;
   "/(auth)/signup": typeof authSignupRoute;
-  "/(main)/drive": typeof mainDriveRoute;
   "/(main)/(cashier)/cashflow": typeof maincashierCashflowRoute;
   "/(main)/(cashier)/cashflowold": typeof maincashierCashflowoldRoute;
+  "/(main)/drive/{-$drive}": typeof mainDriveChar123DriveChar125Route;
   "/(main)/jo/$joId": typeof mainJoJoIdRoute;
   "/(main)/trello/$listId": typeof mainTrelloListIdRoute;
   "/(main)/jo/": typeof mainJoIndexRoute;
@@ -202,9 +203,9 @@ export interface FileRouteTypes {
     | "/testfruits"
     | "/login"
     | "/signup"
-    | "/drive"
     | "/cashflow"
     | "/cashflowold"
+    | "/drive/{-$drive}"
     | "/jo/$joId"
     | "/trello/$listId"
     | "/jo"
@@ -219,9 +220,9 @@ export interface FileRouteTypes {
     | "/testfruits"
     | "/login"
     | "/signup"
-    | "/drive"
     | "/cashflow"
     | "/cashflowold"
+    | "/drive/{-$drive}"
     | "/jo/$joId"
     | "/trello/$listId"
     | "/jo"
@@ -240,9 +241,9 @@ export interface FileRouteTypes {
     | "/(main)/(cashier)"
     | "/(auth)/login"
     | "/(auth)/signup"
-    | "/(main)/drive"
     | "/(main)/(cashier)/cashflow"
     | "/(main)/(cashier)/cashflowold"
+    | "/(main)/drive/{-$drive}"
     | "/(main)/jo/$joId"
     | "/(main)/trello/$listId"
     | "/(main)/jo/"
@@ -329,13 +330,6 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof IndexRouteImport;
       parentRoute: typeof rootRouteImport;
     };
-    "/(main)/drive": {
-      id: "/(main)/drive";
-      path: "/drive";
-      fullPath: "/drive";
-      preLoaderRoute: typeof mainDriveRouteImport;
-      parentRoute: typeof mainRouteRoute;
-    };
     "/(auth)/signup": {
       id: "/(auth)/signup";
       path: "/signup";
@@ -390,6 +384,13 @@ declare module "@tanstack/react-router" {
       path: "/jo/$joId";
       fullPath: "/jo/$joId";
       preLoaderRoute: typeof mainJoJoIdRouteImport;
+      parentRoute: typeof mainRouteRoute;
+    };
+    "/(main)/drive/{-$drive}": {
+      id: "/(main)/drive/{-$drive}";
+      path: "/drive/{-$drive}";
+      fullPath: "/drive/{-$drive}";
+      preLoaderRoute: typeof mainDriveChar123DriveChar125RouteImport;
       parentRoute: typeof mainRouteRoute;
     };
     "/(main)/(cashier)/cashflowold": {
@@ -485,7 +486,7 @@ const maincashierRouteRouteWithChildren =
 interface mainRouteRouteChildren {
   mainadminRouteRoute: typeof mainadminRouteRouteWithChildren;
   maincashierRouteRoute: typeof maincashierRouteRouteWithChildren;
-  mainDriveRoute: typeof mainDriveRoute;
+  mainDriveChar123DriveChar125Route: typeof mainDriveChar123DriveChar125Route;
   mainJoJoIdRoute: typeof mainJoJoIdRoute;
   mainTrelloListIdRoute: typeof mainTrelloListIdRoute;
   mainJoIndexRoute: typeof mainJoIndexRoute;
@@ -495,7 +496,7 @@ interface mainRouteRouteChildren {
 const mainRouteRouteChildren: mainRouteRouteChildren = {
   mainadminRouteRoute: mainadminRouteRouteWithChildren,
   maincashierRouteRoute: maincashierRouteRouteWithChildren,
-  mainDriveRoute: mainDriveRoute,
+  mainDriveChar123DriveChar125Route: mainDriveChar123DriveChar125Route,
   mainJoJoIdRoute: mainJoJoIdRoute,
   mainTrelloListIdRoute: mainTrelloListIdRoute,
   mainJoIndexRoute: mainJoIndexRoute,
