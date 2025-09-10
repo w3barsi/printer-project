@@ -12,7 +12,7 @@ import {
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
-import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
+import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useNavigate, useParams } from "@tanstack/react-router";
 import {
   CornerLeftUpIcon,
@@ -32,10 +32,57 @@ export function DetailsView() {
   const { drive } = useParams({ from: "/(main)/drive/{-$drive}" });
   const parent: Parent = drive ? (drive as Id<"folder">) : "private";
 
+  const queryClient = useQueryClient();
   const { data } = useSuspenseQuery(convexQuery(api.drive.getDrive, { parent }));
 
-  const { mutate } = useMutation({
+  const { mutate } = useMutation<
+    null,
+    unknown,
+    { id: Id<"folder"> | Id<"file">; parent: Parent },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    { previousData: any }
+  >({
     mutationFn: useConvexMutation(api.drive.moveFileOrFolder),
+    onMutate: async (variables) => {
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries({
+        queryKey: convexQuery(api.drive.getDrive, { parent }).queryKey,
+      });
+
+      // Snapshot previous value
+      const previousData = queryClient.getQueryData(
+        convexQuery(api.drive.getDrive, { parent }).queryKey,
+      );
+
+      // Optimistically update by removing the moved item
+      queryClient.setQueryData(
+        convexQuery(api.drive.getDrive, { parent }).queryKey,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (old: any) => {
+          if (!old) return old;
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const newData = old.data.filter((item: any) => item._id !== variables.id);
+          return { ...old, data: newData };
+        },
+      );
+
+      return { previousData };
+    },
+    onError: (_err, _variables, context) => {
+      // Revert on error
+      if (context?.previousData) {
+        queryClient.setQueryData(
+          convexQuery(api.drive.getDrive, { parent }).queryKey,
+          context.previousData,
+        );
+      }
+    },
+    onSettled: () => {
+      // Refetch to ensure data is correct
+      queryClient.invalidateQueries({
+        queryKey: convexQuery(api.drive.getDrive, { parent }).queryKey,
+      });
+    },
   });
 
   const sensors = useSensors(
@@ -59,7 +106,7 @@ export function DetailsView() {
           const overId = over.id.toString().split("-")[0];
           if (activeId === overId) return console.log("same id");
           console.log(overId, activeId);
-          mutate({ id: activeId as Id<"folder">, parent: overId as Parent });
+          mutate({ id: activeId as Id<"folder"> | Id<"file">, parent: overId as Parent });
         }
       }}
     >
