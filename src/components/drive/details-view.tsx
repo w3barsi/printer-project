@@ -15,9 +15,8 @@ import {
 import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import { useNavigate, useParams } from "@tanstack/react-router";
 import {
-  ArchiveIcon,
   CornerLeftUpIcon,
-  DownloadIcon,
+  FileArchiveIcon,
   FileAudioIcon,
   FileIcon,
   FileTextIcon,
@@ -58,6 +57,7 @@ export function DetailsView() {
         if (active && over) {
           const activeId = active.id.toString().split("-")[0];
           const overId = over.id.toString().split("-")[0];
+          if (activeId === overId) return console.log("same id");
           console.log(overId, activeId);
           mutate({ id: activeId as Id<"folder">, parent: overId as Parent });
         }
@@ -162,6 +162,7 @@ function File({ d }: { d: GetDriveType }) {
 
   return (
     <EntryWrapper
+      onClick={() => console.log(d.type)}
       onDoubleClick={() => window.open(`https://drive.darcygraphix.com/${d.key}`)}
       isDragging={isDragging}
       style={style}
@@ -174,7 +175,7 @@ function File({ d }: { d: GetDriveType }) {
   );
 }
 
-function EntryWrapper({
+export function EntryWrapper({
   className,
   children,
   isDragging,
@@ -184,7 +185,7 @@ function EntryWrapper({
     <div
       {...props}
       className={cn(
-        "border-border hover:bg-muted/30 group bg-card flex h-14 cursor-pointer items-center gap-4 rounded-lg border px-4 transition-colors duration-200 select-none",
+        "border-border hover:bg-muted/30 bg-card flex h-14 cursor-pointer items-center gap-4 rounded-lg border px-4 transition-colors duration-200 select-none",
         isDragging && "hover:bg-muted",
         className,
       )}
@@ -198,7 +199,7 @@ function Entry({ d }: { d: GetDriveType }) {
   return (
     <>
       <div className="flex min-w-0 flex-1 items-center gap-3">
-        <div className="flex-shrink-0">{getFileIcon(d.type.split("/")[0])}</div>
+        <div className="flex-shrink-0">{getFileIcon(d.type)}</div>
         <div className="min-w-0 flex-1">
           <h3 className="truncate text-sm font-medium">{d.name}</h3>
           <p className="text-muted-foreground text-xs">
@@ -210,7 +211,7 @@ function Entry({ d }: { d: GetDriveType }) {
       {/* File Details */}
       <div className="text-muted-foreground flex items-center gap-6 text-sm">
         <div className="text-right">
-          <div className="font-mono">{bytesToMB(d.size)}</div>
+          <div className="font-mono">{bytesToMB(d.isFile ? d.size : undefined)}</div>
         </div>
         <div className="min-w-[120px] text-right">
           <div>{new Date(d._creationTime).toLocaleString()}</div>
@@ -218,10 +219,7 @@ function Entry({ d }: { d: GetDriveType }) {
       </div>
 
       {/* Actions */}
-      <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
-        <Button size="sm" variant="ghost" className="h-8 w-8 p-0">
-          <DownloadIcon className="h-4 w-4" />
-        </Button>
+      <div className="flex items-center gap-1">
         <Button size="sm" variant="ghost" className="h-8 w-8 p-0">
           <MoreHorizontalIcon className="h-4 w-4" />
         </Button>
@@ -263,18 +261,38 @@ function getFileIcon(type: string) {
   switch (type) {
     case "folder":
       return <FolderIcon className="size-4 text-blue-500" />;
-    case "pdf":
-    case "doc":
+    case "application/pdf":
+    case "application/msword":
+    case "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+    case "application/vnd.ms-excel":
+    case "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
+    case "application/vnd.ms-powerpoint":
+    case "application/vnd.openxmlformats-officedocument.presentationml.presentation":
+    case "text/plain":
       return <FileTextIcon {...iconProps} />;
-    case "image":
+    case "image/jpeg":
+    case "image/jpg":
+    case "image/png":
+    case "image/webp":
+    case "image/gif":
       return <ImageIcon {...iconProps} />;
-    case "video":
+    case "video/mp4":
+    case "video/avi":
+    case "video/mov":
+    case "video/wmv":
       return <FileVideoIcon {...iconProps} />;
-    case "audio":
+    case "audio/mp3":
+    case "audio/wav":
+    case "audio/flac":
       return <FileAudioIcon {...iconProps} />;
-    case "archive":
-      return <ArchiveIcon {...iconProps} />;
+    case "application/zip":
+    case "application/x-zip-compressed":
+    case "application/x-rar-compressed":
+      return <FileArchiveIcon {...iconProps} />;
     default:
+      if (type.startsWith("image/")) return <ImageIcon {...iconProps} />;
+      if (type.startsWith("video/")) return <FileVideoIcon {...iconProps} />;
+      if (type.startsWith("audio/")) return <FileAudioIcon {...iconProps} />;
       return <FileIcon {...iconProps} />;
   }
 }
