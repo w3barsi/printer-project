@@ -158,8 +158,11 @@ function File({ d }: { d: GetDriveType }) {
     transform: transform ? `translate(${transform.x}px, ${transform.y}px)` : undefined,
   };
 
+  if (!d.isFile) return <div>error</div>;
+
   return (
     <EntryWrapper
+      onDoubleClick={() => window.open(`https://drive.darcygraphix.com/${d.key}`)}
       isDragging={isDragging}
       style={style}
       ref={setNodeRef}

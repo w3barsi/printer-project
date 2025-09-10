@@ -76,8 +76,12 @@ export const getDrive = authedQuery({
 
     return {
       data: [
-        ...folders.map((f) => ({ ...f, isFile: false, type: "folder" })),
-        ...files.map((f) => ({ ...f, isFile: true })),
+        ...folders.map((f) => ({
+          ...f,
+          isFile: false as const,
+          type: "folder",
+        })),
+        ...files.map((f) => ({ ...f, isFile: true as const })),
       ],
       currentFolder,
       parentFolder,

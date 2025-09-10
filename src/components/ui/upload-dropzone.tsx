@@ -191,12 +191,9 @@ export function UploadDropzone({
   });
   return (
     <div
-      className={cn(
-        "border-input relative rounded-lg border border-dashed transition-colors",
-        {
-          "border-primary/80": isDragActive,
-        },
-      )}
+      className={cn("border-input bg-card relative rounded-lg border transition-colors", {
+        "border-primary/80": isDragActive,
+      })}
     >
       <label
         {...getRootProps()}
