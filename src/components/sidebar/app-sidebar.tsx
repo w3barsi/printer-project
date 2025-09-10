@@ -1,7 +1,7 @@
 import { Command } from "lucide-react";
 import * as React from "react";
 
-import { MainNavGroup } from "@/components/sidebar/nav-main";
+import { MainNavGroup } from "@/components/sidebar/group-nav-main";
 import { NavUser } from "@/components/sidebar/nav-user";
 import {
   Sidebar,
@@ -15,8 +15,8 @@ import {
 } from "@/components/ui/sidebar";
 import { Link } from "@tanstack/react-router";
 import { PrinterButton } from "../printer/printer-button";
-import { AdminSidebarGroup } from "./admin-sidebar";
-import { RecentJobOrdersGroup } from "./jo-sidebar";
+import { AdminSidebarGroup } from "./group-admin-sidebar";
+import { RecentJobOrdersGroup } from "./group-jo-sidebar";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
