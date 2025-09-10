@@ -6,9 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { authClient } from "@/lib/auth-client";
-import { useConvexAuth } from "@convex-dev/react-query";
 import { Outlet, createFileRoute, redirect } from "@tanstack/react-router";
-import { LoaderIcon } from "lucide-react";
 
 export const Route = createFileRoute("/(main)")({
   component: RouteComponent,
@@ -27,24 +25,6 @@ export const Route = createFileRoute("/(main)")({
 });
 
 function RouteComponent() {
-  const { isAuthenticated, isLoading } = useConvexAuth();
-
-  if (isLoading) {
-    return (
-      <div className="flex h-screen items-center justify-center">
-        <LoaderIcon size={64} className="animate-spin" />
-      </div>
-    );
-  }
-
-  if (isAuthenticated) {
-    return <Authenticated />;
-  }
-
-  throw redirect({ to: "/" });
-}
-
-function Authenticated() {
   const { impersonatedBy } = Route.useLoaderData();
   return (
     <SidebarProvider>
