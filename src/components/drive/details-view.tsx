@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { useSelected } from "@/contexts/SelectedContext";
 import { cn } from "@/lib/utils";
 import type { GetDriveParentFolderType, GetDriveType } from "@/types/convex";
 import { convexQuery, useConvexMutation } from "@convex-dev/react-query";
@@ -24,13 +25,23 @@ import {
   FolderIcon,
   ImageIcon,
   MoreHorizontalIcon,
+  TrashIcon,
 } from "lucide-react";
-import type { ComponentPropsWithRef } from "react";
+import { useState, type ComponentPropsWithRef } from "react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
+import { Input } from "../ui/input";
 import type { Parent } from "../ui/upload-dropzone";
 
 export function DetailsView() {
   const { drive } = useParams({ from: "/(main)/drive/{-$drive}" });
   const parent: Parent = drive ? (drive as Id<"folder">) : "private";
+
+  const [showTrash, setShowTrash] = useState(false);
 
   const queryClient = useQueryClient();
   const { data } = useSuspenseQuery(convexQuery(api.drive.getDrive, { parent }));
@@ -54,17 +65,19 @@ export function DetailsView() {
         convexQuery(api.drive.getDrive, { parent }).queryKey,
       );
 
-      // Optimistically update by removing the moved item
-      queryClient.setQueryData(
-        convexQuery(api.drive.getDrive, { parent }).queryKey,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (old: any) => {
-          if (!old) return old;
+      // Optimistically update by removing the moved item only if moving to a different parent
+      if (variables.parent !== parent) {
+        queryClient.setQueryData(
+          convexQuery(api.drive.getDrive, { parent }).queryKey,
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const newData = old.data.filter((item: any) => item._id !== variables.id);
-          return { ...old, data: newData };
-        },
-      );
+          (old: any) => {
+            if (!old) return old;
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const newData = old.data.filter((item: any) => item._id !== variables.id);
+            return { ...old, data: newData };
+          },
+        );
+      }
 
       return { previousData };
     },
@@ -105,17 +118,48 @@ export function DetailsView() {
           const activeId = active.id.toString().split("-")[0];
           const overId = over.id.toString().split("-")[0];
           if (activeId === overId) return console.log("same id");
+          if (overId === "trash") return console.log("trash");
+
           console.log(overId, activeId);
           mutate({ id: activeId as Id<"folder"> | Id<"file">, parent: overId as Parent });
         }
       }}
+      onDragOver={(e) => {
+        console.log(e.active, e.over);
+      }}
     >
+      <div className="flex justify-between gap-4 pb-3">
+        <div className="flex gap-2">
+          <Button>Create Folder</Button>
+          <TrashButton />
+        </div>
+        <Input placeholder="Search..." className="max-w-sm" />
+      </div>
       {data.currentFolder && <ParentFolder parentFolder={data.parentFolder} />}
       {data.data.map((d) => {
         if (d.type === "folder") return <Folder key={d._id} d={d} />;
         return <File key={d._id} d={d} />;
       })}
     </DndContext>
+  );
+}
+
+function TrashButton() {
+  const { setNodeRef, isOver, active } = useDroppable({
+    id: "trash",
+  });
+
+  console.log(isOver);
+  return (
+    <Button
+      ref={setNodeRef}
+      size="icon"
+      variant="destructive"
+      className={cn(isOver && "!bg-red-500 outline outline-red-200")}
+      hidden={!active}
+    >
+      <TrashIcon />
+    </Button>
   );
 }
 
@@ -149,15 +193,19 @@ function ParentFolder({ parentFolder: p }: { parentFolder: GetDriveParentFolderT
 
 function Folder({ d }: { d: GetDriveType }) {
   const navigate = useNavigate();
+  const id = `${d._id}-drag`;
   const {
     setNodeRef: setDraggableRef,
     listeners,
     attributes,
     transform,
     isDragging,
+    over: draggableOver,
+    active: draggableActive,
   } = useDraggable({
-    id: `${d._id}-drag`,
+    id,
   });
+
   const {
     setNodeRef: setDroppableRef,
     isOver,
@@ -187,6 +235,9 @@ function Folder({ d }: { d: GetDriveType }) {
         isOver &&
           over?.id.toString().split("-")[0] !== active?.id.toString().split("-")[0] &&
           "border-blue-500",
+        draggableOver?.id.toString() === "trash" &&
+          draggableActive?.id.toString() === id &&
+          "border-red-500",
       )}
       {...listeners}
       {...attributes}
@@ -197,20 +248,45 @@ function Folder({ d }: { d: GetDriveType }) {
   );
 }
 function File({ d }: { d: GetDriveType }) {
+  const id = `${d._id}-drag`;
   const { setNodeRef, listeners, attributes, transform, isDragging } = useDraggable({
     id: `${d._id}-drag`,
   });
 
+  const { isSelected, addSelected, removeSelected, selected, clearSelected } =
+    useSelected();
+
+  const shouldTransform = isDragging || isSelected(d._id);
   const style = {
-    transform: transform ? `translate(${transform.x}px, ${transform.y}px)` : undefined,
+    transform:
+      shouldTransform && transform
+        ? `translate(${transform.x}px, ${transform.y}px)`
+        : undefined,
   };
 
   if (!d.isFile) return <div>error</div>;
 
+  const handleClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    if (selected.length > 0 && !e.ctrlKey) return clearSelected();
+    if (!e.ctrlKey) return;
+
+    if (isSelected(d._id)) {
+      removeSelected(d._id);
+    } else {
+      addSelected(d._id);
+    }
+  };
+
+  const handleDoubleClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    if (e.ctrlKey) return;
+    window.open(`https://drive.darcygraphix.com/${d.key}`);
+  };
+
   return (
     <EntryWrapper
-      onClick={() => console.log(d.type)}
-      onDoubleClick={() => window.open(`https://drive.darcygraphix.com/${d.key}`)}
+      className={cn("transition-none", isSelected(d._id) && "border-blue-800")}
+      onClick={handleClick}
+      onDoubleClick={handleDoubleClick}
       isDragging={isDragging}
       style={style}
       ref={setNodeRef}
@@ -230,6 +306,7 @@ export function EntryWrapper({
 }: { isDragging?: boolean } & ComponentPropsWithRef<"div">) {
   return (
     <div
+      onClick={() => {}}
       {...props}
       className={cn(
         "border-border hover:bg-muted/30 bg-card flex h-14 cursor-pointer items-center gap-4 rounded-lg border px-4 transition-colors duration-200 select-none",
@@ -243,6 +320,61 @@ export function EntryWrapper({
 }
 
 function Entry({ d }: { d: GetDriveType }) {
+  const { drive } = useParams({ from: "/(main)/drive/{-$drive}" });
+  const parent: Parent = drive ? (drive as Id<"folder">) : "private";
+  const queryClient = useQueryClient();
+  const { mutate } = useMutation<
+    null,
+    unknown,
+    { ids: Array<Id<"folder"> | Id<"file">> },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    { previousData: any }
+  >({
+    mutationFn: useConvexMutation(api.drive.deleteFilesOrFolders),
+    onMutate: async (variables) => {
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries({
+        queryKey: convexQuery(api.drive.getDrive, { parent }).queryKey,
+      });
+
+      // Snapshot previous value
+      const previousData = queryClient.getQueryData(
+        convexQuery(api.drive.getDrive, { parent }).queryKey,
+      );
+
+      // Optimistically update by removing the deleted items
+      queryClient.setQueryData(
+        convexQuery(api.drive.getDrive, { parent }).queryKey,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (old: any) => {
+          if (!old) return old;
+          const newData = old.data.filter(
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            (item: any) => !variables.ids.includes(item._id),
+          );
+          return { ...old, data: newData };
+        },
+      );
+
+      return { previousData };
+    },
+    onError: (_err, _variables, context) => {
+      // Revert on error
+      if (context?.previousData) {
+        queryClient.setQueryData(
+          convexQuery(api.drive.getDrive, { parent }).queryKey,
+          context.previousData,
+        );
+      }
+    },
+    onSettled: () => {
+      // Refetch to ensure data is correct
+      queryClient.invalidateQueries({
+        queryKey: convexQuery(api.drive.getDrive, { parent }).queryKey,
+      });
+    },
+  });
+
   return (
     <>
       <div className="flex min-w-0 flex-1 items-center gap-3">
@@ -267,9 +399,24 @@ function Entry({ d }: { d: GetDriveType }) {
 
       {/* Actions */}
       <div className="flex items-center gap-1">
-        <Button size="sm" variant="ghost" className="h-8 w-8 p-0">
-          <MoreHorizontalIcon className="h-4 w-4" />
-        </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger>
+            <Button size="sm" variant="ghost" className="h-8 w-8 p-0">
+              <MoreHorizontalIcon className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem
+              variant="destructive"
+              onClick={() => {
+                mutate({ ids: [d._id] });
+              }}
+            >
+              <TrashIcon className="size-4" />
+              Delete
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </>
   );

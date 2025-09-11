@@ -2,17 +2,17 @@ import { DetailsView, EntryWrapper } from "@/components/drive/details-view";
 import { Container } from "@/components/layouts/container";
 import { Skeleton } from "@/components/ui/skeleton";
 import { UploadDropzone } from "@/components/ui/upload-dropzone";
+import { SelectedProvider } from "@/contexts/SelectedContext";
 import { cn } from "@/lib/utils";
 import type { Id } from "@convex/_generated/dataModel";
 import { createFileRoute } from "@tanstack/react-router";
-import { Suspense, useState } from "react";
+import { Suspense } from "react";
 
 export const Route = createFileRoute("/(main)/drive/{-$drive}")({
   component: RouteComponent,
 });
 
 function RouteComponent() {
-  const [dialogOpen, setDialogOpen] = useState(false);
   const { drive } = Route.useParams();
 
   return (
@@ -32,7 +32,9 @@ function RouteComponent() {
         <UploadDropzone parent={(drive as Id<"folder">) ?? "private"} />
         <Suspense fallback={<DetailsViewSkeleton />}>
           <div className="space-y-1">
-            <DetailsView />
+            <SelectedProvider>
+              <DetailsView />
+            </SelectedProvider>
           </div>
         </Suspense>
       </Container>

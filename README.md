@@ -1,11 +1,19 @@
 ## Todos
 
-### UI/UX Improvements
+### UI Enhancements
 
-- [] Update job orders table styling to match admin users table
-  - [] Add rounded border container around table <!-- Completed: 2025-08-03 12:00:00 -->
-  - [] Update table header styling with muted background <!-- Completed: 2025-08-03 12:00:00 -->
-  - [] Make table header sticky with proper z-index <!-- Completed: 2025-08-03 12:00:00 -->
-  - [] Adjust table cell padding and alignment to match admin table <!-- Completed: 2025-08-03 12:00:00 -->
-  - [] Add consistent hover states for table rows <!-- Completed: 2025-08-03 12:00:00 -->
-  - [] Update table container overflow handling <!-- Completed: 2025-08-03 12:00:00 -->
+- [ ] Create dropdown menu on every file and folder entry
+- [ ] Fix alignment issues with size, date, and time columns in Entry component
+
+### File Management
+
+- [ ] Implement delete functionality via dropdown action using @deleteFilesOrFolders in convex/drive.ts
+- [ ] Implement rename functionality via dropdown action: make the name turn into an input box
+- [ ] Create "Create folder" functionality
+
+### R2 Storage Integration
+
+- [ ] Investigate R2 file storage and current delete implementation in convex/drive.ts
+- [ ] Create internal action for deleting files from R2 storage
+- [ ] Modify delete mutation to call the internal action for R2 file deletion
+- [ ] Test the integrated delete functionality with R2 file removal
