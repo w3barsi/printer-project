@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { useSelected } from "@/contexts/SelectedContext";
+import { useSelected, type SelectedItem } from "@/contexts/SelectedContext";
 import { cn } from "@/lib/utils";
 import type { GetDriveParentFolderType, GetDriveType } from "@/types/convex";
 import { convexQuery, useConvexMutation } from "@convex-dev/react-query";
@@ -7,6 +7,7 @@ import { api } from "@convex/_generated/api";
 import type { Id } from "@convex/_generated/dataModel";
 import {
   DndContext,
+  DragOverlay,
   PointerSensor,
   useDraggable,
   useDroppable,
@@ -37,11 +38,33 @@ import {
 import { Input } from "../ui/input";
 import type { Parent } from "../ui/upload-dropzone";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function MultiDragPreview({ data }: { activeId: string; data: any }) {
+  const { selected } = useSelected();
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const selectedItems = data.data.filter((item: any) => selected.includes(item._id));
+
+  return (
+    <div className="flex flex-col gap-2">
+      {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+      {selectedItems.map((item: any) => (
+        <EntryWrapper key={item._id} className="opacity-80">
+          <Entry d={item} />
+        </EntryWrapper>
+      ))}
+    </div>
+  );
+}
+
 export function DetailsView() {
   const { drive } = useParams({ from: "/(main)/drive/{-$drive}" });
   const parent: Parent = drive ? (drive as Id<"folder">) : "private";
 
-  const [showTrash, setShowTrash] = useState(false);
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const [sharedTransform, setSharedTransform] = useState<{ x: number; y: number } | null>(
+    null,
+  );
 
   const queryClient = useQueryClient();
   const { data } = useSuspenseQuery(convexQuery(api.drive.getDrive, { parent }));
@@ -105,42 +128,74 @@ export function DetailsView() {
       },
     }),
   );
-  return (
-    <DndContext
-      sensors={sensors}
-      onDragStart={(event) => {
-        const { active } = event;
-        console.log("Dragged item:", active.id);
-      }}
-      onDragEnd={(event) => {
-        const { active, over } = event;
-        if (active && over) {
-          const activeId = active.id.toString().split("-")[0];
-          const overId = over.id.toString().split("-")[0];
-          if (activeId === overId) return console.log("same id");
-          if (overId === "trash") return console.log("trash");
 
-          console.log(overId, activeId);
-          mutate({ id: activeId as Id<"folder"> | Id<"file">, parent: overId as Parent });
-        }
-      }}
-      onDragOver={(e) => {
-        console.log(e.active, e.over);
-      }}
-    >
-      <div className="flex justify-between gap-4 pb-3">
-        <div className="flex gap-2">
-          <Button>Create Folder</Button>
-          <TrashButton />
+  return (
+    <>
+      <DndContext
+        sensors={sensors}
+        onDragStart={(event) => {
+          const { active } = event;
+          setActiveId(active.id as string);
+          console.log("Dragged item:", active.id);
+        }}
+        onDragEnd={(event) => {
+          const { active, over } = event;
+          setActiveId(null);
+          setSharedTransform(null);
+          if (active && over) {
+            const activeId = active.id.toString().split("-")[0];
+            const overId = over.id.toString().split("-")[0];
+            if (activeId === overId) return console.log("same id");
+            if (overId === "trash") return console.log("trash");
+
+            console.log(overId, activeId);
+            mutate({
+              id: activeId as Id<"folder"> | Id<"file">,
+              parent: overId as Parent,
+            });
+          }
+        }}
+        onDragOver={(e) => {
+          console.log(e.active, e.over);
+        }}
+        onDragMove={(event) => {
+          if (activeId && event.active.id === activeId) {
+            setSharedTransform(event.delta);
+          }
+        }}
+      >
+        <div className="flex justify-between gap-4 pb-3">
+          <div className="flex gap-2">
+            <Button>Create Folder</Button>
+            <TrashButton />
+          </div>
+          <Input placeholder="Search..." className="max-w-sm" />
         </div>
-        <Input placeholder="Search..." className="max-w-sm" />
-      </div>
-      {data.currentFolder && <ParentFolder parentFolder={data.parentFolder} />}
-      {data.data.map((d) => {
-        if (d.type === "folder") return <Folder key={d._id} d={d} />;
-        return <File key={d._id} d={d} />;
-      })}
-    </DndContext>
+        {data.currentFolder && <ParentFolder parentFolder={data.parentFolder} />}
+        {data.data.map((d) => {
+          if (d.type === "folder")
+            return (
+              <Folder
+                key={d._id}
+                d={d}
+                activeId={activeId}
+                sharedTransform={sharedTransform}
+              />
+            );
+          return (
+            <File
+              key={d._id}
+              d={d}
+              activeId={activeId}
+              sharedTransform={sharedTransform}
+            />
+          );
+        })}
+      </DndContext>
+      <DragOverlay>
+        {activeId && <MultiDragPreview activeId={activeId} data={data} />}
+      </DragOverlay>
+    </>
   );
 }
 
@@ -148,15 +203,15 @@ function TrashButton() {
   const { setNodeRef, isOver, active } = useDroppable({
     id: "trash",
   });
+  const { selected } = useSelected();
 
-  console.log(isOver);
   return (
     <Button
       ref={setNodeRef}
       size="icon"
       variant="destructive"
       className={cn(isOver && "!bg-red-500 outline outline-red-200")}
-      hidden={!active}
+      hidden={!active && selected.length === 0}
     >
       <TrashIcon />
     </Button>
@@ -191,8 +246,17 @@ function ParentFolder({ parentFolder: p }: { parentFolder: GetDriveParentFolderT
   );
 }
 
-function Folder({ d }: { d: GetDriveType }) {
+function Folder({
+  d,
+  activeId,
+  sharedTransform,
+}: {
+  d: GetDriveType;
+  activeId: string | null;
+  sharedTransform: { x: number; y: number } | null;
+}) {
   const navigate = useNavigate();
+  const { selected } = useSelected();
   const id = `${d._id}-drag`;
   const {
     setNodeRef: setDraggableRef,
@@ -219,8 +283,18 @@ function Folder({ d }: { d: GetDriveType }) {
     setDraggableRef(node);
     setDroppableRef(node);
   };
+
+  // Transform if this item is being dragged OR if it's selected and another selected item is being dragged
+  const isItemSelected = selected.includes(d._id);
+  const draggedItemId = activeId?.split("-")[0] as SelectedItem;
+  const shouldTransform =
+    isDragging || (isItemSelected && draggedItemId && selected.includes(draggedItemId));
+
   const style = {
-    transform: transform ? `translate(${transform.x}px, ${transform.y}px)` : undefined,
+    transform:
+      shouldTransform && (transform || sharedTransform)
+        ? `translate(${(transform || sharedTransform)?.x}px, ${(transform || sharedTransform)?.y}px)`
+        : undefined,
   };
 
   return (
@@ -238,6 +312,7 @@ function Folder({ d }: { d: GetDriveType }) {
         draggableOver?.id.toString() === "trash" &&
           draggableActive?.id.toString() === id &&
           "border-red-500",
+        shouldTransform && !isDragging && "ring-opacity-50 ring-2 ring-blue-400",
       )}
       {...listeners}
       {...attributes}
@@ -247,8 +322,15 @@ function Folder({ d }: { d: GetDriveType }) {
     </EntryWrapper>
   );
 }
-function File({ d }: { d: GetDriveType }) {
-  const id = `${d._id}-drag`;
+function File({
+  d,
+  activeId,
+  sharedTransform,
+}: {
+  d: GetDriveType;
+  activeId: string | null;
+  sharedTransform: { x: number; y: number } | null;
+}) {
   const { setNodeRef, listeners, attributes, transform, isDragging } = useDraggable({
     id: `${d._id}-drag`,
   });
@@ -256,11 +338,16 @@ function File({ d }: { d: GetDriveType }) {
   const { isSelected, addSelected, removeSelected, selected, clearSelected } =
     useSelected();
 
-  const shouldTransform = isDragging || isSelected(d._id);
+  // Transform if this item is being dragged OR if it's selected and another selected item is being dragged
+  const isItemSelected = selected.includes(d._id);
+  const draggedItemId = activeId?.split("-")[0] as SelectedItem;
+  const shouldTransform =
+    isDragging || (isItemSelected && draggedItemId && selected.includes(draggedItemId));
+
   const style = {
     transform:
-      shouldTransform && transform
-        ? `translate(${transform.x}px, ${transform.y}px)`
+      shouldTransform && (transform || sharedTransform)
+        ? `translate(${(transform || sharedTransform)?.x}px, ${(transform || sharedTransform)?.y}px)`
         : undefined,
   };
 
@@ -284,7 +371,11 @@ function File({ d }: { d: GetDriveType }) {
 
   return (
     <EntryWrapper
-      className={cn("transition-none", isSelected(d._id) && "border-blue-800")}
+      className={cn(
+        "transition-none",
+        isSelected(d._id) && "border-blue-800",
+        shouldTransform && !isDragging && "ring-opacity-50 ring-2 ring-blue-400",
+      )}
       onClick={handleClick}
       onDoubleClick={handleDoubleClick}
       isDragging={isDragging}
