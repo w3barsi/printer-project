@@ -13,6 +13,9 @@ import {
   useDroppable,
   useSensor,
   useSensors,
+  type DragEndEvent,
+  type DragMoveEvent,
+  type DragStartEvent,
 } from "@dnd-kit/core";
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useNavigate, useParams } from "@tanstack/react-router";
@@ -133,36 +136,9 @@ export function DetailsView() {
     <>
       <DndContext
         sensors={sensors}
-        onDragStart={(event) => {
-          const { active } = event;
-          setActiveId(active.id as string);
-          console.log("Dragged item:", active.id);
-        }}
-        onDragEnd={(event) => {
-          const { active, over } = event;
-          setActiveId(null);
-          setSharedTransform(null);
-          if (active && over) {
-            const activeId = active.id.toString().split("-")[0];
-            const overId = over.id.toString().split("-")[0];
-            if (activeId === overId) return console.log("same id");
-            if (overId === "trash") return console.log("trash");
-
-            console.log(overId, activeId);
-            mutate({
-              id: activeId as Id<"folder"> | Id<"file">,
-              parent: overId as Parent,
-            });
-          }
-        }}
-        onDragOver={(e) => {
-          console.log(e.active, e.over);
-        }}
-        onDragMove={(event) => {
-          if (activeId && event.active.id === activeId) {
-            setSharedTransform(event.delta);
-          }
-        }}
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
+        onDragMove={handleDragMove}
       >
         <div className="flex justify-between gap-4 pb-3">
           <div className="flex gap-2">
@@ -197,6 +173,36 @@ export function DetailsView() {
       </DragOverlay>
     </>
   );
+
+  function handleDragMove(event: DragMoveEvent) {
+    if (activeId && event.active.id === activeId) {
+      setSharedTransform(event.delta);
+    }
+  }
+
+  function handleDragStart(event: DragStartEvent) {
+    const { active } = event;
+    setActiveId(active.id as string);
+    console.log("Dragged item:", active.id);
+  }
+
+  function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event;
+    setActiveId(null);
+    setSharedTransform(null);
+    if (active && over) {
+      const activeId = active.id.toString().split("-")[0];
+      const overId = over.id.toString().split("-")[0];
+      if (activeId === overId) return console.log("same id");
+      if (overId === "trash") return console.log("trash");
+
+      console.log(overId, activeId);
+      mutate({
+        id: activeId as Id<"folder"> | Id<"file">,
+        parent: overId as Parent,
+      });
+    }
+  }
 }
 
 function TrashButton() {
