@@ -1,8 +1,12 @@
 import { Button } from "@/components/ui/button";
 import { useSelected, type SelectedItem } from "@/contexts/SelectedContext";
+import {
+  useDeleteFilesOrFolders,
+  useMoveFilesOrFolders,
+} from "@/lib/convex/optimistic-mutations";
 import { cn } from "@/lib/utils";
 import type { GetDriveParentFolderType, GetDriveType } from "@/types/convex";
-import { convexQuery, useConvexMutation } from "@convex-dev/react-query";
+import { convexQuery } from "@convex-dev/react-query";
 import { api } from "@convex/_generated/api";
 import type { Id } from "@convex/_generated/dataModel";
 import {
@@ -17,7 +21,7 @@ import {
   type DragMoveEvent,
   type DragStartEvent,
 } from "@dnd-kit/core";
-import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { useNavigate, useParams } from "@tanstack/react-router";
 import {
   CornerLeftUpIcon,
@@ -52,9 +56,7 @@ function MultiDragPreview({ data }: { activeId: string; data: any }) {
     <div className="flex flex-col gap-2">
       {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
       {selectedItems.map((item: any) => (
-        <EntryWrapper key={item._id} className="opacity-80">
-          <Entry d={item} />
-        </EntryWrapper>
+        <EntryWrapper d={item} key={item._id} className="opacity-80"></EntryWrapper>
       ))}
     </div>
   );
@@ -69,60 +71,10 @@ export function DetailsView() {
     null,
   );
 
-  const queryClient = useQueryClient();
+  const { selected, clearSelected } = useSelected();
   const { data } = useSuspenseQuery(convexQuery(api.drive.getDrive, { parent }));
 
-  const { mutate } = useMutation<
-    null,
-    unknown,
-    { id: Id<"folder"> | Id<"file">; parent: Parent },
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    { previousData: any }
-  >({
-    mutationFn: useConvexMutation(api.drive.moveFileOrFolder),
-    onMutate: async (variables) => {
-      // Cancel outgoing refetches
-      await queryClient.cancelQueries({
-        queryKey: convexQuery(api.drive.getDrive, { parent }).queryKey,
-      });
-
-      // Snapshot previous value
-      const previousData = queryClient.getQueryData(
-        convexQuery(api.drive.getDrive, { parent }).queryKey,
-      );
-
-      // Optimistically update by removing the moved item only if moving to a different parent
-      if (variables.parent !== parent) {
-        queryClient.setQueryData(
-          convexQuery(api.drive.getDrive, { parent }).queryKey,
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (old: any) => {
-            if (!old) return old;
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const newData = old.data.filter((item: any) => item._id !== variables.id);
-            return { ...old, data: newData };
-          },
-        );
-      }
-
-      return { previousData };
-    },
-    onError: (_err, _variables, context) => {
-      // Revert on error
-      if (context?.previousData) {
-        queryClient.setQueryData(
-          convexQuery(api.drive.getDrive, { parent }).queryKey,
-          context.previousData,
-        );
-      }
-    },
-    onSettled: () => {
-      // Refetch to ensure data is correct
-      queryClient.invalidateQueries({
-        queryKey: convexQuery(api.drive.getDrive, { parent }).queryKey,
-      });
-    },
-  });
+  const mutate = useMoveFilesOrFolders(parent);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -197,10 +149,14 @@ export function DetailsView() {
       if (overId === "trash") return console.log("trash");
 
       console.log(overId, activeId);
+      const ids =
+        selected.length > 0 ? selected : [activeId as Id<"folder"> | Id<"file">];
       mutate({
-        id: activeId as Id<"folder"> | Id<"file">,
+        ids,
         parent: overId as Parent,
       });
+
+      clearSelected();
     }
   }
 }
@@ -231,7 +187,7 @@ function ParentFolder({ parentFolder: p }: { parentFolder: GetDriveParentFolderT
   });
 
   return (
-    <EntryWrapper
+    <div
       onDoubleClick={async () => {
         navigate({
           to: "/drive/{-$drive}",
@@ -241,6 +197,7 @@ function ParentFolder({ parentFolder: p }: { parentFolder: GetDriveParentFolderT
       }}
       ref={setNodeRef}
       className={cn(
+        "border-border hover:bg-muted/30 bg-card flex h-14 cursor-pointer items-center gap-4 rounded-lg border px-4 transition-colors duration-200 select-none",
         isOver &&
           over?.id.toString().split("-")[0] !== active?.id.toString().split("-")[0] &&
           "border-blue-500",
@@ -248,7 +205,7 @@ function ParentFolder({ parentFolder: p }: { parentFolder: GetDriveParentFolderT
     >
       <CornerLeftUpIcon className="text-muted-foreground size-4" />
       <h3 className="truncate text-sm font-medium">{p.name}</h3>
-    </EntryWrapper>
+    </div>
   );
 }
 
@@ -262,7 +219,6 @@ function Folder({
   sharedTransform: { x: number; y: number } | null;
 }) {
   const navigate = useNavigate();
-  const { selected } = useSelected();
   const id = `${d._id}-drag`;
   const {
     setNodeRef: setDraggableRef,
@@ -290,8 +246,10 @@ function Folder({
     setDroppableRef(node);
   };
 
-  // Transform if this item is being dragged OR if it's selected and another selected item is being dragged
+  const { selected } = useSelected();
+
   const isItemSelected = selected.includes(d._id);
+  // Transform if this item is being dragged OR if it's selected and another selected item is being dragged
   const draggedItemId = activeId?.split("-")[0] as SelectedItem;
   const shouldTransform =
     isDragging || (isItemSelected && draggedItemId && selected.includes(draggedItemId));
@@ -305,6 +263,7 @@ function Folder({
 
   return (
     <EntryWrapper
+      d={d}
       onDoubleClick={async () => {
         navigate({ to: "/drive/{-$drive}", params: { drive: d._id } });
         console.log("Double clicked");
@@ -312,20 +271,19 @@ function Folder({
       style={style}
       ref={setNodeRef}
       className={cn(
+        isItemSelected && "border-blue-800",
         isOver &&
           over?.id.toString().split("-")[0] !== active?.id.toString().split("-")[0] &&
           "border-blue-500",
         draggableOver?.id.toString() === "trash" &&
           draggableActive?.id.toString() === id &&
           "border-red-500",
-        shouldTransform && !isDragging && "ring-opacity-50 ring-2 ring-blue-400",
+        shouldTransform && !isDragging && "ring-opacity-50 ring-2 ring-blue-700",
       )}
       {...listeners}
       {...attributes}
       isDragging={isDragging}
-    >
-      <Entry d={d} />
-    </EntryWrapper>
+    />
   );
 }
 function File({
@@ -341,8 +299,7 @@ function File({
     id: `${d._id}-drag`,
   });
 
-  const { isSelected, addSelected, removeSelected, selected, clearSelected } =
-    useSelected();
+  const { isSelected, selected } = useSelected();
 
   // Transform if this item is being dragged OR if it's selected and another selected item is being dragged
   const isItemSelected = selected.includes(d._id);
@@ -359,17 +316,6 @@ function File({
 
   if (!d.isFile) return <div>error</div>;
 
-  const handleClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-    if (selected.length > 0 && !e.ctrlKey) return clearSelected();
-    if (!e.ctrlKey) return;
-
-    if (isSelected(d._id)) {
-      removeSelected(d._id);
-    } else {
-      addSelected(d._id);
-    }
-  };
-
   const handleDoubleClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     if (e.ctrlKey) return;
     window.open(`https://drive.darcygraphix.com/${d.key}`);
@@ -380,30 +326,46 @@ function File({
       className={cn(
         "transition-none",
         isSelected(d._id) && "border-blue-800",
-        shouldTransform && !isDragging && "ring-opacity-50 ring-2 ring-blue-400",
+        shouldTransform && !isDragging && "ring-opacity-50 ring-2 ring-blue-700",
       )}
-      onClick={handleClick}
       onDoubleClick={handleDoubleClick}
       isDragging={isDragging}
       style={style}
       ref={setNodeRef}
       {...listeners}
       {...attributes}
-    >
-      <Entry d={d} />
-    </EntryWrapper>
+      d={d}
+    />
   );
 }
 
 export function EntryWrapper({
   className,
-  children,
   isDragging,
+  d,
   ...props
-}: { isDragging?: boolean } & ComponentPropsWithRef<"div">) {
+}: { isDragging?: boolean; d: GetDriveType } & ComponentPropsWithRef<"div">) {
+  const { isSelected, addSelected, removeSelected, selected, clearSelected } =
+    useSelected();
+
+  const handleClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    if (selected.length > 0 && !e.ctrlKey) {
+      clearSelected();
+      addSelected(d._id);
+    }
+    // if (selected.length > 0 && !e.ctrlKey) return clearSelected();
+    if (!e.ctrlKey) return;
+
+    if (isSelected(d._id)) {
+      removeSelected(d._id);
+    } else {
+      addSelected(d._id);
+    }
+  };
+
   return (
     <div
-      onClick={() => {}}
+      onClick={handleClick}
       {...props}
       className={cn(
         "border-border hover:bg-muted/30 bg-card flex h-14 cursor-pointer items-center gap-4 rounded-lg border px-4 transition-colors duration-200 select-none",
@@ -411,7 +373,7 @@ export function EntryWrapper({
         className,
       )}
     >
-      {children}
+      <Entry d={d} />
     </div>
   );
 }
@@ -419,58 +381,7 @@ export function EntryWrapper({
 function Entry({ d }: { d: GetDriveType }) {
   const { drive } = useParams({ from: "/(main)/drive/{-$drive}" });
   const parent: Parent = drive ? (drive as Id<"folder">) : "private";
-  const queryClient = useQueryClient();
-  const { mutate } = useMutation<
-    null,
-    unknown,
-    { ids: Array<Id<"folder"> | Id<"file">> },
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    { previousData: any }
-  >({
-    mutationFn: useConvexMutation(api.drive.deleteFilesOrFolders),
-    onMutate: async (variables) => {
-      // Cancel outgoing refetches
-      await queryClient.cancelQueries({
-        queryKey: convexQuery(api.drive.getDrive, { parent }).queryKey,
-      });
-
-      // Snapshot previous value
-      const previousData = queryClient.getQueryData(
-        convexQuery(api.drive.getDrive, { parent }).queryKey,
-      );
-
-      // Optimistically update by removing the deleted items
-      queryClient.setQueryData(
-        convexQuery(api.drive.getDrive, { parent }).queryKey,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (old: any) => {
-          if (!old) return old;
-          const newData = old.data.filter(
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            (item: any) => !variables.ids.includes(item._id),
-          );
-          return { ...old, data: newData };
-        },
-      );
-
-      return { previousData };
-    },
-    onError: (_err, _variables, context) => {
-      // Revert on error
-      if (context?.previousData) {
-        queryClient.setQueryData(
-          convexQuery(api.drive.getDrive, { parent }).queryKey,
-          context.previousData,
-        );
-      }
-    },
-    onSettled: () => {
-      // Refetch to ensure data is correct
-      queryClient.invalidateQueries({
-        queryKey: convexQuery(api.drive.getDrive, { parent }).queryKey,
-      });
-    },
-  });
+  const mutate = useDeleteFilesOrFolders(parent);
 
   return (
     <>

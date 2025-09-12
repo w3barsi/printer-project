@@ -43,13 +43,6 @@ export const deleteFilesOrFolders = authedMutation({
 
       // Filter out null records (files that don't exist)
       const validFiles = fileRecords.filter((file) => file !== null);
-
-      // Delete from R2
-      await Promise.all(
-        validFiles.map((file) =>
-          ctx.runAction(api.drive.deleteFileFromR2, { key: file.key }),
-        ),
-      );
     }
 
     // Delete all items from database
@@ -57,14 +50,16 @@ export const deleteFilesOrFolders = authedMutation({
   },
 });
 
-export const moveFileOrFolder = authedMutation({
+export const moveFilesOrFolders = authedMutation({
   args: {
-    id: v.union(v.id("file"), v.id("folder")),
+    ids: v.array(v.union(v.id("file"), v.id("folder"))),
     parent: v.union(v.literal("private"), v.literal("public"), v.id("folder")),
   },
   handler: async (ctx, args) => {
-    const { id, parent } = args;
-    await ctx.db.patch(id, { parent });
+    const { ids, parent } = args;
+    for (const id of ids) {
+      await ctx.db.patch(id, { parent });
+    }
   },
 });
 
