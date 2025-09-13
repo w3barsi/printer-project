@@ -92,33 +92,35 @@ export function DetailsView() {
         onDragEnd={handleDragEnd}
         onDragMove={handleDragMove}
       >
-        <div className="flex justify-between gap-4 pb-3">
+        <div className="flex justify-between gap-4">
           <div className="flex gap-2">
             <Button>Create Folder</Button>
             <TrashButton />
           </div>
           <Input placeholder="Search..." className="max-w-sm" />
         </div>
-        {data.currentFolder && <ParentFolder parentFolder={data.parentFolder} />}
-        {data.data.map((d) => {
-          if (d.type === "folder")
+        <div className="flex flex-col gap-1">
+          {data.currentFolder && <ParentFolder parentFolder={data.parentFolder} />}
+          {data.data.map((d) => {
+            if (d.type === "folder")
+              return (
+                <Folder
+                  key={d._id}
+                  d={d}
+                  activeId={activeId}
+                  sharedTransform={sharedTransform}
+                />
+              );
             return (
-              <Folder
+              <File
                 key={d._id}
                 d={d}
                 activeId={activeId}
                 sharedTransform={sharedTransform}
               />
             );
-          return (
-            <File
-              key={d._id}
-              d={d}
-              activeId={activeId}
-              sharedTransform={sharedTransform}
-            />
-          );
-        })}
+          })}
+        </div>
       </DndContext>
       <DragOverlay>
         {activeId && <MultiDragPreview activeId={activeId} data={data} />}
@@ -358,7 +360,8 @@ export function EntryWrapper({
     useSelected();
 
   const handleClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-    if (selected.length === 0 && !e.ctrlKey) addSelected(d._id);
+    if (selected.length === 1 && !e.ctrlKey && isSelected(d._id)) return clearSelected();
+    if (selected.length === 0 && !e.ctrlKey) return addSelected(d._id);
     if (selected.length > 0 && !e.ctrlKey) {
       clearSelected();
       addSelected(d._id);
