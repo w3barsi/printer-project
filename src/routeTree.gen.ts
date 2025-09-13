@@ -30,7 +30,6 @@ import { Route as maincashierCashflowoldRouteImport } from "./routes/(main)/(cas
 import { Route as maincashierCashflowRouteImport } from "./routes/(main)/(cashier)/cashflow";
 import { Route as mainadminAdminIndexRouteImport } from "./routes/(main)/(admin)/admin.index";
 import { Route as mainadminAdminUsersRouteImport } from "./routes/(main)/(admin)/admin.users";
-import { ServerRoute as ApiUploadServerRouteImport } from "./routes/api/upload";
 import { ServerRoute as ApiAuthSplatServerRouteImport } from "./routes/api/auth.$";
 
 const rootServerRouteImport = createServerRootRoute();
@@ -126,11 +125,6 @@ const mainadminAdminUsersRoute = mainadminAdminUsersRouteImport.update({
   id: "/admin/users",
   path: "/admin/users",
   getParentRoute: () => mainadminRouteRoute,
-} as any);
-const ApiUploadServerRoute = ApiUploadServerRouteImport.update({
-  id: "/api/upload",
-  path: "/api/upload",
-  getParentRoute: () => rootServerRouteImport,
 } as any);
 const ApiAuthSplatServerRoute = ApiAuthSplatServerRouteImport.update({
   id: "/api/auth/$",
@@ -261,28 +255,24 @@ export interface RootRouteChildren {
   TestfruitsRoute: typeof TestfruitsRoute;
 }
 export interface FileServerRoutesByFullPath {
-  "/api/upload": typeof ApiUploadServerRoute;
   "/api/auth/$": typeof ApiAuthSplatServerRoute;
 }
 export interface FileServerRoutesByTo {
-  "/api/upload": typeof ApiUploadServerRoute;
   "/api/auth/$": typeof ApiAuthSplatServerRoute;
 }
 export interface FileServerRoutesById {
   __root__: typeof rootServerRouteImport;
-  "/api/upload": typeof ApiUploadServerRoute;
   "/api/auth/$": typeof ApiAuthSplatServerRoute;
 }
 export interface FileServerRouteTypes {
   fileServerRoutesByFullPath: FileServerRoutesByFullPath;
-  fullPaths: "/api/upload" | "/api/auth/$";
+  fullPaths: "/api/auth/$";
   fileServerRoutesByTo: FileServerRoutesByTo;
-  to: "/api/upload" | "/api/auth/$";
-  id: "__root__" | "/api/upload" | "/api/auth/$";
+  to: "/api/auth/$";
+  id: "__root__" | "/api/auth/$";
   fileServerRoutesById: FileServerRoutesById;
 }
 export interface RootServerRouteChildren {
-  ApiUploadServerRoute: typeof ApiUploadServerRoute;
   ApiAuthSplatServerRoute: typeof ApiAuthSplatServerRoute;
 }
 
@@ -425,13 +415,6 @@ declare module "@tanstack/react-router" {
 }
 declare module "@tanstack/react-start/server" {
   interface ServerFileRoutesByPath {
-    "/api/upload": {
-      id: "/api/upload";
-      path: "/api/upload";
-      fullPath: "/api/upload";
-      preLoaderRoute: typeof ApiUploadServerRouteImport;
-      parentRoute: typeof rootServerRouteImport;
-    };
     "/api/auth/$": {
       id: "/api/auth/$";
       path: "/api/auth/$";
@@ -519,7 +502,6 @@ export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>();
 const rootServerRouteChildren: RootServerRouteChildren = {
-  ApiUploadServerRoute: ApiUploadServerRoute,
   ApiAuthSplatServerRoute: ApiAuthSplatServerRoute,
 };
 export const serverRouteTree = rootServerRouteImport
