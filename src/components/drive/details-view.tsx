@@ -71,7 +71,7 @@ export function DetailsView() {
     null,
   );
 
-  const { selected, clearSelected } = useSelected();
+  const { selected, clearSelected, addSelected } = useSelected();
   const { data } = useSuspenseQuery(convexQuery(api.drive.getDrive, { parent }));
 
   const mutate = useMoveFilesOrFolders(parent);
@@ -134,7 +134,11 @@ export function DetailsView() {
 
   function handleDragStart(event: DragStartEvent) {
     const { active } = event;
+    const activeId = active.id.toString().split("-")[0];
     setActiveId(active.id as string);
+    if (!selected.includes(activeId as Id<"folder"> | Id<"file">)) {
+      addSelected(activeId as Id<"folder"> | Id<"file">);
+    }
     console.log("Dragged item:", active.id);
   }
 
@@ -146,11 +150,13 @@ export function DetailsView() {
       const activeId = active.id.toString().split("-")[0];
       const overId = over.id.toString().split("-")[0];
       if (activeId === overId) return console.log("same id");
+      // TODO: handle trash
       if (overId === "trash") return console.log("trash");
 
       console.log(overId, activeId);
       const ids =
         selected.length > 0 ? selected : [activeId as Id<"folder"> | Id<"file">];
+
       mutate({
         ids,
         parent: overId as Parent,
@@ -172,8 +178,11 @@ function TrashButton() {
       ref={setNodeRef}
       size="icon"
       variant="destructive"
-      className={cn(isOver && "!bg-red-500 outline outline-red-200")}
-      hidden={!active && selected.length === 0}
+      className={cn(
+        "opacity-100",
+        isOver && "!bg-red-500 outline outline-red-200",
+        !active && selected.length === 0 && "opacity-0",
+      )}
     >
       <TrashIcon />
     </Button>
@@ -349,6 +358,7 @@ export function EntryWrapper({
     useSelected();
 
   const handleClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    if (selected.length === 0 && !e.ctrlKey) addSelected(d._id);
     if (selected.length > 0 && !e.ctrlKey) {
       clearSelected();
       addSelected(d._id);
