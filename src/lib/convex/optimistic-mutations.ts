@@ -1,4 +1,5 @@
 import type { Parent } from "@/components/ui/upload-dropzone";
+import { useSelected } from "@/contexts/SelectedContext";
 import { convexQuery, useConvexMutation } from "@convex-dev/react-query";
 import { api } from "@convex/_generated/api";
 import type { Id } from "@convex/_generated/dataModel";
@@ -64,6 +65,7 @@ export function useMoveFilesOrFolders(parent: Parent) {
 
 export function useDeleteFilesOrFolders(parent: Parent) {
   const queryClient = useQueryClient();
+  const { clearSelected } = useSelected();
 
   const { mutate } = useMutation<
     null,
@@ -97,6 +99,7 @@ export function useDeleteFilesOrFolders(parent: Parent) {
     },
     onError: (_err, _variables, context) => {
       // Revert on error
+      clearSelected();
       if (context?.previousData) {
         queryClient.setQueryData(
           convexQuery(api.drive.getDrive, { parent }).queryKey,
