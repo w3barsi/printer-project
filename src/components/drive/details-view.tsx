@@ -44,6 +44,7 @@ import {
 } from "../ui/dropdown-menu";
 import { Input } from "../ui/input";
 import type { Parent } from "../ui/upload-dropzone";
+import { CreateFolderDialog } from "./create-folder-dialog";
 
 function MultiDragPreview({
   data,
@@ -107,7 +108,7 @@ export function DetailsView() {
       >
         <div className="flex justify-between gap-4">
           <div className="flex gap-2">
-            <Button>Create Folder</Button>
+            <CreateFolderDialog parent={parent} />
             <TrashButton />
           </div>
           <Input placeholder="Search..." className="max-w-sm" />
@@ -265,8 +266,6 @@ function Folder({
     attributes,
     transform,
     isDragging,
-    over: draggableOver,
-    active: draggableActive,
   } = useDraggable({
     id,
   });
@@ -448,7 +447,7 @@ function Entry({ d }: { d: GetDriveType }) {
       {/* Actions */}
       <div className="flex items-center gap-1">
         <DropdownMenu>
-          <DropdownMenuTrigger>
+          <DropdownMenuTrigger asChild>
             <Button size="sm" variant="ghost" className="h-8 w-8 p-0">
               <MoreHorizontalIcon className="h-4 w-4" />
             </Button>
