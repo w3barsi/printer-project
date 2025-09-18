@@ -45,8 +45,15 @@ import {
 import { Input } from "../ui/input";
 import type { Parent } from "../ui/upload-dropzone";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function MultiDragPreview({ data }: { activeId: string; data: any }) {
+function MultiDragPreview({
+  data,
+  isOverTrash,
+}: {
+  activeId: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  data: any;
+  isOverTrash: boolean;
+}) {
   const { selected } = useSelected();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -56,7 +63,11 @@ function MultiDragPreview({ data }: { activeId: string; data: any }) {
     <div className="flex flex-col gap-2">
       {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
       {selectedItems.map((item: any) => (
-        <EntryWrapper d={item} key={item._id} className="opacity-80"></EntryWrapper>
+        <EntryWrapper
+          d={item}
+          key={item._id}
+          className={cn("opacity-80", isOverTrash && "border-red-500")}
+        />
       ))}
     </div>
   );
@@ -70,11 +81,13 @@ export function DetailsView() {
   const [sharedTransform, setSharedTransform] = useState<{ x: number; y: number } | null>(
     null,
   );
+  const [isOverTrash, setIsOverTrash] = useState(false);
 
   const { selected, clearSelected, addSelected } = useSelected();
   const { data } = useSuspenseQuery(convexQuery(api.drive.getDrive, { parent }));
 
   const mutate = useMoveFilesOrFolders(parent);
+  const deleteMutate = useDeleteFilesOrFolders(parent);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -109,6 +122,7 @@ export function DetailsView() {
                   d={d}
                   activeId={activeId}
                   sharedTransform={sharedTransform}
+                  isOverTrash={isOverTrash}
                 />
               );
             return (
@@ -117,13 +131,16 @@ export function DetailsView() {
                 d={d}
                 activeId={activeId}
                 sharedTransform={sharedTransform}
+                isOverTrash={isOverTrash}
               />
             );
           })}
         </div>
       </DndContext>
       <DragOverlay>
-        {activeId && <MultiDragPreview activeId={activeId} data={data} />}
+        {activeId && (
+          <MultiDragPreview activeId={activeId} data={data} isOverTrash={isOverTrash} />
+        )}
       </DragOverlay>
     </>
   );
@@ -131,6 +148,7 @@ export function DetailsView() {
   function handleDragMove(event: DragMoveEvent) {
     if (activeId && event.active.id === activeId) {
       setSharedTransform(event.delta);
+      setIsOverTrash(event.over?.id === "trash");
     }
   }
 
@@ -138,6 +156,7 @@ export function DetailsView() {
     const { active } = event;
     const activeId = active.id.toString().split("-")[0];
     setActiveId(active.id as string);
+    setIsOverTrash(false);
     if (!selected.includes(activeId as Id<"folder"> | Id<"file">)) {
       addSelected(activeId as Id<"folder"> | Id<"file">);
     }
@@ -148,12 +167,14 @@ export function DetailsView() {
     const { active, over } = event;
     setActiveId(null);
     setSharedTransform(null);
+    setIsOverTrash(false);
+
     if (active && over) {
       const activeId = active.id.toString().split("-")[0];
       const overId = over.id.toString().split("-")[0];
       if (activeId === overId) return console.log("same id");
       // TODO: handle trash
-      if (overId === "trash") return console.log("trash");
+      if (overId === "trash") return deleteMutate({ ids: selected });
 
       console.log(overId, activeId);
       const ids =
@@ -175,8 +196,13 @@ function TrashButton() {
   });
   const { selected } = useSelected();
 
+  const { drive } = useParams({ from: "/(main)/drive/{-$drive}" });
+  const parent: Parent = drive ? (drive as Id<"folder">) : "private";
+  const deleteMutate = useDeleteFilesOrFolders(parent);
+
   return (
     <Button
+      onClick={() => deleteMutate({ ids: selected })}
       ref={setNodeRef}
       size="icon"
       variant="destructive"
@@ -224,10 +250,12 @@ function Folder({
   d,
   activeId,
   sharedTransform,
+  isOverTrash,
 }: {
   d: GetDriveType;
   activeId: string | null;
   sharedTransform: { x: number; y: number } | null;
+  isOverTrash: boolean;
 }) {
   const navigate = useNavigate();
   const id = `${d._id}-drag`;
@@ -286,10 +314,7 @@ function Folder({
         isOver &&
           over?.id.toString().split("-")[0] !== active?.id.toString().split("-")[0] &&
           "border-blue-500",
-        draggableOver?.id.toString() === "trash" &&
-          draggableActive?.id.toString() === id &&
-          "border-red-500",
-        shouldTransform && !isDragging && "ring-opacity-50 ring-2 ring-blue-700",
+        isOverTrash && shouldTransform && "border-red-500",
       )}
       {...listeners}
       {...attributes}
@@ -301,10 +326,12 @@ function File({
   d,
   activeId,
   sharedTransform,
+  isOverTrash,
 }: {
   d: GetDriveType;
   activeId: string | null;
   sharedTransform: { x: number; y: number } | null;
+  isOverTrash: boolean;
 }) {
   const { setNodeRef, listeners, attributes, transform, isDragging } = useDraggable({
     id: `${d._id}-drag`,
@@ -337,7 +364,7 @@ function File({
       className={cn(
         "transition-none",
         isSelected(d._id) && "border-blue-800",
-        shouldTransform && !isDragging && "ring-opacity-50 ring-2 ring-blue-700",
+        isOverTrash && shouldTransform && "border-red-500",
       )}
       onDoubleClick={handleDoubleClick}
       isDragging={isDragging}

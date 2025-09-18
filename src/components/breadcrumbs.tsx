@@ -5,37 +5,37 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb"
-import { convexQuery } from "@convex-dev/react-query"
-import { api } from "@convex/_generated/api"
-import type { Id } from "@convex/_generated/dataModel"
-import { useSuspenseQuery } from "@tanstack/react-query"
-import { isMatch, Link, useMatches } from "@tanstack/react-router"
-import z from "zod"
+} from "@/components/ui/breadcrumb";
+import { convexQuery } from "@convex-dev/react-query";
+import { api } from "@convex/_generated/api";
+import type { Id } from "@convex/_generated/dataModel";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { isMatch, Link, useMatches } from "@tanstack/react-router";
+import z from "zod";
 
 type CrumbType = {
-  value: string
-  href: string
-  type: "static" | "jo"
-}
+  value: string;
+  href: string;
+  type: "static" | "jo";
+};
 
 const crumbValidator = z.object({
   value: z.string(),
   href: z.string(),
   type: z.enum(["static", "jo"]),
-})
-const crumbsValidator = z.array(crumbValidator)
+});
+const crumbsValidator = z.array(crumbValidator);
 
 export function MainBreadcrumbs() {
-  const matches = useMatches()
-  if (matches.some((match) => match.status === "pending")) return null
+  const matches = useMatches();
+  if (matches.some((match) => match.status === "pending")) return null;
 
   const matchesWithCrumbs = matches
     .filter((match) => isMatch(match, "loaderData.crumb"))
-    .map((match) => match.loaderData?.crumb)[0]
+    .map((match) => match.loaderData?.crumb)[0];
 
-  const parsedData = crumbsValidator.safeParse(matchesWithCrumbs)
-  if (parsedData.error) return null
+  const parsedData = crumbsValidator.safeParse(matchesWithCrumbs);
+  if (parsedData.error) return null;
 
   return (
     <Breadcrumb>
@@ -45,7 +45,7 @@ export function MainBreadcrumbs() {
         ))}
       </BreadcrumbList>
     </Breadcrumb>
-  )
+  );
 }
 
 function Crumb({ idx, crumb }: { idx: number; crumb: CrumbType }) {
@@ -64,13 +64,13 @@ function Crumb({ idx, crumb }: { idx: number; crumb: CrumbType }) {
 
       {crumb.type === "jo" ? <JoCrumb crumb={crumb} /> : null}
     </>
-  )
+  );
 }
 
 function JoCrumb({ crumb }: { crumb: CrumbType }) {
   const { data } = useSuspenseQuery(
     convexQuery(api.jo.getOneComplete, { id: crumb.value as Id<"jo"> }),
-  )
+  );
   return (
     <BreadcrumbItem>
       <BreadcrumbLink asChild>
@@ -79,5 +79,5 @@ function JoCrumb({ crumb }: { crumb: CrumbType }) {
         </Link>
       </BreadcrumbLink>
     </BreadcrumbItem>
-  )
+  );
 }

@@ -15,14 +15,21 @@ export default defineSchema({
     key: v.string(),
     type: v.string(),
     size: v.number(),
-  }).index("by_parent", ["parent"]),
+
+    toDelete: v.optional(v.boolean()),
+  })
+    .index("by_parent", ["parent"])
+    .index("by_toDelete", ["toDelete"]),
 
   folder: defineTable({
     createdBy: v.id("users"),
     parent: v.union(v.literal("private"), v.literal("public"), v.id("folder")),
-
     name: v.string(),
-  }).index("by_parent", ["parent"]),
+
+    toDelete: v.optional(v.boolean()),
+  })
+    .index("by_parent", ["parent"])
+    .index("by_toDelete", ["toDelete"]),
 
   products: defineTable({
     title: v.string(),

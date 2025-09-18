@@ -17,7 +17,6 @@ type UploadDropzoneProps = {
         maxFiles?: number;
       }
     | string;
-  uploadOverride?: (files: File[]) => void;
 
   // Add any additional props you need.
 };
@@ -35,7 +34,6 @@ export function UploadDropzone({
   parent,
   accept,
   description,
-  uploadOverride,
 }: UploadDropzonePropsNoControl) {
   const id = useId();
 
@@ -52,27 +50,23 @@ export function UploadDropzone({
       if (files.length > 0 && !isPending) {
         setIsPending(true);
         try {
-          if (uploadOverride) {
-            uploadOverride(files);
-          } else {
-            // Upload files using R2
-            for (const file of files) {
-              const key = await uploadFile(file);
-              console.log("Upload result key:", key);
+          // Upload files using R2
+          for (const file of files) {
+            const key = await uploadFile(file);
+            console.log("Upload result key:", key);
 
-              // Save file info to database
-              await saveFileToDb({
-                files: [
-                  {
-                    parent,
-                    name: file.name,
-                    key,
-                    type: file.type,
-                    size: file.size,
-                  },
-                ],
-              });
-            }
+            // Save file info to database
+            saveFileToDb({
+              files: [
+                {
+                  parent,
+                  name: file.name,
+                  key,
+                  type: file.type,
+                  size: file.size,
+                },
+              ],
+            });
           }
         } catch (error) {
           console.error("Upload failed:", error);

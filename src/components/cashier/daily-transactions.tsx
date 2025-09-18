@@ -1,30 +1,30 @@
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader } from "@/components/ui/card"
-import { useLocalStorage } from "@/hooks/use-local-storage"
-import { cn } from "@/lib/utils"
-import { convexQuery } from "@convex-dev/react-query"
-import { api } from "@convex/_generated/api"
-import { useSuspenseQuery } from "@tanstack/react-query"
-import { Link } from "@tanstack/react-router"
-import { FilterIcon, PhilippinePesoIcon } from "lucide-react"
-import { type JSX } from "react"
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { useLocalStorage } from "@/hooks/use-local-storage";
+import { cn } from "@/lib/utils";
+import { convexQuery } from "@convex-dev/react-query";
+import { api } from "@convex/_generated/api";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { Link } from "@tanstack/react-router";
+import { FilterIcon, PhilippinePesoIcon } from "lucide-react";
+import { type JSX } from "react";
 
 export function DailyTransactions({
   dayStart,
   dayEnd,
   date,
 }: {
-  dayStart: number
-  dayEnd: number
-  date?: Date
+  dayStart: number;
+  dayEnd: number;
+  date?: Date;
 }) {
   const [filter, setFilter] = useLocalStorage<"all" | "income" | "expenses">(
     "filter",
     "all",
-  )
+  );
   const { data } = useSuspenseQuery(
     convexQuery(api.cashier.listDayData, { dayStart, dayEnd }),
-  )
+  );
 
   const paymentsData = data.paymentsData.map((d) => {
     return {
@@ -48,8 +48,8 @@ export function DailyTransactions({
           <p className="text-muted-foreground text-sm">Received by: {d.createdByName}</p>
         </div>
       ),
-    }
-  })
+    };
+  });
 
   const expenseElements = data.expensesData.map((d) => ({
     createdAt: d._creationTime,
@@ -60,10 +60,10 @@ export function DailyTransactions({
         <p className="text-muted-foreground text-sm">Received by: {d.createdByName}</p>
       </div>
     ),
-  }))
+  }));
 
-  const allData = [...paymentsData, ...expenseElements]
-  allData.sort((b, a) => a.createdAt - b.createdAt)
+  const allData = [...paymentsData, ...expenseElements];
+  allData.sort((b, a) => a.createdAt - b.createdAt);
 
   return (
     <Card>
@@ -120,13 +120,13 @@ export function DailyTransactions({
         {filter === "income" && <TransactionElement data={paymentsData} />}
       </CardContent>
     </Card>
-  )
+  );
 }
 
 function TransactionElement({
   data,
 }: {
-  data: Array<{ createdAt: number; elem: JSX.Element }>
+  data: Array<{ createdAt: number; elem: JSX.Element }>;
 }) {
-  return <div className="flex flex-col gap-2">{data.map((d) => d.elem)}</div>
+  return <div className="flex flex-col gap-2">{data.map((d) => d.elem)}</div>;
 }

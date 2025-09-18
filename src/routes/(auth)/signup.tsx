@@ -1,20 +1,20 @@
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { env } from "@/env/client"
-import { authClient } from "@/lib/auth-client"
-import { useQueryClient } from "@tanstack/react-query"
-import { Link, createFileRoute, redirect, useNavigate } from "@tanstack/react-router"
-import { GalleryVerticalEnd, LoaderCircle } from "lucide-react"
-import { useState } from "react"
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { env } from "@/env/client";
+import { authClient } from "@/lib/auth-client";
+import { useQueryClient } from "@tanstack/react-query";
+import { Link, createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
+import { GalleryVerticalEnd, LoaderCircle } from "lucide-react";
+import { useState } from "react";
 
 export const Route = createFileRoute("/(auth)/signup")({
   component: SignupForm,
   beforeLoad: () => {
-    const FLAG = env.VITE_FLAG_SIGNUP
+    const FLAG = env.VITE_FLAG_SIGNUP;
     if (!FLAG) {
-      console.error("[SIGNUP] Flag is false, cannot signup.")
-      throw redirect({ to: "/login" })
+      console.error("[SIGNUP] Flag is false, cannot signup.");
+      throw redirect({ to: "/login" });
     }
   },
   head: () => ({
@@ -24,35 +24,35 @@ export const Route = createFileRoute("/(auth)/signup")({
       },
     ],
   }),
-})
+});
 
 function SignupForm() {
-  const { redirectUrl } = Route.useRouteContext()
-  const queryClient = useQueryClient()
-  const navigate = useNavigate()
+  const { redirectUrl } = Route.useRouteContext();
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
-  const [isLoading, setIsLoading] = useState(false)
-  const [errorMessage, setErrorMessage] = useState("")
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    if (isLoading) return
+    e.preventDefault();
+    if (isLoading) return;
 
-    const formData = new FormData(e.currentTarget)
-    const name = formData.get("name") as string
-    const email = formData.get("email") as string
-    const password = formData.get("password") as string
-    const confirmPassword = formData.get("confirm_password") as string
+    const formData = new FormData(e.currentTarget);
+    const name = formData.get("name") as string;
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
+    const confirmPassword = formData.get("confirm_password") as string;
 
-    if (!name || !email || !password || !confirmPassword) return
+    if (!name || !email || !password || !confirmPassword) return;
 
     if (password !== confirmPassword) {
-      setErrorMessage("Passwords do not match")
-      return
+      setErrorMessage("Passwords do not match");
+      return;
     }
 
-    setIsLoading(true)
-    setErrorMessage("")
+    setIsLoading(true);
+    setErrorMessage("");
 
     authClient.signUp.email(
       {
@@ -63,16 +63,16 @@ function SignupForm() {
       },
       {
         onError: (ctx) => {
-          setErrorMessage(ctx.error.message)
-          setIsLoading(false)
+          setErrorMessage(ctx.error.message);
+          setIsLoading(false);
         },
         onSuccess: async () => {
-          await queryClient.invalidateQueries({ queryKey: ["user"] })
-          navigate({ to: redirectUrl })
+          await queryClient.invalidateQueries({ queryKey: ["user"] });
+          navigate({ to: redirectUrl });
         },
       },
-    )
-  }
+    );
+  };
 
   return (
     <div className="flex flex-col gap-6">
@@ -150,5 +150,5 @@ function SignupForm() {
         </Link>
       </div>
     </div>
-  )
+  );
 }

@@ -1,7 +1,7 @@
-import type { Item } from "@/types/printer"
+import type { Item } from "@/types/printer";
 
 export function ItemRenderer({ item }: { item: Item[] | undefined }) {
-  const total = item?.reduce((acc, i) => acc + i.price * i.quantity, 0)
+  const total = item?.reduce((acc, i) => acc + i.price * i.quantity, 0);
   return (
     <div className="flex w-full flex-col gap-2 pt-4">
       {item?.map((i) => (
@@ -20,5 +20,5 @@ export function ItemRenderer({ item }: { item: Item[] | undefined }) {
         <span>Total:</span> <span className="font-bold">₱{total}</span>
       </div>
     </div>
-  )
+  );
 }

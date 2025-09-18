@@ -1,9 +1,9 @@
-import { useDevice } from "@/contexts/DeviceContext"
-import { Button } from "../ui/button"
-import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip"
+import { useDevice } from "@/contexts/DeviceContext";
+import { Button } from "../ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
 export function PrinterButton() {
-  const { device, connectDevice, disconnectDevice } = useDevice()
+  const { device, connectDevice, disconnectDevice } = useDevice();
   return (
     <div className="flex w-full justify-center">
       {device === null ? (
@@ -17,7 +17,7 @@ export function PrinterButton() {
               className="w-full"
               variant="destructive-outline"
               onClick={async () => {
-                await disconnectDevice()
+                await disconnectDevice();
               }}
             >
               {device.productName}
@@ -27,5 +27,5 @@ export function PrinterButton() {
         </Tooltip>
       )}
     </div>
-  )
+  );
 }

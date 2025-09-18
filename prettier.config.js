@@ -9,6 +9,6 @@ const config = {
   endOfLine: "lf",
   trailingComma: "all",
   plugins: ["prettier-plugin-organize-imports", "prettier-plugin-tailwindcss"],
-}
+};
 
-export default config
+export default config;

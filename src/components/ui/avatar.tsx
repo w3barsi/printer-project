@@ -1,9 +1,9 @@
-"use client"
+"use client";
 
-import * as AvatarPrimitive from "@radix-ui/react-avatar"
-import * as React from "react"
+import * as AvatarPrimitive from "@radix-ui/react-avatar";
+import * as React from "react";
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
 
 function Avatar({
   className,
@@ -18,7 +18,7 @@ function Avatar({
       )}
       {...props}
     />
-  )
+  );
 }
 
 function AvatarImage({
@@ -31,7 +31,7 @@ function AvatarImage({
       className={cn("aspect-square size-full", className)}
       {...props}
     />
-  )
+  );
 }
 
 function AvatarFallback({
@@ -47,19 +47,19 @@ function AvatarFallback({
       )}
       {...props}
     />
-  )
+  );
 }
 
 export function getFallbackFromName(name: string) {
-  const split = name.split(" ")
+  const split = name.split(" ");
   if (split.length > 1) {
-    return `${split[0].charAt(0)}${split[1].charAt(0)} `
+    return `${split[0].charAt(0)}${split[1].charAt(0)} `;
   } else if (split.length === 1 && split[0].length > 1) {
     //return first 2 letters
-    return split[0].charAt(0) + split[0].charAt(1)
+    return split[0].charAt(0) + split[0].charAt(1);
   }
 
-  return "DG"
+  return "DG";
 }
 
-export { Avatar, AvatarFallback, AvatarImage }
+export { Avatar, AvatarFallback, AvatarImage };

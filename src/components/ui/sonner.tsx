@@ -1,19 +1,19 @@
-import type { ToasterProps } from "sonner"
-import { Toaster as Sonner } from "sonner"
+import type { ToasterProps } from "sonner";
+import { Toaster as Sonner } from "sonner";
 
 const getTheme = (key: string, fallback?: string) => {
-  if (typeof window === "undefined") return undefined
-  let theme: string | undefined
+  if (typeof window === "undefined") return undefined;
+  let theme: string | undefined;
   try {
-    theme = localStorage.getItem(key) || undefined
+    theme = localStorage.getItem(key) || undefined;
   } catch (e) {
     // Unsupported
   }
-  return theme || fallback
-}
+  return theme || fallback;
+};
 
 const Toaster = ({ ...props }: ToasterProps) => {
-  const theme = getTheme("theme")
+  const theme = getTheme("theme");
 
   return (
     <Sonner
@@ -28,7 +28,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
       }
       {...props}
     />
-  )
-}
+  );
+};
 
-export { Toaster }
+export { Toaster };
