@@ -1,4 +1,5 @@
 import { Toaster } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { DeviceProvider } from "@/contexts/DeviceContext";
 import type { SessionWithRole } from "@/lib/auth";
 import { authClient } from "@/lib/auth-client.ts";
@@ -100,14 +101,16 @@ function RootComponent() {
 
   return (
     <ConvexBetterAuthProvider client={context.convexClient} authClient={authClient}>
-      <DeviceProvider>
-        <RootDocument>
-          <Toaster richColors position="top-center" />
-          <Outlet />
-          <ReactQueryDevtools />
-          <TanStackRouterDevtools position="bottom-right" />
-        </RootDocument>
-      </DeviceProvider>
+      <TooltipProvider>
+        <DeviceProvider>
+          <RootDocument>
+            <Toaster richColors position="top-center" />
+            <Outlet />
+            <ReactQueryDevtools />
+            <TanStackRouterDevtools position="bottom-right" />
+          </RootDocument>
+        </DeviceProvider>
+      </TooltipProvider>
     </ConvexBetterAuthProvider>
   );
 }
