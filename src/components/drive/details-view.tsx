@@ -37,6 +37,12 @@ import {
 } from "lucide-react";
 import { useState, type ComponentPropsWithRef } from "react";
 import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger,
+} from "../ui/context-menu";
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -385,6 +391,10 @@ export function EntryWrapper({
   const { isSelected, addSelected, removeSelected, selected, clearSelected } =
     useSelected();
 
+  const { drive } = useParams({ from: "/(main)/drive/{-$drive}" });
+  const parent: Parent = drive ? (drive as Id<"folder">) : "private";
+  const deleteMutate = useDeleteFilesOrFolders(parent);
+
   const handleClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     if (selected.length === 1 && !e.ctrlKey && isSelected(d._id)) return clearSelected();
     if (selected.length === 0 && !e.ctrlKey) return addSelected(d._id);
@@ -403,17 +413,30 @@ export function EntryWrapper({
   };
 
   return (
-    <div
-      onClick={handleClick}
-      {...props}
-      className={cn(
-        "border-border hover:bg-muted/30 bg-card flex h-14 cursor-pointer items-center gap-4 rounded-lg border px-4 transition-colors duration-200 select-none",
-        isDragging && "hover:bg-muted",
-        className,
-      )}
-    >
-      <Entry d={d} />
-    </div>
+    <ContextMenu>
+      <ContextMenuTrigger>
+        <div
+          onClick={handleClick}
+          {...props}
+          className={cn(
+            "border-border hover:bg-muted/30 bg-card flex h-14 cursor-pointer items-center gap-4 rounded-lg border px-4 transition-colors duration-200 select-none",
+            isDragging && "hover:bg-muted",
+            className,
+          )}
+        >
+          <Entry d={d} />
+        </div>
+      </ContextMenuTrigger>
+      <ContextMenuContent>
+        <ContextMenuItem
+          className="text-red-500"
+          onClick={() => deleteMutate({ ids: [d._id] })}
+        >
+          <TrashIcon className="text-red-500" />
+          Delete
+        </ContextMenuItem>
+      </ContextMenuContent>
+    </ContextMenu>
   );
 }
 
