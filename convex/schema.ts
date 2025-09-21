@@ -29,7 +29,8 @@ export default defineSchema({
     toDelete: v.optional(v.boolean()),
   })
     .index("by_parent", ["parent"])
-    .index("by_toDelete", ["toDelete"]),
+    .index("by_toDelete", ["toDelete"])
+    .index("by_parent_name", ["parent", "name"]),
 
   products: defineTable({
     title: v.string(),

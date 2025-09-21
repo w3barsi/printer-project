@@ -1,3 +1,4 @@
+"use no memo";
 // src/components/CreateFolderDialog.tsx
 import { Button } from "@/components/ui/button";
 import {
@@ -21,49 +22,57 @@ import { api } from "@convex/_generated/api";
 import type { Id } from "@convex/_generated/dataModel";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
+import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
 
 const formSchema = z.object({
   name: z.string().min(1, "Name is required"),
-  parent: z.union([z.literal("private"), z.literal("public"), z.string()]), // Allow folder ID as string
 });
 
 type FormData = z.infer<typeof formSchema>;
 
 interface CreateFolderDialogProps {
   parent?: string; // Default parent, e.g., "private" or folder ID
-  onSuccess?: () => void;
 }
 
 export function CreateFolderDialog({
   parent = "private" as const,
-  onSuccess,
 }: CreateFolderDialogProps) {
-  const { mutateAsync } = useMutation({
-    mutationFn: useConvexMutation(api.drive.createFolder),
-  });
+  const [open, setOpen] = useState(false);
+  const createFolder = useConvexMutation(api.drive.createFolder);
+
+  const inputRef = useRef<HTMLInputElement>(null);
+
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: { name: "" },
   });
 
-  const onSubmit = async (data: FormData) => {
-    try {
-      await mutateAsync({
-        parent:
-          parent === "private" || parent === "public" ? parent : (parent as Id<"folder">),
-        name: data.name,
-      });
+  const mutation = useMutation({
+    mutationFn: createFolder,
+    onSuccess: () => {
+      setOpen(false);
       form.reset();
-      onSuccess?.();
-    } catch (error) {
-      console.error("Failed to create folder:", error);
-    }
+    },
+    onError: () => {
+      toast.error("Folder of the same name already exists here.");
+      form.reset();
+      inputRef.current?.focus();
+    },
+  });
+
+  const onSubmit = (data: FormData) => {
+    mutation.mutate({
+      parent:
+        parent === "private" || parent === "public" ? parent : (parent as Id<"folder">),
+      name: data.name,
+    });
   };
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button>Create Folder</Button>
       </DialogTrigger>
@@ -80,14 +89,23 @@ export function CreateFolderDialog({
                 <FormItem>
                   <FormLabel>Folder Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter folder name" {...field} />
+                    <Input
+                      placeholder="Enter folder name"
+                      {...field}
+                      ref={(el) => {
+                        inputRef.current = el;
+                        field.ref(el);
+                      }}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
 
-            <Button type="submit">Create</Button>
+            <Button type="submit" disabled={mutation.isPending}>
+              {mutation.isPending ? "Creating..." : "Create"}
+            </Button>
           </form>
         </Form>
       </DialogContent>

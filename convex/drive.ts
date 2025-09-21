@@ -57,6 +57,13 @@ export const createFolder = authedMutation({
   },
   handler: async (ctx, args) => {
     const { parent, name } = args;
+    const duplicate = await ctx.db
+      .query("folder")
+      .withIndex("by_parent_name", (q) => q.eq("parent", parent).eq("name", name))
+      .unique();
+    if (duplicate) throw new Error();
+    else console.log(duplicate);
+
     await ctx.db.insert("folder", {
       createdBy: ctx.user.subject as Id<"users">,
       parent,
