@@ -1,14 +1,6 @@
-"use no memo";
 // src/components/CreateFolderDialog.tsx
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
   Form,
   FormControl,
@@ -18,66 +10,52 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useConvexMutation } from "@convex-dev/react-query";
-import { api } from "@convex/_generated/api";
-import type { Id } from "@convex/_generated/dataModel";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
-import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
-import { toast } from "sonner";
 import { z } from "zod";
+
+import { DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { useRenameFileOrFolder } from "@/lib/convex/optimistic-mutations";
+import { useGetParentFolder } from "@/lib/get-parent-folder";
+import type { GetDriveType } from "@/types/convex";
+import { useRef } from "react";
+
+type RenameDialogProps = {
+  d: GetDriveType;
+  openRename: boolean;
+  setOpenRename: (open: boolean) => void;
+};
 
 const formSchema = z.object({ name: z.string().min(1, "Name is required") });
 type FormData = z.infer<typeof formSchema>;
 
-interface CreateFolderDialogProps {
-  parent?: string; // Default parent, e.g., "private" or folder ID
-}
-
-export function CreateFolderDialog({
-  parent = "private" as const,
-}: CreateFolderDialogProps) {
-  const [open, setOpen] = useState(false);
-  const createFolder = useConvexMutation(api.drive.createFolder);
+export function RenameDialog({ d, openRename, setOpenRename }: RenameDialogProps) {
+  const parent = useGetParentFolder();
 
   const inputRef = useRef<HTMLInputElement>(null);
+  const { mutate, isPending } = useRenameFileOrFolder(parent);
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: { name: "" },
   });
 
-  const mutation = useMutation({
-    mutationFn: createFolder,
-    onSuccess: () => {
-      setOpen(false);
-      form.reset();
-    },
-    onError: () => {
-      toast.error("Folder of the same name already exists here.");
-      form.reset();
-      inputRef.current?.focus();
-    },
-  });
-
   const onSubmit = (data: FormData) => {
-    mutation.mutate({
-      parent:
-        parent === "private" || parent === "public" ? parent : (parent as Id<"folder">),
+    mutate({
+      id: d._id,
       name: data.name,
     });
+    setOpenRename(false);
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button>Create Folder</Button>
-      </DialogTrigger>
+    <Dialog open={openRename} onOpenChange={setOpenRename}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Create New Folder</DialogTitle>
+          <DialogTitle>Rename</DialogTitle>
+          <DialogDescription>Enter a new name for "{d.name}".</DialogDescription>
         </DialogHeader>
+
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
@@ -102,10 +80,15 @@ export function CreateFolderDialog({
             />
 
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setOpenRename(false)}
+                disabled={isPending}
+              >
                 Cancel
               </Button>
-              <Button type="submit">Create</Button>
+              <Button type="submit">Rename</Button>
             </DialogFooter>
           </form>
         </Form>

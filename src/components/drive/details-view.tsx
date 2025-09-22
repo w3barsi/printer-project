@@ -23,34 +23,11 @@ import {
 } from "@dnd-kit/core";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useNavigate, useParams } from "@tanstack/react-router";
-import {
-  CornerLeftUpIcon,
-  FileArchiveIcon,
-  FileAudioIcon,
-  FileIcon,
-  FileTextIcon,
-  FileVideoIcon,
-  FolderIcon,
-  ImageIcon,
-  MoreHorizontalIcon,
-  TrashIcon,
-} from "lucide-react";
-import { useState, type ComponentPropsWithRef } from "react";
-import {
-  ContextMenu,
-  ContextMenuContent,
-  ContextMenuItem,
-  ContextMenuTrigger,
-} from "../ui/context-menu";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "../ui/dropdown-menu";
-import { Input } from "../ui/input";
+import { CornerLeftUpIcon, TrashIcon } from "lucide-react";
+import { useState } from "react";
 import type { Parent } from "../ui/upload-dropzone";
 import { CreateFolderDialog } from "./create-folder-dialog";
+import { EntryWrapper } from "./entry";
 
 function MultiDragPreview({
   data,
@@ -117,7 +94,7 @@ export function DetailsView() {
             <CreateFolderDialog parent={parent} />
             <TrashButton />
           </div>
-          <Input placeholder="Search..." className="max-w-sm" />
+          <Button variant="secondary">Copy Drive Link</Button>
         </div>
         <div className="flex flex-col gap-1">
           {data.currentFolder && <ParentFolder parentFolder={data.parentFolder} />}
@@ -181,7 +158,11 @@ export function DetailsView() {
       const overId = over.id.toString().split("-")[0];
       if (activeId === overId) return console.log("same id");
       // TODO: handle trash
-      if (overId === "trash") return deleteMutate({ ids: selected });
+      if (overId === "trash") {
+        deleteMutate({ ids: selected });
+        clearSelected();
+        return;
+      }
 
       console.log(overId, activeId);
       const ids =
@@ -201,7 +182,7 @@ function TrashButton() {
   const { setNodeRef, isOver, active } = useDroppable({
     id: "trash",
   });
-  const { selected } = useSelected();
+  const { selected, clearSelected } = useSelected();
 
   const { drive } = useParams({ from: "/(main)/drive/{-$drive}" });
   const parent: Parent = drive ? (drive as Id<"folder">) : "private";
@@ -209,7 +190,10 @@ function TrashButton() {
 
   return (
     <Button
-      onClick={() => deleteMutate({ ids: selected })}
+      onClick={() => {
+        deleteMutate({ ids: selected });
+        clearSelected();
+      }}
       ref={setNodeRef}
       size="icon"
       variant="destructive"
@@ -380,183 +364,4 @@ function File({
       d={d}
     />
   );
-}
-
-export function EntryWrapper({
-  className,
-  isDragging,
-  d,
-  ...props
-}: { isDragging?: boolean; d: GetDriveType } & ComponentPropsWithRef<"div">) {
-  const { isSelected, addSelected, removeSelected, selected, clearSelected } =
-    useSelected();
-
-  const { drive } = useParams({ from: "/(main)/drive/{-$drive}" });
-  const parent: Parent = drive ? (drive as Id<"folder">) : "private";
-  const deleteMutate = useDeleteFilesOrFolders(parent);
-
-  const handleClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-    if (selected.length === 1 && !e.ctrlKey && isSelected(d._id)) return clearSelected();
-    if (selected.length === 0 && !e.ctrlKey) return addSelected(d._id);
-    if (selected.length > 0 && !e.ctrlKey) {
-      clearSelected();
-      addSelected(d._id);
-    }
-    // if (selected.length > 0 && !e.ctrlKey) return clearSelected();
-    if (!e.ctrlKey) return;
-
-    if (isSelected(d._id)) {
-      removeSelected(d._id);
-    } else {
-      addSelected(d._id);
-    }
-  };
-
-  return (
-    <ContextMenu>
-      <ContextMenuTrigger>
-        <div
-          onClick={handleClick}
-          {...props}
-          className={cn(
-            "border-border hover:bg-muted/30 bg-card flex h-14 cursor-pointer items-center gap-4 rounded-lg border px-4 transition-colors duration-200 select-none",
-            isDragging && "hover:bg-muted",
-            className,
-          )}
-        >
-          <Entry d={d} />
-        </div>
-      </ContextMenuTrigger>
-      <ContextMenuContent>
-        <ContextMenuItem
-          className="text-red-500"
-          onClick={() => deleteMutate({ ids: [d._id] })}
-        >
-          <TrashIcon className="text-red-500" />
-          Delete
-        </ContextMenuItem>
-      </ContextMenuContent>
-    </ContextMenu>
-  );
-}
-
-function Entry({ d }: { d: GetDriveType }) {
-  const { drive } = useParams({ from: "/(main)/drive/{-$drive}" });
-  const parent: Parent = drive ? (drive as Id<"folder">) : "private";
-  const mutate = useDeleteFilesOrFolders(parent);
-
-  return (
-    <>
-      <div className="flex min-w-0 flex-1 items-center gap-3">
-        <div className="flex-shrink-0">{getFileIcon(d.type)}</div>
-        <div className="min-w-0 flex-1">
-          <h3 className="truncate text-sm font-medium">{d.name}</h3>
-          <p className="text-muted-foreground text-xs">
-            {getFileTypeLabel(d.type.split("/")[0])}
-          </p>
-        </div>
-      </div>
-
-      {/* File Details */}
-      <div className="text-muted-foreground flex items-center gap-6 text-sm">
-        <div className="text-right">
-          <div className="font-mono">{bytesToMB(d.isFile ? d.size : undefined)}</div>
-        </div>
-        <div className="min-w-[120px] text-right">
-          <div>{new Date(d._creationTime).toLocaleString()}</div>
-        </div>
-      </div>
-
-      {/* Actions */}
-      <div className="flex items-center gap-1">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button size="sm" variant="ghost" className="h-8 w-8 p-0">
-              <MoreHorizontalIcon className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem
-              variant="destructive"
-              onClick={() => {
-                mutate({ ids: [d._id] });
-              }}
-            >
-              <TrashIcon className="size-4" />
-              Delete
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-    </>
-  );
-}
-
-function bytesToMB(bytes?: number) {
-  if (!bytes) return "-";
-  if (bytes <= 0) return "0 MB";
-  return `${Math.round((bytes / (1024 * 1024)) * 100) / 100} MB`;
-}
-
-function getFileTypeLabel(type: string) {
-  switch (type) {
-    case "folder":
-      return "";
-    case "pdf":
-      return "PDF Document";
-    case "doc":
-      return "Word Document";
-    case "image":
-      return "Image";
-    case "video":
-      return "Video";
-    case "audio":
-      return "Audio";
-    case "archive":
-      return "Archive";
-    default:
-      return "File";
-  }
-}
-
-function getFileIcon(type: string) {
-  const iconProps = { className: "h-4 w-4 text-muted-foreground" };
-
-  switch (type) {
-    case "folder":
-      return <FolderIcon className="size-4 text-blue-500" />;
-    case "application/pdf":
-    case "application/msword":
-    case "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
-    case "application/vnd.ms-excel":
-    case "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
-    case "application/vnd.ms-powerpoint":
-    case "application/vnd.openxmlformats-officedocument.presentationml.presentation":
-    case "text/plain":
-      return <FileTextIcon {...iconProps} />;
-    case "image/jpeg":
-    case "image/jpg":
-    case "image/png":
-    case "image/webp":
-    case "image/gif":
-      return <ImageIcon {...iconProps} />;
-    case "video/mp4":
-    case "video/avi":
-    case "video/mov":
-    case "video/wmv":
-      return <FileVideoIcon {...iconProps} />;
-    case "audio/mp3":
-    case "audio/wav":
-    case "audio/flac":
-      return <FileAudioIcon {...iconProps} />;
-    case "application/zip":
-    case "application/x-zip-compressed":
-    case "application/x-rar-compressed":
-      return <FileArchiveIcon {...iconProps} />;
-    default:
-      if (type.startsWith("image/")) return <ImageIcon {...iconProps} />;
-      if (type.startsWith("video/")) return <FileVideoIcon {...iconProps} />;
-      if (type.startsWith("audio/")) return <FileAudioIcon {...iconProps} />;
-      return <FileIcon {...iconProps} />;
-  }
 }

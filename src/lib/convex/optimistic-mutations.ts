@@ -117,3 +117,58 @@ export function useDeleteFilesOrFolders(parent: Parent) {
 
   return mutate;
 }
+
+export function useRenameFileOrFolder(parent: Parent) {
+  const queryClient = useQueryClient();
+
+  const { mutate, isPending } = useMutation<
+    null,
+    unknown,
+    { id: Id<"folder"> | Id<"file">; name: string },
+    { previousData?: GetDriveQueryData }
+  >({
+    mutationFn: useConvexMutation(api.drive.renameFileOrFolder),
+    onMutate: async (variables) => {
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries({
+        queryKey: convexQuery(api.drive.getDrive, { parent }).queryKey,
+      });
+
+      // Snapshot previous value
+      const previousData = queryClient.getQueryData(
+        convexQuery(api.drive.getDrive, { parent }).queryKey,
+      ) as GetDriveQueryData | undefined;
+
+      // Optimistically update the name
+      queryClient.setQueryData(
+        convexQuery(api.drive.getDrive, { parent }).queryKey,
+        (old: GetDriveQueryData) => {
+          if (!old) return old;
+          const newData = old.data.map((item) =>
+            item._id === variables.id ? { ...item, name: variables.name } : item,
+          );
+          return { ...old, data: newData };
+        },
+      );
+
+      return { previousData };
+    },
+    onError: (_err, _variables, context) => {
+      // Revert on error
+      if (context?.previousData) {
+        queryClient.setQueryData(
+          convexQuery(api.drive.getDrive, { parent }).queryKey,
+          context.previousData,
+        );
+      }
+    },
+    onSettled: () => {
+      // Refetch to ensure data is correct
+      queryClient.invalidateQueries({
+        queryKey: convexQuery(api.drive.getDrive, { parent }).queryKey,
+      });
+    },
+  });
+
+  return { mutate, isPending };
+}
