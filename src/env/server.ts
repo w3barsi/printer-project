@@ -6,13 +6,6 @@ export const env = createEnv({
     TRELLO_KEY: z.string().min(1),
     TRELLO_TOKEN: z.string().min(1),
     SERVER_URL: z.string().url().optional(),
-    CLOUDFLARE_ACCOUNT_ID: z.string().min(1),
-    R2_BUCKET_NAME: z.string().min(1),
-    R2_REGION: z.string().min(1),
-    R2_TOKEN_VALUE: z.string().min(1),
-    R2_ACCESS_KEY_ID: z.string().min(1),
-    R2_SECRET_ACCESS_KEY: z.string().min(1),
-    R2_JURISDICTION: z.string().min(1),
   },
 
   /**
