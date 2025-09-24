@@ -169,7 +169,7 @@ function Entry({ d }: { d: GetDriveType }) {
   );
 }
 
-function bytesToMB(bytes?: number) {
+export function bytesToMB(bytes?: number) {
   if (!bytes) return "-";
   if (bytes <= 0) return "0 MB";
   return `${Math.round((bytes / (1024 * 1024)) * 100) / 100} MB`;

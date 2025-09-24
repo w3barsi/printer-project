@@ -5,6 +5,17 @@ import { internalAction, internalMutation, internalQuery } from "./_generated/se
 import { authedMutation, authedQuery } from "./auth";
 import { r2 } from "./r2";
 
+export const getTotalSpaceUsed = authedQuery({
+  args: {},
+  handler: async (ctx) => {
+    const files = await ctx.db.query("file").collect();
+    const totalSpaceUsed = files.reduce((acc, file) => {
+      return acc + file.size;
+    }, 0);
+    return totalSpaceUsed;
+  },
+});
+
 export const deleteFilesAction = internalAction({
   args: {},
   handler: async (ctx) => {
@@ -190,8 +201,12 @@ export const getDrive = authedQuery({
       .collect();
 
     // Filter out items marked for deletion
-    const filteredFolders = folders.filter((f) => f.toDelete !== true);
-    const filteredFiles = files.filter((f) => f.toDelete !== true);
+    const filteredFolders = folders
+      .filter((f) => f.toDelete !== true)
+      .sort((a, b) => a.name.localeCompare(b.name));
+    const filteredFiles = files
+      .filter((f) => f.toDelete !== true)
+      .sort((a, b) => a.name.localeCompare(b.name));
 
     let currentFolder = null;
     if (parent !== "private" && parent !== "public") {

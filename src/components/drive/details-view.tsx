@@ -28,6 +28,7 @@ import { useState } from "react";
 import type { Parent } from "../ui/upload-dropzone";
 import { CreateFolderDialog } from "./create-folder-dialog";
 import { EntryWrapper } from "./entry";
+import { TotalSpaceUsed } from "./total-space-used";
 
 function MultiDragPreview({
   data,
@@ -89,12 +90,13 @@ export function DetailsView() {
         onDragEnd={handleDragEnd}
         onDragMove={handleDragMove}
       >
-        <div className="flex justify-between gap-4">
+        <div className="flex items-center justify-between gap-4">
           <div className="flex gap-2">
             <CreateFolderDialog parent={parent} />
             <TrashButton />
           </div>
-          <Button variant="secondary">Copy Drive Link</Button>
+
+          <TotalSpaceUsed />
         </div>
         <div className="flex flex-col gap-1">
           {data.currentFolder && <ParentFolder parentFolder={data.parentFolder} />}

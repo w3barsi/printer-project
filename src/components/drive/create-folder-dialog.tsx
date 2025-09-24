@@ -18,11 +18,10 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useConvexMutation } from "@convex-dev/react-query";
 import { api } from "@convex/_generated/api";
 import type { Id } from "@convex/_generated/dataModel";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation } from "convex/react";
 import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -39,7 +38,6 @@ export function CreateFolderDialog({
   parent = "private" as const,
 }: CreateFolderDialogProps) {
   const [open, setOpen] = useState(false);
-  const createFolder = useConvexMutation(api.drive.createFolder);
 
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -48,25 +46,71 @@ export function CreateFolderDialog({
     defaultValues: { name: "" },
   });
 
-  const mutation = useMutation({
-    mutationFn: createFolder,
-    onSuccess: () => {
-      setOpen(false);
-      form.reset();
+  const mutate = useMutation(api.drive.createFolder).withOptimisticUpdate(
+    (localStore, args) => {
+      const { name, parent } = args;
+      const currentValue = localStore.getQuery(api.drive.getDrive, { parent });
+
+      if (currentValue !== undefined) {
+        const folders = currentValue.data.filter((f) => !f.isFile);
+        const files = currentValue.data.filter((f) => f.isFile);
+
+        const newFolders = [
+          ...folders,
+          {
+            isFile: false as const,
+            type: "folder",
+            _id: crypto.randomUUID() as Id<"folder">,
+            _creationTime: Date.now(),
+            toDelete: false,
+            name,
+            parent,
+            createdBy:
+              currentValue.currentFolder?.createdBy || ("default" as Id<"users">),
+          },
+        ].sort((a, b) => a.name.localeCompare(b.name));
+
+        localStore.setQuery(
+          api.drive.getDrive,
+          { parent },
+          {
+            ...currentValue,
+            data: [...newFolders, ...files],
+          },
+        );
+      }
     },
-    onError: () => {
+  );
+
+  // const mutation = useMutation({
+  //   mutationFn: createFolder,
+  //   onSuccess: () => {
+  //     setOpen(false);
+  //     form.reset();
+  //   },
+  //   onError: () => {
+  //     toast.error("Folder of the same name already exists here.");
+  //     form.reset();
+  //     inputRef.current?.focus();
+  //   },
+  // });
+
+  const onSubmit = async (data: FormData) => {
+    try {
+      setOpen(false);
+      await mutate({
+        parent:
+          parent === "private" || parent === "public" ? parent : (parent as Id<"folder">),
+        name: data.name,
+      });
+
+      form.reset();
+    } catch (e) {
+      setOpen(true);
       toast.error("Folder of the same name already exists here.");
       form.reset();
       inputRef.current?.focus();
-    },
-  });
-
-  const onSubmit = (data: FormData) => {
-    mutation.mutate({
-      parent:
-        parent === "private" || parent === "public" ? parent : (parent as Id<"folder">),
-      name: data.name,
-    });
+    }
   };
 
   return (
