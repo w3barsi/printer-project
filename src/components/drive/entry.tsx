@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { useSelected } from "@/contexts/SelectedContext";
+import { R2_LINK } from "@/lib/constants";
 import { useDeleteFilesOrFolders } from "@/lib/convex/optimistic-mutations";
 import { useGetParentFolder } from "@/lib/get-parent-folder";
 import { cn } from "@/lib/utils";
@@ -7,6 +8,7 @@ import type { GetDriveType } from "@/types/convex";
 import type { Id } from "@convex/_generated/dataModel";
 import { useParams } from "@tanstack/react-router";
 import {
+  CopyIcon,
   DownloadIcon,
   FileArchiveIcon,
   FileAudioIcon,
@@ -100,6 +102,17 @@ export function EntryWrapper({
           <PenLineIcon />
           Rename
         </ContextMenuItem>
+        <ContextMenuSeparator />
+        {d.isFile && (
+          <ContextMenuItem
+            onSelect={async () =>
+              await navigator.clipboard.writeText(`${R2_LINK}/${d.key}`)
+            }
+          >
+            <CopyIcon />
+            Copy Link
+          </ContextMenuItem>
+        )}
         <ContextMenuSeparator />
 
         <ContextMenuItem
