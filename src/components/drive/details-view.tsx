@@ -250,7 +250,6 @@ function Folder({
   sharedTransform: { x: number; y: number } | null;
   isOverTrash: boolean;
 }) {
-  const navigate = useNavigate();
   const id = `${d._id}-drag`;
   const {
     setNodeRef: setDraggableRef,
@@ -294,10 +293,6 @@ function Folder({
   return (
     <EntryWrapper
       d={d}
-      onDoubleClick={async () => {
-        navigate({ to: "/drive/{-$drive}", params: { drive: d._id } });
-        console.log("Double clicked");
-      }}
       style={style}
       ref={setNodeRef}
       className={cn(
@@ -345,11 +340,6 @@ function File({
 
   if (!d.isFile) return <div>error</div>;
 
-  const handleDoubleClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-    if (e.ctrlKey) return;
-    window.open(`https://drive.darcygraphix.com/${d.key}`);
-  };
-
   return (
     <EntryWrapper
       className={cn(
@@ -357,7 +347,6 @@ function File({
         isSelected(d._id) && "border-blue-800",
         isOverTrash && shouldTransform && "border-red-500",
       )}
-      onDoubleClick={handleDoubleClick}
       isDragging={isDragging}
       style={style}
       ref={setNodeRef}

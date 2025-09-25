@@ -1,12 +1,12 @@
 import { Button } from "@/components/ui/button";
 import { useSelected } from "@/contexts/SelectedContext";
-import { R2_LINK } from "@/lib/constants";
 import { useDeleteFilesOrFolders } from "@/lib/convex/optimistic-mutations";
 import { useGetParentFolder } from "@/lib/get-parent-folder";
 import { cn } from "@/lib/utils";
 import type { GetDriveType } from "@/types/convex";
 import type { Id } from "@convex/_generated/dataModel";
 import { useParams } from "@tanstack/react-router";
+import { useNavigate, useParams } from "@tanstack/react-router";
 import {
   CopyIcon,
   DownloadIcon,
@@ -44,6 +44,7 @@ export function EntryWrapper({
   d,
   ...props
 }: { isDragging?: boolean; d: GetDriveType } & ComponentPropsWithRef<"div">) {
+  const navigate = useNavigate();
   const [openRename, setOpenRename] = useState(false);
 
   const { isSelected, addSelected, removeSelected, selected, clearSelected } =
@@ -70,6 +71,12 @@ export function EntryWrapper({
     }
   };
 
+  const handleDoubleClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    if (e.ctrlKey) return;
+    if (d.isFile) return window.open(`https://drive.darcygraphix.com/${d.key}`);
+
+    navigate({ to: "/drive/{-$drive}", params: { drive: d._id } });
+  };
   return (
     <ContextMenu>
       <ContextMenuTrigger
@@ -82,12 +89,13 @@ export function EntryWrapper({
       >
         <div
           onClick={handleClick}
-          {...props}
+          onDoubleClick={handleDoubleClick}
           className={cn(
             "border-border hover:bg-muted/30 bg-card flex h-14 cursor-pointer items-center gap-4 rounded-lg border px-4 transition-colors duration-200 select-none",
             isDragging && "hover:bg-muted",
             className,
           )}
+          {...props}
         >
           <Entry d={d} />
           <RenameDialog d={d} openRename={openRename} setOpenRename={setOpenRename} />
