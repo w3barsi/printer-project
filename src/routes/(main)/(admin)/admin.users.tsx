@@ -31,10 +31,15 @@ import {
 import { authClient } from "@/lib/auth-client";
 import { convexQuery, useConvexMutation } from "@convex-dev/react-query";
 import { api } from "@convex/_generated/api";
-import type { Id } from "@convex/_generated/dataModel";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { GavelIcon, LockKeyholeIcon, MoreVerticalIcon, User2Icon } from "lucide-react";
+import {
+  DeleteIcon,
+  GavelIcon,
+  LockKeyholeIcon,
+  MoreVerticalIcon,
+  User2Icon,
+} from "lucide-react";
 import { Suspense, useState, type Dispatch } from "react";
 import { toast } from "sonner";
 
@@ -69,11 +74,12 @@ function RouteComponent() {
 
 function UserManagementTable() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [user, setUser] = useState<{ name: string; id: Id<"users"> }>();
+  const [user, setUser] = useState<{ name: string; id: string }>();
 
   const { data } = useSuspenseQuery(convexQuery(api.admin.users.listUsers, {}));
   const setRole = useConvexMutation(api.admin.users.setRole);
   const banOrUnbanUser = useConvexMutation(api.admin.users.banOrUnbanUser);
+  const deleteUser = useConvexMutation(api.admin.users.deleteUser);
 
   async function onChangeRole(userId: string, role: "user" | "admin" | "cashier") {
     try {
@@ -114,7 +120,7 @@ function UserManagementTable() {
             <span>No users</span>
           ) : (
             data.map((u) => (
-              <TableRow key={u._id}>
+              <TableRow key={u.id}>
                 <TableCell className="pl-4">{u.name || "-"}</TableCell>
                 <TableCell>{u.email || "-"}</TableCell>
                 <TableCell>
@@ -125,13 +131,13 @@ function UserManagementTable() {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="start">
-                      <DropdownMenuItem onClick={() => onChangeRole(u._id, "admin")}>
+                      <DropdownMenuItem onClick={() => onChangeRole(u.id, "admin")}>
                         admin
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => onChangeRole(u._id, "user")}>
+                      <DropdownMenuItem onClick={() => onChangeRole(u.id, "user")}>
                         user
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => onChangeRole(u._id, "cashier")}>
+                      <DropdownMenuItem onClick={() => onChangeRole(u.id, "cashier")}>
                         cashier
                       </DropdownMenuItem>
                     </DropdownMenuContent>
@@ -150,7 +156,7 @@ function UserManagementTable() {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem
-                        onClick={() => banHandler(u._id, u.banned ?? false)}
+                        onClick={() => banHandler(u.id, u.banned ?? false)}
                       >
                         <GavelIcon /> {u.banned ? "Unban User" : "Ban User"}
                       </DropdownMenuItem>
@@ -158,7 +164,7 @@ function UserManagementTable() {
                       <DropdownMenuItem
                         onClick={async () => {
                           const { error } = await authClient.admin.impersonateUser({
-                            userId: u._id,
+                            userId: u.id,
                           });
                           if (error) {
                             toast.error(error.message);
@@ -172,10 +178,19 @@ function UserManagementTable() {
                       <DropdownMenuItem
                         onClick={() => {
                           setIsDialogOpen(true);
-                          setUser({ name: u.name, id: u._id });
+                          setUser({ name: u.name, id: u.id });
                         }}
                       >
                         <LockKeyholeIcon /> Change Password
+                      </DropdownMenuItem>
+
+                      <DropdownMenuItem
+                        variant="destructive"
+                        onClick={() => {
+                          deleteUser({ id: u.id });
+                        }}
+                      >
+                        <DeleteIcon /> Delete User
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -193,12 +208,11 @@ function UserManagementTable() {
 function ChangePasswordDialog({
   open,
   setOpen,
-
   user,
 }: {
   open: boolean;
   setOpen: Dispatch<React.SetStateAction<boolean>>;
-  user?: { name: string; id: Id<"users"> };
+  user?: { name: string; id: string };
 }) {
   const [password, setPassword] = useState("");
 

@@ -24,13 +24,14 @@ import {
 } from "@/components/ui/sidebar";
 import { authClient } from "@/lib/auth-client";
 import { useQueryClient } from "@tanstack/react-query";
-import { useRouteContext, useRouter } from "@tanstack/react-router";
+import { useNavigate, useRouteContext, useRouter } from "@tanstack/react-router";
 
 export function NavUser() {
   const { isMobile } = useSidebar();
   const { user } = useRouteContext({ from: "/(main)" });
   const image = user.image ?? undefined;
   const nameFallback = getFallbackFromName(user.name);
+  const navigate = useNavigate();
 
   const queryClient = useQueryClient();
   const router = useRouter();
@@ -79,6 +80,7 @@ export function NavUser() {
                 await authClient.signOut();
                 await queryClient.invalidateQueries({ queryKey: ["user"] });
                 await router.invalidate();
+                navigate({ to: "/login" });
               }}
             >
               <LogOut />

@@ -1,9 +1,16 @@
-import { createAuth } from "@/lib/auth";
-import { reactStartHelpers } from "@convex-dev/better-auth/react-start";
+import { createAccessControl } from "better-auth/plugins/access";
+import { adminAc, defaultStatements } from "better-auth/plugins/admin/access";
 
-export const { fetchSession, reactStartHandler, getCookieName } = reactStartHelpers(
-  createAuth,
-  {
-    convexSiteUrl: import.meta.env.VITE_CONVEX_SITE_URL,
-  },
-);
+export const statements = {
+  ...defaultStatements,
+} as const;
+
+export const ac = createAccessControl(statements);
+
+export const adminRole = ac.newRole({
+  ...adminAc.statements,
+});
+
+export const basicRole = ac.newRole({
+  user: ["create", "list"],
+});

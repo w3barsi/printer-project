@@ -5,8 +5,23 @@ import { authComponent, authedMutation, authedQuery } from "../auth";
 export const listUsers = authedQuery({
   args: {},
   handler: async (ctx) => {
-    const users = await ctx.db.query("users").collect();
+    const { users } = await createAuth(ctx).api.listUsers({
+      query: {},
+      headers: await authComponent.getHeaders(ctx),
+    });
     return users;
+  },
+});
+
+export const deleteUser = authedMutation({
+  args: { id: v.string() },
+  handler: async (ctx, args) => {
+    await createAuth(ctx).api.removeUser({
+      body: {
+        userId: args.id,
+      },
+      headers: await authComponent.getHeaders(ctx),
+    });
   },
 });
 
@@ -30,14 +45,15 @@ export const setRole = authedMutation({
     role: v.union(v.literal("user"), v.literal("admin"), v.literal("cashier")),
   },
   handler: async (ctx, args) => {
+    const headers = await authComponent.getHeaders(ctx);
+
     await createAuth(ctx).api.setRole({
       body: {
         userId: args.userId,
         role: args.role,
       },
-      headers: await authComponent.getHeaders(ctx),
+      headers,
     });
-    return { ok: true };
   },
 });
 

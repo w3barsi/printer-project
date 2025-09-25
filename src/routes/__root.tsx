@@ -2,8 +2,8 @@ import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { DeviceProvider } from "@/contexts/DeviceContext";
 import { authClient } from "@/lib/auth-client.ts";
-import { fetchSession, getCookieName } from "@/lib/auth-utils";
 import { ConvexBetterAuthProvider } from "@convex-dev/better-auth/react";
+import { fetchSession, getCookieName } from "@convex-dev/better-auth/react-start";
 import type { ConvexQueryClient } from "@convex-dev/react-query";
 import type { QueryClient } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
@@ -19,18 +19,21 @@ import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import { createServerFn } from "@tanstack/react-start";
 import { getCookie, getWebRequest } from "@tanstack/react-start/server";
 import type { ConvexReactClient } from "convex/react";
+import type { SessionWithRole } from "../../convex/auth";
 import appCss from "../styles.css?url";
 
 // import { fetchAuth } from "@/server/functions.ts"
 
 const fetchAuth = createServerFn({ method: "GET" }).handler(async () => {
   const { createAuth } = await import("../../convex/auth");
-  const { session } = await fetchSession(getWebRequest());
-  const sessionCookieName = await getCookieName(createAuth);
+  const { session: rawSession } = await fetchSession(getWebRequest());
+  const session = rawSession as SessionWithRole;
+  const sessionCookieName = getCookieName(createAuth);
   const token = getCookie(sessionCookieName);
   console.log("[BEFORE-LOAD (fetchAuth)] ", "fetching auth details");
   return {
     user: session?.user,
+    impersonatedBy: session?.session.impersonatedBy,
     token,
   };
 });
@@ -41,6 +44,7 @@ interface MyRouterContext {
   convexQueryClient: ConvexQueryClient;
   user: Awaited<ReturnType<typeof fetchAuth>>["user"] | null;
   token: string | null;
+  impersonatedBy: string | null | undefined;
 }
 
 export const Route = createRootRouteWithContext<MyRouterContext>()({
@@ -62,7 +66,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
       user ? `User is populated ${JSON.stringify(user)}` : "No user",
     );
 
-    return { user: user, token: token };
+    return { user: user, token: token, impersonatedBy: auth.impersonatedBy };
   },
   head: () => ({
     meta: [

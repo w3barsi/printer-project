@@ -1,15 +1,14 @@
 import type { AuthFunctions, GenericCtx } from "@convex-dev/better-auth";
 import { createClient } from "@convex-dev/better-auth";
-
 import { convex } from "@convex-dev/better-auth/plugins";
 import { betterAuth } from "better-auth";
 import { admin, username } from "better-auth/plugins";
-
 import {
   customCtx,
   customMutation,
   customQuery,
 } from "convex-helpers/server/customFunctions";
+import { ac, adminRole, basicRole } from "../src/lib/auth-utils";
 import { components, internal } from "./_generated/api";
 import type { DataModel, Id } from "./_generated/dataModel";
 import { mutation, query } from "./_generated/server";
@@ -17,47 +16,59 @@ import { mutation, query } from "./_generated/server";
 // Typesafe way to pass Convex functions defined in this file
 const authFunctions: AuthFunctions = internal.auth;
 
-import { createAccessControl } from "better-auth/plugins/access";
-import { adminAc, defaultStatements } from "better-auth/plugins/admin/access";
+import authSchema from "./betterAuth/schema";
 
 // Initialize the component
-export const authComponent = createClient<DataModel>(components.betterAuth, {
-  authFunctions,
-  triggers: {
-    user: {
-      onCreate: async (ctx, authUser) => {
-        const userId = await ctx.db.insert("users", {
-          name: authUser.name,
-          username: authUser.username,
-          displayUsername: authUser.displayUsername,
-          email: authUser.email,
-          emailVerified: authUser.emailVerified,
-          image: authUser.image,
-          phoneNumber: authUser.phoneNumber,
-          createdAt: authUser.createdAt,
-        });
+export const authComponent = createClient<DataModel, typeof authSchema>(
+  components.betterAuth,
+  {
+    verbose: true,
+    authFunctions,
+    local: {
+      schema: authSchema,
+    },
+    triggers: {
+      user: {
+        onCreate: async (ctx, authUser) => {
+          const userId = await ctx.db.insert("users", {
+            name: authUser.name,
+            username: authUser.username,
+            displayUsername: authUser.displayUsername,
+            email: authUser.email,
+            emailVerified: authUser.emailVerified,
+            image: authUser.image,
+            phoneNumber: authUser.phoneNumber,
+            createdAt: authUser.createdAt,
+            role: authUser.role,
+            banned: authUser.banned,
+            banReason: authUser.banReason,
+          });
 
-        await authComponent.setUserId(ctx, authUser._id, userId);
-      },
+          await authComponent.setUserId(ctx, authUser._id, userId);
+        },
 
-      onUpdate: async (ctx, oldUser, newUser) => {
-        return ctx.db.patch(oldUser.userId as Id<"users">, {
-          name: newUser.name,
-          username: newUser.username,
-          displayUsername: newUser.displayUsername,
-          email: newUser.email,
-          emailVerified: newUser.emailVerified,
-          image: newUser.image,
-          phoneNumber: newUser.phoneNumber,
-          createdAt: newUser.createdAt,
-        });
-      },
-      onDelete: async (ctx, authUser) => {
-        await ctx.db.delete(authUser.userId as Id<"users">);
+        onUpdate: async (ctx, oldUser, newUser) => {
+          return ctx.db.patch(oldUser.userId as Id<"users">, {
+            name: newUser.name,
+            username: newUser.username,
+            displayUsername: newUser.displayUsername,
+            email: newUser.email,
+            emailVerified: newUser.emailVerified,
+            image: newUser.image,
+            phoneNumber: newUser.phoneNumber,
+            createdAt: newUser.createdAt,
+            role: newUser.role,
+            banned: newUser.banned,
+            banReason: newUser.banReason,
+          });
+        },
+        onDelete: async (ctx, authUser) => {
+          await ctx.db.delete(authUser.userId as Id<"users">);
+        },
       },
     },
   },
-});
+);
 
 export const { onCreate, onUpdate, onDelete } = authComponent.triggersApi();
 
@@ -65,20 +76,15 @@ const URL = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
   : "http://localhost:3000";
 
-export const statements = {
-  ...defaultStatements,
-} as const;
-export const ac = createAccessControl(statements);
-export const adminRole = ac.newRole({
-  ...adminAc.statements,
-});
-export const basicRole = ac.newRole({
-  user: ["create", "list"],
-});
-
-export const createAuth = (ctx: GenericCtx<DataModel>) =>
+export const createAuth = (
+  ctx: GenericCtx<DataModel>,
+  { optionsOnly } = { optionsOnly: false },
+) =>
   // Configure your Better Auth instance here
   betterAuth({
+    logger: {
+      disabled: optionsOnly,
+    },
     database: authComponent.adapter(ctx),
     user: {
       additionalFields: {
@@ -126,7 +132,8 @@ export const authedMutation = customMutation(
   mutation,
   customCtx(async (ctx) => {
     const user = await authComponent.getAuthUser(ctx);
-    if (!user) throw new Error("Authentication required");
+    console.log("[USER] ", user);
+    if (!user) throw new Error("[Custom Mutation] Authentication required");
     return { user };
   }),
 );
@@ -135,7 +142,7 @@ export const authedQuery = customQuery(
   query,
   customCtx(async (ctx) => {
     const user = await authComponent.getAuthUser(ctx);
-    if (!user) throw new Error("Authentication required");
+    if (!user) throw new Error("[Custom Mutation] Authentication required");
     return { user };
   }),
 );

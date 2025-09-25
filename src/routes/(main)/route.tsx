@@ -20,7 +20,7 @@ export const Route = createFileRoute("/(main)")({
     // https://tanstack.com/router/latest/docs/framework/react/guide/external-data-loading
   },
   loader: ({ context }) => {
-    return { impersonatedBy: context.impersonatedBy };
+    return { user: context.user, impersonatedBy: context.impersonatedBy };
   },
 });
 
