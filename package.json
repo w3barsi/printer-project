@@ -20,7 +20,8 @@
     "deps": "pnpx taze@latest -Ilw",
     "deps:major": "pnpx taze@latest major -Ilw",
     "env": "node sync-env.js",
-    "env:prod": "node sync-env.js --prod"
+    "env:prod": "node sync-env.js --prod",
+    "dryrun": "pnpx convex deploy --dry-run"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.879.0",

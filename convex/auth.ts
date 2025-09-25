@@ -22,7 +22,7 @@ import authSchema from "./betterAuth/schema";
 export const authComponent = createClient<DataModel, typeof authSchema>(
   components.betterAuth,
   {
-    verbose: true,
+    // verbose: true,
     authFunctions,
     local: {
       schema: authSchema,
