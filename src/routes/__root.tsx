@@ -1,7 +1,6 @@
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { DeviceProvider } from "@/contexts/DeviceContext";
-import type { SessionWithRole } from "@/lib/auth";
 import { authClient } from "@/lib/auth-client.ts";
 import { fetchSession, getCookieName } from "@/lib/auth-utils";
 import { ConvexBetterAuthProvider } from "@convex-dev/better-auth/react";
@@ -25,15 +24,13 @@ import appCss from "../styles.css?url";
 // import { fetchAuth } from "@/server/functions.ts"
 
 const fetchAuth = createServerFn({ method: "GET" }).handler(async () => {
-  const sessionCookieName = await getCookieName();
+  const { createAuth } = await import("../../convex/auth");
+  const { session } = await fetchSession(getWebRequest());
+  const sessionCookieName = await getCookieName(createAuth);
   const token = getCookie(sessionCookieName);
-  const request = getWebRequest();
-  const { session: rawSession } = await fetchSession(request);
-  const session = rawSession as SessionWithRole;
   console.log("[BEFORE-LOAD (fetchAuth)] ", "fetching auth details");
   return {
-    user: session?.user ?? null,
-    impersonatedBy: session?.session.impersonatedBy ?? undefined,
+    user: session?.user,
     token,
   };
 });
@@ -44,7 +41,6 @@ interface MyRouterContext {
   convexQueryClient: ConvexQueryClient;
   user: Awaited<ReturnType<typeof fetchAuth>>["user"] | null;
   token: string | null;
-  impersonatedBy: string | null;
 }
 
 export const Route = createRootRouteWithContext<MyRouterContext>()({
@@ -66,7 +62,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
       user ? `User is populated ${JSON.stringify(user)}` : "No user",
     );
 
-    return { user: user, token: token, impersonatedBy: auth.impersonatedBy };
+    return { user: user, token: token };
   },
   head: () => ({
     meta: [

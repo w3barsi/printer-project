@@ -76,7 +76,7 @@ export const createFolder = authedMutation({
     else console.log(duplicate);
 
     await ctx.db.insert("folder", {
-      createdBy: ctx.user.subject as Id<"users">,
+      createdBy: ctx.user.userId as Id<"users">,
       parent,
       name,
     });
@@ -268,7 +268,7 @@ export const saveFileToDb = authedMutation({
   },
   handler: async (ctx, args) => {
     const { files } = args;
-    const createdBy = ctx.user.subject as Id<"users">;
+    const createdBy = ctx.user.userId as Id<"users">;
     await Promise.all(
       files.map(async (file) => {
         await ctx.db.insert("file", {

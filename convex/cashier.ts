@@ -27,7 +27,7 @@ export const createCashOnHand = authedMutation({
     await ctx.db.insert("cashflow", {
       amount: args.amount,
       description: args.description,
-      createdBy: ctx.user.subject as Id<"users">,
+      createdBy: ctx.user.userId as Id<"users">,
       createdAt: dateStart,
       cashflowType: "COH",
     });
@@ -45,7 +45,7 @@ export const createCashflow = authedMutation({
     await ctx.db.insert("cashflow", {
       amount: args.amount,
       description: args.description,
-      createdBy: ctx.user.subject as Id<"users">,
+      createdBy: ctx.user.userId as Id<"users">,
       createdAt: args.date,
       cashflowType: args.type ?? "Expense",
     });

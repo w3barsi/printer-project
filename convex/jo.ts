@@ -66,7 +66,7 @@ export const createJo = authedMutation({
       pickupTime,
       contactNumber,
       status: "pending",
-      createdBy: ctx.user.subject as Id<"users">,
+      createdBy: ctx.user.userId as Id<"users">,
       updatedAt: new Date().getTime(),
     });
 

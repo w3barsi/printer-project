@@ -1,87 +1,131 @@
-import type { AuthFunctions, PublicAuthFunctions } from "@convex-dev/better-auth";
-import { BetterAuth } from "@convex-dev/better-auth";
+import type { AuthFunctions, GenericCtx } from "@convex-dev/better-auth";
+import { createClient } from "@convex-dev/better-auth";
+
+import { convex } from "@convex-dev/better-auth/plugins";
+import { betterAuth } from "better-auth";
+import { admin, username } from "better-auth/plugins";
+
 import {
   customCtx,
   customMutation,
   customQuery,
 } from "convex-helpers/server/customFunctions";
-import { api, components, internal } from "./_generated/api";
+import { components, internal } from "./_generated/api";
 import type { DataModel, Id } from "./_generated/dataModel";
 import { mutation, query } from "./_generated/server";
 
 // Typesafe way to pass Convex functions defined in this file
 const authFunctions: AuthFunctions = internal.auth;
-const publicAuthFunctions: PublicAuthFunctions = api.auth;
+
+import { createAccessControl } from "better-auth/plugins/access";
+import { adminAc, defaultStatements } from "better-auth/plugins/admin/access";
 
 // Initialize the component
-export const betterAuthComponent = new BetterAuth(components.betterAuth, {
+export const authComponent = createClient<DataModel>(components.betterAuth, {
   authFunctions,
-  publicAuthFunctions,
-});
+  triggers: {
+    user: {
+      onCreate: async (ctx, authUser) => {
+        const userId = await ctx.db.insert("users", {
+          name: authUser.name,
+          username: authUser.username,
+          displayUsername: authUser.displayUsername,
+          email: authUser.email,
+          emailVerified: authUser.emailVerified,
+          image: authUser.image,
+          phoneNumber: authUser.phoneNumber,
+          createdAt: authUser.createdAt,
+        });
 
-// These are required named exports
-export const { createUser, updateUser, deleteUser, createSession, isAuthenticated } =
-  betterAuthComponent.createAuthFunctions<DataModel>({
-    // Must create a user and return the user id
-    onCreateUser: async (ctx, user) => {
-      return ctx.db.insert("users", {
-        name: user.name,
-        username: user.username,
-        displayUsername: user.displayUsername,
-        email: user.email,
-        emailVerified: user.emailVerified,
-        image: user.image,
-        phoneNumber: user.phoneNumber,
-        role: user.role,
-        banned: user.banned,
-        banReason: user.banReason,
-        createdAt: user.createdAt,
-      });
-    },
-    onUpdateUser: async (ctx, user) => {
-      return ctx.db.patch(user.userId as Id<"users">, {
-        name: user.name,
-        username: user.username,
-        displayUsername: user.displayUsername,
-        email: user.email,
-        emailVerified: user.emailVerified,
-        image: user.image,
-        phoneNumber: user.phoneNumber,
-        role: user.role,
-        banned: user.banned,
-        banReason: user.banReason,
-        createdAt: user.createdAt,
-      });
-    },
-    onDeleteUser: async (ctx, userId) => {
-      await ctx.db.delete(userId as Id<"users">);
-    },
-  });
+        await authComponent.setUserId(ctx, authUser._id, userId);
+      },
 
-// Example function for getting the current user
-// Feel free to edit, omit, etc.
-export const getCurrentUser = query({
-  args: {},
-  handler: async (ctx) => {
-    // Get user data from Better Auth - email, name, image, etc.
-    const userMetadata = await betterAuthComponent.getAuthUser(ctx);
-    if (!userMetadata) {
-      return null;
-    }
-    // Get user data from your application's database
-    // (skip this if you have no fields in your users table schema)
-    const user = await ctx.db.get(userMetadata.userId as Id<"users">);
-    return {
-      ...user,
-      ...userMetadata,
-    };
+      onUpdate: async (ctx, oldUser, newUser) => {
+        return ctx.db.patch(oldUser.userId as Id<"users">, {
+          name: newUser.name,
+          username: newUser.username,
+          displayUsername: newUser.displayUsername,
+          email: newUser.email,
+          emailVerified: newUser.emailVerified,
+          image: newUser.image,
+          phoneNumber: newUser.phoneNumber,
+          createdAt: newUser.createdAt,
+        });
+      },
+      onDelete: async (ctx, authUser) => {
+        await ctx.db.delete(authUser.userId as Id<"users">);
+      },
+    },
   },
 });
+
+export const { onCreate, onUpdate, onDelete } = authComponent.triggersApi();
+
+const URL = process.env.VERCEL_URL
+  ? `https://${process.env.VERCEL_URL}`
+  : "http://localhost:3000";
+
+export const statements = {
+  ...defaultStatements,
+} as const;
+export const ac = createAccessControl(statements);
+export const adminRole = ac.newRole({
+  ...adminAc.statements,
+});
+export const basicRole = ac.newRole({
+  user: ["create", "list"],
+});
+
+export const createAuth = (ctx: GenericCtx<DataModel>) =>
+  // Configure your Better Auth instance here
+  betterAuth({
+    database: authComponent.adapter(ctx),
+    user: {
+      additionalFields: {
+        role: {
+          type: "string",
+          required: false,
+          defaultValue: "user",
+          input: false, // prevent users from setting role themselves
+        },
+      },
+    },
+    // All auth requests will be proxied through your TanStack Start server
+    baseURL: URL,
+    session: {
+      cookieCache: {
+        enabled: true,
+        maxAge: 5 * 60,
+      },
+      expiresIn: 60 * 60 * 24 * 30, // 30 days
+    },
+
+    // Simple non-verified email/password to get started
+    emailAndPassword: {
+      enabled: true,
+      requireEmailVerification: false,
+    },
+    plugins: [
+      username(),
+      admin({
+        ac,
+        roles: {
+          admin: adminRole,
+          user: basicRole,
+          cashier: basicRole,
+        },
+      }),
+      // The Convex plugin is required
+      convex(),
+    ],
+  });
+
+export type SessionWithRole = ReturnType<typeof createAuth>["$Infer"]["Session"];
 
 export const authedMutation = customMutation(
   mutation,
   customCtx(async (ctx) => {
-    const user = await ctx.auth.getUserIdentity();
+    const user = await authComponent.getAuthUser(ctx);
     if (!user) throw new Error("Authentication required");
     return { user };
   }),
@@ -90,7 +134,7 @@ export const authedMutation = customMutation(
 export const authedQuery = customQuery(
   query,
   customCtx(async (ctx) => {
-    const user = await ctx.auth.getUserIdentity();
+    const user = await authComponent.getAuthUser(ctx);
     if (!user) throw new Error("Authentication required");
     return { user };
   }),

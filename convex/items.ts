@@ -26,7 +26,7 @@ export const createItem = authedMutation({
       name,
       quantity,
       price,
-      createdBy: ctx.user.subject as Id<"users">,
+      createdBy: ctx.user.userId as Id<"users">,
     });
 
     await ctx.db.patch(args.joId, { updatedAt: new Date().getTime() });
