@@ -5,7 +5,6 @@ import { useGetParentFolder } from "@/lib/get-parent-folder";
 import { cn } from "@/lib/utils";
 import type { GetDriveType } from "@/types/convex";
 import type { Id } from "@convex/_generated/dataModel";
-import { useParams } from "@tanstack/react-router";
 import { useNavigate, useParams } from "@tanstack/react-router";
 import {
   CopyIcon,
@@ -45,6 +44,7 @@ export function EntryWrapper({
   ...props
 }: { isDragging?: boolean; d: GetDriveType } & ComponentPropsWithRef<"div">) {
   const navigate = useNavigate();
+
   const [openRename, setOpenRename] = useState(false);
 
   const { isSelected, addSelected, removeSelected, selected, clearSelected } =
@@ -77,6 +77,11 @@ export function EntryWrapper({
 
     navigate({ to: "/drive/{-$drive}", params: { drive: d._id } });
   };
+
+  const link = d.isFile
+    ? `https://drive.darcygraphix.com/${d.key}`
+    : `https://system.darcygraphix.com/drive/${d._id}`;
+
   return (
     <ContextMenu>
       <ContextMenuTrigger
@@ -110,17 +115,10 @@ export function EntryWrapper({
           <PenLineIcon />
           Rename
         </ContextMenuItem>
-        <ContextMenuSeparator />
-        {d.isFile && (
-          <ContextMenuItem
-            onSelect={async () =>
-              await navigator.clipboard.writeText(`${R2_LINK}/${d.key}`)
-            }
-          >
-            <CopyIcon />
-            Copy Link
-          </ContextMenuItem>
-        )}
+        <ContextMenuItem onSelect={async () => await navigator.clipboard.writeText(link)}>
+          <CopyIcon />
+          Copy Link
+        </ContextMenuItem>
         <ContextMenuSeparator />
 
         <ContextMenuItem
