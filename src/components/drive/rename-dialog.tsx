@@ -63,10 +63,10 @@ export function RenameDialog({ d, openRename, setOpenRename }: RenameDialogProps
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Folder Name</FormLabel>
+                  <FormLabel>{d.isFile ? "File " : "Folder "}Name</FormLabel>
                   <FormControl>
                     <Input
-                      placeholder="Enter folder name"
+                      placeholder={`Enter ${d.isFile ? "File " : "Folder "} name`}
                       {...field}
                       ref={(el) => {
                         inputRef.current = el;
