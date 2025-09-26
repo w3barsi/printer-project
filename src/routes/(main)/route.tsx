@@ -26,8 +26,16 @@ export const Route = createFileRoute("/(main)")({
 });
 
 function Wrapper() {
-  const { isAuthenticated } = useConvexAuth();
+  const { isAuthenticated, isLoading } = useConvexAuth();
   const navigate = useNavigate();
+
+  if (isLoading) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <h1>Loading...</h1>
+      </div>
+    );
+  }
 
   if (!isAuthenticated) {
     navigate({ to: "/login" });
