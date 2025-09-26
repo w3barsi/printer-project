@@ -1,11 +1,9 @@
 import { Container } from "@/components/layouts/container";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { api } from "@convex/_generated/api";
 import { Html, OrbitControls } from "@react-three/drei";
 import { Canvas, useLoader } from "@react-three/fiber";
 import { createFileRoute } from "@tanstack/react-router";
-import { useMutation } from "convex/react";
 import { Suspense, useRef, useState } from "react";
 import * as THREE from "three";
 import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader.js";
@@ -55,12 +53,9 @@ function RouteComponent() {
     setFileType(null);
   };
 
-  const mutate = useMutation(api.admin.users.setEveryoneToAdmin);
-
   return (
     <Container className="flex h-full flex-col gap-4">
       <h1 className="text-3xl font-bold tracking-tight">3D Viewer</h1>
-      <Button onClick={() => mutate()}>Set All to admin</Button>
       <div className="flex gap-2">
         <Input
           type="file"
