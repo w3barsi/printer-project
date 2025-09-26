@@ -13,6 +13,25 @@ export const listUsers = authedQuery({
   },
 });
 
+export const setEveryoneToAdmin = authedMutation({
+  args: {},
+  handler: async (ctx) => {
+    const { users } = await createAuth(ctx).api.listUsers({
+      query: {},
+      headers: await authComponent.getHeaders(ctx),
+    });
+    users.forEach(async (user) => {
+      await createAuth(ctx).api.setRole({
+        body: {
+          userId: user.id,
+          role: "admin",
+        },
+        headers: await authComponent.getHeaders(ctx),
+      });
+    });
+  },
+});
+
 export const deleteUser = authedMutation({
   args: { id: v.string() },
   handler: async (ctx, args) => {
