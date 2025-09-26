@@ -12,6 +12,9 @@ import { Suspense } from "react";
 
 export const Route = createFileRoute("/(main)/drive/{-$drive}")({
   component: RouteComponent,
+  head: () => ({
+    meta: [{ title: "Drive | DG" }],
+  }),
 });
 
 function RouteComponent() {
