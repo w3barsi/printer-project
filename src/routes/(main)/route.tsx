@@ -7,9 +7,10 @@ import { Separator } from "@/components/ui/separator";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { authClient } from "@/lib/auth-client";
 import { Outlet, createFileRoute, redirect } from "@tanstack/react-router";
+import { useConvexAuth } from "convex/react";
 
 export const Route = createFileRoute("/(main)")({
-  component: RouteComponent,
+  component: Wrapper,
   beforeLoad: ({ context, location }) => {
     if (!context.user) {
       throw redirect({ to: "/login", search: { redirectUrl: location.pathname } });
@@ -23,6 +24,19 @@ export const Route = createFileRoute("/(main)")({
     return { user: context.user, impersonatedBy: context.impersonatedBy };
   },
 });
+
+function Wrapper() {
+  const { isAuthenticated } = useConvexAuth();
+
+  if (!isAuthenticated) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <h1>Loading...</h1>
+      </div>
+    );
+  }
+  return <RouteComponent />;
+}
 
 function RouteComponent() {
   const { impersonatedBy } = Route.useLoaderData();
