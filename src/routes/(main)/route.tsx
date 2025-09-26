@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { authClient } from "@/lib/auth-client";
-import { Outlet, createFileRoute, redirect } from "@tanstack/react-router";
+import { Outlet, createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { useConvexAuth } from "convex/react";
 
 export const Route = createFileRoute("/(main)")({
@@ -27,13 +27,10 @@ export const Route = createFileRoute("/(main)")({
 
 function Wrapper() {
   const { isAuthenticated } = useConvexAuth();
+  const navigate = useNavigate();
 
   if (!isAuthenticated) {
-    return (
-      <div className="flex h-screen items-center justify-center">
-        <h1>Loading...</h1>
-      </div>
-    );
+    navigate({ to: "/login" });
   }
   return <RouteComponent />;
 }

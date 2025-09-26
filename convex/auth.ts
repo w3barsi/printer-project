@@ -142,7 +142,7 @@ export const authedQuery = customQuery(
   query,
   customCtx(async (ctx) => {
     const user = await authComponent.getAuthUser(ctx);
-    if (!user) throw new Error("[Custom Mutation] Authentication required");
+    if (!user) throw new Error("[Custom Query] Authentication required");
     return { user };
   }),
 );
