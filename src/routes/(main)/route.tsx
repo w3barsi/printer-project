@@ -30,17 +30,28 @@ function Wrapper() {
   const navigate = useNavigate();
 
   if (isLoading) {
-    return (
-      <div className="flex h-screen items-center justify-center">
-        <h1>Loading...</h1>
-      </div>
-    );
+    return <AnimatedLoading />;
   }
 
   if (!isAuthenticated) {
     navigate({ to: "/login" });
   }
   return <RouteComponent />;
+}
+
+export function AnimatedLoading() {
+  return (
+    <div className="bg-background flex min-h-screen items-center justify-center">
+      <div className="text-foreground font-mono text-2xl">
+        Loading
+        <span className="inline-flex">
+          <span className="animate-dot-appear delay-0">.</span>
+          <span className="animate-dot-appear delay-500">.</span>
+          <span className="animate-dot-appear delay-1000">.</span>
+        </span>
+      </div>
+    </div>
+  );
 }
 
 function RouteComponent() {

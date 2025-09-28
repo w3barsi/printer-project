@@ -222,3 +222,58 @@ code {
     @apply bg-background text-foreground overflow-y-scroll;
   }
 }
+
+@layer utilities {
+  @keyframes dot-pulse {
+    0%,
+    20% {
+      opacity: 0;
+    }
+    50% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+
+  @keyframes dot-appear {
+    0% {
+      opacity: 0;
+    }
+    33.33% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+
+  .animate-dot-pulse {
+    animation: dot-pulse 1.5s ease-in-out infinite;
+  }
+
+  .animate-dot-appear {
+    animation: dot-appear 1.5s ease-in-out infinite;
+  }
+
+  .delay-0 {
+    animation-delay: 0s;
+  }
+
+  .delay-150 {
+    animation-delay: 0.15s;
+  }
+
+  .delay-300 {
+    animation-delay: 0.3s;
+  }
+
+  .delay-500 {
+    animation-delay: 0.5s;
+  }
+
+  .delay-1000 {
+    animation-delay: 1s;
+  }
+}
