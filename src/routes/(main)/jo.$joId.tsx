@@ -313,12 +313,12 @@ function JobOrderCard() {
         </div>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <div className="grid grid-cols-3 gap-4">
           <div className="flex items-center gap-3">
             <Calendar className="text-muted-foreground h-5 w-5" />
             <div>
-              <p className="text-sm font-medium">Pickup Date</p>
-              <p className="text-muted-foreground text-sm">
+              <p className="text-muted-foreground text-sm font-medium">Pickup Date</p>
+              <p className="text-sm">
                 {new Date(Number(jo.pickupDate)).toLocaleDateString()}
               </p>
             </div>
@@ -326,17 +326,15 @@ function JobOrderCard() {
           <div className="flex items-center gap-3">
             <Clock className="text-muted-foreground h-5 w-5" />
             <div>
-              <p className="text-sm font-medium">Created</p>
-              <p className="text-muted-foreground text-sm">
-                {new Date(jo._creationTime).toLocaleDateString()}
-              </p>
+              <p className="text-muted-foreground text-sm font-medium">Created</p>
+              <p className="text-sm">{new Date(jo._creationTime).toLocaleDateString()}</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
             <Package className="text-muted-foreground h-5 w-5" />
             <div>
-              <p className="text-sm font-medium">Total Items</p>
-              <p className="text-muted-foreground text-sm">{jo.items.length} items</p>
+              <p className="text-muted-foreground text-sm font-medium">Total Items</p>
+              <p className="text-sm">{jo.items.length} items</p>
             </div>
           </div>
         </div>
@@ -353,12 +351,12 @@ function JobOrderCard() {
         </div>
         <Separator />
         <div className="flex items-center justify-between">
-          <p>
-            Balance
+          <div className="flex items-center gap-3">
+            <p>Balance</p>
             {jo.totalPayments > jo.totalOrderValue - 1 && (
               <Badge className="bg-green-100 text-green-700">Fully Paid</Badge>
             )}
-          </p>
+          </div>
           <p
             className={cn(
               jo.totalPayments === jo.totalOrderValue ||
