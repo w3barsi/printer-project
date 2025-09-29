@@ -91,7 +91,7 @@ export function AddCashflow({ date }: { date?: number }) {
                   <RadioGroupItem value="Expense" id="expense" defaultChecked={true} />
                   <Label
                     htmlFor="expense"
-                    className="w-full bg-red-200 text-sm group-hover:font-bold"
+                    className="w-full text-sm group-hover:font-bold"
                   >
                     Expense
                   </Label>
