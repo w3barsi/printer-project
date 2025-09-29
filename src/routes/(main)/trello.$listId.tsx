@@ -154,8 +154,12 @@ function CardList() {
                   }
                   disabled={card.badges.attachments === 0}
                 >
-                  Download Attachments{" "}
-                  {card.badges.attachments > 0 && `(${card.badges.attachments})`}
+                  {card.badges.attachments === 0
+                    ? "No Attachments"
+                    : " Download Attachments"}
+                  <span className="font-mono">
+                    {card.badges.attachments > 0 && ` (${card.badges.attachments})`}
+                  </span>
                 </Button>
               </CardFooter>
             </Card>
