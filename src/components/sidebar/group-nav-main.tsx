@@ -3,6 +3,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { Link, useRouteContext } from "@tanstack/react-router";
 import { HardDriveIcon, PiggyBankIcon, Rotate3dIcon } from "lucide-react";
@@ -22,10 +23,13 @@ export function MainNavGroup() {
 }
 
 function ThreeDSidebarItem() {
+  const { isMobile, setOpenMobile } = useSidebar();
+
   return (
     <SidebarMenuButton asChild tooltip="Drive">
       <Link
         to="/three"
+        onClick={() => isMobile && setOpenMobile(false)}
         activeProps={{
           className: "bg-sidebar-accent text-sidebar-accent-foreground",
         }}
@@ -39,10 +43,13 @@ function ThreeDSidebarItem() {
 }
 
 function DriveSidebarItem() {
+  const { isMobile, setOpenMobile } = useSidebar();
+
   return (
     <SidebarMenuButton asChild tooltip="Drive">
       <Link
         to="/drive/{-$drive}"
+        onClick={() => isMobile && setOpenMobile(false)}
         activeProps={{
           className: "bg-sidebar-accent text-sidebar-accent-foreground",
         }}
@@ -57,12 +64,15 @@ function DriveSidebarItem() {
 
 function CashflowSidebarItem() {
   const { user } = useRouteContext({ from: "/(main)" });
+  const { isMobile, setOpenMobile } = useSidebar();
+
   return (
     <SidebarMenuItem>
       {(user.role === "cashier" || user.role === "admin") && (
         <SidebarMenuButton asChild tooltip="Job Order">
           <Link
             to="/cashflow"
+            onClick={() => isMobile && setOpenMobile(false)}
             activeProps={{
               className: "bg-sidebar-accent text-sidebar-accent-foreground",
             }}

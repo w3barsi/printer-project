@@ -7,6 +7,7 @@ import {
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuSubItem,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { convexQuery } from "@convex-dev/react-query";
 import { api } from "@convex/_generated/api";
@@ -17,6 +18,8 @@ import { FileTextIcon } from "lucide-react";
 import { Suspense } from "react";
 
 export function RecentJobOrdersGroup() {
+  const { isMobile, setOpenMobile } = useSidebar();
+
   return (
     <SidebarGroup>
       <SidebarMenu>
@@ -24,6 +27,7 @@ export function RecentJobOrdersGroup() {
           <SidebarMenuButton asChild tooltip="Job Order">
             <Link
               to="/jo"
+              onClick={() => isMobile && setOpenMobile(false)}
               activeProps={{
                 className: "bg-sidebar-accent text-sidebar-accent-foreground",
               }}
@@ -45,6 +49,8 @@ export function RecentJobOrdersGroup() {
 function RecentSubMenu() {
   const { data: recent } = useSuspenseQuery(convexQuery(api.jo.getRecent, {}));
   const [parent] = useAutoAnimate(/* optional config */);
+  const { isMobile, setOpenMobile } = useSidebar();
+
   return (
     <div ref={parent}>
       {recent.map((item) => (
@@ -55,6 +61,7 @@ function RecentSubMenu() {
                 <Link
                   to={`/jo/$joId`}
                   params={{ joId: item.id }}
+                  onClick={() => isMobile && setOpenMobile(false)}
                   activeProps={{ className: "bg-sidebar-accent" }}
                   tabIndex={0}
                 >

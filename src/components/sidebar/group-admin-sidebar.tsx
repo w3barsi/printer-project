@@ -4,11 +4,14 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { Link, useRouteContext } from "@tanstack/react-router";
 
 export function AdminSidebarGroup() {
   const { user } = useRouteContext({ from: "/(main)" });
+  const { isMobile, setOpenMobile } = useSidebar();
+
   return (
     <>
       {user.role === "admin" ? (
@@ -21,6 +24,7 @@ export function AdminSidebarGroup() {
               <SidebarMenuButton asChild>
                 <Link
                   to={`/admin/users`}
+                  onClick={() => isMobile && setOpenMobile(false)}
                   activeProps={{
                     className: "bg-sidebar-accent text-sidebar-accent-foreground",
                   }}

@@ -5,6 +5,7 @@ import {
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuSubItem,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { useLocalStorage } from "@/hooks/use-local-storage";
 import { getTrelloLists } from "@/server/trello";
@@ -19,6 +20,7 @@ export function TrelloSidebar() {
     queryKey: ["trelloLists"],
     queryFn: getTrelloLists,
   });
+  const { isMobile, setOpenMobile } = useSidebar();
 
   return (
     <Collapsible asChild defaultOpen={isOpen}>
@@ -26,6 +28,7 @@ export function TrelloSidebar() {
         <SidebarMenuButton asChild tooltip="Trello">
           <Link
             to="/trello"
+            onClick={() => isMobile && setOpenMobile(false)}
             activeOptions={{ exact: true }}
             activeProps={{ className: "bg-sidebar-accent" }}
             tabIndex={0}
@@ -53,6 +56,7 @@ export function TrelloSidebar() {
                       <Link
                         to={`/trello/$listId`}
                         params={{ listId: list.id }}
+                        onClick={() => isMobile && setOpenMobile(false)}
                         activeProps={{ className: "bg-sidebar-accent" }}
                         preload={false}
                         tabIndex={0}
