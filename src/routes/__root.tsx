@@ -38,6 +38,8 @@ const fetchAuth = createServerFn({ method: "GET" }).handler(async () => {
   };
 });
 
+export type AuthType = Awaited<ReturnType<typeof fetchAuth>>;
+
 interface MyRouterContext {
   queryClient: QueryClient;
   convexClient: ConvexReactClient;

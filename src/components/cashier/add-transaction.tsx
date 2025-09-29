@@ -11,10 +11,13 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { todayZero } from "@/routes/(main)/(cashier)/cashflow";
 import type { CashflowType } from "@/types/convex";
-import { useConvexMutation } from "@convex-dev/react-query";
 import { api } from "@convex/_generated/api";
-import { useMutation } from "@tanstack/react-query";
+import type { Id } from "@convex/_generated/dataModel";
+import { useQueryClient } from "@tanstack/react-query";
+import { useSearch } from "@tanstack/react-router";
+import { useMutation } from "convex/react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 
@@ -26,9 +29,55 @@ type FormData = {
 
 export function AddCashflow({ date }: { date?: number }) {
   const [open, setOpen] = useState(false);
-  const { mutateAsync, isPending } = useMutation({
-    mutationFn: useConvexMutation(api.cashier.createCashflow),
-  });
+  const { start } = useSearch({ from: "/(main)/(cashier)/cashflow" });
+  const dayStart = start ?? todayZero().getTime();
+
+  const queryClient = useQueryClient();
+  const mutate = useMutation(api.cashier.createCashflow).withOptimisticUpdate(
+    (localStore, args) => {
+      const { date, type, description, amount } = args;
+      const currentValue = localStore.getQuery(api.cashier.getCashflow, { dayStart });
+
+      const userData = queryClient.getQueryData(["user"]) as {
+        user: { id: Id<"users">; name: string };
+      };
+
+      const newCashflow = {
+        type: "Cashflow" as const,
+        cashflowType: type,
+        createdBy: userData.user.id,
+        createdByName: userData.user.name,
+        description,
+        amount,
+        createdAt: date,
+        _creationTime: Date.now(),
+        _id: crypto.randomUUID() as Id<"cashflow">,
+      };
+
+      const newData = [...(currentValue?.data ?? []), newCashflow];
+      const newExpensesTotal =
+        type === "Expense"
+          ? (currentValue?.expensesTotal ?? 0) + amount
+          : (currentValue?.expensesTotal ?? 0);
+      const newPaymentsTotal =
+        type === "CA"
+          ? (currentValue?.paymentsTotal ?? 0) - amount
+          : (currentValue?.paymentsTotal ?? 0);
+      const startingCash = currentValue?.startingCash ?? undefined;
+
+      localStore.setQuery(
+        api.cashier.getCashflow,
+        { dayStart },
+        {
+          data: newData,
+          expensesTotal: newExpensesTotal,
+          paymentsTotal: newPaymentsTotal,
+          startingCash,
+        },
+      );
+    },
+  );
+
   const form = useForm<FormData>({
     defaultValues: { description: "", amount: 0, type: "Expense" },
   });
@@ -41,7 +90,7 @@ export function AddCashflow({ date }: { date?: number }) {
       });
     }
 
-    await mutateAsync({
+    mutate({
       description: data.description,
       amount: data.amount,
       type: data.type,
@@ -58,7 +107,7 @@ export function AddCashflow({ date }: { date?: number }) {
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Add transaction</DialogTitle>
+          <DialogTitle>Add Transaction</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSave}>
           <div className="grid gap-4 py-2">
@@ -106,9 +155,7 @@ export function AddCashflow({ date }: { date?: number }) {
             </div>
           </div>
           <DialogFooter>
-            <Button type="submit" disabled={!form.formState.isValid || isPending}>
-              Save
-            </Button>
+            <Button type="submit">Save</Button>
           </DialogFooter>
         </form>
       </DialogContent>

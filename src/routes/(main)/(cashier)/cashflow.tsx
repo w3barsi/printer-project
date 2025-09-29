@@ -374,7 +374,7 @@ function CashflowHeader() {
   );
 }
 
-function todayZero() {
+export function todayZero() {
   const d = new Date();
   d.setHours(0, 0, 0, 0);
   return d;
