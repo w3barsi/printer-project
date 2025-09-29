@@ -224,43 +224,86 @@ function CashflowSummary() {
   const net = data.paymentsTotal - data.expensesTotal + (data?.startingCash?.amount ?? 0);
 
   return (
-    <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-      <Card>
-        <CardHeader className="flex justify-between">
-          <h2>Total Income</h2>
-          <TrendingUpIcon className="text-green-500 dark:text-green-600" />
-        </CardHeader>
-        <Separator />
-        <CardContent className="text-xl font-bold">
-          ₱{data.paymentsTotal.toFixed(2)}
-        </CardContent>
-      </Card>
-      <Card>
-        <CardHeader className="flex justify-between">
-          <h2>Total Expenses</h2>
-          <TrendingDownIcon className="text-red-500 dark:text-red-600" />
-        </CardHeader>
-        <Separator />
-        <CardContent className="text-xl font-bold">
-          ₱{data.expensesTotal.toFixed(2)}
-        </CardContent>
-      </Card>
-      <Card>
-        <CardHeader className="flex justify-between">
-          <h2>Total Cash</h2>
-          <PhilippinePesoIcon
-            className={cn(
-              "transition-colors",
-              isPositive
-                ? "text-green-500 dark:text-green-600"
-                : "text-red-500 dark:text-red-600",
-            )}
-          />
-        </CardHeader>
-        <Separator />
-        <CardContent className="text-xl font-bold">₱{net.toFixed(2)}</CardContent>
-      </Card>
-    </div>
+    <>
+      <div className="grid grid-cols-1 gap-2 sm:hidden lg:grid-cols-3">
+        <Card className="flex w-full flex-row">
+          <div className="flex w-84 gap-2 pl-2">
+            <TrendingUpIcon className="text-green-500 dark:text-green-600" />
+            <h2>Total Income</h2>
+          </div>
+          <Separator orientation="vertical" />
+          <CardContent className="flex w-full justify-end">
+            <p className="text-xl font-bold">₱{data.paymentsTotal.toFixed(2)}</p>
+          </CardContent>
+        </Card>
+
+        <Card className="flex w-full flex-row">
+          <div className="flex w-84 gap-2 pl-2">
+            <TrendingDownIcon className="text-red-500 dark:text-red-600" />
+            <h2>Total Expenses</h2>
+          </div>
+          <Separator orientation="vertical" />
+          <CardContent className="flex w-full justify-end">
+            <p className="text-xl font-bold">₱{data.expensesTotal.toFixed(2)}</p>
+          </CardContent>
+        </Card>
+
+        <Card className="flex w-full flex-row">
+          <div className="flex w-84 gap-2 pl-2">
+            <PhilippinePesoIcon
+              className={cn(
+                "transition-colors",
+                isPositive
+                  ? "text-green-500 dark:text-green-600"
+                  : "text-red-500 dark:text-red-600",
+              )}
+            />
+            <h2>Total Cash</h2>
+          </div>
+          <Separator orientation="vertical" />
+          <CardContent className="flex w-full justify-end">
+            <p className="text-xl font-bold">₱{net.toFixed(2)}</p>
+          </CardContent>
+        </Card>
+      </div>
+      <div className="hidden grid-cols-1 gap-4 sm:grid lg:grid-cols-3">
+        <Card>
+          <CardHeader className="flex justify-between">
+            <h2>Total Income</h2>
+            <TrendingUpIcon className="text-green-500 dark:text-green-600" />
+          </CardHeader>
+          <Separator />
+          <CardContent className="text-xl font-bold">
+            ₱{data.paymentsTotal.toFixed(2)}
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex justify-between">
+            <h2>Total Expenses</h2>
+            <TrendingDownIcon className="text-red-500 dark:text-red-600" />
+          </CardHeader>
+          <Separator />
+          <CardContent className="text-xl font-bold">
+            ₱{data.expensesTotal.toFixed(2)}
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex justify-between">
+            <h2>Total Cash</h2>
+            <PhilippinePesoIcon
+              className={cn(
+                "transition-colors",
+                isPositive
+                  ? "text-green-500 dark:text-green-600"
+                  : "text-red-500 dark:text-red-600",
+              )}
+            />
+          </CardHeader>
+          <Separator />
+          <CardContent className="text-xl font-bold">₱{net.toFixed(2)}</CardContent>
+        </Card>
+      </div>
+    </>
   );
 }
 
