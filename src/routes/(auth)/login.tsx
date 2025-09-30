@@ -1,9 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useQueryClient } from "@tanstack/react-query";
-import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
-import { GalleryVerticalEnd, LoaderCircle } from "lucide-react";
+import { createFileRoute } from "@tanstack/react-router";
+import { LoaderCircle } from "lucide-react";
 import { useState } from "react";
 
 import { authClient } from "@/lib/auth-client";
@@ -23,8 +22,6 @@ export const Route = createFileRoute("/(auth)/login")({
 
 function LoginForm() {
   const { redirectUrl } = Route.useSearch();
-  const queryClient = useQueryClient();
-  const navigate = useNavigate();
 
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -52,13 +49,12 @@ function LoginForm() {
           setErrorMessage(ctx.error.message);
           setIsLoading(false);
         },
-        onSuccess: async () => {
-          console.log("Invalidating Queries");
-          await queryClient.invalidateQueries({ queryKey: ["user"] });
-          console.log(`Redirecting to  "${redirectUrl}"`);
-          navigate({ to: redirectUrl ?? "/", replace: true });
-          console.log("Should be done redirecting");
-        },
+        // better-auth seems to trigger a hard navigation on login,
+        // so we don't have to revalidate & navigate ourselves
+        // onSuccess: () => {
+        //   queryClient.removeQueries({ queryKey: authQueryOptions().queryKey });
+        //   navigate({ to: redirectUrl });
+        // },
       },
     );
   };
@@ -69,12 +65,8 @@ function LoginForm() {
         <div className="flex flex-col gap-6">
           <div className="flex flex-col items-center gap-2">
             <a href="#" className="flex flex-col items-center gap-2 font-medium">
-              <div className="flex h-8 w-8 items-center justify-center rounded-md">
-                <GalleryVerticalEnd className="size-6" />
-              </div>
-              <span className="sr-only">Acme Inc.</span>
+              <img src="/logo.svg" alt="logo" />
             </a>
-            <h1 className="text-xl font-bold">Welcome back to Acme Inc.</h1>
           </div>
           <div className="flex flex-col gap-5">
             <div className="grid gap-2">
@@ -109,13 +101,6 @@ function LoginForm() {
           )}
         </div>
       </form>
-
-      <div className="text-center text-sm">
-        Don&apos;t have an account?{" "}
-        <Link to="/signup" className="underline underline-offset-4">
-          Sign up
-        </Link>
-      </div>
     </div>
   );
 }
