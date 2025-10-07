@@ -42,6 +42,9 @@ export const createCashflow = authedMutation({
     date: v.number(),
   },
   handler: async (ctx, args) => {
+    if (args.amount > 5_000_000) {
+      throw new Error("Cashflow amount cannot be greater than 5,000,000");
+    }
     await ctx.db.insert("cashflow", {
       amount: args.amount,
       description: args.description,

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -121,6 +122,9 @@ export function CreateFolderDialog({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Create New Folder</DialogTitle>
+          <DialogDescription>
+            Create a new folder to organize your files.
+          </DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
