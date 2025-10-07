@@ -21,10 +21,11 @@ import {
   TableWrapper,
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
-import { convexQuery, useConvexMutation } from "@convex-dev/react-query";
+import { convexQuery } from "@convex-dev/react-query";
 import { api } from "@convex/_generated/api";
-import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useMutation } from "convex/react";
 import {
   CalendarIcon,
   ChevronDownIcon,
@@ -89,8 +90,23 @@ function CashflowTable() {
   const dayStart = start ?? todayZero().getTime();
 
   const { data } = useSuspenseQuery(convexQuery(api.cashier.getCashflow, { dayStart }));
-  const { mutateAsync: deleteCashflow } = useMutation({
-    mutationFn: useConvexMutation(api.cashier.deleteCashflowExpense),
+  const deleteCashflow = useMutation(
+    api.cashier.deleteCashflowExpense,
+  ).withOptimisticUpdate((localStore, args) => {
+    const currentValue = localStore.getQuery(api.cashier.getCashflow, { dayStart });
+    const newData = currentValue?.data?.filter((c) => c._id !== args.expenseId);
+    localStore.setQuery(
+      api.cashier.getCashflow,
+      { dayStart },
+      {
+        startingCash: currentValue?.startingCash,
+        data: [...(newData ?? [])],
+        expensesTotal: currentValue?.expensesTotal
+          ? currentValue.expensesTotal - args.amount
+          : 0,
+        paymentsTotal: currentValue?.paymentsTotal ?? 0,
+      },
+    );
   });
 
   const sc = data.startingCash;
@@ -123,7 +139,7 @@ function CashflowTable() {
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => deleteCashflow({ expenseId: sc._id })}
+                  onClick={() => deleteCashflow({ expenseId: sc._id, amount: sc.amount })}
                   className="text-red-600 hover:bg-red-100 hover:text-red-700 dark:hover:bg-red-900/20"
                 >
                   Delete
@@ -200,7 +216,7 @@ function CashflowTable() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => deleteCashflow({ expenseId: c._id })}
+                    onClick={() => deleteCashflow({ expenseId: c._id, amount: c.amount })}
                     className="text-red-600 hover:bg-red-100 hover:text-red-700 dark:hover:bg-red-900/20"
                   >
                     Delete
