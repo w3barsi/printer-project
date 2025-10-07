@@ -7,6 +7,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { Link, useRouteContext } from "@tanstack/react-router";
+import { ShieldUserIcon } from "lucide-react";
 
 export function AdminSidebarGroup() {
   const { user } = useRouteContext({ from: "/(main)" });
@@ -30,6 +31,7 @@ export function AdminSidebarGroup() {
                   }}
                   tabIndex={0}
                 >
+                  <ShieldUserIcon />
                   <span>User Management</span>
                 </Link>
               </SidebarMenuButton>

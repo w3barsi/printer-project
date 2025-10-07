@@ -24,7 +24,7 @@ import appCss from "../styles.css?url";
 
 // import { fetchAuth } from "@/server/functions.ts"
 
-const fetchAuth = createServerFn({ method: "GET" }).handler(async () => {
+export const fetchAuth = createServerFn({ method: "GET" }).handler(async () => {
   const { createAuth } = await import("../../convex/auth");
   const { session: rawSession } = await fetchSession(getWebRequest());
   const session = rawSession as SessionWithRole;

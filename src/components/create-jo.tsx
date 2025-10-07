@@ -10,9 +10,11 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useConvexMutation } from "@convex-dev/react-query";
+import { fetchAuth } from "@/routes/__root";
 import { api } from "@convex/_generated/api";
-import { useMutation } from "@tanstack/react-query";
+import type { Id } from "@convex/_generated/dataModel";
+import { useQuery } from "@tanstack/react-query";
+import { useMutation } from "convex/react";
 import { PlusIcon } from "lucide-react";
 import { useState } from "react";
 import DateAndTimePicker from "./date-and-time-picker";
@@ -24,17 +26,45 @@ export function CreateDialog() {
   const [contact, setContact] = useState("");
   const [date, setDate] = useState<Date>(today);
   const [time, setTime] = useState<string | null>(null);
+  const { data: userData } = useQuery({ queryKey: ["user"], queryFn: fetchAuth });
 
-  const { mutate: createJo, isPending } = useMutation({
-    mutationFn: useConvexMutation(api.jo.createJo),
-    onSuccess: () => {
-      setOpen(false);
-      setName("");
-      setContact("");
-      setDate(today);
-      setTime(null);
+  const createJo = useMutation(api.jo.createJo).withOptimisticUpdate(
+    (localStore, args) => {
+      const { name, pickupDate, pickupTime, contactNumber } = args;
+
+      const getWithPaginationArgs = {
+        paginationOptions: {
+          numItems: 10,
+          cursor: null,
+        },
+      };
+
+      const currentValue = localStore.getQuery(
+        api.jo.getWithPagination,
+        getWithPaginationArgs,
+      );
+
+      const newJo = {
+        _id: crypto.randomUUID() as Id<"jo">,
+        _creationTime: Date.now(),
+        createdBy: userData!.user.userId as Id<"users">,
+        updatedAt: undefined,
+        pickupDate,
+        pickupTime,
+        contactNumber,
+        name,
+        joNumber: currentValue?.jos?.length ? currentValue.jos[0].joNumber + 1 : 999,
+        status: "pending" as const,
+        items: [],
+      };
+
+      localStore.setQuery(api.jo.getWithPagination, getWithPaginationArgs, {
+        nextCursor: currentValue?.nextCursor,
+        jos: [newJo, ...(currentValue?.jos ?? [])],
+      });
     },
-  });
+  );
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (name.trim()) {
@@ -50,6 +80,12 @@ export function CreateDialog() {
         pickupTime: time ?? undefined,
         pickupDate: date.getTime(),
       });
+      setOpen(false);
+
+      setName("");
+      setContact("");
+      setDate(today);
+      setTime(null);
     }
   };
 
@@ -63,7 +99,7 @@ export function CreateDialog() {
       </DialogTrigger>
       <DialogContent className="flex max-h-[95vh] flex-col">
         <DialogHeader className="flex-shrink-0">
-          <DialogTitle>Create Job Orderz</DialogTitle>
+          <DialogTitle>Create Job Orders</DialogTitle>
           <DialogDescription>
             Create a new job order to start tracking items and progress.
           </DialogDescription>
@@ -88,7 +124,7 @@ export function CreateDialog() {
                   id="contact"
                   value={contact}
                   onChange={(e) => setContact(e.target.value)}
-                  placeholder="Enter cotnact number (optional)"
+                  placeholder="Enter contact number (optional)"
                 />
               </div>
               <DateAndTimePicker
@@ -100,9 +136,7 @@ export function CreateDialog() {
               />
             </div>
             <DialogFooter className="flex-shrink-0">
-              <Button type="submit" disabled={isPending}>
-                {isPending ? "Creating..." : "Create"}
-              </Button>
+              <Button type="submit">{"Create"}</Button>
             </DialogFooter>
           </form>
         </div>
