@@ -1,7 +1,12 @@
 import { v } from "convex/values";
 import { internal } from "./_generated/api";
 import { Id } from "./_generated/dataModel";
-import { internalAction, internalMutation, internalQuery } from "./_generated/server";
+import {
+  internalAction,
+  internalMutation,
+  internalQuery,
+  MutationCtx,
+} from "./_generated/server";
 import { authedMutation, authedQuery } from "./auth";
 import { r2 } from "./r2";
 
@@ -102,8 +107,7 @@ export const deleteFilesOrFolders = authedMutation({
 
 // Helper function to recursively collect all items that need to be deleted
 async function collectItemsToDelete(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  ctx: any,
+  ctx: MutationCtx,
   ids: Array<Id<"file"> | Id<"folder">>,
 ): Promise<Array<Id<"file"> | Id<"folder">>> {
   const itemsToDelete: Array<Id<"file"> | Id<"folder">> = [];
@@ -127,8 +131,7 @@ async function collectItemsToDelete(
 
 // Helper function to collect all contents of a folder recursively
 async function collectFolderContents(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  ctx: any,
+  ctx: MutationCtx,
   folderId: Id<"folder">,
 ): Promise<Array<Id<"file"> | Id<"folder">>> {
   const contents: Array<Id<"file"> | Id<"folder">> = [];
@@ -136,14 +139,12 @@ async function collectFolderContents(
   // Get all direct children (files and folders)
   const childFolders = await ctx.db
     .query("folder")
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    .withIndex("by_parent", (q: any) => q.eq("parent", folderId))
+    .withIndex("by_parent", (q) => q.eq("parent", folderId))
     .collect();
 
   const childFiles = await ctx.db
     .query("file")
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    .withIndex("by_parent", (q: any) => q.eq("parent", folderId))
+    .withIndex("by_parent", (q) => q.eq("parent", folderId))
     .collect();
 
   // Add files to contents
