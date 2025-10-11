@@ -10,29 +10,29 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useConvexMutation } from "@convex-dev/react-query";
 import { api } from "@convex/_generated/api";
 import type { Id } from "@convex/_generated/dataModel";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation } from "convex/react";
 import { PlusIcon } from "lucide-react";
 import { useState } from "react";
+import { useForm } from "react-hook-form";
 
 export function AddItemDialog({ joId }: { joId: Id<"jo"> }) {
-  const [name, setName] = useState("");
-  const [quantity, setQuantity] = useState(1);
-  const [price, setPrice] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
-
-  const { mutate: createItem, isPending } = useMutation({
-    mutationFn: useConvexMutation(api.items.createItem),
-    onSuccess: () => {
-      setIsOpen(false);
+  const { register, handleSubmit, reset } = useForm({
+    defaultValues: {
+      name: "",
+      quantity: 1,
+      price: 0,
     },
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    createItem({ joId, name, quantity, price });
+  const createItem = useMutation(api.items.createItem);
+
+  const onSubmit = (data: { name: string; quantity: number; price: number }) => {
+    createItem({ joId, ...data });
+    reset();
+    setIsOpen(false);
   };
 
   return (
@@ -49,17 +49,12 @@ export function AddItemDialog({ joId }: { joId: Id<"jo"> }) {
             Fill in the details below to add a new item to the job order.
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="grid gap-4 py-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4 py-4">
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="name" className="text-right">
               Name
             </Label>
-            <Input
-              id="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="col-span-3"
-            />
+            <Input id="name" {...register("name")} className="col-span-3" />
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="quantity" className="text-right">
@@ -68,8 +63,7 @@ export function AddItemDialog({ joId }: { joId: Id<"jo"> }) {
             <Input
               id="quantity"
               type="number"
-              value={quantity}
-              onChange={(e) => setQuantity(Number(e.target.value))}
+              {...register("quantity", { valueAsNumber: true })}
               className="col-span-3"
             />
           </div>
@@ -80,15 +74,12 @@ export function AddItemDialog({ joId }: { joId: Id<"jo"> }) {
             <Input
               id="price"
               type="number"
-              value={price}
-              onChange={(e) => setPrice(Number(e.target.value))}
+              {...register("price", { valueAsNumber: true })}
               className="col-span-3"
             />
           </div>
           <DialogFooter>
-            <Button type="submit" disabled={isPending}>
-              {isPending ? "Adding..." : "Add Item"}
-            </Button>
+            <Button type="submit">Add Item</Button>
           </DialogFooter>
         </form>
       </DialogContent>
