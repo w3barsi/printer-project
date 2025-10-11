@@ -118,6 +118,7 @@ function PaymentCard() {
   if (!jo) {
     return null;
   }
+
   return (
     <Card>
       <CardHeader className="flex items-center justify-between">
@@ -395,9 +396,12 @@ function DeleteItemButton({ itemId }: { itemId: Id<"items"> }) {
       if (!currentValue) {
         return;
       }
+      const itemValue = currentValue.items.find((c) => c._id === args.itemId);
 
       const newValue = {
         ...currentValue,
+        totalOrderValue: currentValue.totalOrderValue - itemValue!.price,
+
         items: currentValue.items.filter((c) => c._id !== args.itemId),
       };
       localStore.setQuery(api.jo.getOneComplete, { id: joId as Id<"jo"> }, newValue);
