@@ -28,16 +28,17 @@ import {
   TableWrapper,
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
-import { convexQuery, useConvexMutation } from "@convex-dev/react-query";
+import { convexQuery } from "@convex-dev/react-query";
 import { api } from "@convex/_generated/api";
 import type { Id } from "@convex/_generated/dataModel";
-import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import {
   createFileRoute,
   useCanGoBack,
   useNavigate,
   useRouter,
 } from "@tanstack/react-router";
+import { useMutation } from "convex/react";
 import {
   ArrowLeftIcon,
   BanknoteIcon,
@@ -112,9 +113,7 @@ function PaymentCard() {
     convexQuery(api.jo.getOneComplete, { id: joId as Id<"jo"> }),
   );
 
-  const { mutateAsync: deletePayment, isPending } = useMutation({
-    mutationFn: useConvexMutation(api.payment.deletePayment),
-  });
+  const deletePayment = useMutation(api.payment.deletePayment);
 
   if (!jo) {
     return null;
@@ -167,7 +166,6 @@ function PaymentCard() {
                     variant="destructive-ghost"
                     size="icon"
                     onClick={() => deletePayment({ paymentId: payment._id })}
-                    disabled={isPending}
                   >
                     <Trash2Icon />
                   </Button>
@@ -257,13 +255,29 @@ function JobOrderCard() {
     convexQuery(api.jo.getOneComplete, { id: joId as Id<"jo"> }),
   );
 
-  const { mutate, isPending } = useMutation({
-    mutationFn: useConvexMutation(api.jo.deleteJo),
-    onSuccess: () => {
-      navigate({ to: "/jo" });
-    },
+  const mutate = useMutation(api.jo.deleteJo).withOptimisticUpdate((localStore, args) => {
+    const getWithPaginationArgs = { paginationOptions: { cursor: null, numItems: 10 } };
+
+    const currentValue = localStore.getQuery(
+      api.jo.getWithPagination,
+      getWithPaginationArgs,
+    );
+
+    if (currentValue === undefined) {
+      return;
+    }
+
+    const newValue = {
+      nextCursor: currentValue.nextCursor,
+      jos: currentValue.jos.filter((c) => c._id !== args.joId),
+    };
+
+    localStore.setQuery(api.jo.getWithPagination, getWithPaginationArgs, newValue);
   });
-  const deleteJo = () => mutate({ joId: joId as Id<"jo"> });
+  const deleteJo = () => {
+    mutate({ joId: joId as Id<"jo"> });
+    navigate({ to: "/jo" });
+  };
 
   if (jo === null) {
     return <div className="text-muted-foreground text-center">No Items</div>;
@@ -291,16 +305,13 @@ function JobOrderCard() {
                 <AlertDialogHeader>
                   <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                   <AlertDialogDescription>
-                    This action cannot be undone. This will permanently delete this Job Order.
+                    This action cannot be undone. This will permanently delete this Job
+                    Order.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction
-                    variant="destructive"
-                    onClick={deleteJo}
-                    disabled={isPending}
-                  >
+                  <AlertDialogAction variant="destructive" onClick={deleteJo}>
                     <Trash2Icon />
                     Delete
                   </AlertDialogAction>
@@ -374,16 +385,30 @@ function JobOrderCard() {
 }
 
 function DeleteItemButton({ itemId }: { itemId: Id<"items"> }) {
-  const { mutate: deleteItem, isPending } = useMutation({
-    mutationFn: useConvexMutation(api.items.deleteItem),
-  });
+  const { joId } = Route.useParams();
+  const deleteItem = useMutation(api.items.deleteItem).withOptimisticUpdate(
+    (localStore, args) => {
+      const currentValue = localStore.getQuery(api.jo.getOneComplete, {
+        id: joId as Id<"jo">,
+      });
+
+      if (!currentValue) {
+        return;
+      }
+
+      const newValue = {
+        ...currentValue,
+        items: currentValue.items.filter((c) => c._id !== args.itemId),
+      };
+      localStore.setQuery(api.jo.getOneComplete, { id: joId as Id<"jo"> }, newValue);
+    },
+  );
 
   return (
     <Button
       variant="destructive-ghost"
       size="icon"
       onClick={() => deleteItem({ itemId })}
-      disabled={isPending}
     >
       <Trash2Icon />
     </Button>
