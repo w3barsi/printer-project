@@ -29,6 +29,7 @@ import {
   TableWrapper,
 } from "@/components/ui/table";
 import { authClient } from "@/lib/auth-client";
+import { cn } from "@/lib/utils";
 import { convexQuery, useConvexMutation } from "@convex-dev/react-query";
 import { api } from "@convex/_generated/api";
 import { useSuspenseQuery } from "@tanstack/react-query";
@@ -146,7 +147,9 @@ function UserManagementTable() {
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </TableCell>
-                <TableCell>{u.banned ? "banned" : "active"}</TableCell>
+                <TableCell className={cn(u.banned ?? "text-red-500")}>
+                  {u.banned ? "banned" : "active"}
+                </TableCell>
                 <TableCell>
                   {u.createdAt ? new Date(u.createdAt).toLocaleString() : "-"}
                 </TableCell>
