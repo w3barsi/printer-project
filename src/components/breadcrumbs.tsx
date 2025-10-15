@@ -12,17 +12,18 @@ import type { Id } from "@convex/_generated/dataModel";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { isMatch, Link, useMatches } from "@tanstack/react-router";
 import z from "zod";
+import type { Parent } from "./ui/upload-dropzone";
 
 type CrumbType = {
   value: string;
   href: string;
-  type: "static" | "jo";
+  type: "static" | "jo" | "drive";
 };
 
 const crumbValidator = z.object({
   value: z.string(),
   href: z.string(),
-  type: z.enum(["static", "jo"]),
+  type: z.enum(["static", "jo", "drive"]),
 });
 const crumbsValidator = z.array(crumbValidator);
 
@@ -36,6 +37,8 @@ export function MainBreadcrumbs() {
 
   const parsedData = crumbsValidator.safeParse(matchesWithCrumbs);
   if (parsedData.error) return null;
+
+  console.log(parsedData);
 
   return (
     <Breadcrumb>
@@ -55,14 +58,25 @@ function Crumb({ idx, crumb }: { idx: number; crumb: CrumbType }) {
       {crumb.type === "static" ? (
         <BreadcrumbItem>
           <BreadcrumbLink asChild>
-            <Link to={crumb.href}>
-              <BreadcrumbPage>{crumb.value}</BreadcrumbPage>
-            </Link>
+            <Link to={crumb.href}>{crumb.value}</Link>
           </BreadcrumbLink>
         </BreadcrumbItem>
       ) : null}
 
       {crumb.type === "jo" ? <JoCrumb crumb={crumb} /> : null}
+      {crumb.type === "drive" ? <DriveCrumb crumb={crumb} /> : null}
+    </>
+  );
+}
+
+function DriveCrumb({ crumb }: { crumb: CrumbType }) {
+  const parent: Parent = crumb.value ? (crumb.value as Id<"folder">) : "private";
+  const { data } = useSuspenseQuery(convexQuery(api.drive.getDrive, { parent }));
+  return (
+    <>
+      <BreadcrumbItem>
+        <BreadcrumbPage>{data?.currentFolder?.name}</BreadcrumbPage>
+      </BreadcrumbItem>
     </>
   );
 }
@@ -73,11 +87,7 @@ function JoCrumb({ crumb }: { crumb: CrumbType }) {
   );
   return (
     <BreadcrumbItem>
-      <BreadcrumbLink asChild>
-        <Link to={crumb.href}>
-          <BreadcrumbPage>{data?.name}</BreadcrumbPage>
-        </Link>
-      </BreadcrumbLink>
+      <BreadcrumbPage>{data?.name}</BreadcrumbPage>
     </BreadcrumbItem>
   );
 }

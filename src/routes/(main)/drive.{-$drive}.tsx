@@ -12,6 +12,18 @@ import { Suspense } from "react";
 
 export const Route = createFileRoute("/(main)/drive/{-$drive}")({
   component: RouteComponent,
+  loader: ({ params }) => {
+    const crumb =
+      !params.drive || params.drive === "private"
+        ? [{ value: "Drive", href: "/drive/", type: "static" }]
+        : [
+            { value: "Drive", href: "/drive/", type: "static" },
+            { value: params.drive, href: `/drive/${params.drive}`, type: "drive" },
+          ];
+    return {
+      crumb,
+    };
+  },
   head: () => ({
     meta: [{ title: "Drive | DG" }],
   }),

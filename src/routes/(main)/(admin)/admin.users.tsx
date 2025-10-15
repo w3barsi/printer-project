@@ -47,6 +47,9 @@ export const Route = createFileRoute("/(main)/(admin)/admin/users")({
   component: RouteComponent,
   loader: ({ context }) => {
     context.queryClient.ensureQueryData(convexQuery(api.admin.users.listUsers, {}));
+    return {
+      crumb: [{ value: "User Management", href: "/admin/", type: "static" }],
+    };
   },
   head: () => ({
     meta: [

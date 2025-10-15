@@ -12,6 +12,9 @@ export const Route = createFileRoute("/(main)/trello/")({
       queryKey: ["trelloLists"],
       queryFn: getTrelloLists,
     });
+    return {
+      crumb: [{ value: "Trello", href: "/trello/", type: "static" }],
+    };
   },
   head: () => ({
     meta: [

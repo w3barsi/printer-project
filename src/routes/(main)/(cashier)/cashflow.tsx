@@ -55,6 +55,9 @@ export const Route = createFileRoute("/(main)/(cashier)/cashflow")({
     await context.queryClient.ensureQueryData(
       convexQuery(api.cashier.getCashflow, { dayStart: context.search.start }),
     );
+    return {
+      crumb: [{ value: "Cashflow", href: "/cashflow/", type: "static" }],
+    };
   },
   component: RouteComponent,
   head: () => ({
