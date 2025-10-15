@@ -291,6 +291,14 @@ function JobOrderCard() {
     };
 
     localStore.setQuery(api.jo.getWithPagination, getWithPaginationArgs, newValue);
+
+    const oldRecentJos = localStore.getQuery(api.jo.getRecent);
+    if (!oldRecentJos) return;
+    localStore.setQuery(
+      api.jo.getRecent,
+      {},
+      oldRecentJos.filter((c) => c.id !== args.joId),
+    );
   });
   const deleteJo = () => {
     mutate({ joId: joId as Id<"jo"> });
