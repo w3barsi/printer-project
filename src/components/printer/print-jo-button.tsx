@@ -18,7 +18,7 @@ export function PrintJoButton({ jo }: { jo: GetOneComplete }) {
 
   return (
     <Button onClick={handlePrint}>
-      <PrinterIcon className="mr-2" /> Print Job Order
+      <PrinterIcon /> Print Job Order
     </Button>
   );
 }

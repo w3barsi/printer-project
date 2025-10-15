@@ -39,7 +39,7 @@ export function AddItemDialog({ joId }: { joId: Id<"jo"> }) {
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button>
-          <PlusIcon className="mr-2" /> Add Item
+          <PlusIcon className="" /> Add Item
         </Button>
       </DialogTrigger>
       <DialogContent className="">

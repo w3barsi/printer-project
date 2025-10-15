@@ -84,10 +84,10 @@ export function AddPaymentDialog({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button>
-          <PlusIcon className="mr-2" /> Add Payment
+          <PlusIcon /> Add Payment
         </Button>
       </DialogTrigger>
-      <DialogContent className="">
+      <DialogContent>
         <DialogHeader>
           <DialogTitle>Add New Payment</DialogTitle>
           <DialogDescription>
