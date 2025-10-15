@@ -147,7 +147,7 @@ function UserManagementTable() {
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </TableCell>
-                <TableCell className={cn(u.banned ?? "text-red-500")}>
+                <TableCell className={cn(u.banned && "text-red-500")}>
                   {u.banned ? "banned" : "active"}
                 </TableCell>
                 <TableCell>
