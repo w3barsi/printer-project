@@ -27,7 +27,37 @@ export function AddItemDialog({ joId }: { joId: Id<"jo"> }) {
     },
   });
 
-  const createItem = useMutation(api.items.createItem);
+  const createItem = useMutation(api.items.createItem).withOptimisticUpdate(
+    (localStore, args) => {
+      const currentValue = localStore.getQuery(api.jo.getOneComplete, { id: joId });
+      if (!currentValue) return;
+
+      const newItem = {
+        _id: `optimistic-${Date.now()}` as Id<"items">,
+        _creationTime: Date.now(),
+        joId: args.joId,
+        name: args.name,
+        quantity: args.quantity,
+        price: args.price,
+        createdBy: undefined,
+        updatedAt: Date.now(),
+      };
+
+      const updatedItems = [...currentValue.items, newItem];
+      const updatedTotalOrderValue =
+        currentValue.totalOrderValue + args.quantity * args.price;
+
+      localStore.setQuery(
+        api.jo.getOneComplete,
+        { id: joId },
+        {
+          ...currentValue,
+          items: updatedItems,
+          totalOrderValue: updatedTotalOrderValue,
+        },
+      );
+    },
+  );
 
   const onSubmit = (data: { name: string; quantity: number; price: number }) => {
     createItem({ joId, ...data });
