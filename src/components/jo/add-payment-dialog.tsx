@@ -1,3 +1,4 @@
+import { authClient } from "@/lib/auth-client";
 import { api } from "@convex/_generated/api";
 import type { Id } from "@convex/_generated/dataModel";
 import { useMutation } from "convex/react";
@@ -48,7 +49,40 @@ export function AddPaymentDialog({
   totalOrderValue: number;
 }) {
   const [open, setOpen] = useState(false);
-  const createPayment = useMutation(api.payment.createPayment);
+  const { data: session } = authClient.useSession();
+  const user = session?.user;
+  const createPayment = useMutation(api.payment.createPayment).withOptimisticUpdate(
+    (localStore, args) => {
+      if (!user) return;
+      const currentValue = localStore.getQuery(api.jo.getOneComplete, { id: joId });
+      if (!currentValue) return;
+
+      const newPayment = {
+        _id: `optimistic-${Date.now()}` as Id<"payment">,
+        _creationTime: Date.now(),
+        createdAt: Date.now(),
+        joId: args.joId,
+        amount: args.amount,
+        full: args.full,
+        mop: args.mop,
+        createdBy: user.id as Id<"users">,
+        createdByName: user.name,
+        note: args.note,
+      };
+
+      const updatedTotalPayments = currentValue.totalPayments + args.amount;
+
+      localStore.setQuery(
+        api.jo.getOneComplete,
+        { id: joId },
+        {
+          ...currentValue,
+          totalPayments: updatedTotalPayments,
+          payments: [...currentValue.payments, newPayment],
+        },
+      );
+    },
+  );
 
   const form = useForm<FormData>({
     defaultValues: {
@@ -60,20 +94,16 @@ export function AddPaymentDialog({
 
   const onSubmit = async (data: FormData) => {
     const full = data.amount >= totalOrderValue - totalPayments;
-    try {
-      await createPayment({
-        joId,
-        amount: data.amount,
-        full,
-        mop: data.paymentType,
-        note: data.note,
-      });
-      toast.success("Payment added successfully");
-      setOpen(false);
-      form.reset();
-    } catch {
-      toast.error("Failed to add payment");
-    }
+    createPayment({
+      joId,
+      amount: data.amount,
+      full,
+      mop: data.paymentType,
+      note: data.note,
+    });
+    toast.success("Payment added successfully");
+    setOpen(false);
+    form.reset();
   };
 
   const handleTotalPayment = async () => {

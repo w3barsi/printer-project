@@ -26,6 +26,7 @@ export const createPayment = authedMutation({
 
 export const deletePayment = authedMutation({
   args: {
+    amount: v.number(),
     paymentId: v.id("payment"),
   },
   handler: async (ctx, args) => {

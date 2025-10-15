@@ -52,11 +52,14 @@ import {
 
 export const Route = createFileRoute("/(main)/jo/$joId")({
   component: JoDetailComponent,
-  loader: async ({ context: { queryClient: qc }, params }) => {
+  loader: async ({ context, params }) => {
     const id = params.joId as Id<"jo">;
-    const jo = await qc.ensureQueryData(convexQuery(api.jo.getOneComplete, { id }));
+    const jo = await context.queryClient.ensureQueryData(
+      convexQuery(api.jo.getOneComplete, { id }),
+    );
 
     return {
+      user: context.user,
       joNumber: jo?.joNumber,
       crumb: [
         { value: "Job Order", href: "/jo/", type: "static" },
@@ -113,7 +116,19 @@ function PaymentCard() {
     convexQuery(api.jo.getOneComplete, { id: joId as Id<"jo"> }),
   );
 
-  const deletePayment = useMutation(api.payment.deletePayment);
+  const deletePayment = useMutation(api.payment.deletePayment).withOptimisticUpdate(
+    (localStore, args) => {
+      const typedJoId = joId as Id<"jo">;
+      const currentValue = localStore.getQuery(api.jo.getOneComplete, { id: typedJoId });
+      if (!currentValue) return;
+      const newValue = {
+        ...currentValue,
+        totalPayments: currentValue.totalPayments - args.amount,
+        payments: currentValue.payments.filter((c) => c._id !== args.paymentId),
+      };
+      localStore.setQuery(api.jo.getOneComplete, { id: typedJoId }, newValue);
+    },
+  );
 
   if (!jo) {
     return null;
@@ -166,7 +181,9 @@ function PaymentCard() {
                   <Button
                     variant="destructive-ghost"
                     size="icon"
-                    onClick={() => deletePayment({ paymentId: payment._id })}
+                    onClick={() =>
+                      deletePayment({ paymentId: payment._id, amount: payment.amount })
+                    }
                   >
                     <Trash2Icon />
                   </Button>
