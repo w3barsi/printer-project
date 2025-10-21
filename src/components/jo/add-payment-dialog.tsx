@@ -5,7 +5,6 @@ import { useMutation } from "convex/react";
 import { PlusIcon } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { toast } from "sonner";
 import { Button } from "../ui/button";
 import {
   Dialog,
@@ -101,7 +100,6 @@ export function AddPaymentDialog({
       mop: data.paymentType,
       note: data.note,
     });
-    toast.success("Payment added successfully");
     setOpen(false);
     form.reset();
   };

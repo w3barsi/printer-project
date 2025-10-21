@@ -277,3 +277,21 @@ code {
     animation-delay: 1s;
   }
 }
+
+@keyframes border-pulse {
+  0%,
+  100% {
+    border-color: rgb(239, 68, 68);
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+  }
+  50% {
+    border-color: rgb(220, 38, 38);
+    box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.2);
+  }
+}
+
+@layer utilities {
+  .animate-border-pulse {
+    animation: border-pulse 2s ease-in-out infinite;
+  }
+}

@@ -2,6 +2,7 @@ import { AddItemDialog } from "@/components/jo/add-item-dialog";
 import { AddPaymentDialog } from "@/components/jo/add-payment-dialog";
 import { Container } from "@/components/layouts/container";
 import { PrintJoButton } from "@/components/printer/print-jo-button";
+import { DeleteConfirmButton } from "@/components/ui-custom/delete-confirm-button";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -178,15 +179,12 @@ function PaymentCard() {
                       </div>
                     </div>
                   </div>
-                  <Button
-                    variant="destructive-ghost"
-                    size="icon"
-                    onClick={() =>
+                  <DeleteConfirmButton
+                    deleteFor="payment"
+                    onConfirm={() =>
                       deletePayment({ paymentId: payment._id, amount: payment.amount })
                     }
-                  >
-                    <Trash2Icon />
-                  </Button>
+                  />
                 </div>
               ))}
             </div>
@@ -434,13 +432,7 @@ function DeleteItemButton({ itemId }: { itemId: Id<"items"> }) {
   );
 
   return (
-    <Button
-      variant="destructive-ghost"
-      size="icon"
-      onClick={() => deleteItem({ itemId })}
-    >
-      <Trash2Icon />
-    </Button>
+    <DeleteConfirmButton deleteFor="job order" onConfirm={() => deleteItem({ itemId })} />
   );
 }
 
