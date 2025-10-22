@@ -1,6 +1,7 @@
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { DeviceProvider } from "@/contexts/DeviceContext";
+import { ThemeProvider } from "@/contexts/theme-context";
 import { authClient } from "@/lib/auth-client.ts";
 import { ConvexBetterAuthProvider } from "@convex-dev/better-auth/react";
 import { fetchSession, getCookieName } from "@convex-dev/better-auth/react-start";
@@ -10,7 +11,6 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import {
   HeadContent,
   Outlet,
-  ScriptOnce,
   Scripts,
   createRootRouteWithContext,
   useRouteContext,
@@ -119,18 +119,13 @@ function RootComponent() {
 
 function RootDocument({ children }: { children: React.ReactNode }) {
   return (
+    // suppress since we're updating the "dark" class in ThemeProvider
     <html suppressHydrationWarning lang="en">
       <head>
         <HeadContent />
       </head>
       <body>
-        <ScriptOnce>
-          {`document.documentElement.classList.toggle(
-            'dark',
-            localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)
-            )`}
-        </ScriptOnce>
-        {children}
+        <ThemeProvider>{children}</ThemeProvider>
         <Scripts />
       </body>
     </html>
