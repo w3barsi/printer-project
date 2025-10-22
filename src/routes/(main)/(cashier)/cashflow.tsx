@@ -5,6 +5,7 @@ import {
   CashflowSummarySkeleton,
   CashflowTableSkeleton,
 } from "@/components/skeletons/cashflow";
+import { DeleteConfirmButton } from "@/components/ui-custom/delete-confirm-button";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -98,6 +99,22 @@ function CashflowTable() {
   ).withOptimisticUpdate((localStore, args) => {
     const currentValue = localStore.getQuery(api.cashier.getCashflow, { dayStart });
     const newData = currentValue?.data?.filter((c) => c._id !== args.expenseId);
+
+    if (args.isStartingCash) {
+      return localStore.setQuery(
+        api.cashier.getCashflow,
+        { dayStart },
+        {
+          startingCash: undefined,
+          data: [...(newData ?? [])],
+          expensesTotal: currentValue?.expensesTotal
+            ? currentValue.expensesTotal - args.amount
+            : 0,
+          paymentsTotal: currentValue?.paymentsTotal ?? 0,
+        },
+      );
+    }
+
     localStore.setQuery(
       api.cashier.getCashflow,
       { dayStart },
@@ -112,7 +129,7 @@ function CashflowTable() {
     );
   });
 
-  const sc = data.startingCash;
+  const startingCash = data.startingCash;
 
   return (
     <TableWrapper>
@@ -129,24 +146,26 @@ function CashflowTable() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {sc ? (
+          {startingCash ? (
             <TableRow className="bg-muted hover:bg-muted">
               <TableCell colSpan={4} className="text-center">
                 Cash On Hand
               </TableCell>
-              <TableCell>{sc.createdByName}</TableCell>
+              <TableCell>{startingCash.createdByName}</TableCell>
               <TableCell className={cn("text-right font-medium")}>
-                ₱{sc.amount.toFixed(2)}
+                ₱{startingCash.amount.toFixed(2)}
               </TableCell>
               <TableCell className="text-center md:pr-4">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => deleteCashflow({ expenseId: sc._id, amount: sc.amount })}
-                  className="text-red-600 hover:bg-red-100 hover:text-red-700 dark:hover:bg-red-900/20"
-                >
-                  Delete
-                </Button>
+                <DeleteConfirmButton
+                  onConfirm={() =>
+                    deleteCashflow({
+                      expenseId: startingCash._id,
+                      amount: startingCash.amount,
+                      isStartingCash: true,
+                    })
+                  }
+                  deleteFor="cashflow"
+                />
               </TableCell>
             </TableRow>
           ) : (
@@ -216,14 +235,15 @@ function CashflowTable() {
               </TableCell>
               <TableCell className="text-center md:pr-4">
                 {c.type === "Cashflow" && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => deleteCashflow({ expenseId: c._id, amount: c.amount })}
-                    className="text-red-600 hover:bg-red-100 hover:text-red-700 dark:hover:bg-red-900/20"
-                  >
-                    Delete
-                  </Button>
+                  <DeleteConfirmButton
+                    onConfirm={() =>
+                      deleteCashflow({
+                        expenseId: c._id,
+                        amount: c.amount,
+                      })
+                    }
+                    deleteFor="cashflow"
+                  />
                 )}
               </TableCell>
             </TableRow>

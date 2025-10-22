@@ -8,7 +8,7 @@ interface DeleteConfirmButtonProps {
   onConfirm: () => Promise<null>;
   onCancel?: () => void;
   isLoading?: boolean;
-  deleteFor: "payment" | "job order" | "item";
+  deleteFor: "payment" | "job order" | "item" | "cashflow";
 }
 
 export function DeleteConfirmButton({

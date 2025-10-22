@@ -59,6 +59,7 @@ export const deleteCashflowExpense = authedMutation({
   args: {
     expenseId: v.id("cashflow"),
     amount: v.number(),
+    isStartingCash: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
     await ctx.db.delete(args.expenseId);
