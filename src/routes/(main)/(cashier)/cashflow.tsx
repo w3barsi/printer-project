@@ -98,19 +98,17 @@ function CashflowTable() {
     api.cashier.deleteCashflowExpense,
   ).withOptimisticUpdate((localStore, args) => {
     const currentValue = localStore.getQuery(api.cashier.getCashflow, { dayStart });
-    const newData = currentValue?.data?.filter((c) => c._id !== args.expenseId);
+    if (!currentValue) return;
+
+    const newData = currentValue.data?.filter((c) => c._id !== args.expenseId);
 
     if (args.isStartingCash) {
       return localStore.setQuery(
         api.cashier.getCashflow,
         { dayStart },
         {
+          ...currentValue,
           startingCash: undefined,
-          data: [...(newData ?? [])],
-          expensesTotal: currentValue?.expensesTotal
-            ? currentValue.expensesTotal - args.amount
-            : 0,
-          paymentsTotal: currentValue?.paymentsTotal ?? 0,
         },
       );
     }
@@ -119,12 +117,12 @@ function CashflowTable() {
       api.cashier.getCashflow,
       { dayStart },
       {
-        startingCash: currentValue?.startingCash,
+        startingCash: currentValue.startingCash,
         data: [...(newData ?? [])],
-        expensesTotal: currentValue?.expensesTotal
+        expensesTotal: currentValue.expensesTotal
           ? currentValue.expensesTotal - args.amount
           : 0,
-        paymentsTotal: currentValue?.paymentsTotal ?? 0,
+        paymentsTotal: currentValue.paymentsTotal ?? 0,
       },
     );
   });
