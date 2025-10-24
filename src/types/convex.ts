@@ -19,6 +19,8 @@ export type Jo = Doc<"jo">;
 
 export type CashflowType = Infer<typeof cashflowType>;
 
+export type GetCashflowQueryType = FunctionReturnType<typeof api.cashier.getCashflow>;
+
 export type JoWithItems = Jo & {
   items: Item[];
 };

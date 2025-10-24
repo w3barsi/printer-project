@@ -27,7 +27,6 @@ import { Route as mainJoIndexRouteImport } from "./routes/(main)/jo.index";
 import { Route as mainTrelloListIdRouteImport } from "./routes/(main)/trello.$listId";
 import { Route as mainJoJoIdRouteImport } from "./routes/(main)/jo.$joId";
 import { Route as mainDriveChar123DriveChar125RouteImport } from "./routes/(main)/drive.{-$drive}";
-import { Route as maincashierCashflowoldRouteImport } from "./routes/(main)/(cashier)/cashflowold";
 import { Route as maincashierCashflowRouteImport } from "./routes/(main)/(cashier)/cashflow";
 import { Route as mainadminAdminIndexRouteImport } from "./routes/(main)/(admin)/admin.index";
 import { Route as mainadminAdminUsersRouteImport } from "./routes/(main)/(admin)/admin.users";
@@ -112,11 +111,6 @@ const mainDriveChar123DriveChar125Route =
     path: "/drive/{-$drive}",
     getParentRoute: () => mainRouteRoute,
   } as any);
-const maincashierCashflowoldRoute = maincashierCashflowoldRouteImport.update({
-  id: "/cashflowold",
-  path: "/cashflowold",
-  getParentRoute: () => maincashierRouteRoute,
-} as any);
 const maincashierCashflowRoute = maincashierCashflowRouteImport.update({
   id: "/cashflow",
   path: "/cashflow",
@@ -147,7 +141,6 @@ export interface FileRoutesByFullPath {
   "/signup": typeof authSignupRoute;
   "/three": typeof mainThreeRoute;
   "/cashflow": typeof maincashierCashflowRoute;
-  "/cashflowold": typeof maincashierCashflowoldRoute;
   "/drive/{-$drive}": typeof mainDriveChar123DriveChar125Route;
   "/jo/$joId": typeof mainJoJoIdRoute;
   "/trello/$listId": typeof mainTrelloListIdRoute;
@@ -165,7 +158,6 @@ export interface FileRoutesByTo {
   "/signup": typeof authSignupRoute;
   "/three": typeof mainThreeRoute;
   "/cashflow": typeof maincashierCashflowRoute;
-  "/cashflowold": typeof maincashierCashflowoldRoute;
   "/drive/{-$drive}": typeof mainDriveChar123DriveChar125Route;
   "/jo/$joId": typeof mainJoJoIdRoute;
   "/trello/$listId": typeof mainTrelloListIdRoute;
@@ -188,7 +180,6 @@ export interface FileRoutesById {
   "/(auth)/signup": typeof authSignupRoute;
   "/(main)/three": typeof mainThreeRoute;
   "/(main)/(cashier)/cashflow": typeof maincashierCashflowRoute;
-  "/(main)/(cashier)/cashflowold": typeof maincashierCashflowoldRoute;
   "/(main)/drive/{-$drive}": typeof mainDriveChar123DriveChar125Route;
   "/(main)/jo/$joId": typeof mainJoJoIdRoute;
   "/(main)/trello/$listId": typeof mainTrelloListIdRoute;
@@ -208,7 +199,6 @@ export interface FileRouteTypes {
     | "/signup"
     | "/three"
     | "/cashflow"
-    | "/cashflowold"
     | "/drive/{-$drive}"
     | "/jo/$joId"
     | "/trello/$listId"
@@ -226,7 +216,6 @@ export interface FileRouteTypes {
     | "/signup"
     | "/three"
     | "/cashflow"
-    | "/cashflowold"
     | "/drive/{-$drive}"
     | "/jo/$joId"
     | "/trello/$listId"
@@ -248,7 +237,6 @@ export interface FileRouteTypes {
     | "/(auth)/signup"
     | "/(main)/three"
     | "/(main)/(cashier)/cashflow"
-    | "/(main)/(cashier)/cashflowold"
     | "/(main)/drive/{-$drive}"
     | "/(main)/jo/$joId"
     | "/(main)/trello/$listId"
@@ -402,13 +390,6 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof mainDriveChar123DriveChar125RouteImport;
       parentRoute: typeof mainRouteRoute;
     };
-    "/(main)/(cashier)/cashflowold": {
-      id: "/(main)/(cashier)/cashflowold";
-      path: "/cashflowold";
-      fullPath: "/cashflowold";
-      preLoaderRoute: typeof maincashierCashflowoldRouteImport;
-      parentRoute: typeof maincashierRouteRoute;
-    };
     "/(main)/(cashier)/cashflow": {
       id: "/(main)/(cashier)/cashflow";
       path: "/cashflow";
@@ -474,12 +455,10 @@ const mainadminRouteRouteWithChildren = mainadminRouteRoute._addFileChildren(
 
 interface maincashierRouteRouteChildren {
   maincashierCashflowRoute: typeof maincashierCashflowRoute;
-  maincashierCashflowoldRoute: typeof maincashierCashflowoldRoute;
 }
 
 const maincashierRouteRouteChildren: maincashierRouteRouteChildren = {
   maincashierCashflowRoute: maincashierCashflowRoute,
-  maincashierCashflowoldRoute: maincashierCashflowoldRoute,
 };
 
 const maincashierRouteRouteWithChildren =

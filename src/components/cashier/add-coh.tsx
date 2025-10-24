@@ -8,10 +8,11 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useConvexMutation } from "@convex-dev/react-query";
+import { authClient } from "@/lib/auth-client";
+import type { GetCashflowQueryType } from "@/types/convex";
 import { api } from "@convex/_generated/api";
-import { useMutation } from "@tanstack/react-query";
-import { LoaderIcon } from "lucide-react";
+import type { Id } from "@convex/_generated/dataModel";
+import { useMutation } from "convex/react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import {
@@ -22,11 +23,43 @@ import {
   DialogTrigger,
 } from "../ui/dialog";
 
-export function AddCoh({ start }: { start?: number }) {
+export function AddCoh({ start }: { start: number }) {
   const [open, setOpen] = useState(false);
-  const { mutateAsync: createCashOnHand, isPending } = useMutation({
-    mutationFn: useConvexMutation(api.cashier.createCashOnHand),
-  });
+
+  const { data: session } = authClient.useSession();
+  const user = session?.user;
+
+  const createCashOnHand = useMutation(api.cashier.createCashOnHand).withOptimisticUpdate(
+    (localStore, args) => {
+      if (!user) return;
+
+      const currentValue = localStore.getQuery(api.cashier.getCashflow, {
+        dayStart: start,
+      }) || {
+        data: [],
+        paymentsTotal: 0,
+        expensesTotal: 0,
+        startingCash: undefined,
+      };
+
+      const newData: GetCashflowQueryType = {
+        ...currentValue,
+        startingCash: {
+          _id: crypto.randomUUID() as Id<"cashflow">,
+          _creationTime: Date.now(),
+          amount: args.amount,
+          description: args.description,
+          type: "Cashflow" as const,
+          cashflowType: "COH",
+          createdBy: user.id as Id<"users">,
+          createdByName: user.name,
+          createdAt: start,
+        },
+      };
+
+      localStore.setQuery(api.cashier.getCashflow, { dayStart: start }, newData);
+    },
+  );
 
   const form = useForm({
     defaultValues: {
@@ -35,13 +68,11 @@ export function AddCoh({ start }: { start?: number }) {
   });
 
   const onSubmit = async (data: { amount: number }) => {
-    await createCashOnHand({
+    createCashOnHand({
       amount: data.amount,
       description: "Cash On Hand",
-      date: start ?? new Date().getTime(),
+      date: start,
     });
-    setOpen(false);
-    form.reset();
   };
 
   return (
@@ -75,15 +106,9 @@ export function AddCoh({ start }: { start?: number }) {
               )}
             />
             <div className="flex w-full justify-end">
-              {!isPending ? (
-                <Button type="submit" className="w-24">
-                  Submit
-                </Button>
-              ) : (
-                <Button type="submit" className="w-24" disabled>
-                  <LoaderIcon className="animate-spin" />
-                </Button>
-              )}
+              <Button type="submit" className="w-24">
+                Submit
+              </Button>
             </div>
           </form>
         </Form>

@@ -1,5 +1,5 @@
+import { AddCashflow } from "@/components/cashier/add-cashflow";
 import { AddCoh } from "@/components/cashier/add-coh";
-import { AddCashflow } from "@/components/cashier/add-transaction";
 import { Container } from "@/components/layouts/container";
 import {
   CashflowSummarySkeleton,
@@ -169,7 +169,7 @@ function CashflowTable() {
           ) : (
             <TableRow className="hover:bg-transparent">
               <TableCell colSpan={7} className="text-center">
-                <AddCoh start={start} />
+                <AddCoh start={dayStart} />
               </TableCell>
             </TableRow>
           )}
