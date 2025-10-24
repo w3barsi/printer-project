@@ -10,11 +10,11 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { authClient } from "@/lib/auth-client";
 import { todayZero } from "@/routes/(main)/(cashier)/cashflow";
 import type { CashflowType } from "@/types/convex";
 import { api } from "@convex/_generated/api";
 import type { Id } from "@convex/_generated/dataModel";
-import { useQueryClient } from "@tanstack/react-query";
 import { useSearch } from "@tanstack/react-router";
 import { useMutation } from "convex/react";
 import { useState } from "react";
@@ -31,21 +31,22 @@ export function AddCashflow({ date }: { date?: number }) {
   const { start } = useSearch({ from: "/(main)/(cashier)/cashflow" });
   const dayStart = start ?? todayZero().getTime();
 
-  const queryClient = useQueryClient();
+  const { data: session } = authClient.useSession();
+  const user = session?.user;
+
   const mutate = useMutation(api.cashier.createCashflow).withOptimisticUpdate(
     (localStore, args) => {
       const { date, type, description, amount } = args;
-      const currentValue = localStore.getQuery(api.cashier.getCashflow, { dayStart });
 
-      const userData = queryClient.getQueryData(["user"]) as {
-        user: { id: Id<"users">; name: string };
-      };
+      const currentValue = localStore.getQuery(api.cashier.getCashflow, { dayStart });
+      if (!currentValue) return;
+      if (!user) return;
 
       const newCashflow = {
         type: "Cashflow" as const,
         cashflowType: type,
-        createdBy: userData.user.id,
-        createdByName: userData.user.name,
+        createdBy: user.id as Id<"users">,
+        createdByName: user.name,
         description,
         amount,
         createdAt: date,
@@ -53,7 +54,7 @@ export function AddCashflow({ date }: { date?: number }) {
         _id: crypto.randomUUID() as Id<"cashflow">,
       };
 
-      const newData = [...(currentValue?.data ?? []), newCashflow];
+      const newData = [...currentValue.data, newCashflow];
       const newExpensesTotal =
         type === "Expense" || type === "CA"
           ? (currentValue?.expensesTotal ?? 0) + amount
@@ -99,7 +100,7 @@ export function AddCashflow({ date }: { date?: number }) {
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Add Transaction</DialogTitle>
+          <DialogTitle>Add Cashflow</DialogTitle>
         </DialogHeader>
         {form.formState.errors.root && (
           <p className="text-sm text-red-500">{form.formState.errors.root.message}</p>
