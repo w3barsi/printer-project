@@ -18,7 +18,7 @@ import { convexQuery } from "@convex-dev/react-query";
 import { api } from "@convex/_generated/api";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { ArrowLeftIcon, ArrowRightIcon, HashIcon } from "lucide-react";
-import { Suspense, useState } from "react";
+import { Suspense, useRef, useState } from "react";
 
 export const Route = createFileRoute("/(main)/jo/")({
   component: RouteComponent,
@@ -129,6 +129,7 @@ function JobOrderList() {
 function JobOrderListBody({ jos }: { jos: JoWithItems[] }) {
   const navigate = useNavigate();
   const { preloadRoute } = useRouter();
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   return (
     <>
@@ -137,9 +138,20 @@ function JobOrderListBody({ jos }: { jos: JoWithItems[] }) {
           key={jo._id}
           className="cursor-pointer"
           onClick={() => navigate({ to: "/jo/$joId", params: { joId: jo._id } })}
-          onMouseDown={(e) => {
-            e.preventDefault();
-            preloadRoute({ to: "/jo/$joId", params: { joId: jo._id } });
+          onMouseEnter={() => {
+            if (timeoutRef.current) {
+              clearTimeout(timeoutRef.current);
+            }
+            timeoutRef.current = setTimeout(() => {
+              preloadRoute({ to: "/jo/$joId", params: { joId: jo._id } });
+              console.log("preloading ", jo.name);
+            }, 250);
+          }}
+          onMouseLeave={() => {
+            if (timeoutRef.current) {
+              clearTimeout(timeoutRef.current);
+              timeoutRef.current = null;
+            }
           }}
           onKeyDown={(e) => {
             if (e.key === "Enter" || e.key === " ") {
