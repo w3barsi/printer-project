@@ -27,6 +27,7 @@ export function RecentJobOrdersGroup() {
           <SidebarMenuButton asChild tooltip="Job Order">
             <Link
               to="/jo"
+              preload="viewport"
               onClick={() => isMobile && setOpenMobile(false)}
               activeProps={{
                 className: "bg-sidebar-accent text-sidebar-accent-foreground",
