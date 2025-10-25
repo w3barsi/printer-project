@@ -8,471 +8,429 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { createServerRootRoute } from "@tanstack/react-start/server";
-
-import { Route as rootRouteImport } from "./routes/__root";
-import { Route as TestfruitsRouteImport } from "./routes/testfruits";
-import { Route as TestdndRouteImport } from "./routes/testdnd";
-import { Route as ConvexRouteImport } from "./routes/convex";
-import { Route as mainRouteRouteImport } from "./routes/(main)/route";
-import { Route as authRouteRouteImport } from "./routes/(auth)/route";
-import { Route as IndexRouteImport } from "./routes/index";
-import { Route as mainThreeRouteImport } from "./routes/(main)/three";
-import { Route as authSignupRouteImport } from "./routes/(auth)/signup";
-import { Route as authLoginRouteImport } from "./routes/(auth)/login";
-import { Route as maincashierRouteRouteImport } from "./routes/(main)/(cashier)/route";
-import { Route as mainadminRouteRouteImport } from "./routes/(main)/(admin)/route";
-import { Route as mainTrelloIndexRouteImport } from "./routes/(main)/trello.index";
-import { Route as mainJoIndexRouteImport } from "./routes/(main)/jo.index";
-import { Route as mainTrelloListIdRouteImport } from "./routes/(main)/trello.$listId";
-import { Route as mainJoJoIdRouteImport } from "./routes/(main)/jo.$joId";
-import { Route as mainDriveChar123DriveChar125RouteImport } from "./routes/(main)/drive.{-$drive}";
-import { Route as maincashierCashflowRouteImport } from "./routes/(main)/(cashier)/cashflow";
-import { Route as mainadminAdminIndexRouteImport } from "./routes/(main)/(admin)/admin.index";
-import { Route as mainadminAdminUsersRouteImport } from "./routes/(main)/(admin)/admin.users";
-import { ServerRoute as ApiAuthSplatServerRouteImport } from "./routes/api/auth.$";
-
-const rootServerRouteImport = createServerRootRoute();
+import { Route as rootRouteImport } from './routes/__root'
+import { Route as TestfruitsRouteImport } from './routes/testfruits'
+import { Route as TestdndRouteImport } from './routes/testdnd'
+import { Route as ConvexRouteImport } from './routes/convex'
+import { Route as mainRouteRouteImport } from './routes/(main)/route'
+import { Route as authRouteRouteImport } from './routes/(auth)/route'
+import { Route as IndexRouteImport } from './routes/index'
+import { Route as mainThreeRouteImport } from './routes/(main)/three'
+import { Route as authSignupRouteImport } from './routes/(auth)/signup'
+import { Route as authLoginRouteImport } from './routes/(auth)/login'
+import { Route as maincashierRouteRouteImport } from './routes/(main)/(cashier)/route'
+import { Route as mainadminRouteRouteImport } from './routes/(main)/(admin)/route'
+import { Route as mainTrelloIndexRouteImport } from './routes/(main)/trello.index'
+import { Route as mainJoIndexRouteImport } from './routes/(main)/jo.index'
+import { Route as mainTrelloListIdRouteImport } from './routes/(main)/trello.$listId'
+import { Route as mainJoJoIdRouteImport } from './routes/(main)/jo.$joId'
+import { Route as mainDriveChar123DriveChar125RouteImport } from './routes/(main)/drive.{-$drive}'
+import { Route as maincashierCashflowRouteImport } from './routes/(main)/(cashier)/cashflow'
+import { Route as mainadminAdminIndexRouteImport } from './routes/(main)/(admin)/admin.index'
+import { Route as mainadminAdminUsersRouteImport } from './routes/(main)/(admin)/admin.users'
 
 const TestfruitsRoute = TestfruitsRouteImport.update({
-  id: "/testfruits",
-  path: "/testfruits",
+  id: '/testfruits',
+  path: '/testfruits',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const TestdndRoute = TestdndRouteImport.update({
-  id: "/testdnd",
-  path: "/testdnd",
+  id: '/testdnd',
+  path: '/testdnd',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const ConvexRoute = ConvexRouteImport.update({
-  id: "/convex",
-  path: "/convex",
+  id: '/convex',
+  path: '/convex',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const mainRouteRoute = mainRouteRouteImport.update({
-  id: "/(main)",
+  id: '/(main)',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const authRouteRoute = authRouteRouteImport.update({
-  id: "/(auth)",
+  id: '/(auth)',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const IndexRoute = IndexRouteImport.update({
-  id: "/",
-  path: "/",
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const mainThreeRoute = mainThreeRouteImport.update({
-  id: "/three",
-  path: "/three",
+  id: '/three',
+  path: '/three',
   getParentRoute: () => mainRouteRoute,
-} as any);
+} as any)
 const authSignupRoute = authSignupRouteImport.update({
-  id: "/signup",
-  path: "/signup",
+  id: '/signup',
+  path: '/signup',
   getParentRoute: () => authRouteRoute,
-} as any);
+} as any)
 const authLoginRoute = authLoginRouteImport.update({
-  id: "/login",
-  path: "/login",
+  id: '/login',
+  path: '/login',
   getParentRoute: () => authRouteRoute,
-} as any);
+} as any)
 const maincashierRouteRoute = maincashierRouteRouteImport.update({
-  id: "/(cashier)",
+  id: '/(cashier)',
   getParentRoute: () => mainRouteRoute,
-} as any);
+} as any)
 const mainadminRouteRoute = mainadminRouteRouteImport.update({
-  id: "/(admin)",
+  id: '/(admin)',
   getParentRoute: () => mainRouteRoute,
-} as any);
+} as any)
 const mainTrelloIndexRoute = mainTrelloIndexRouteImport.update({
-  id: "/trello/",
-  path: "/trello/",
+  id: '/trello/',
+  path: '/trello/',
   getParentRoute: () => mainRouteRoute,
-} as any);
+} as any)
 const mainJoIndexRoute = mainJoIndexRouteImport.update({
-  id: "/jo/",
-  path: "/jo/",
+  id: '/jo/',
+  path: '/jo/',
   getParentRoute: () => mainRouteRoute,
-} as any);
+} as any)
 const mainTrelloListIdRoute = mainTrelloListIdRouteImport.update({
-  id: "/trello/$listId",
-  path: "/trello/$listId",
+  id: '/trello/$listId',
+  path: '/trello/$listId',
   getParentRoute: () => mainRouteRoute,
-} as any);
+} as any)
 const mainJoJoIdRoute = mainJoJoIdRouteImport.update({
-  id: "/jo/$joId",
-  path: "/jo/$joId",
+  id: '/jo/$joId',
+  path: '/jo/$joId',
   getParentRoute: () => mainRouteRoute,
-} as any);
+} as any)
 const mainDriveChar123DriveChar125Route =
   mainDriveChar123DriveChar125RouteImport.update({
-    id: "/drive/{-$drive}",
-    path: "/drive/{-$drive}",
+    id: '/drive/{-$drive}',
+    path: '/drive/{-$drive}',
     getParentRoute: () => mainRouteRoute,
-  } as any);
+  } as any)
 const maincashierCashflowRoute = maincashierCashflowRouteImport.update({
-  id: "/cashflow",
-  path: "/cashflow",
+  id: '/cashflow',
+  path: '/cashflow',
   getParentRoute: () => maincashierRouteRoute,
-} as any);
+} as any)
 const mainadminAdminIndexRoute = mainadminAdminIndexRouteImport.update({
-  id: "/admin/",
-  path: "/admin/",
+  id: '/admin/',
+  path: '/admin/',
   getParentRoute: () => mainadminRouteRoute,
-} as any);
+} as any)
 const mainadminAdminUsersRoute = mainadminAdminUsersRouteImport.update({
-  id: "/admin/users",
-  path: "/admin/users",
+  id: '/admin/users',
+  path: '/admin/users',
   getParentRoute: () => mainadminRouteRoute,
-} as any);
-const ApiAuthSplatServerRoute = ApiAuthSplatServerRouteImport.update({
-  id: "/api/auth/$",
-  path: "/api/auth/$",
-  getParentRoute: () => rootServerRouteImport,
-} as any);
+} as any)
 
 export interface FileRoutesByFullPath {
-  "/": typeof maincashierRouteRouteWithChildren;
-  "/convex": typeof ConvexRoute;
-  "/testdnd": typeof TestdndRoute;
-  "/testfruits": typeof TestfruitsRoute;
-  "/login": typeof authLoginRoute;
-  "/signup": typeof authSignupRoute;
-  "/three": typeof mainThreeRoute;
-  "/cashflow": typeof maincashierCashflowRoute;
-  "/drive/{-$drive}": typeof mainDriveChar123DriveChar125Route;
-  "/jo/$joId": typeof mainJoJoIdRoute;
-  "/trello/$listId": typeof mainTrelloListIdRoute;
-  "/jo": typeof mainJoIndexRoute;
-  "/trello": typeof mainTrelloIndexRoute;
-  "/admin/users": typeof mainadminAdminUsersRoute;
-  "/admin": typeof mainadminAdminIndexRoute;
+  '/': typeof IndexRoute
+  '/convex': typeof ConvexRoute
+  '/testdnd': typeof TestdndRoute
+  '/testfruits': typeof TestfruitsRoute
+  '/login': typeof authLoginRoute
+  '/signup': typeof authSignupRoute
+  '/three': typeof mainThreeRoute
+  '/cashflow': typeof maincashierCashflowRoute
+  '/drive/{-$drive}': typeof mainDriveChar123DriveChar125Route
+  '/jo/$joId': typeof mainJoJoIdRoute
+  '/trello/$listId': typeof mainTrelloListIdRoute
+  '/jo': typeof mainJoIndexRoute
+  '/trello': typeof mainTrelloIndexRoute
+  '/admin/users': typeof mainadminAdminUsersRoute
+  '/admin': typeof mainadminAdminIndexRoute
 }
 export interface FileRoutesByTo {
-  "/": typeof maincashierRouteRouteWithChildren;
-  "/convex": typeof ConvexRoute;
-  "/testdnd": typeof TestdndRoute;
-  "/testfruits": typeof TestfruitsRoute;
-  "/login": typeof authLoginRoute;
-  "/signup": typeof authSignupRoute;
-  "/three": typeof mainThreeRoute;
-  "/cashflow": typeof maincashierCashflowRoute;
-  "/drive/{-$drive}": typeof mainDriveChar123DriveChar125Route;
-  "/jo/$joId": typeof mainJoJoIdRoute;
-  "/trello/$listId": typeof mainTrelloListIdRoute;
-  "/jo": typeof mainJoIndexRoute;
-  "/trello": typeof mainTrelloIndexRoute;
-  "/admin/users": typeof mainadminAdminUsersRoute;
-  "/admin": typeof mainadminAdminIndexRoute;
+  '/': typeof IndexRoute
+  '/convex': typeof ConvexRoute
+  '/testdnd': typeof TestdndRoute
+  '/testfruits': typeof TestfruitsRoute
+  '/login': typeof authLoginRoute
+  '/signup': typeof authSignupRoute
+  '/three': typeof mainThreeRoute
+  '/cashflow': typeof maincashierCashflowRoute
+  '/drive/{-$drive}': typeof mainDriveChar123DriveChar125Route
+  '/jo/$joId': typeof mainJoJoIdRoute
+  '/trello/$listId': typeof mainTrelloListIdRoute
+  '/jo': typeof mainJoIndexRoute
+  '/trello': typeof mainTrelloIndexRoute
+  '/admin/users': typeof mainadminAdminUsersRoute
+  '/admin': typeof mainadminAdminIndexRoute
 }
 export interface FileRoutesById {
-  __root__: typeof rootRouteImport;
-  "/": typeof IndexRoute;
-  "/(auth)": typeof authRouteRouteWithChildren;
-  "/(main)": typeof mainRouteRouteWithChildren;
-  "/convex": typeof ConvexRoute;
-  "/testdnd": typeof TestdndRoute;
-  "/testfruits": typeof TestfruitsRoute;
-  "/(main)/(admin)": typeof mainadminRouteRouteWithChildren;
-  "/(main)/(cashier)": typeof maincashierRouteRouteWithChildren;
-  "/(auth)/login": typeof authLoginRoute;
-  "/(auth)/signup": typeof authSignupRoute;
-  "/(main)/three": typeof mainThreeRoute;
-  "/(main)/(cashier)/cashflow": typeof maincashierCashflowRoute;
-  "/(main)/drive/{-$drive}": typeof mainDriveChar123DriveChar125Route;
-  "/(main)/jo/$joId": typeof mainJoJoIdRoute;
-  "/(main)/trello/$listId": typeof mainTrelloListIdRoute;
-  "/(main)/jo/": typeof mainJoIndexRoute;
-  "/(main)/trello/": typeof mainTrelloIndexRoute;
-  "/(main)/(admin)/admin/users": typeof mainadminAdminUsersRoute;
-  "/(main)/(admin)/admin/": typeof mainadminAdminIndexRoute;
+  __root__: typeof rootRouteImport
+  '/': typeof IndexRoute
+  '/(auth)': typeof authRouteRouteWithChildren
+  '/(main)': typeof mainRouteRouteWithChildren
+  '/convex': typeof ConvexRoute
+  '/testdnd': typeof TestdndRoute
+  '/testfruits': typeof TestfruitsRoute
+  '/(main)/(admin)': typeof mainadminRouteRouteWithChildren
+  '/(main)/(cashier)': typeof maincashierRouteRouteWithChildren
+  '/(auth)/login': typeof authLoginRoute
+  '/(auth)/signup': typeof authSignupRoute
+  '/(main)/three': typeof mainThreeRoute
+  '/(main)/(cashier)/cashflow': typeof maincashierCashflowRoute
+  '/(main)/drive/{-$drive}': typeof mainDriveChar123DriveChar125Route
+  '/(main)/jo/$joId': typeof mainJoJoIdRoute
+  '/(main)/trello/$listId': typeof mainTrelloListIdRoute
+  '/(main)/jo/': typeof mainJoIndexRoute
+  '/(main)/trello/': typeof mainTrelloIndexRoute
+  '/(main)/(admin)/admin/users': typeof mainadminAdminUsersRoute
+  '/(main)/(admin)/admin/': typeof mainadminAdminIndexRoute
 }
 export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath;
+  fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    | "/"
-    | "/convex"
-    | "/testdnd"
-    | "/testfruits"
-    | "/login"
-    | "/signup"
-    | "/three"
-    | "/cashflow"
-    | "/drive/{-$drive}"
-    | "/jo/$joId"
-    | "/trello/$listId"
-    | "/jo"
-    | "/trello"
-    | "/admin/users"
-    | "/admin";
-  fileRoutesByTo: FileRoutesByTo;
+    | '/'
+    | '/convex'
+    | '/testdnd'
+    | '/testfruits'
+    | '/login'
+    | '/signup'
+    | '/three'
+    | '/cashflow'
+    | '/drive/{-$drive}'
+    | '/jo/$joId'
+    | '/trello/$listId'
+    | '/jo'
+    | '/trello'
+    | '/admin/users'
+    | '/admin'
+  fileRoutesByTo: FileRoutesByTo
   to:
-    | "/"
-    | "/convex"
-    | "/testdnd"
-    | "/testfruits"
-    | "/login"
-    | "/signup"
-    | "/three"
-    | "/cashflow"
-    | "/drive/{-$drive}"
-    | "/jo/$joId"
-    | "/trello/$listId"
-    | "/jo"
-    | "/trello"
-    | "/admin/users"
-    | "/admin";
+    | '/'
+    | '/convex'
+    | '/testdnd'
+    | '/testfruits'
+    | '/login'
+    | '/signup'
+    | '/three'
+    | '/cashflow'
+    | '/drive/{-$drive}'
+    | '/jo/$joId'
+    | '/trello/$listId'
+    | '/jo'
+    | '/trello'
+    | '/admin/users'
+    | '/admin'
   id:
-    | "__root__"
-    | "/"
-    | "/(auth)"
-    | "/(main)"
-    | "/convex"
-    | "/testdnd"
-    | "/testfruits"
-    | "/(main)/(admin)"
-    | "/(main)/(cashier)"
-    | "/(auth)/login"
-    | "/(auth)/signup"
-    | "/(main)/three"
-    | "/(main)/(cashier)/cashflow"
-    | "/(main)/drive/{-$drive}"
-    | "/(main)/jo/$joId"
-    | "/(main)/trello/$listId"
-    | "/(main)/jo/"
-    | "/(main)/trello/"
-    | "/(main)/(admin)/admin/users"
-    | "/(main)/(admin)/admin/";
-  fileRoutesById: FileRoutesById;
+    | '__root__'
+    | '/'
+    | '/(auth)'
+    | '/(main)'
+    | '/convex'
+    | '/testdnd'
+    | '/testfruits'
+    | '/(main)/(admin)'
+    | '/(main)/(cashier)'
+    | '/(auth)/login'
+    | '/(auth)/signup'
+    | '/(main)/three'
+    | '/(main)/(cashier)/cashflow'
+    | '/(main)/drive/{-$drive}'
+    | '/(main)/jo/$joId'
+    | '/(main)/trello/$listId'
+    | '/(main)/jo/'
+    | '/(main)/trello/'
+    | '/(main)/(admin)/admin/users'
+    | '/(main)/(admin)/admin/'
+  fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute;
-  authRouteRoute: typeof authRouteRouteWithChildren;
-  mainRouteRoute: typeof mainRouteRouteWithChildren;
-  ConvexRoute: typeof ConvexRoute;
-  TestdndRoute: typeof TestdndRoute;
-  TestfruitsRoute: typeof TestfruitsRoute;
-}
-export interface FileServerRoutesByFullPath {
-  "/api/auth/$": typeof ApiAuthSplatServerRoute;
-}
-export interface FileServerRoutesByTo {
-  "/api/auth/$": typeof ApiAuthSplatServerRoute;
-}
-export interface FileServerRoutesById {
-  __root__: typeof rootServerRouteImport;
-  "/api/auth/$": typeof ApiAuthSplatServerRoute;
-}
-export interface FileServerRouteTypes {
-  fileServerRoutesByFullPath: FileServerRoutesByFullPath;
-  fullPaths: "/api/auth/$";
-  fileServerRoutesByTo: FileServerRoutesByTo;
-  to: "/api/auth/$";
-  id: "__root__" | "/api/auth/$";
-  fileServerRoutesById: FileServerRoutesById;
-}
-export interface RootServerRouteChildren {
-  ApiAuthSplatServerRoute: typeof ApiAuthSplatServerRoute;
+  IndexRoute: typeof IndexRoute
+  authRouteRoute: typeof authRouteRouteWithChildren
+  mainRouteRoute: typeof mainRouteRouteWithChildren
+  ConvexRoute: typeof ConvexRoute
+  TestdndRoute: typeof TestdndRoute
+  TestfruitsRoute: typeof TestfruitsRoute
 }
 
-declare module "@tanstack/react-router" {
+declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    "/testfruits": {
-      id: "/testfruits";
-      path: "/testfruits";
-      fullPath: "/testfruits";
-      preLoaderRoute: typeof TestfruitsRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/testdnd": {
-      id: "/testdnd";
-      path: "/testdnd";
-      fullPath: "/testdnd";
-      preLoaderRoute: typeof TestdndRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/convex": {
-      id: "/convex";
-      path: "/convex";
-      fullPath: "/convex";
-      preLoaderRoute: typeof ConvexRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/(main)": {
-      id: "/(main)";
-      path: "/";
-      fullPath: "/";
-      preLoaderRoute: typeof mainRouteRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/(auth)": {
-      id: "/(auth)";
-      path: "/";
-      fullPath: "/";
-      preLoaderRoute: typeof authRouteRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/": {
-      id: "/";
-      path: "/";
-      fullPath: "/";
-      preLoaderRoute: typeof IndexRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/(main)/three": {
-      id: "/(main)/three";
-      path: "/three";
-      fullPath: "/three";
-      preLoaderRoute: typeof mainThreeRouteImport;
-      parentRoute: typeof mainRouteRoute;
-    };
-    "/(auth)/signup": {
-      id: "/(auth)/signup";
-      path: "/signup";
-      fullPath: "/signup";
-      preLoaderRoute: typeof authSignupRouteImport;
-      parentRoute: typeof authRouteRoute;
-    };
-    "/(auth)/login": {
-      id: "/(auth)/login";
-      path: "/login";
-      fullPath: "/login";
-      preLoaderRoute: typeof authLoginRouteImport;
-      parentRoute: typeof authRouteRoute;
-    };
-    "/(main)/(cashier)": {
-      id: "/(main)/(cashier)";
-      path: "/";
-      fullPath: "/";
-      preLoaderRoute: typeof maincashierRouteRouteImport;
-      parentRoute: typeof mainRouteRoute;
-    };
-    "/(main)/(admin)": {
-      id: "/(main)/(admin)";
-      path: "/";
-      fullPath: "/";
-      preLoaderRoute: typeof mainadminRouteRouteImport;
-      parentRoute: typeof mainRouteRoute;
-    };
-    "/(main)/trello/": {
-      id: "/(main)/trello/";
-      path: "/trello";
-      fullPath: "/trello";
-      preLoaderRoute: typeof mainTrelloIndexRouteImport;
-      parentRoute: typeof mainRouteRoute;
-    };
-    "/(main)/jo/": {
-      id: "/(main)/jo/";
-      path: "/jo";
-      fullPath: "/jo";
-      preLoaderRoute: typeof mainJoIndexRouteImport;
-      parentRoute: typeof mainRouteRoute;
-    };
-    "/(main)/trello/$listId": {
-      id: "/(main)/trello/$listId";
-      path: "/trello/$listId";
-      fullPath: "/trello/$listId";
-      preLoaderRoute: typeof mainTrelloListIdRouteImport;
-      parentRoute: typeof mainRouteRoute;
-    };
-    "/(main)/jo/$joId": {
-      id: "/(main)/jo/$joId";
-      path: "/jo/$joId";
-      fullPath: "/jo/$joId";
-      preLoaderRoute: typeof mainJoJoIdRouteImport;
-      parentRoute: typeof mainRouteRoute;
-    };
-    "/(main)/drive/{-$drive}": {
-      id: "/(main)/drive/{-$drive}";
-      path: "/drive/{-$drive}";
-      fullPath: "/drive/{-$drive}";
-      preLoaderRoute: typeof mainDriveChar123DriveChar125RouteImport;
-      parentRoute: typeof mainRouteRoute;
-    };
-    "/(main)/(cashier)/cashflow": {
-      id: "/(main)/(cashier)/cashflow";
-      path: "/cashflow";
-      fullPath: "/cashflow";
-      preLoaderRoute: typeof maincashierCashflowRouteImport;
-      parentRoute: typeof maincashierRouteRoute;
-    };
-    "/(main)/(admin)/admin/": {
-      id: "/(main)/(admin)/admin/";
-      path: "/admin";
-      fullPath: "/admin";
-      preLoaderRoute: typeof mainadminAdminIndexRouteImport;
-      parentRoute: typeof mainadminRouteRoute;
-    };
-    "/(main)/(admin)/admin/users": {
-      id: "/(main)/(admin)/admin/users";
-      path: "/admin/users";
-      fullPath: "/admin/users";
-      preLoaderRoute: typeof mainadminAdminUsersRouteImport;
-      parentRoute: typeof mainadminRouteRoute;
-    };
-  }
-}
-declare module "@tanstack/react-start/server" {
-  interface ServerFileRoutesByPath {
-    "/api/auth/$": {
-      id: "/api/auth/$";
-      path: "/api/auth/$";
-      fullPath: "/api/auth/$";
-      preLoaderRoute: typeof ApiAuthSplatServerRouteImport;
-      parentRoute: typeof rootServerRouteImport;
-    };
+    '/testfruits': {
+      id: '/testfruits'
+      path: '/testfruits'
+      fullPath: '/testfruits'
+      preLoaderRoute: typeof TestfruitsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/testdnd': {
+      id: '/testdnd'
+      path: '/testdnd'
+      fullPath: '/testdnd'
+      preLoaderRoute: typeof TestdndRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/convex': {
+      id: '/convex'
+      path: '/convex'
+      fullPath: '/convex'
+      preLoaderRoute: typeof ConvexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(main)': {
+      id: '/(main)'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof mainRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(auth)': {
+      id: '/(auth)'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof authRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(main)/three': {
+      id: '/(main)/three'
+      path: '/three'
+      fullPath: '/three'
+      preLoaderRoute: typeof mainThreeRouteImport
+      parentRoute: typeof mainRouteRoute
+    }
+    '/(auth)/signup': {
+      id: '/(auth)/signup'
+      path: '/signup'
+      fullPath: '/signup'
+      preLoaderRoute: typeof authSignupRouteImport
+      parentRoute: typeof authRouteRoute
+    }
+    '/(auth)/login': {
+      id: '/(auth)/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof authLoginRouteImport
+      parentRoute: typeof authRouteRoute
+    }
+    '/(main)/(cashier)': {
+      id: '/(main)/(cashier)'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof maincashierRouteRouteImport
+      parentRoute: typeof mainRouteRoute
+    }
+    '/(main)/(admin)': {
+      id: '/(main)/(admin)'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof mainadminRouteRouteImport
+      parentRoute: typeof mainRouteRoute
+    }
+    '/(main)/trello/': {
+      id: '/(main)/trello/'
+      path: '/trello'
+      fullPath: '/trello'
+      preLoaderRoute: typeof mainTrelloIndexRouteImport
+      parentRoute: typeof mainRouteRoute
+    }
+    '/(main)/jo/': {
+      id: '/(main)/jo/'
+      path: '/jo'
+      fullPath: '/jo'
+      preLoaderRoute: typeof mainJoIndexRouteImport
+      parentRoute: typeof mainRouteRoute
+    }
+    '/(main)/trello/$listId': {
+      id: '/(main)/trello/$listId'
+      path: '/trello/$listId'
+      fullPath: '/trello/$listId'
+      preLoaderRoute: typeof mainTrelloListIdRouteImport
+      parentRoute: typeof mainRouteRoute
+    }
+    '/(main)/jo/$joId': {
+      id: '/(main)/jo/$joId'
+      path: '/jo/$joId'
+      fullPath: '/jo/$joId'
+      preLoaderRoute: typeof mainJoJoIdRouteImport
+      parentRoute: typeof mainRouteRoute
+    }
+    '/(main)/drive/{-$drive}': {
+      id: '/(main)/drive/{-$drive}'
+      path: '/drive/{-$drive}'
+      fullPath: '/drive/{-$drive}'
+      preLoaderRoute: typeof mainDriveChar123DriveChar125RouteImport
+      parentRoute: typeof mainRouteRoute
+    }
+    '/(main)/(cashier)/cashflow': {
+      id: '/(main)/(cashier)/cashflow'
+      path: '/cashflow'
+      fullPath: '/cashflow'
+      preLoaderRoute: typeof maincashierCashflowRouteImport
+      parentRoute: typeof maincashierRouteRoute
+    }
+    '/(main)/(admin)/admin/': {
+      id: '/(main)/(admin)/admin/'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof mainadminAdminIndexRouteImport
+      parentRoute: typeof mainadminRouteRoute
+    }
+    '/(main)/(admin)/admin/users': {
+      id: '/(main)/(admin)/admin/users'
+      path: '/admin/users'
+      fullPath: '/admin/users'
+      preLoaderRoute: typeof mainadminAdminUsersRouteImport
+      parentRoute: typeof mainadminRouteRoute
+    }
   }
 }
 
 interface authRouteRouteChildren {
-  authLoginRoute: typeof authLoginRoute;
-  authSignupRoute: typeof authSignupRoute;
+  authLoginRoute: typeof authLoginRoute
+  authSignupRoute: typeof authSignupRoute
 }
 
 const authRouteRouteChildren: authRouteRouteChildren = {
   authLoginRoute: authLoginRoute,
   authSignupRoute: authSignupRoute,
-};
+}
 
 const authRouteRouteWithChildren = authRouteRoute._addFileChildren(
   authRouteRouteChildren,
-);
+)
 
 interface mainadminRouteRouteChildren {
-  mainadminAdminUsersRoute: typeof mainadminAdminUsersRoute;
-  mainadminAdminIndexRoute: typeof mainadminAdminIndexRoute;
+  mainadminAdminUsersRoute: typeof mainadminAdminUsersRoute
+  mainadminAdminIndexRoute: typeof mainadminAdminIndexRoute
 }
 
 const mainadminRouteRouteChildren: mainadminRouteRouteChildren = {
   mainadminAdminUsersRoute: mainadminAdminUsersRoute,
   mainadminAdminIndexRoute: mainadminAdminIndexRoute,
-};
+}
 
 const mainadminRouteRouteWithChildren = mainadminRouteRoute._addFileChildren(
   mainadminRouteRouteChildren,
-);
+)
 
 interface maincashierRouteRouteChildren {
-  maincashierCashflowRoute: typeof maincashierCashflowRoute;
+  maincashierCashflowRoute: typeof maincashierCashflowRoute
 }
 
 const maincashierRouteRouteChildren: maincashierRouteRouteChildren = {
   maincashierCashflowRoute: maincashierCashflowRoute,
-};
+}
 
 const maincashierRouteRouteWithChildren =
-  maincashierRouteRoute._addFileChildren(maincashierRouteRouteChildren);
+  maincashierRouteRoute._addFileChildren(maincashierRouteRouteChildren)
 
 interface mainRouteRouteChildren {
-  mainadminRouteRoute: typeof mainadminRouteRouteWithChildren;
-  maincashierRouteRoute: typeof maincashierRouteRouteWithChildren;
-  mainThreeRoute: typeof mainThreeRoute;
-  mainDriveChar123DriveChar125Route: typeof mainDriveChar123DriveChar125Route;
-  mainJoJoIdRoute: typeof mainJoJoIdRoute;
-  mainTrelloListIdRoute: typeof mainTrelloListIdRoute;
-  mainJoIndexRoute: typeof mainJoIndexRoute;
-  mainTrelloIndexRoute: typeof mainTrelloIndexRoute;
+  mainadminRouteRoute: typeof mainadminRouteRouteWithChildren
+  maincashierRouteRoute: typeof maincashierRouteRouteWithChildren
+  mainThreeRoute: typeof mainThreeRoute
+  mainDriveChar123DriveChar125Route: typeof mainDriveChar123DriveChar125Route
+  mainJoJoIdRoute: typeof mainJoJoIdRoute
+  mainTrelloListIdRoute: typeof mainTrelloListIdRoute
+  mainJoIndexRoute: typeof mainJoIndexRoute
+  mainTrelloIndexRoute: typeof mainTrelloIndexRoute
 }
 
 const mainRouteRouteChildren: mainRouteRouteChildren = {
@@ -484,11 +442,11 @@ const mainRouteRouteChildren: mainRouteRouteChildren = {
   mainTrelloListIdRoute: mainTrelloListIdRoute,
   mainJoIndexRoute: mainJoIndexRoute,
   mainTrelloIndexRoute: mainTrelloIndexRoute,
-};
+}
 
 const mainRouteRouteWithChildren = mainRouteRoute._addFileChildren(
   mainRouteRouteChildren,
-);
+)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
@@ -497,13 +455,16 @@ const rootRouteChildren: RootRouteChildren = {
   ConvexRoute: ConvexRoute,
   TestdndRoute: TestdndRoute,
   TestfruitsRoute: TestfruitsRoute,
-};
+}
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>();
-const rootServerRouteChildren: RootServerRouteChildren = {
-  ApiAuthSplatServerRoute: ApiAuthSplatServerRoute,
-};
-export const serverRouteTree = rootServerRouteImport
-  ._addFileChildren(rootServerRouteChildren)
-  ._addFileTypes<FileServerRouteTypes>();
+  ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}

@@ -1,9 +1,9 @@
-import type { Id } from "@convex/_generated/dataModel";
-import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
 import { api } from "@convex/_generated/api";
+import type { Id } from "@convex/_generated/dataModel";
+import { useQuery } from "@tanstack/react-query";
 import { useMutation } from "convex/react";
 import { PlusIcon } from "lucide-react";
+import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { fetchAuth } from "@/routes/__root";
+import { authQueryOptions } from "@/lib/auth/queries";
 import DateAndTimePicker from "./date-and-time-picker";
 
 export function CreateDialog() {
@@ -27,7 +27,7 @@ export function CreateDialog() {
   const [contact, setContact] = useState("");
   const [date, setDate] = useState<Date>(today);
   const [time, setTime] = useState<string | null>(null);
-  const { data: userData } = useQuery({ queryKey: ["user"], queryFn: fetchAuth });
+  const { data: userData } = useQuery(authQueryOptions());
 
   const createJo = useMutation(api.jo.createJo).withOptimisticUpdate(
     (localStore, args) => {
@@ -47,6 +47,7 @@ export function CreateDialog() {
 
       const newJo = {
         _id: crypto.randomUUID() as Id<"jo">,
+        // eslint-disable-next-line react-hooks/purity
         _creationTime: Date.now(),
         createdBy: userData!.user.userId as Id<"users">,
         updatedAt: undefined,

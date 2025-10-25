@@ -1,5 +1,5 @@
 import { QueryClient } from "@tanstack/react-query";
-import { createRouter as createTanStackRouter } from "@tanstack/react-router";
+import { createRouter } from "@tanstack/react-router";
 import { setupRouterSsrQueryIntegration } from "@tanstack/react-router-ssr-query";
 import { ConvexQueryClient } from "@convex-dev/react-query";
 import { ConvexProvider, ConvexReactClient } from "convex/react";
@@ -10,8 +10,7 @@ import { DefaultCatchBoundary } from "./components/default-catch-boundary";
 import { DefaultNotFound } from "./components/default-not-found";
 import { routeTree } from "./routeTree.gen";
 
-// Create a new router instance
-export function createRouter() {
+export function getRouter() {
   const CONVEX_URL = import.meta.env.VITE_CONVEX_URL;
   if (!CONVEX_URL) {
     console.error("missing envar VITE_CONVEX_URL");
@@ -24,7 +23,7 @@ export function createRouter() {
 
   const convexQueryClient = new ConvexQueryClient(convex);
 
-  const queryClient: QueryClient = new QueryClient({
+  const queryClient = new QueryClient({
     defaultOptions: {
       queries: {
         refetchOnWindowFocus: false,
@@ -37,7 +36,7 @@ export function createRouter() {
 
   convexQueryClient.connect(queryClient);
 
-  const router = createTanStackRouter({
+  const router = createRouter({
     routeTree,
     context: {
       queryClient,
@@ -67,10 +66,4 @@ export function createRouter() {
   });
 
   return router;
-}
-// Register the router instance for type safety
-declare module "@tanstack/react-router" {
-  interface Register {
-    router: ReturnType<typeof createRouter>;
-  }
 }

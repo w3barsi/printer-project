@@ -1,7 +1,9 @@
+import { ConvexBetterAuthProvider } from "@convex-dev/better-auth/react";
 import type { ConvexQueryClient } from "@convex-dev/react-query";
 import type { QueryClient } from "@tanstack/react-query";
-import type { ConvexReactClient } from "convex/react";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+
+import { TanStackDevtools } from "@tanstack/react-devtools";
+import { ReactQueryDevtoolsPanel } from "@tanstack/react-query-devtools";
 import {
   createRootRouteWithContext,
   HeadContent,
@@ -9,56 +11,32 @@ import {
   Scripts,
   useRouteContext,
 } from "@tanstack/react-router";
-import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
-import { createServerFn } from "@tanstack/react-start";
-import { getCookie, getWebRequest } from "@tanstack/react-start/server";
-import { ConvexBetterAuthProvider } from "@convex-dev/better-auth/react";
-import { fetchSession, getCookieName } from "@convex-dev/better-auth/react-start";
+import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
+import type { ConvexReactClient } from "convex/react";
 
-import type { SessionWithRole } from "../../convex/auth";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { DeviceProvider } from "@/contexts/DeviceContext";
 import { ThemeProvider } from "@/contexts/theme-context";
 import { authClient } from "@/lib/auth-client.ts";
+import { authQueryOptions, type AuthQueryResult } from "@/lib/auth/queries";
 import appCss from "../styles.css?url";
 
 // import { fetchAuth } from "@/server/functions.ts"
-
-export const fetchAuth = createServerFn({ method: "GET" }).handler(async () => {
-  const { createAuth } = await import("../../convex/auth");
-  const { session: rawSession } = await fetchSession(getWebRequest());
-  const session = rawSession as SessionWithRole;
-  const sessionCookieName = getCookieName(createAuth);
-  const token = getCookie(sessionCookieName);
-  console.log("[BEFORE-LOAD (fetchAuth)] ", "fetching auth details");
-  return {
-    user: session?.user,
-    impersonatedBy: session?.session.impersonatedBy,
-    token,
-  };
-});
-
-export type AuthType = Awaited<ReturnType<typeof fetchAuth>>;
 
 interface MyRouterContext {
   queryClient: QueryClient;
   convexClient: ConvexReactClient;
   convexQueryClient: ConvexQueryClient;
-  user: Awaited<ReturnType<typeof fetchAuth>>["user"] | null;
+  user: AuthQueryResult["user"] | null;
   token: string | null;
   impersonatedBy: string | null | undefined;
 }
 
 export const Route = createRootRouteWithContext<MyRouterContext>()({
   beforeLoad: async (ctx) => {
-    const auth = await ctx.context.queryClient.ensureQueryData({
-      queryKey: ["user"],
-      queryFn: ({ signal }) => fetchAuth({ signal }),
-      revalidateIfStale: true,
-    }); // we're using react-query for caching, see router.tsx
-
-    const { user, token } = auth;
+    const { user, token, impersonatedBy } =
+      await ctx.context.queryClient.ensureQueryData(authQueryOptions()); // we're using react-query for caching, see router.tsx
 
     if (token) {
       ctx.context.convexQueryClient.serverHttpClient?.setAuth(token);
@@ -69,7 +47,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
       user ? `User is populated ${JSON.stringify(user)}` : "No user",
     );
 
-    return { user: user, token: token, impersonatedBy: auth.impersonatedBy };
+    return { user, token, impersonatedBy };
   },
   head: () => ({
     meta: [
@@ -81,7 +59,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
         content: "width=device-width, initial-scale=1",
       },
       {
-        title: "TanStack Start Starter",
+        title: "DARCYGRAPHiX Advertising",
       },
     ],
     links: [
@@ -107,10 +85,7 @@ function RootComponent() {
       <TooltipProvider>
         <DeviceProvider>
           <RootDocument>
-            <Toaster richColors position="top-center" />
             <Outlet />
-            <ReactQueryDevtools />
-            <TanStackRouterDevtools position="bottom-right" />
           </RootDocument>
         </DeviceProvider>
       </TooltipProvider>
@@ -126,7 +101,22 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <HeadContent />
       </head>
       <body>
-        <ThemeProvider>{children}</ThemeProvider>
+        <ThemeProvider>
+          {children}
+          <Toaster richColors position="top-center" />
+        </ThemeProvider>
+        <TanStackDevtools
+          plugins={[
+            {
+              name: "TanStack Query",
+              render: <ReactQueryDevtoolsPanel />,
+            },
+            {
+              name: "TanStack Router",
+              render: <TanStackRouterDevtoolsPanel />,
+            },
+          ]}
+        />
         <Scripts />
       </body>
     </html>

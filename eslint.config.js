@@ -1,12 +1,13 @@
-import pluginQuery from "@tanstack/eslint-plugin-query";
-import pluginRouter from "@tanstack/eslint-plugin-router";
 import react from "@eslint-react/eslint-plugin";
 import js from "@eslint/js";
+import pluginQuery from "@tanstack/eslint-plugin-query";
+import pluginRouter from "@tanstack/eslint-plugin-router";
 import eslintConfigPrettier from "eslint-config-prettier";
-import * as reactHooks from "eslint-plugin-react-hooks";
+import reactHooks from "eslint-plugin-react-hooks";
+import { defineConfig } from "eslint/config";
 import tseslint from "typescript-eslint";
 
-export default tseslint.config({
+export default defineConfig({
   ignores: [
     "dist",
     ".wrangler",
@@ -30,13 +31,14 @@ export default tseslint.config({
     eslintConfigPrettier,
     ...pluginQuery.configs["flat/recommended"],
     ...pluginRouter.configs["flat/recommended"],
-    reactHooks.configs.recommended,
+    reactHooks.configs.flat.recommended,
     react.configs["recommended-type-checked"],
     // ...you can add plugins or configs here
   ],
   rules: {
     // You can override any rules here
-    "react-hooks/react-compiler": "warn",
+
+    "@typescript-eslint/no-deprecated": "warn",
     "@typescript-eslint/no-unused-vars": [
       "error",
       {
