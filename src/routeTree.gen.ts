@@ -22,6 +22,7 @@ import { Route as maincashierRouteRouteImport } from './routes/(main)/(cashier)/
 import { Route as mainadminRouteRouteImport } from './routes/(main)/(admin)/route'
 import { Route as mainTrelloIndexRouteImport } from './routes/(main)/trello.index'
 import { Route as mainJoIndexRouteImport } from './routes/(main)/jo.index'
+import { Route as ApiAuthSplatRouteImport } from './routes/api/auth.$'
 import { Route as mainTrelloListIdRouteImport } from './routes/(main)/trello.$listId'
 import { Route as mainJoJoIdRouteImport } from './routes/(main)/jo.$joId'
 import { Route as mainDriveChar123DriveChar125RouteImport } from './routes/(main)/drive.{-$drive}'
@@ -90,6 +91,11 @@ const mainJoIndexRoute = mainJoIndexRouteImport.update({
   path: '/jo/',
   getParentRoute: () => mainRouteRoute,
 } as any)
+const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
+  id: '/api/auth/$',
+  path: '/api/auth/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const mainTrelloListIdRoute = mainTrelloListIdRouteImport.update({
   id: '/trello/$listId',
   path: '/trello/$listId',
@@ -134,6 +140,7 @@ export interface FileRoutesByFullPath {
   '/drive/{-$drive}': typeof mainDriveChar123DriveChar125Route
   '/jo/$joId': typeof mainJoJoIdRoute
   '/trello/$listId': typeof mainTrelloListIdRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
   '/jo': typeof mainJoIndexRoute
   '/trello': typeof mainTrelloIndexRoute
   '/admin/users': typeof mainadminAdminUsersRoute
@@ -151,6 +158,7 @@ export interface FileRoutesByTo {
   '/drive/{-$drive}': typeof mainDriveChar123DriveChar125Route
   '/jo/$joId': typeof mainJoJoIdRoute
   '/trello/$listId': typeof mainTrelloListIdRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
   '/jo': typeof mainJoIndexRoute
   '/trello': typeof mainTrelloIndexRoute
   '/admin/users': typeof mainadminAdminUsersRoute
@@ -173,6 +181,7 @@ export interface FileRoutesById {
   '/(main)/drive/{-$drive}': typeof mainDriveChar123DriveChar125Route
   '/(main)/jo/$joId': typeof mainJoJoIdRoute
   '/(main)/trello/$listId': typeof mainTrelloListIdRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
   '/(main)/jo/': typeof mainJoIndexRoute
   '/(main)/trello/': typeof mainTrelloIndexRoute
   '/(main)/(admin)/admin/users': typeof mainadminAdminUsersRoute
@@ -192,6 +201,7 @@ export interface FileRouteTypes {
     | '/drive/{-$drive}'
     | '/jo/$joId'
     | '/trello/$listId'
+    | '/api/auth/$'
     | '/jo'
     | '/trello'
     | '/admin/users'
@@ -209,6 +219,7 @@ export interface FileRouteTypes {
     | '/drive/{-$drive}'
     | '/jo/$joId'
     | '/trello/$listId'
+    | '/api/auth/$'
     | '/jo'
     | '/trello'
     | '/admin/users'
@@ -230,6 +241,7 @@ export interface FileRouteTypes {
     | '/(main)/drive/{-$drive}'
     | '/(main)/jo/$joId'
     | '/(main)/trello/$listId'
+    | '/api/auth/$'
     | '/(main)/jo/'
     | '/(main)/trello/'
     | '/(main)/(admin)/admin/users'
@@ -243,6 +255,7 @@ export interface RootRouteChildren {
   ConvexRoute: typeof ConvexRoute
   TestdndRoute: typeof TestdndRoute
   TestfruitsRoute: typeof TestfruitsRoute
+  ApiAuthSplatRoute: typeof ApiAuthSplatRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -337,6 +350,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/jo'
       preLoaderRoute: typeof mainJoIndexRouteImport
       parentRoute: typeof mainRouteRoute
+    }
+    '/api/auth/$': {
+      id: '/api/auth/$'
+      path: '/api/auth/$'
+      fullPath: '/api/auth/$'
+      preLoaderRoute: typeof ApiAuthSplatRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/(main)/trello/$listId': {
       id: '/(main)/trello/$listId'
@@ -455,6 +475,7 @@ const rootRouteChildren: RootRouteChildren = {
   ConvexRoute: ConvexRoute,
   TestdndRoute: TestdndRoute,
   TestfruitsRoute: TestfruitsRoute,
+  ApiAuthSplatRoute: ApiAuthSplatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

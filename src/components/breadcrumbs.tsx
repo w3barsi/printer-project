@@ -1,11 +1,10 @@
+import { convexQuery } from "@convex-dev/react-query";
+import { api } from "@convex/_generated/api";
 import type { Id } from "@convex/_generated/dataModel";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { isMatch, Link, useMatches } from "@tanstack/react-router";
-import { convexQuery } from "@convex-dev/react-query";
-import { api } from "@convex/_generated/api";
 import z from "zod";
 
-import type { Parent } from "./ui/upload-dropzone";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -14,6 +13,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import type { Parent } from "./ui/upload-dropzone";
 
 type CrumbType = {
   value: string;
@@ -73,6 +73,7 @@ function Crumb({ idx, crumb }: { idx: number; crumb: CrumbType }) {
 function DriveCrumb({ crumb }: { crumb: CrumbType }) {
   const parent: Parent = crumb.value ? (crumb.value as Id<"folder">) : "private";
   const { data } = useSuspenseQuery(convexQuery(api.drive.getDrive, { parent }));
+  console.log("DRIVE CRUMB LOADED");
   return (
     <>
       <BreadcrumbItem>
@@ -86,6 +87,7 @@ function JoCrumb({ crumb }: { crumb: CrumbType }) {
   const { data } = useSuspenseQuery(
     convexQuery(api.jo.getOneComplete, { id: crumb.value as Id<"jo"> }),
   );
+  console.log("JO CRUMB LOADED");
   return (
     <BreadcrumbItem>
       <BreadcrumbPage>{data?.name}</BreadcrumbPage>

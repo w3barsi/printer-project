@@ -1,5 +1,4 @@
-import { createFileRoute, Outlet, redirect, useNavigate } from "@tanstack/react-router";
-import { useConvexAuth } from "convex/react";
+import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 
 import { MainBreadcrumbs } from "@/components/breadcrumbs";
 import { Container } from "@/components/layouts/container";
@@ -27,16 +26,6 @@ export const Route = createFileRoute("/(main)")({
 });
 
 function Wrapper() {
-  const { isAuthenticated, isLoading } = useConvexAuth();
-  const navigate = useNavigate();
-
-  if (isLoading) {
-    return <AnimatedLoading />;
-  }
-
-  if (!isAuthenticated) {
-    navigate({ to: "/login" });
-  }
   return <RouteComponent />;
 }
 

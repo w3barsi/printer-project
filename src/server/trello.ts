@@ -70,7 +70,7 @@ const trelloCardsSchema = z.array(
 const getTrelloCardValidator = z.object({ listId: z.string() });
 
 export const getListCards = createServerFn({ method: "GET" })
-  .validator((data: unknown) => getTrelloCardValidator.parse(data))
+  .inputValidator(getTrelloCardValidator)
   .handler(async (ctx) => {
     const TRELLO_KEY = process.env.TRELLO_KEY;
     const TRELLO_TOKEN = process.env.TRELLO_TOKEN;
@@ -110,7 +110,7 @@ export const getTrelloLists = createServerFn({ method: "GET" }).handler(async ()
 });
 
 export const getCardAttachmentsServerFn = createServerFn({ method: "POST" })
-  .validator((data: unknown) => z.object({ id: z.string() }).parse(data))
+  .inputValidator(z.object({ id: z.string() }))
   .handler(async ({ data }) => {
     const res = await fetch(
       `https://api.trello.com/1/cards/${data.id}/attachments?key=${env.TRELLO_KEY}&token=${env.TRELLO_TOKEN}`,
@@ -126,9 +126,7 @@ export const getCardAttachmentsServerFn = createServerFn({ method: "POST" })
   });
 
 export const downloadCardAttachmentsServerFn = createServerFn({ method: "POST" })
-  .validator((data: unknown) =>
-    z.array(z.object({ url: z.string(), name: z.string() })).parse(data),
-  )
+  .inputValidator(z.array(z.object({ url: z.string(), name: z.string() })))
   .handler(async ({ data }) => {
     const fetchImage = async ({ url, name }: { url: string; name: string }) => {
       try {

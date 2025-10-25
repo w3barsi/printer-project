@@ -105,7 +105,6 @@ export default defineSchema({
     email: v.string(),
     emailVerified: v.boolean(),
     image: v.optional(v.union(v.null(), v.string())),
-    phoneNumber: v.optional(v.union(v.null(), v.string())),
     role: v.optional(v.union(v.null(), v.string())),
     banned: v.optional(v.union(v.null(), v.boolean())),
     banReason: v.optional(v.union(v.null(), v.string())),
@@ -113,6 +112,5 @@ export default defineSchema({
   })
     .index("email_name", ["email", "name"])
     .index("name", ["name"])
-    .index("phoneNumber", ["phoneNumber"])
     .index("username", ["username"]),
 });

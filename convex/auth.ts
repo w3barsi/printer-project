@@ -9,9 +9,9 @@ import {
   customQuery,
 } from "convex-helpers/server/customFunctions";
 
-import type { DataModel, Id } from "./_generated/dataModel";
 import { ac, adminRole, basicRole } from "../src/lib/auth-utils";
 import { components, internal } from "./_generated/api";
+import type { DataModel, Id } from "./_generated/dataModel";
 import { mutation, query } from "./_generated/server";
 import authSchema from "./betterAuth/schema";
 
@@ -37,29 +37,30 @@ export const authComponent = createClient<DataModel, typeof authSchema>(
             email: authUser.email,
             emailVerified: authUser.emailVerified,
             image: authUser.image,
-            phoneNumber: authUser.phoneNumber,
             createdAt: authUser.createdAt,
             role: authUser.role,
             banned: authUser.banned,
             banReason: authUser.banReason,
           });
 
-          await authComponent.setUserId(ctx, authUser._id, userId);
+          await ctx.runMutation(components.betterAuth.auth.setUserId, {
+            authId: authUser._id,
+            userId,
+          });
         },
 
-        onUpdate: async (ctx, oldUser, newUser) => {
-          return ctx.db.patch(oldUser.userId as Id<"users">, {
-            name: newUser.name,
-            username: newUser.username,
-            displayUsername: newUser.displayUsername,
-            email: newUser.email,
-            emailVerified: newUser.emailVerified,
-            image: newUser.image,
-            phoneNumber: newUser.phoneNumber,
-            createdAt: newUser.createdAt,
-            role: newUser.role,
-            banned: newUser.banned,
-            banReason: newUser.banReason,
+        onUpdate: async (ctx, newDoc, oldDoc) => {
+          return ctx.db.patch(oldDoc.userId as Id<"users">, {
+            name: newDoc.name,
+            username: newDoc.username,
+            displayUsername: newDoc.displayUsername,
+            email: newDoc.email,
+            emailVerified: newDoc.emailVerified,
+            image: newDoc.image,
+            createdAt: newDoc.createdAt,
+            role: newDoc.role,
+            banned: newDoc.banned,
+            banReason: newDoc.banReason,
           });
         },
         onDelete: async (ctx, authUser) => {
@@ -88,6 +89,10 @@ export const createAuth = (
     database: authComponent.adapter(ctx),
     user: {
       additionalFields: {
+        userId: {
+          type: "string",
+          required: false,
+        },
         role: {
           type: "string",
           required: false,

@@ -6,9 +6,11 @@ import { authComponent, authedMutation, authedQuery } from "../auth";
 export const listUsers = authedQuery({
   args: {},
   handler: async (ctx) => {
-    const { users } = await createAuth(ctx).api.listUsers({
+    const { auth, headers } = await authComponent.getAuth(createAuth, ctx);
+
+    const { users } = await auth.api.listUsers({
       query: {},
-      headers: await authComponent.getHeaders(ctx),
+      headers,
     });
     return users;
   },
@@ -17,11 +19,13 @@ export const listUsers = authedQuery({
 export const deleteUser = authedMutation({
   args: { id: v.string() },
   handler: async (ctx, args) => {
-    await createAuth(ctx).api.removeUser({
+    const { auth, headers } = await authComponent.getAuth(createAuth, ctx);
+
+    await auth.api.removeUser({
       body: {
         userId: args.id,
       },
-      headers: await authComponent.getHeaders(ctx),
+      headers,
     });
   },
 });
@@ -29,13 +33,15 @@ export const deleteUser = authedMutation({
 export const createUser = authedMutation({
   args: { name: v.string(), email: v.string(), password: v.string() },
   handler: async (ctx, args) => {
-    await createAuth(ctx).api.createUser({
+    const { auth, headers } = await authComponent.getAuth(createAuth, ctx);
+
+    await auth.api.createUser({
       body: {
         password: args.password,
         name: args.name,
         email: args.email,
       },
-      headers: await authComponent.getHeaders(ctx),
+      headers,
     });
   },
 });
@@ -46,9 +52,9 @@ export const setRole = authedMutation({
     role: v.union(v.literal("user"), v.literal("admin"), v.literal("cashier")),
   },
   handler: async (ctx, args) => {
-    const headers = await authComponent.getHeaders(ctx);
+    const { auth, headers } = await authComponent.getAuth(createAuth, ctx);
 
-    await createAuth(ctx).api.setRole({
+    await auth.api.setRole({
       body: {
         userId: args.userId,
         role: args.role,
@@ -61,16 +67,16 @@ export const setRole = authedMutation({
 export const banOrUnbanUser = authedMutation({
   args: { userId: v.string(), isBanned: v.boolean() },
   handler: async (ctx, args) => {
-    const headers = await authComponent.getHeaders(ctx);
+    const { auth, headers } = await authComponent.getAuth(createAuth, ctx);
     if (args.isBanned) {
-      await createAuth(ctx).api.unbanUser({
+      await auth.api.unbanUser({
         body: {
           userId: args.userId,
         },
-        headers: await authComponent.getHeaders(ctx),
+        headers,
       });
     } else {
-      await createAuth(ctx).api.banUser({
+      await auth.api.banUser({
         body: {
           userId: args.userId,
         },
