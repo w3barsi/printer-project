@@ -35,12 +35,9 @@ export function AddCoh({ start }: { start: number }) {
 
       const currentValue = localStore.getQuery(api.cashier.getCashflow, {
         dayStart: start,
-      }) || {
-        data: [],
-        paymentsTotal: 0,
-        expensesTotal: 0,
-        startingCash: undefined,
-      };
+      });
+
+      if (!currentValue) return;
 
       const newData: GetCashflowQueryType = {
         ...currentValue,
