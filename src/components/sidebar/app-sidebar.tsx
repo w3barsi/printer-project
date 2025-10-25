@@ -1,4 +1,5 @@
 import * as React from "react";
+import { Link } from "@tanstack/react-router";
 
 import { MainNavGroup } from "@/components/sidebar/group-nav-main";
 import { NavUser } from "@/components/sidebar/nav-user";
@@ -12,7 +13,6 @@ import {
   SidebarMenuItem,
   SidebarSeparator,
 } from "@/components/ui/sidebar";
-import { Link } from "@tanstack/react-router";
 import { PrinterButton } from "../printer/printer-button";
 import { AdminSidebarGroup } from "./group-admin-sidebar";
 import { RecentJobOrdersGroup } from "./group-jo-sidebar";

@@ -1,3 +1,7 @@
+import type { Id } from "@convex/_generated/dataModel";
+import { Suspense } from "react";
+import { createFileRoute } from "@tanstack/react-router";
+
 import { DetailsView } from "@/components/drive/details-view";
 import { Container } from "@/components/layouts/container";
 import { Button } from "@/components/ui/button";
@@ -6,9 +10,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { UploadDropzone } from "@/components/ui/upload-dropzone";
 import { SelectedProvider, useSelected } from "@/contexts/SelectedContext";
 import { cn } from "@/lib/utils";
-import type { Id } from "@convex/_generated/dataModel";
-import { createFileRoute } from "@tanstack/react-router";
-import { Suspense } from "react";
 
 export const Route = createFileRoute("/(main)/drive/{-$drive}")({
   component: RouteComponent,

@@ -1,7 +1,8 @@
-import { cn } from "@/lib/utils";
-import { CheckIcon, Trash2Icon } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { CheckIcon, Trash2Icon } from "lucide-react";
 import { toast } from "sonner";
+
+import { cn } from "@/lib/utils";
 import { Button } from "../ui/button";
 
 interface DeleteConfirmButtonProps {

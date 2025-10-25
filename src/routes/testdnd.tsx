@@ -1,4 +1,6 @@
-import { Container } from "@/components/layouts/container";
+import type { ComponentPropsWithRef } from "react";
+import { useId } from "react";
+import { createFileRoute } from "@tanstack/react-router";
 import {
   DndContext,
   PointerSensor,
@@ -7,8 +9,8 @@ import {
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
-import { createFileRoute } from "@tanstack/react-router";
-import { useId, type ComponentPropsWithRef } from "react";
+
+import { Container } from "@/components/layouts/container";
 
 export const Route = createFileRoute("/testdnd")({
   component: RouteComponent,

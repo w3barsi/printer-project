@@ -1,3 +1,6 @@
+import { Link, useRouteContext } from "@tanstack/react-router";
+import { ShieldUserIcon } from "lucide-react";
+
 import {
   SidebarGroup,
   SidebarGroupLabel,
@@ -6,8 +9,6 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { Link, useRouteContext } from "@tanstack/react-router";
-import { ShieldUserIcon } from "lucide-react";
 
 export function AdminSidebarGroup() {
   const { user } = useRouteContext({ from: "/(main)" });

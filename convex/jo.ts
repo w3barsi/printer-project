@@ -1,8 +1,8 @@
+import { paginationOptsValidator } from "convex/server";
 import { v } from "convex/values";
 
-import { paginationOptsValidator } from "convex/server";
-import { internal } from "./_generated/api";
 import type { Doc, Id } from "./_generated/dataModel";
+import { internal } from "./_generated/api";
 import { internalMutation, internalQuery } from "./_generated/server";
 import { authedMutation, authedQuery } from "./auth";
 

@@ -1,3 +1,6 @@
+import { Link, useRouteContext } from "@tanstack/react-router";
+import { HardDriveIcon, PiggyBankIcon, Rotate3dIcon } from "lucide-react";
+
 import {
   SidebarGroup,
   SidebarMenu,
@@ -5,8 +8,6 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { Link, useRouteContext } from "@tanstack/react-router";
-import { HardDriveIcon, PiggyBankIcon, Rotate3dIcon } from "lucide-react";
 import { TrelloSidebar } from "./trello-sidebar";
 
 export function MainNavGroup() {

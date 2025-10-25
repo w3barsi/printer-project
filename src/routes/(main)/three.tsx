@@ -1,13 +1,14 @@
-import { Container } from "@/components/layouts/container";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Suspense, useRef, useState } from "react";
+import { createFileRoute } from "@tanstack/react-router";
 import { Html, OrbitControls } from "@react-three/drei";
 import { Canvas, useLoader } from "@react-three/fiber";
-import { createFileRoute } from "@tanstack/react-router";
-import { Suspense, useRef, useState } from "react";
 import * as THREE from "three";
 import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader.js";
 import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader.js";
+
+import { Container } from "@/components/layouts/container";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 export const Route = createFileRoute("/(main)/three")({
   component: RouteComponent,

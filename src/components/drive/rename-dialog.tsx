@@ -1,6 +1,19 @@
 // src/components/CreateFolderDialog.tsx
+import type { GetDriveType } from "@/types/convex";
+import { useRef } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   Form,
   FormControl,
@@ -10,15 +23,8 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-
-import { DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { useRenameFileOrFolder } from "@/lib/convex/optimistic-mutations";
 import { useGetParentFolder } from "@/lib/get-parent-folder";
-import type { GetDriveType } from "@/types/convex";
-import { useRef } from "react";
 
 type RenameDialogProps = {
   d: GetDriveType;

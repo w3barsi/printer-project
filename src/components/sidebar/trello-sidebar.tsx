@@ -1,3 +1,7 @@
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { Link } from "@tanstack/react-router";
+import { ChevronRight, TrelloIcon } from "lucide-react";
+
 import {
   SidebarMenuAction,
   SidebarMenuButton,
@@ -9,9 +13,6 @@ import {
 } from "@/components/ui/sidebar";
 import { useLocalStorage } from "@/hooks/use-local-storage";
 import { getTrelloLists } from "@/server/trello";
-import { useSuspenseQuery } from "@tanstack/react-query";
-import { Link } from "@tanstack/react-router";
-import { ChevronRight, TrelloIcon } from "lucide-react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../ui/collapsible";
 
 export function TrelloSidebar() {

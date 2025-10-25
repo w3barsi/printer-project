@@ -1,5 +1,4 @@
 import type { GetOneComplete } from "@/types/convex";
-
 import ReceiptPrinterEncoder from "@point-of-sale/receipt-printer-encoder";
 
 const encoder = new ReceiptPrinterEncoder();

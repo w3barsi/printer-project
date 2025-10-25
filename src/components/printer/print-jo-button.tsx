@@ -1,9 +1,10 @@
-import { Button } from "@/components/ui/button";
-import { useDevice } from "@/contexts/DeviceContext";
-import { printReceipt } from "@/lib/printer";
 import type { GetOneComplete } from "@/types/convex";
 import { PrinterIcon } from "lucide-react";
 import { toast } from "sonner";
+
+import { Button } from "@/components/ui/button";
+import { useDevice } from "@/contexts/DeviceContext";
+import { printReceipt } from "@/lib/printer";
 
 export function PrintJoButton({ jo }: { jo: GetOneComplete }) {
   const { device, isConnected } = useDevice();

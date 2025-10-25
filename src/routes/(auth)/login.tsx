@@ -1,12 +1,12 @@
+import { useState } from "react";
+import { createFileRoute } from "@tanstack/react-router";
+import { LoaderCircle } from "lucide-react";
+import z from "zod";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { createFileRoute } from "@tanstack/react-router";
-import { LoaderCircle } from "lucide-react";
-import { useState } from "react";
-
 import { authClient } from "@/lib/auth-client";
-import z from "zod";
 
 export const Route = createFileRoute("/(auth)/login")({
   component: LoginForm,

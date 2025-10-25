@@ -1,3 +1,11 @@
+import { Suspense } from "react";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { Link } from "@tanstack/react-router";
+import { convexQuery } from "@convex-dev/react-query";
+import { api } from "@convex/_generated/api";
+import { useAutoAnimate } from "@formkit/auto-animate/react";
+import { FileTextIcon } from "lucide-react";
+
 import {
   SidebarGroup,
   SidebarMenu,
@@ -9,13 +17,6 @@ import {
   SidebarMenuSubItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { convexQuery } from "@convex-dev/react-query";
-import { api } from "@convex/_generated/api";
-import { useAutoAnimate } from "@formkit/auto-animate/react";
-import { useSuspenseQuery } from "@tanstack/react-query";
-import { Link } from "@tanstack/react-router";
-import { FileTextIcon } from "lucide-react";
-import { Suspense } from "react";
 
 export function RecentJobOrdersGroup() {
   const { isMobile, setOpenMobile } = useSidebar();

@@ -1,5 +1,5 @@
-import { Authenticated, AuthLoading } from "convex/react";
 import { Suspense } from "react";
+import { Authenticated, AuthLoading } from "convex/react";
 
 export function SuspenseAuthenticated({
   children,

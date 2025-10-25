@@ -1,3 +1,10 @@
+import type { Id } from "@convex/_generated/dataModel";
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { api } from "@convex/_generated/api";
+import { useMutation } from "convex/react";
+import { PlusIcon } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -11,12 +18,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { fetchAuth } from "@/routes/__root";
-import { api } from "@convex/_generated/api";
-import type { Id } from "@convex/_generated/dataModel";
-import { useQuery } from "@tanstack/react-query";
-import { useMutation } from "convex/react";
-import { PlusIcon } from "lucide-react";
-import { useState } from "react";
 import DateAndTimePicker from "./date-and-time-picker";
 
 export function CreateDialog() {

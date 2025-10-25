@@ -1,9 +1,10 @@
+import { Suspense } from "react";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { createFileRoute, Link } from "@tanstack/react-router";
+
 import { Container } from "@/components/layouts/container";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getTrelloLists } from "@/server/trello";
-import { useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { Suspense } from "react";
 
 export const Route = createFileRoute("/(main)/trello/")({
   component: TrelloPage,

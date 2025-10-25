@@ -1,25 +1,26 @@
-import { Toaster } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { DeviceProvider } from "@/contexts/DeviceContext";
-import { ThemeProvider } from "@/contexts/theme-context";
-import { authClient } from "@/lib/auth-client.ts";
-import { ConvexBetterAuthProvider } from "@convex-dev/better-auth/react";
-import { fetchSession, getCookieName } from "@convex-dev/better-auth/react-start";
 import type { ConvexQueryClient } from "@convex-dev/react-query";
 import type { QueryClient } from "@tanstack/react-query";
+import type { ConvexReactClient } from "convex/react";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import {
+  createRootRouteWithContext,
   HeadContent,
   Outlet,
   Scripts,
-  createRootRouteWithContext,
   useRouteContext,
 } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import { createServerFn } from "@tanstack/react-start";
 import { getCookie, getWebRequest } from "@tanstack/react-start/server";
-import type { ConvexReactClient } from "convex/react";
+import { ConvexBetterAuthProvider } from "@convex-dev/better-auth/react";
+import { fetchSession, getCookieName } from "@convex-dev/better-auth/react-start";
+
 import type { SessionWithRole } from "../../convex/auth";
+import { Toaster } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { DeviceProvider } from "@/contexts/DeviceContext";
+import { ThemeProvider } from "@/contexts/theme-context";
+import { authClient } from "@/lib/auth-client.ts";
 import appCss from "../styles.css?url";
 
 // import { fetchAuth } from "@/server/functions.ts"

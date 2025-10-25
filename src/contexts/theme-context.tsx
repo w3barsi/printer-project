@@ -1,5 +1,5 @@
-import { ScriptOnce } from "@tanstack/react-router";
 import { createContext, use, useCallback, useEffect, useMemo, useState } from "react";
+import { ScriptOnce } from "@tanstack/react-router";
 
 type Theme = "dark" | "light" | "system";
 const MEDIA = "(prefers-color-scheme: dark)";

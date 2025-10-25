@@ -1,7 +1,8 @@
+import { useQueryClient } from "@tanstack/react-query";
+import { createFileRoute, Link, redirect, useRouter } from "@tanstack/react-router";
+
 import { Button } from "@/components/ui/button";
 import { authClient } from "@/lib/auth-client";
-import { useQueryClient } from "@tanstack/react-query";
-import { Link, createFileRoute, redirect, useRouter } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/")({
   component: Home,

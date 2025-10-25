@@ -1,14 +1,12 @@
-import { Button } from "@/components/ui/button";
-import { useSelected, type SelectedItem } from "@/contexts/SelectedContext";
-import {
-  useDeleteFilesOrFolders,
-  useMoveFilesOrFolders,
-} from "@/lib/convex/optimistic-mutations";
-import { cn } from "@/lib/utils";
+import type { SelectedItem } from "@/contexts/SelectedContext";
 import type { GetDriveParentFolderType, GetDriveType } from "@/types/convex";
+import type { Id } from "@convex/_generated/dataModel";
+import type { DragEndEvent, DragMoveEvent, DragStartEvent } from "@dnd-kit/core";
+import { useState } from "react";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { useNavigate, useParams } from "@tanstack/react-router";
 import { convexQuery } from "@convex-dev/react-query";
 import { api } from "@convex/_generated/api";
-import type { Id } from "@convex/_generated/dataModel";
 import {
   DndContext,
   DragOverlay,
@@ -17,15 +15,17 @@ import {
   useDroppable,
   useSensor,
   useSensors,
-  type DragEndEvent,
-  type DragMoveEvent,
-  type DragStartEvent,
 } from "@dnd-kit/core";
-import { useSuspenseQuery } from "@tanstack/react-query";
-import { useNavigate, useParams } from "@tanstack/react-router";
 import { CornerLeftUpIcon, TrashIcon } from "lucide-react";
-import { useState } from "react";
+
 import type { Parent } from "../ui/upload-dropzone";
+import { Button } from "@/components/ui/button";
+import { useSelected } from "@/contexts/SelectedContext";
+import {
+  useDeleteFilesOrFolders,
+  useMoveFilesOrFolders,
+} from "@/lib/convex/optimistic-mutations";
+import { cn } from "@/lib/utils";
 import { CreateFolderDialog } from "./create-folder-dialog";
 import { EntryWrapper } from "./entry";
 import { TotalSpaceUsed } from "./total-space-used";

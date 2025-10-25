@@ -1,3 +1,18 @@
+import type { Dispatch } from "react";
+import { Suspense, useState } from "react";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { createFileRoute } from "@tanstack/react-router";
+import { convexQuery, useConvexMutation } from "@convex-dev/react-query";
+import { api } from "@convex/_generated/api";
+import {
+  DeleteIcon,
+  GavelIcon,
+  LockKeyholeIcon,
+  MoreVerticalIcon,
+  User2Icon,
+} from "lucide-react";
+import { toast } from "sonner";
+
 import { CreateUserDialog } from "@/components/create-user";
 import { Container } from "@/components/layouts/container";
 import { Button } from "@/components/ui/button";
@@ -30,19 +45,6 @@ import {
 } from "@/components/ui/table";
 import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
-import { convexQuery, useConvexMutation } from "@convex-dev/react-query";
-import { api } from "@convex/_generated/api";
-import { useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
-import {
-  DeleteIcon,
-  GavelIcon,
-  LockKeyholeIcon,
-  MoreVerticalIcon,
-  User2Icon,
-} from "lucide-react";
-import { Suspense, useState, type Dispatch } from "react";
-import { toast } from "sonner";
 
 export const Route = createFileRoute("/(main)/(admin)/admin/users")({
   component: RouteComponent,

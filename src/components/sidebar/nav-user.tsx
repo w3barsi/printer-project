@@ -1,5 +1,7 @@
 "use client";
 
+import { useQueryClient } from "@tanstack/react-query";
+import { useNavigate, useRouteContext, useRouter } from "@tanstack/react-router";
 import { ChevronsUpDown, LogOut } from "lucide-react";
 
 import {
@@ -23,8 +25,6 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { authClient } from "@/lib/auth-client";
-import { useQueryClient } from "@tanstack/react-query";
-import { useNavigate, useRouteContext, useRouter } from "@tanstack/react-router";
 
 export function NavUser() {
   const { isMobile } = useSidebar();

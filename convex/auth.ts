@@ -8,15 +8,15 @@ import {
   customMutation,
   customQuery,
 } from "convex-helpers/server/customFunctions";
+
+import type { DataModel, Id } from "./_generated/dataModel";
 import { ac, adminRole, basicRole } from "../src/lib/auth-utils";
 import { components, internal } from "./_generated/api";
-import type { DataModel, Id } from "./_generated/dataModel";
 import { mutation, query } from "./_generated/server";
+import authSchema from "./betterAuth/schema";
 
 // Typesafe way to pass Convex functions defined in this file
 const authFunctions: AuthFunctions = internal.auth;
-
-import authSchema from "./betterAuth/schema";
 
 // Initialize the component
 export const authComponent = createClient<DataModel, typeof authSchema>(

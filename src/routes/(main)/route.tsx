@@ -1,3 +1,6 @@
+import { createFileRoute, Outlet, redirect, useNavigate } from "@tanstack/react-router";
+import { useConvexAuth } from "convex/react";
+
 import { MainBreadcrumbs } from "@/components/breadcrumbs";
 import { Container } from "@/components/layouts/container";
 import { AppSidebar } from "@/components/sidebar/app-sidebar";
@@ -6,8 +9,6 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { authClient } from "@/lib/auth-client";
-import { Outlet, createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
-import { useConvexAuth } from "convex/react";
 
 export const Route = createFileRoute("/(main)")({
   component: Wrapper,

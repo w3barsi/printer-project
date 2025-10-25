@@ -1,10 +1,7 @@
-import { Button } from "@/components/ui/button";
-import { useSelected } from "@/contexts/SelectedContext";
-import { useDeleteFilesOrFolders } from "@/lib/convex/optimistic-mutations";
-import { useGetParentFolder } from "@/lib/get-parent-folder";
-import { cn } from "@/lib/utils";
 import type { GetDriveType } from "@/types/convex";
 import type { Id } from "@convex/_generated/dataModel";
+import type { ComponentPropsWithRef } from "react";
+import { useState } from "react";
 import { useNavigate, useParams } from "@tanstack/react-router";
 import {
   CopyIcon,
@@ -20,7 +17,13 @@ import {
   PenLineIcon,
   TrashIcon,
 } from "lucide-react";
-import { useState, type ComponentPropsWithRef } from "react";
+
+import type { Parent } from "../ui/upload-dropzone";
+import { Button } from "@/components/ui/button";
+import { useSelected } from "@/contexts/SelectedContext";
+import { useDeleteFilesOrFolders } from "@/lib/convex/optimistic-mutations";
+import { useGetParentFolder } from "@/lib/get-parent-folder";
+import { cn } from "@/lib/utils";
 import {
   ContextMenu,
   ContextMenuContent,
@@ -34,7 +37,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
-import type { Parent } from "../ui/upload-dropzone";
 import { RenameDialog } from "./rename-dialog";
 
 export function EntryWrapper({
