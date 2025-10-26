@@ -1,6 +1,6 @@
-import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { LoaderCircle } from "lucide-react";
+import { useState } from "react";
 import z from "zod";
 
 import { Button } from "@/components/ui/button";
@@ -42,7 +42,7 @@ function LoginForm() {
       {
         email,
         password,
-        callbackURL: redirectUrl,
+        callbackURL: redirectUrl ?? "/jo",
       },
       {
         onError: (ctx) => {
