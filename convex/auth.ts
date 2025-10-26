@@ -136,7 +136,7 @@ export type SessionWithRole = ReturnType<typeof createAuth>["$Infer"]["Session"]
 export const authedMutation = customMutation(
   mutation,
   customCtx(async (ctx) => {
-    const user = await authComponent.getAuthUser(ctx);
+    const user = await authComponent.safeGetAuthUser(ctx);
     console.log("[USER] ", user);
     if (!user) throw new Error("[Custom Mutation] Authentication required");
     return { user };
@@ -146,7 +146,7 @@ export const authedMutation = customMutation(
 export const authedQuery = customQuery(
   query,
   customCtx(async (ctx) => {
-    const user = await authComponent.getAuthUser(ctx);
+    const user = await authComponent.safeGetAuthUser(ctx);
     if (!user) throw new Error("[Custom Query] Authentication required");
     return { user };
   }),
