@@ -1,16 +1,9 @@
 import type { ErrorComponentProps } from "@tanstack/react-router";
-import {
-  ErrorComponent,
-  Link,
-  rootRouteId,
-  useMatch,
-  useRouter,
-} from "@tanstack/react-router";
+import { ErrorComponent, Link, rootRouteId, useMatch } from "@tanstack/react-router";
 
 import { Button } from "./ui/button";
 
 export function DefaultCatchBoundary({ error }: Readonly<ErrorComponentProps>) {
-  const router = useRouter();
   const isRoot = useMatch({
     strict: false,
     select: (state) => state.id === rootRouteId,
@@ -25,7 +18,7 @@ export function DefaultCatchBoundary({ error }: Readonly<ErrorComponentProps>) {
         <Button
           type="button"
           onClick={() => {
-            router.invalidate();
+            window.location.reload();
           }}
         >
           Try Again
