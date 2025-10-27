@@ -45,6 +45,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
     console.log(
       "[BEFORE-LOAD] ",
       user ? `User is populated ${JSON.stringify(user)}` : "No user",
+      `\n[TOKEN] ${token}`,
     );
 
     return { user, token, impersonatedBy };
