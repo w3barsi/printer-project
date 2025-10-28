@@ -4,6 +4,7 @@ import { convex } from "@convex-dev/better-auth/plugins";
 import { betterAuth } from "better-auth";
 import { admin, username } from "better-auth/plugins";
 import {
+  CustomCtx,
   customCtx,
   customMutation,
   customQuery,
@@ -137,7 +138,6 @@ export const authedMutation = customMutation(
   mutation,
   customCtx(async (ctx) => {
     const user = await authComponent.safeGetAuthUser(ctx);
-    console.log("[USER] ", user);
     if (!user) throw new Error("[Custom Mutation] Authentication required");
     return { user };
   }),
@@ -151,3 +151,5 @@ export const authedQuery = customQuery(
     return { user };
   }),
 );
+
+export type AuthenticatedQueryCtx = CustomCtx<typeof authedQuery>;

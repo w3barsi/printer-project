@@ -1,11 +1,17 @@
 import { v } from "convex/values";
 
-import { createAuth } from "../../convex/auth";
+import { AuthenticatedQueryCtx, createAuth } from "../../convex/auth";
 import { authComponent, authedMutation, authedQuery } from "../auth";
+
+function isAdmin(ctx: AuthenticatedQueryCtx) {
+  return ctx.user.role === "admin" ? true : false;
+}
 
 export const listUsers = authedQuery({
   args: {},
   handler: async (ctx) => {
+    if (!isAdmin(ctx)) throw new Error("Not authorized");
+
     const { auth, headers } = await authComponent.getAuth(createAuth, ctx);
 
     const { users } = await auth.api.listUsers({
@@ -19,6 +25,8 @@ export const listUsers = authedQuery({
 export const deleteUser = authedMutation({
   args: { id: v.string() },
   handler: async (ctx, args) => {
+    if (!isAdmin(ctx)) throw new Error("Not authorized");
+
     const { auth, headers } = await authComponent.getAuth(createAuth, ctx);
 
     await auth.api.removeUser({
@@ -33,6 +41,8 @@ export const deleteUser = authedMutation({
 export const createUser = authedMutation({
   args: { name: v.string(), email: v.string(), password: v.string() },
   handler: async (ctx, args) => {
+    if (!isAdmin(ctx)) throw new Error("Not authorized");
+
     const { auth, headers } = await authComponent.getAuth(createAuth, ctx);
 
     await auth.api.createUser({
@@ -52,7 +62,10 @@ export const setRole = authedMutation({
     role: v.union(v.literal("user"), v.literal("admin"), v.literal("cashier")),
   },
   handler: async (ctx, args) => {
+    if (!isAdmin(ctx)) throw new Error("Not authorized");
+
     const { auth, headers } = await authComponent.getAuth(createAuth, ctx);
+    console.log(args);
 
     await auth.api.setRole({
       body: {
@@ -67,6 +80,8 @@ export const setRole = authedMutation({
 export const banOrUnbanUser = authedMutation({
   args: { userId: v.string(), isBanned: v.boolean() },
   handler: async (ctx, args) => {
+    if (!isAdmin(ctx)) throw new Error("Not authorized");
+
     const { auth, headers } = await authComponent.getAuth(createAuth, ctx);
     if (args.isBanned) {
       await auth.api.unbanUser({
