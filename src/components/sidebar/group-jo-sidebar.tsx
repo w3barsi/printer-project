@@ -1,10 +1,10 @@
-import { Suspense } from "react";
-import { useSuspenseQuery } from "@tanstack/react-query";
-import { Link } from "@tanstack/react-router";
 import { convexQuery } from "@convex-dev/react-query";
 import { api } from "@convex/_generated/api";
 import { useAutoAnimate } from "@formkit/auto-animate/react";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { Link } from "@tanstack/react-router";
 import { FileTextIcon } from "lucide-react";
+import { Suspense } from "react";
 
 import {
   SidebarGroup,
@@ -28,7 +28,7 @@ export function RecentJobOrdersGroup() {
           <SidebarMenuButton asChild tooltip="Job Order">
             <Link
               to="/jo"
-              preload="viewport"
+              preload="render"
               onClick={() => isMobile && setOpenMobile(false)}
               activeProps={{
                 className: "bg-sidebar-accent text-sidebar-accent-foreground",
