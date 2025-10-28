@@ -8,6 +8,15 @@ export const cashflowType = v.optional(
 );
 
 export default defineSchema({
+  customer: defineTable({
+    name: v.string(),
+    handler: v.string(),
+    contactNumber: v.optional(v.string()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+    createdBy: v.id("user"),
+  }),
+
   file: defineTable({
     createdBy: v.id("users"),
     parent: v.union(v.literal("private"), v.literal("public"), v.id("folder")),
@@ -40,8 +49,10 @@ export default defineSchema({
 
   jo: defineTable({
     updatedAt: v.optional(v.number()),
+    createdBy: v.optional(v.id("users")),
+    orderedOn: v.optional(v.number()),
 
-    name: v.string(),
+    name: v.union(v.string(), v.id("customer")),
     joNumber: v.number(),
     pickupDate: v.optional(v.number()),
     pickupTime: v.optional(v.string()),
@@ -51,9 +62,9 @@ export default defineSchema({
       v.literal("in-progress"),
       v.literal("completed"),
     ),
-    createdBy: v.optional(v.id("users")),
   })
     .index("by_joNumber", ["joNumber"])
+    .index("by_name", ["name"])
     .index("by_lastUpdated", ["updatedAt"]),
 
   payment: defineTable({

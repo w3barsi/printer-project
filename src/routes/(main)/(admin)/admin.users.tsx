@@ -1,9 +1,7 @@
-import type { Dispatch } from "react";
-import { Suspense, useState } from "react";
-import { useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
 import { convexQuery, useConvexMutation } from "@convex-dev/react-query";
 import { api } from "@convex/_generated/api";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { createFileRoute } from "@tanstack/react-router";
 import {
   DeleteIcon,
   GavelIcon,
@@ -11,6 +9,8 @@ import {
   MoreVerticalIcon,
   User2Icon,
 } from "lucide-react";
+import type { Dispatch } from "react";
+import { Suspense, useState } from "react";
 import { toast } from "sonner";
 
 import { CreateUserDialog } from "@/components/create-user";
