@@ -18,6 +18,7 @@ export function getRouter() {
 
   const convex = new ConvexReactClient(CONVEX_URL, {
     unsavedChangesWarning: false,
+    expectAuth: true
     // verbose: true,
   });
 
