@@ -62,8 +62,32 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
       {
         title: "DARCYGRAPHiX Advertising",
       },
+      {
+        name: "theme-color",
+        content: "#1a1a1a",
+      },
+      {
+        name: "description",
+        content: "Business management system for DARCYGRAPHiX Advertising",
+      },
+      {
+        name: "apple-mobile-web-app-capable",
+        content: "yes",
+      },
+      {
+        name: "apple-mobile-web-app-status-bar-style",
+        content: "black-translucent",
+      },
     ],
     links: [
+      {
+        rel: "manifest",
+        href: "/manifest.json",
+      },
+      {
+        rel: "apple-touch-icon",
+        href: "/logo192.png",
+      },
       {
         rel: "preload",
         href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap",

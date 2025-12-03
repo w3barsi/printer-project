@@ -1,5 +1,6 @@
-import { createContext, use, useCallback, useEffect, useMemo, useState } from "react";
+import { usePWA } from "@/hooks/use-pwa";
 import { ScriptOnce } from "@tanstack/react-router";
+import { createContext, use, useCallback, useEffect, useMemo, useState } from "react";
 
 type Theme = "dark" | "light" | "system";
 const MEDIA = "(prefers-color-scheme: dark)";
@@ -31,6 +32,7 @@ export function ThemeProvider({
   storageKey = "theme",
   ...props
 }: ThemeProviderProps) {
+  usePWA();
   const [theme, setTheme] = useState<Theme>(
     () =>
       (typeof window !== "undefined"
