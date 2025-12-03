@@ -1,7 +1,7 @@
+import { ConvexQueryClient } from "@convex-dev/react-query";
 import { QueryClient } from "@tanstack/react-query";
 import { createRouter } from "@tanstack/react-router";
 import { setupRouterSsrQueryIntegration } from "@tanstack/react-router-ssr-query";
-import { ConvexQueryClient } from "@convex-dev/react-query";
 import { ConvexProvider, ConvexReactClient } from "convex/react";
 
 import "./styles.css";
@@ -18,7 +18,7 @@ export function getRouter() {
 
   const convex = new ConvexReactClient(CONVEX_URL, {
     unsavedChangesWarning: false,
-    expectAuth: true
+    expectAuth: true,
     // verbose: true,
   });
 

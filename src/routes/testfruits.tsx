@@ -1,6 +1,6 @@
-import { useState } from "react";
-import { createFileRoute } from "@tanstack/react-router";
 import { useAutoAnimate } from "@formkit/auto-animate/react";
+import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
 
 import { Container } from "@/components/layouts/container";
 import { Button } from "@/components/ui/button";

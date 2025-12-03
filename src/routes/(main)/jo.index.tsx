@@ -1,10 +1,10 @@
 import type { JoWithItems } from "@/types/convex";
-import { Suspense, useRef, useState } from "react";
-import { useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute, useNavigate, useRouter } from "@tanstack/react-router";
 import { convexQuery } from "@convex-dev/react-query";
 import { api } from "@convex/_generated/api";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { createFileRoute, useNavigate, useRouter } from "@tanstack/react-router";
 import { ArrowLeftIcon, ArrowRightIcon, HashIcon } from "lucide-react";
+import { Suspense, useRef, useState } from "react";
 
 import { CreateDialog } from "@/components/create-jo";
 import { Container } from "@/components/layouts/container";

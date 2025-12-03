@@ -1,6 +1,3 @@
-import type { ComponentPropsWithRef } from "react";
-import { useId } from "react";
-import { createFileRoute } from "@tanstack/react-router";
 import {
   DndContext,
   PointerSensor,
@@ -9,6 +6,9 @@ import {
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
+import { createFileRoute } from "@tanstack/react-router";
+import type { ComponentPropsWithRef } from "react";
+import { useId } from "react";
 
 import { Container } from "@/components/layouts/container";
 

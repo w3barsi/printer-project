@@ -1,6 +1,6 @@
-import { Suspense } from "react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { Suspense } from "react";
 
 import { Container } from "@/components/layouts/container";
 import { Skeleton } from "@/components/ui/skeleton";

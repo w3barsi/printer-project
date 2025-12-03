@@ -1,5 +1,5 @@
-import * as React from "react";
 import { Link } from "@tanstack/react-router";
+import * as React from "react";
 
 import { MainNavGroup } from "@/components/sidebar/group-nav-main";
 import { NavUser } from "@/components/sidebar/nav-user";

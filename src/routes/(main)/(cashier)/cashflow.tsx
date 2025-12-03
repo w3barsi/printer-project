@@ -1,8 +1,7 @@
-import { Suspense, useMemo, useState } from "react";
-import { useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute, Link } from "@tanstack/react-router";
 import { convexQuery } from "@convex-dev/react-query";
 import { api } from "@convex/_generated/api";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation } from "convex/react";
 import {
   CalendarIcon,
@@ -11,6 +10,7 @@ import {
   TrendingDownIcon,
   TrendingUpIcon,
 } from "lucide-react";
+import { Suspense, useMemo, useState } from "react";
 import { z } from "zod";
 
 import { AddCashflow } from "@/components/cashier/add-cashflow";
