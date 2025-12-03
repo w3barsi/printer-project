@@ -78,6 +78,14 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
         name: "apple-mobile-web-app-status-bar-style",
         content: "black-translucent",
       },
+      {
+        name: "apple-mobile-web-app-title",
+        content: "DARCYGRAPHiX",
+      },
+      {
+        name: "apple-mobile-web-app-orientations",
+        content: "portrait,landscape",
+      },
     ],
     links: [
       {
@@ -87,6 +95,12 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
       {
         rel: "apple-touch-icon",
         href: "/logo192.png",
+        sizes: "192x192",
+      },
+      {
+        rel: "apple-touch-icon",
+        href: "/logo512.png",
+        sizes: "512x512",
       },
       {
         rel: "preload",

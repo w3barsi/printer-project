@@ -10,7 +10,33 @@ export function usePWA() {
     }
   }, []);
 
+  // iOS-specific PWA detection and handling
+  const isIOS = () => {
+    return /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
+  };
+
+  const isStandalonePWA = () => {
+    return window.matchMedia('(display-mode: standalone)').matches ||
+           (window as any).navigator.standalone === true;
+  };
+
   useEffect(() => {
+    // iOS-specific PWA setup
+    if (isIOS()) {
+      console.log('iOS device detected, enabling iOS PWA features');
+      
+      // Add Apple-specific touch icon support
+      const addAppleTouchIcons = async () => {
+        if (isStandalonePWA()) {
+          console.log('App running in iOS stand-alone mode');
+          // iOS-specific app behaviors
+          document.body.classList.add('ios-standalone');
+        }
+      };
+      
+      addAppleTouchIcons();
+    }
+
     if ("serviceWorker" in navigator) {
       // Register the service worker
       navigator.serviceWorker
@@ -34,6 +60,11 @@ export function usePWA() {
 
           updateHandlerRef.current = handleUpdateFound;
           registration.addEventListener("updatefound", handleUpdateFound);
+
+          // iOS-specific: handle app installation prompt
+          if (isIOS() && !isStandalonePWA()) {
+            console.log('iOS PWA installation available (click share -> Add to Home Screen)');
+          }
         })
         .catch((error) => {
           console.error("Error registering PWA service worker:", error);
