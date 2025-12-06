@@ -9,7 +9,7 @@ export const authClient = createAuthClient({
     usernameClient(),
     adminClient({
       ac,
-      roels: {
+      roles: {
         admin: adminRole,
         user: basicRole,
         cashier: basicRole,
