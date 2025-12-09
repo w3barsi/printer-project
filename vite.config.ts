@@ -37,6 +37,9 @@ export default defineConfig({
       },
       includeAssets: ["favicon.ico", "apple-touch-icon.png", "masked-icon.svg"],
       manifest: false, // We'll use your existing manifest.json
+      devOptions: {
+        enabled: false, // Disable PWA in development
+      },
     }),
   ],
 });

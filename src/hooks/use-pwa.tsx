@@ -23,6 +23,12 @@ export function usePWA() {
   };
 
   useEffect(() => {
+    // Skip PWA registration in development
+    if (import.meta.env.DEV) {
+      console.log("PWA disabled in development mode");
+      return;
+    }
+
     // iOS-specific PWA setup
     if (isIOS()) {
       console.log("iOS device detected, enabling iOS PWA features");
