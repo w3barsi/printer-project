@@ -1,10 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { LoaderCircle } from "lucide-react";
+import { EyeClosedIcon, EyeIcon, LoaderCircle } from "lucide-react";
 import { useState } from "react";
 import z from "zod";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+} from "@/components/ui/input-group";
 import { Label } from "@/components/ui/label";
 import { authClient } from "@/lib/auth-client";
 
@@ -24,6 +30,7 @@ function LoginForm() {
   const { redirectUrl } = Route.useSearch();
 
   const [isLoading, setIsLoading] = useState(false);
+  const [viewPassword, setViewPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -82,14 +89,28 @@ function LoginForm() {
             </div>
             <div className="grid gap-2">
               <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                name="password"
-                type="password"
-                placeholder="Enter password here"
-                readOnly={isLoading}
-                required
-              />
+              <InputGroup>
+                <InputGroupInput
+                  id="password"
+                  name="password"
+                  type={viewPassword ? "text" : "password"}
+                  placeholder="Enter Password here"
+                  readOnly={isLoading}
+                  required
+                />
+                <InputGroupAddon align="inline-end">
+                  <InputGroupButton
+                    aria-label="Copy"
+                    title="Copy"
+                    size="icon-xs"
+                    onClick={() => {
+                      setViewPassword((vp) => !vp);
+                    }}
+                  >
+                    {viewPassword ? <EyeIcon /> : <EyeClosedIcon />}
+                  </InputGroupButton>
+                </InputGroupAddon>
+              </InputGroup>
             </div>
             <Button type="submit" className="mt-2 w-full" size="lg" disabled={isLoading}>
               {isLoading && <LoaderCircle className="animate-spin" />}
