@@ -16,24 +16,26 @@ export function usePWA() {
   };
 
   const isStandalonePWA = () => {
-    return window.matchMedia('(display-mode: standalone)').matches ||
-           (window as any).navigator.standalone === true;
+    return (
+      window.matchMedia("(display-mode: standalone)").matches ||
+      (window as any).navigator.standalone === true
+    );
   };
 
   useEffect(() => {
     // iOS-specific PWA setup
     if (isIOS()) {
-      console.log('iOS device detected, enabling iOS PWA features');
-      
+      console.log("iOS device detected, enabling iOS PWA features");
+
       // Add Apple-specific touch icon support
       const addAppleTouchIcons = async () => {
         if (isStandalonePWA()) {
-          console.log('App running in iOS stand-alone mode');
+          console.log("App running in iOS stand-alone mode");
           // iOS-specific app behaviors
-          document.body.classList.add('ios-standalone');
+          document.body.classList.add("ios-standalone");
         }
       };
-      
+
       addAppleTouchIcons();
     }
 
@@ -63,7 +65,9 @@ export function usePWA() {
 
           // iOS-specific: handle app installation prompt
           if (isIOS() && !isStandalonePWA()) {
-            console.log('iOS PWA installation available (click share -> Add to Home Screen)');
+            console.log(
+              "iOS PWA installation available (click share -> Add to Home Screen)",
+            );
           }
         })
         .catch((error) => {

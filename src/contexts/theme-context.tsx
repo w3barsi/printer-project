@@ -1,4 +1,3 @@
-import { usePWA } from "@/hooks/use-pwa";
 import { ScriptOnce } from "@tanstack/react-router";
 import { createContext, use, useCallback, useEffect, useMemo, useState } from "react";
 
@@ -32,7 +31,6 @@ export function ThemeProvider({
   storageKey = "theme",
   ...props
 }: ThemeProviderProps) {
-  usePWA();
   const [theme, setTheme] = useState<Theme>(
     () =>
       (typeof window !== "undefined"
