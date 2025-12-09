@@ -23,7 +23,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
   DropdownMenu,
@@ -79,7 +78,7 @@ function RouteComponent() {
 }
 
 function UserManagementTable() {
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
   const [user, setUser] = useState<{ name: string; id: string }>();
 
   const { data } = useSuspenseQuery(convexQuery(api.admin.users.listUsers, {}));
@@ -185,7 +184,7 @@ function UserManagementTable() {
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         onClick={() => {
-                          setIsDialogOpen(true);
+                          setIsPasswordDialogOpen(true);
                           setUser({ name: u.name, id: u.id });
                         }}
                       >
@@ -208,7 +207,11 @@ function UserManagementTable() {
           )}
         </TableBody>
       </Table>
-      <ChangePasswordDialog open={isDialogOpen} setOpen={setIsDialogOpen} user={user} />
+      <ChangePasswordDialog
+        open={isPasswordDialogOpen}
+        setOpen={setIsPasswordDialogOpen}
+        user={user}
+      />
     </TableWrapper>
   );
 }
@@ -246,35 +249,41 @@ function ChangePasswordDialog({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild></DialogTrigger>
-      <DialogContent className="">
-        <DialogHeader>
-          <DialogTitle>Change Password</DialogTitle>
-          <DialogDescription>Enter your new password below.</DialogDescription>
-        </DialogHeader>
-        <div className="grid gap-4 py-4">
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="new-password" className="text-right">
-              New Password
-            </Label>
-            <Input
-              id="new-password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="col-span-3"
-              placeholder="Enter new password"
-            />
+      <DialogContent>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleApply();
+          }}
+        >
+          <DialogHeader>
+            <DialogTitle>Change Password</DialogTitle>
+            <DialogDescription>Enter your new password below.</DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="new-password" className="text-right">
+                New Password
+              </Label>
+              <Input
+                id="new-password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="col-span-3"
+                placeholder="Enter new password"
+              />
+            </div>
           </div>
-        </div>
-        <DialogFooter>
-          <Button variant="outline" onClick={() => setOpen(false)}>
-            Close
-          </Button>
-          <Button onClick={handleApply} disabled={password.length < 8}>
-            Apply
-          </Button>
-        </DialogFooter>
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+              Close
+            </Button>
+            <Button type="submit" disabled={password.length < 8}>
+              Apply
+            </Button>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   );
