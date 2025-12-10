@@ -1,3 +1,4 @@
+import { useTheme } from "@/contexts/theme-context";
 import type { ToasterProps } from "sonner";
 import { Toaster as Sonner } from "sonner";
 
@@ -13,7 +14,7 @@ const getTheme = (key: string, fallback?: string) => {
 };
 
 const Toaster = ({ ...props }: ToasterProps) => {
-  const theme = getTheme("theme");
+  const { theme } = useTheme();
 
   return (
     <Sonner
