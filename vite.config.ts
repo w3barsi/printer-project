@@ -4,7 +4,7 @@ import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import viteReact from "@vitejs/plugin-react";
 import { nitro } from "nitro/vite";
 import { defineConfig } from "vite";
-import { VitePWA } from "vite-plugin-pwa";
+
 import tsConfigPaths from "vite-tsconfig-paths";
 
 export default defineConfig({
@@ -30,16 +30,5 @@ export default defineConfig({
       },
     }),
     tailwindcss(),
-    VitePWA({
-      registerType: "autoUpdate",
-      workbox: {
-        globPatterns: ["**/*.{js,css,html,ico,png,svg}"],
-      },
-      includeAssets: ["favicon.ico", "apple-touch-icon.png", "masked-icon.svg"],
-      manifest: false, // We'll use your existing manifest.json
-      devOptions: {
-        enabled: false, // Disable PWA in development
-      },
-    }),
   ],
 });

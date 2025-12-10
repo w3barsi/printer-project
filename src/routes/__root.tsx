@@ -18,7 +18,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { DeviceProvider } from "@/contexts/DeviceContext";
 import { ThemeProvider } from "@/contexts/theme-context";
-import { usePWA } from "@/hooks/use-pwa";
+
 import { authClient } from "@/lib/auth-client.ts";
 import { authQueryOptions, type AuthQueryResult } from "@/lib/auth/queries";
 import appCss from "../styles.css?url";
@@ -90,20 +90,6 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
     ],
     links: [
       {
-        rel: "manifest",
-        href: "/manifest.json",
-      },
-      {
-        rel: "apple-touch-icon",
-        href: "/logo192.png",
-        sizes: "192x192",
-      },
-      {
-        rel: "apple-touch-icon",
-        href: "/logo512.png",
-        sizes: "512x512",
-      },
-      {
         rel: "preload",
         href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap",
         as: "style",
@@ -119,7 +105,6 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 
 function RootComponent() {
   const context = useRouteContext({ from: Route.id });
-  usePWA();
 
   return (
     <ConvexBetterAuthProvider client={context.convexClient} authClient={authClient}>
