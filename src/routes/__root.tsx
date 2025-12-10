@@ -1,6 +1,7 @@
 import { ConvexBetterAuthProvider } from "@convex-dev/better-auth/react";
 import type { ConvexQueryClient } from "@convex-dev/react-query";
 import type { QueryClient } from "@tanstack/react-query";
+import pc from "picocolors";
 import { useEffect } from "react";
 
 import { TanStackDevtools } from "@tanstack/react-devtools";
@@ -45,9 +46,10 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
     }
 
     console.log(
-      "[BEFORE-LOAD] ",
-      user ? `User is populated ${JSON.stringify(user)}` : "No user",
-      `\n[TOKEN] ${token}`,
+      pc.bgRed("[BEFORE-LOAD]") +
+        ` ${user ? `User is populated ${JSON.stringify(user, null, 2)}` : "No user"}\n` +
+        pc.bgRed("[TOKEN]") +
+        ` ${token ? "TOKEN EXISTS" : "TOKEN DOES NOT EXIST"}`,
     );
 
     return { user, token, impersonatedBy };
