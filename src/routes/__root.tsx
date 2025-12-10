@@ -108,6 +108,14 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
         href: "/logo512.png",
       },
     ],
+    scripts: [
+      {
+        src: "https://cdn.jsdelivr.net/npm/ios-pwa-splash@1.0.0/cdn.min.js",
+      },
+      {
+        children: "iosPWASplash('/logo512.png', '#000000')",
+      },
+    ],
   }),
   component: RootComponent,
 });
