@@ -1,0 +1,21 @@
+{
+  "name": "DARCYGRAPHiX Advertising",
+  "short_name": "DARCYGRAPHiX",
+  "description": "Business management system for DARCYGRAPHiX Advertising",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1a1a1a",
+  "theme_color": "#1a1a1a",
+  "icons": [
+    {
+      "src": "/logo192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/logo512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
