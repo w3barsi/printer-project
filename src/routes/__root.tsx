@@ -18,6 +18,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { DeviceProvider } from "@/contexts/DeviceContext";
 import { ThemeProvider } from "@/contexts/theme-context";
+import { usePWA } from "@/hooks/use-pwa";
 import { authClient } from "@/lib/auth-client.ts";
 import { authQueryOptions, type AuthQueryResult } from "@/lib/auth/queries";
 import appCss from "../styles.css?url";
@@ -118,6 +119,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 
 function RootComponent() {
   const context = useRouteContext({ from: Route.id });
+  usePWA();
 
   return (
     <ConvexBetterAuthProvider client={context.convexClient} authClient={authClient}>
