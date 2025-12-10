@@ -103,6 +103,10 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
         rel: "manifest",
         href: "/manifest.json",
       },
+      {
+        rel: "apple-touch-icon",
+        href: "/logo512.png",
+      },
     ],
   }),
   component: RootComponent,
