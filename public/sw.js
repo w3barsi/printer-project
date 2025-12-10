@@ -44,13 +44,14 @@ self.addEventListener("fetch", (event) => {
 
   event.respondWith(
     caches.match(event.request).then((response) => {
-      // Return cached version or fetch from network
-      return (
-        response ||
-        fetch(event.request).catch(() => {
-          return caches.match("/offline.html");
-        })
-      );
+      // Return cached version if it's not a redirect, otherwise fetch from network
+      if (response && response.type === "basic") {
+        return response;
+      }
+
+      return fetch(event.request).catch(() => {
+        return caches.match("/offline.html");
+      });
     }),
   );
 });
