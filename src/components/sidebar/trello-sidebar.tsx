@@ -15,6 +15,7 @@ import { useLocalStorage } from "@/hooks/use-local-storage";
 import { getTrelloLists } from "@/server/trello";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../ui/collapsible";
 import { Spinner } from "../ui/spinner";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
 export function TrelloSidebar() {
   const [isOpen, setIsOpen] = useLocalStorage("trello-lists-open", false);
@@ -35,7 +36,7 @@ export function TrelloSidebar() {
           <TrelloIcon className="text-neutral-500" />
           <span className="text-neutral-500">Trello</span>
         </SidebarMenuButton>
-        <SidebarMenuAction showOnHover={false}>
+        <SidebarMenuAction showOnHover={false} className="hover:bg-transparent">
           <Spinner className="text-neutral-500" />
         </SidebarMenuAction>
       </SidebarMenuItem>
@@ -44,12 +45,19 @@ export function TrelloSidebar() {
 
   if (isError) {
     return (
-      <SidebarMenuItem>
-        <SidebarMenuButton tooltip="Trello API Error" disabled>
-          <TrelloIcon className="text-red-500" />
-          <span className="text-red-500">Trello</span>
-        </SidebarMenuButton>
-      </SidebarMenuItem>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <SidebarMenuItem>
+            <SidebarMenuButton tooltip="Trello API Error" disabled>
+              <TrelloIcon className="text-red-500" />
+              <span className="text-red-500">Trello</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </TooltipTrigger>
+        <TooltipContent side="right" align="start">
+          Trello API Error
+        </TooltipContent>
+      </Tooltip>
     );
   }
 
