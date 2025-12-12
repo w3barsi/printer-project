@@ -73,7 +73,6 @@ function Crumb({ idx, crumb }: { idx: number; crumb: CrumbType }) {
 function DriveCrumb({ crumb }: { crumb: CrumbType }) {
   const parent: Parent = crumb.value ? (crumb.value as Id<"folder">) : "private";
   const { data } = useSuspenseQuery(convexQuery(api.drive.getDrive, { parent }));
-  console.log("DRIVE CRUMB LOADED");
   return (
     <>
       <BreadcrumbItem>
@@ -87,7 +86,6 @@ function JoCrumb({ crumb }: { crumb: CrumbType }) {
   const { data } = useSuspenseQuery(
     convexQuery(api.jo.getOneComplete, { id: crumb.value as Id<"jo"> }),
   );
-  console.log("JO CRUMB LOADED");
   return (
     <BreadcrumbItem>
       <BreadcrumbPage>{data?.name}</BreadcrumbPage>
