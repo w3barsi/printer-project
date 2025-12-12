@@ -1,4 +1,4 @@
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { ChevronRight, TrelloIcon } from "lucide-react";
 
@@ -14,14 +14,53 @@ import {
 import { useLocalStorage } from "@/hooks/use-local-storage";
 import { getTrelloLists } from "@/server/trello";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../ui/collapsible";
+import { Spinner } from "../ui/spinner";
 
 export function TrelloSidebar() {
   const [isOpen, setIsOpen] = useLocalStorage("trello-lists-open", false);
-  const { data: lists } = useSuspenseQuery({
+  const {
+    data: lists,
+    isError,
+    isLoading,
+  } = useQuery({
     queryKey: ["trelloLists"],
     queryFn: getTrelloLists,
   });
   const { isMobile, setOpenMobile } = useSidebar();
+
+  if (isLoading) {
+    return (
+      <SidebarMenuItem>
+        <SidebarMenuButton tooltip="Loading..." disabled>
+          <TrelloIcon className="text-neutral-500" />
+          <span className="text-neutral-500">Trello</span>
+        </SidebarMenuButton>
+        <SidebarMenuAction showOnHover={false}>
+          <Spinner className="text-neutral-500" />
+        </SidebarMenuAction>
+      </SidebarMenuItem>
+    );
+  }
+
+  if (isError) {
+    return (
+      <SidebarMenuItem>
+        <SidebarMenuButton tooltip="Trello API Error" disabled>
+          <TrelloIcon className="text-red-500" />
+          <span className="text-red-500">Trello</span>
+        </SidebarMenuButton>
+      </SidebarMenuItem>
+    );
+  }
+
+  if (!lists) {
+    <SidebarMenuItem>
+      <SidebarMenuButton tooltip="Trello API Error" disabled>
+        <TrelloIcon className="text-red-500" />
+        <span className="text-red-500">Trello</span>
+      </SidebarMenuButton>
+    </SidebarMenuItem>;
+  }
 
   return (
     <Collapsible asChild defaultOpen={isOpen}>
@@ -38,7 +77,7 @@ export function TrelloSidebar() {
             <span>Trello</span>
           </Link>
         </SidebarMenuButton>
-        {lists.length ? (
+        {lists?.length ? (
           <>
             <CollapsibleTrigger asChild>
               <SidebarMenuAction

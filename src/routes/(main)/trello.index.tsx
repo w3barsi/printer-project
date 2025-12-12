@@ -1,6 +1,5 @@
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Suspense } from "react";
 
 import { Container } from "@/components/layouts/container";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -8,15 +7,9 @@ import { getTrelloLists } from "@/server/trello";
 
 export const Route = createFileRoute("/(main)/trello/")({
   component: TrelloPage,
-  loader: async ({ context }) => {
-    await context.queryClient.ensureQueryData({
-      queryKey: ["trelloLists"],
-      queryFn: getTrelloLists,
-    });
-    return {
-      crumb: [{ value: "Trello", href: "/trello/", type: "static" }],
-    };
-  },
+  loader: () => ({
+    crumb: [{ value: "Trello", href: "/trello/", type: "static" }],
+  }),
   head: () => ({
     meta: [
       {
@@ -31,9 +24,7 @@ function TrelloPage() {
     <Container>
       <h1 className="mb-6 text-3xl font-bold">Trello Board Lists</h1>
       <div className="grid auto-rows-fr gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <Suspense fallback={<ListViewSkeleton />}>
-          <ListView />
-        </Suspense>
+        <ListView />
       </div>
     </Container>
   );
@@ -59,10 +50,32 @@ function ListViewSkeleton() {
 }
 
 function ListView() {
-  const { data: lists } = useSuspenseQuery({
+  const {
+    data: lists,
+    isLoading,
+    isError,
+    error,
+  } = useQuery({
     queryKey: ["trelloLists"],
     queryFn: getTrelloLists,
   });
+
+  if (isLoading) {
+    return <ListViewSkeleton />;
+  }
+
+  if (isError) {
+    return (
+      <div className="col-span-full text-center text-red-500">
+        Error loading Trello data: {error?.message || "Unknown error"}
+      </div>
+    );
+  }
+
+  if (!lists) {
+    return <div>No lists found</div>;
+  }
+
   return (
     <>
       {lists.map((list: { id: string; name: string; closed: boolean; pos: number }) => (
