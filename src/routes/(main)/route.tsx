@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { authClient } from "@/lib/auth-client";
+import { useConvexAuth } from "convex/react";
 
 export const Route = createFileRoute("/(main)")({
   component: Wrapper,
@@ -26,6 +27,10 @@ export const Route = createFileRoute("/(main)")({
 });
 
 function Wrapper() {
+  const {isLoading} = useConvexAuth()
+  if (isLoading) {
+    return <AnimatedLoading />
+  }
   return <RouteComponent />;
 }
 

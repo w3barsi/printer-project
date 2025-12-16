@@ -22,11 +22,17 @@ import {
 
 export const Route = createFileRoute("/(main)/jo/")({
   component: RouteComponent,
-  loader: () => {
+  loader: async ({ context }) => {
+    await context.queryClient.ensureQueryData(
+      convexQuery(api.jo.getWithPagination, {
+        paginationOptions: { numItems: 10, cursor: null },
+      }),
+    );
     return {
       crumb: [{ value: "Job Order", href: "/jo/", type: "static" }],
     };
   },
+
   head: () => ({
     meta: [
       {
