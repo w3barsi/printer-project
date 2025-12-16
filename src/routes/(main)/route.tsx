@@ -27,9 +27,17 @@ export const Route = createFileRoute("/(main)")({
 });
 
 function Wrapper() {
-  const {isLoading} = useConvexAuth()
+  const { isLoading, isAuthenticated } = useConvexAuth();
   if (isLoading) {
-    return <AnimatedLoading />
+    return <AnimatedLoading />;
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <div className="bg-background flex min-h-screen items-center justify-center">
+        <div className="text-foreground font-mono text-2xl">Authentication Error</div>
+      </div>
+    );
   }
   return <RouteComponent />;
 }
