@@ -1,7 +1,7 @@
 import type { AuthFunctions, GenericCtx } from "@convex-dev/better-auth";
 import { createClient } from "@convex-dev/better-auth";
 import { convex } from "@convex-dev/better-auth/plugins";
-import { betterAuth } from "better-auth";
+import { betterAuth, BetterAuthOptions } from "better-auth";
 import { admin, username } from "better-auth/plugins";
 import {
   CustomCtx,
@@ -13,7 +13,8 @@ import {
 import { ac, adminRole, basicRole } from "../src/lib/auth-utils";
 import { components, internal } from "./_generated/api";
 import type { DataModel, Id } from "./_generated/dataModel";
-import { mutation, query } from "./_generated/server";
+import { internalAction, mutation, query } from "./_generated/server";
+import authConfig from "./auth.config";
 import authSchema from "./betterAuth/schema";
 
 // Typesafe way to pass Convex functions defined in this file
@@ -44,7 +45,7 @@ export const authComponent = createClient<DataModel, typeof authSchema>(
             banReason: authUser.banReason,
           });
 
-          await ctx.runMutation(components.betterAuth.auth.setUserId, {
+          await ctx.runMutation(components.betterAuth.user.setUserId, {
             authId: authUser._id,
             userId,
           });
@@ -78,15 +79,8 @@ const URL = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
   : "http://localhost:3000";
 
-export const createAuth = (
-  ctx: GenericCtx<DataModel>,
-  { optionsOnly } = { optionsOnly: false },
-) =>
-  // Configure your Better Auth instance here
-  betterAuth({
-    logger: {
-      disabled: optionsOnly,
-    },
+export const createAuthOptions = (ctx: GenericCtx<DataModel>) => {
+  return {
     database: authComponent.adapter(ctx),
     user: {
       additionalFields: {
@@ -128,11 +122,37 @@ export const createAuth = (
         },
       }),
       // The Convex plugin is required
-      convex(),
+      convex({
+        authConfig,
+        jwks: process.env.JWKS,
+        jwksRotateOnTokenGenerationError: true,
+      }),
     ],
-  });
+  } satisfies BetterAuthOptions;
+};
+
+export const createAuth = (ctx: GenericCtx<DataModel>) => {
+  return betterAuth(createAuthOptions(ctx));
+};
 
 export type SessionWithRole = ReturnType<typeof createAuth>["$Infer"]["Session"];
+
+export const getCurrentUser = query({
+  args: {},
+  handler: async (ctx) => {
+    return await authComponent.getAuthUser(ctx);
+  },
+});
+
+export const getLatestJwks = internalAction({
+  args: {},
+  handler: async (ctx) => {
+    const auth = createAuth(ctx);
+    // This method is added by the Convex Better Auth plugin and is
+    // available via `auth.api` only, not exposed as a route.
+    return await auth.api.getLatestJwks();
+  },
+});
 
 export const authedMutation = customMutation(
   mutation,

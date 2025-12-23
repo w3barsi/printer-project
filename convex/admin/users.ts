@@ -1,7 +1,9 @@
 import { v } from "convex/values";
 
 import { AuthenticatedQueryCtx, createAuth } from "../../convex/auth";
+import { components } from "../_generated/api";
 import { authComponent, authedMutation, authedQuery } from "../auth";
+import { Id } from "../betterAuth/_generated/dataModel";
 
 function isAdmin(ctx: AuthenticatedQueryCtx) {
   return ctx.user.role === "admin" ? true : false;
@@ -18,6 +20,7 @@ export const listUsers = authedQuery({
       query: {},
       headers,
     });
+
     return users;
   },
 });
@@ -62,17 +65,10 @@ export const setRole = authedMutation({
     role: v.union(v.literal("user"), v.literal("admin"), v.literal("cashier")),
   },
   handler: async (ctx, args) => {
-    if (!isAdmin(ctx)) throw new Error("Not authorized");
-
-    const { auth, headers } = await authComponent.getAuth(createAuth, ctx);
-    console.log(args);
-
-    await auth.api.setRole({
-      body: {
-        userId: args.userId,
-        role: args.role,
-      },
-      headers,
+    console.log("DOES THIS WORK?");
+    ctx.runMutation(components.betterAuth.user.setRole, {
+      userId: args.userId as Id<"user">,
+      role: args.role,
     });
   },
 });

@@ -61,7 +61,6 @@ export const Route = createFileRoute("/(main)/jo/$joId")({
     );
 
     return {
-      user: context.user,
       joNumber: jo?.joNumber,
       crumb: [
         { value: "Job Order", href: "/jo/", type: "static" },

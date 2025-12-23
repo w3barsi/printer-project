@@ -1,7 +1,6 @@
 import { ConvexBetterAuthProvider } from "@convex-dev/better-auth/react";
 import type { ConvexQueryClient } from "@convex-dev/react-query";
 import type { QueryClient } from "@tanstack/react-query";
-import pc from "picocolors";
 import { useEffect } from "react";
 
 import { TanStackDevtools } from "@tanstack/react-devtools";
@@ -14,7 +13,6 @@ import {
   useRouteContext,
 } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
-import type { ConvexReactClient } from "convex/react";
 
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -22,37 +20,30 @@ import { DeviceProvider } from "@/contexts/DeviceContext";
 import { ThemeProvider } from "@/contexts/theme-context";
 
 import { authClient } from "@/lib/auth-client.ts";
-import { authQueryOptions, type AuthQueryResult } from "@/lib/auth/queries";
+import { getToken } from "@/lib/auth-server";
+import { createServerFn } from "@tanstack/react-start";
 import appCss from "../styles.css?url";
 
 // import { fetchAuth } from "@/server/functions.ts"
 
 interface MyRouterContext {
   queryClient: QueryClient;
-  convexClient: ConvexReactClient;
   convexQueryClient: ConvexQueryClient;
-  user: AuthQueryResult["user"] | null;
-  token: string | null;
-  impersonatedBy: string | null | undefined;
 }
+
+const getAuth = createServerFn({ method: "GET" }).handler(async () => {
+  return await getToken();
+});
 
 export const Route = createRootRouteWithContext<MyRouterContext>()({
   beforeLoad: async (ctx) => {
-    const { user, token, impersonatedBy } =
-      await ctx.context.queryClient.ensureQueryData(authQueryOptions()); // we're using react-query for caching, see router.tsx
+    const token = await getAuth();
 
     if (token) {
       ctx.context.convexQueryClient.serverHttpClient?.setAuth(token);
     }
 
-    console.log(
-      pc.bgRed("[BEFORE-LOAD]") +
-        ` ${user ? `User is populated ${JSON.stringify(user, null, 2)}` : "No user"}\n` +
-        pc.bgRed("[TOKEN]") +
-        ` ${token ? "TOKEN EXISTS" : "TOKEN DOES NOT EXIST"}`,
-    );
-
-    return { user, token, impersonatedBy };
+    return { isAuthenticated: !!token, token };
   },
   head: () => ({
     meta: [
@@ -139,7 +130,11 @@ function RootComponent() {
   }, []);
 
   return (
-    <ConvexBetterAuthProvider client={context.convexClient} authClient={authClient}>
+    <ConvexBetterAuthProvider
+      client={context.convexQueryClient.convexClient}
+      authClient={authClient}
+      initialToken={context.token}
+    >
       <TooltipProvider>
         <DeviceProvider>
           <RootDocument>

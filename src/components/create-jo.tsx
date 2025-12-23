@@ -1,6 +1,5 @@
 import { api } from "@convex/_generated/api";
 import type { Id } from "@convex/_generated/dataModel";
-import { useQuery } from "@tanstack/react-query";
 import { useMutation } from "convex/react";
 import { PlusIcon } from "lucide-react";
 import { useState } from "react";
@@ -17,7 +16,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { authQueryOptions } from "@/lib/auth/queries";
+import { useRouteContext } from "@tanstack/react-router";
 import DateAndTimePicker from "./date-and-time-picker";
 
 export function CreateDialog() {
@@ -27,7 +26,8 @@ export function CreateDialog() {
   const [contact, setContact] = useState("");
   const [date, setDate] = useState<Date>(today);
   const [time, setTime] = useState<string | null>(null);
-  const { data: userData } = useQuery(authQueryOptions());
+
+  const userData = useRouteContext({ from: "/(main)/jo/" });
 
   const createJo = useMutation(api.jo.createJo).withOptimisticUpdate(
     (localStore, args) => {
@@ -49,7 +49,7 @@ export function CreateDialog() {
         _id: crypto.randomUUID() as Id<"jo">,
         // eslint-disable-next-line react-hooks/purity
         _creationTime: Date.now(),
-        createdBy: userData!.user.userId as Id<"users">,
+        createdBy: userData.user.userId as Id<"users">,
         updatedAt: undefined,
         pickupDate,
         pickupTime,

@@ -24,7 +24,7 @@
     "dryrun": "pnpx convex deploy --dry-run"
   },
   "dependencies": {
-    "@convex-dev/better-auth": "^0.9.6",
+    "@convex-dev/better-auth": "^0.10.6",
     "@convex-dev/migrations": "^0.2.9",
     "@convex-dev/r2": "^0.7.3",
     "@convex-dev/react-query": "0.0.0-alpha.11",
@@ -66,7 +66,7 @@
     "@tanstack/react-router": "^1.133.27",
     "@tanstack/react-router-ssr-query": "^1.133.27",
     "@tanstack/react-start": "^1.133.27",
-    "better-auth": "1.3.27",
+    "better-auth": "1.4.7",
     "better-upload": "^2.0.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

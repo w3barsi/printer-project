@@ -8,21 +8,28 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { authClient } from "@/lib/auth-client";
+import { convexQuery } from "@convex-dev/react-query";
+import { api } from "@convex/_generated/api";
 import { useConvexAuth } from "convex/react";
 
 export const Route = createFileRoute("/(main)")({
-  component: Wrapper,
-  beforeLoad: ({ context, location }) => {
-    if (!context.user) {
+  component: RouteComponent,
+  beforeLoad: async ({ context, location }) => {
+    if (!context.isAuthenticated) {
       throw redirect({ to: "/login", search: { redirectUrl: location.pathname } });
     }
+    const user = await context.queryClient.ensureQueryData(
+      convexQuery(api.auth.getCurrentUser, {}),
+    );
 
+    //
     // `context.queryClient` is also available in our loaders
     // https://tanstack.com/start/latest/docs/framework/react/examples/start-basic-react-query
     // https://tanstack.com/router/latest/docs/framework/react/guide/external-data-loading
+    return { user };
   },
   loader: ({ context }) => {
-    return { user: context.user, impersonatedBy: context.impersonatedBy };
+    return { user: context.user };
   },
 });
 

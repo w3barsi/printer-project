@@ -1,7 +1,6 @@
 "use client";
 
-import { useQueryClient } from "@tanstack/react-query";
-import { useNavigate, useRouteContext, useRouter } from "@tanstack/react-router";
+import { useRouteContext } from "@tanstack/react-router";
 import { ChevronsUpDown, LogOut } from "lucide-react";
 
 import {
@@ -26,15 +25,21 @@ import {
 } from "@/components/ui/sidebar";
 import { authClient } from "@/lib/auth-client";
 
+const handleSignOut = async () => {
+  await authClient.signOut({
+    fetchOptions: {
+      onSuccess: () => {
+        location.reload();
+      },
+    },
+  });
+};
+
 export function NavUser() {
   const { isMobile } = useSidebar();
   const { user } = useRouteContext({ from: "/(main)" });
   const image = user.image ?? undefined;
   const nameFallback = getFallbackFromName(user.name);
-  const navigate = useNavigate();
-
-  const queryClient = useQueryClient();
-  const router = useRouter();
 
   return (
     <SidebarMenu>
@@ -77,10 +82,8 @@ export function NavUser() {
             <DropdownMenuSeparator />
             <DropdownMenuItem
               onClick={async () => {
-                await authClient.signOut();
-                await queryClient.invalidateQueries({ queryKey: ["user"] });
-                await router.invalidate();
-                navigate({ to: "/login" });
+                console.log("Logging out");
+                await handleSignOut();
               }}
             >
               <LogOut />
