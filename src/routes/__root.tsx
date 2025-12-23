@@ -1,6 +1,6 @@
 import { ConvexBetterAuthProvider } from "@convex-dev/better-auth/react";
 import type { ConvexQueryClient } from "@convex-dev/react-query";
-import type { QueryClient } from "@tanstack/react-query";
+import { queryOptions, type QueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 
 import { TanStackDevtools } from "@tanstack/react-devtools";
@@ -34,10 +34,15 @@ interface MyRouterContext {
 const getAuth = createServerFn({ method: "GET" }).handler(async () => {
   return await getToken();
 });
+const authQueryOptions = queryOptions({
+  queryKey: ["auth"],
+  queryFn: getAuth,
+  staleTime: 5 * 60 * 1000, // 5 minutes
+});
 
 export const Route = createRootRouteWithContext<MyRouterContext>()({
   beforeLoad: async (ctx) => {
-    const token = await getAuth();
+    const token = await ctx.context.queryClient.ensureQueryData(authQueryOptions);
 
     if (token) {
       ctx.context.convexQueryClient.serverHttpClient?.setAuth(token);
