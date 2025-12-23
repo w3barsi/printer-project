@@ -3,6 +3,8 @@ import { AuthConfig } from "convex/server";
 
 export default {
   providers: [
-    getAuthConfigProvider(),
+    getAuthConfigProvider({
+      jwks: process.env.JWKS,
+    }),
   ],
 } satisfies AuthConfig;
