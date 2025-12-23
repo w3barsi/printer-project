@@ -124,7 +124,6 @@ export const createAuthOptions = (ctx: GenericCtx<DataModel>) => {
       // The Convex plugin is required
       convex({
         authConfig,
-        jwks: process.env.JWKS,
         jwksRotateOnTokenGenerationError: true,
       }),
     ],
