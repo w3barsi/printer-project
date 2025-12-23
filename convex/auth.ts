@@ -146,7 +146,7 @@ export const getCurrentUser = query({
 export const authedMutation = customMutation(
   mutation,
   customCtx(async (ctx) => {
-    const user = await authComponent.safeGetAuthUser(ctx);
+    const user = await ctx.auth.getUserIdentity();
     if (!user) throw new Error("[Custom Mutation] Authentication required");
     return { user };
   }),
@@ -155,7 +155,7 @@ export const authedMutation = customMutation(
 export const authedQuery = customQuery(
   query,
   customCtx(async (ctx) => {
-    const user = await authComponent.safeGetAuthUser(ctx);
+    const user = await ctx.auth.getUserIdentity();
     if (!user) throw new Error("[Custom Query] Authentication required");
     return { user };
   }),
