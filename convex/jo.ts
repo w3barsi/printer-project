@@ -16,6 +16,8 @@ export type JoWithItems = {
 export const deleteJo = authedMutation({
   args: v.object({ joId: v.id("jo") }),
   handler: async (ctx, args) => {
+    const jo = await ctx.db.get(args.joId);
+
     // Delete all items
     for await (const payment of ctx.db
       .query("payment")
@@ -31,6 +33,12 @@ export const deleteJo = authedMutation({
     }
 
     await ctx.db.delete(args.joId);
+
+    if (jo?.trelloId) {
+      await ctx.scheduler.runAfter(0, internal.trello.archiveTrelloCard, {
+        cardId: jo.trelloId,
+      });
+    }
   },
 });
 

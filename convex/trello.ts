@@ -1,7 +1,8 @@
 import { v } from "convex/values";
 
 import { internal } from "./_generated/api";
-import { internalAction } from "./_generated/server";
+import { internalAction, internalMutation } from "./_generated/server";
+import { authedQuery } from "./auth";
 
 export const createTrelloCard = internalAction({
   args: { joId: v.id("jo") },
@@ -36,8 +37,67 @@ export const createTrelloCard = internalAction({
       }),
     });
 
+    const card = await response.json();
+
+    if (card.id) {
+      await ctx.runMutation(internal.trello.saveTrelloidToJo, {
+        joId: args.joId,
+        trelloId: card.id,
+      });
+    }
+
     if (!response.ok) {
       throw new Error(`Trello API error: ${response.status}`);
     }
+  },
+});
+
+export const archiveTrelloCard = internalAction({
+  args: { cardId: v.string() },
+  handler: async (ctx, args) => {
+    const TRELLO_KEY = process.env.TRELLO_KEY;
+    const TRELLO_TOKEN = process.env.TRELLO_TOKEN;
+
+    if (!TRELLO_KEY || !TRELLO_TOKEN) {
+      throw new Error("Missing Trello credentials");
+    }
+
+    const url = `https://api.trello.com/1/cards/${args.cardId}`;
+
+    const response = await fetch(url, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        key: TRELLO_KEY,
+        token: TRELLO_TOKEN,
+        closed: true,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Trello API error: ${response.status}`);
+    }
+  },
+});
+
+export const saveTrelloidToJo = internalMutation({
+  args: { joId: v.id("jo"), trelloId: v.string() },
+  handler: async (ctx, args) => {
+    const { joId, trelloId } = args;
+    ctx.db.patch(joId, { trelloId: trelloId });
+  },
+});
+
+export const getJosWithTrelloId = authedQuery({
+  args: {},
+  handler: async (ctx) => {
+    const joWithTrelloId = await ctx.db
+      .query("jo")
+      .withIndex("by_trelloId", (q) => q.gt("trelloId", undefined))
+      .collect();
+
+    return joWithTrelloId;
   },
 });

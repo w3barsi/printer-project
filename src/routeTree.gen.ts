@@ -16,6 +16,7 @@ import { Route as mainRouteRouteImport } from './routes/(main)/route'
 import { Route as authRouteRouteImport } from './routes/(auth)/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as mainThreeRouteImport } from './routes/(main)/three'
+import { Route as mainTesttrelloRouteImport } from './routes/(main)/testtrello'
 import { Route as authSignupRouteImport } from './routes/(auth)/signup'
 import { Route as authLoginRouteImport } from './routes/(auth)/login'
 import { Route as maincashierRouteRouteImport } from './routes/(main)/(cashier)/route'
@@ -61,6 +62,11 @@ const IndexRoute = IndexRouteImport.update({
 const mainThreeRoute = mainThreeRouteImport.update({
   id: '/three',
   path: '/three',
+  getParentRoute: () => mainRouteRoute,
+} as any)
+const mainTesttrelloRoute = mainTesttrelloRouteImport.update({
+  id: '/testtrello',
+  path: '/testtrello',
   getParentRoute: () => mainRouteRoute,
 } as any)
 const authSignupRoute = authSignupRouteImport.update({
@@ -135,6 +141,7 @@ export interface FileRoutesByFullPath {
   '/testfruits': typeof TestfruitsRoute
   '/login': typeof authLoginRoute
   '/signup': typeof authSignupRoute
+  '/testtrello': typeof mainTesttrelloRoute
   '/three': typeof mainThreeRoute
   '/cashflow': typeof maincashierCashflowRoute
   '/drive/{-$drive}': typeof mainDriveChar123DriveChar125Route
@@ -153,6 +160,7 @@ export interface FileRoutesByTo {
   '/testfruits': typeof TestfruitsRoute
   '/login': typeof authLoginRoute
   '/signup': typeof authSignupRoute
+  '/testtrello': typeof mainTesttrelloRoute
   '/three': typeof mainThreeRoute
   '/cashflow': typeof maincashierCashflowRoute
   '/drive/{-$drive}': typeof mainDriveChar123DriveChar125Route
@@ -176,6 +184,7 @@ export interface FileRoutesById {
   '/(main)/(cashier)': typeof maincashierRouteRouteWithChildren
   '/(auth)/login': typeof authLoginRoute
   '/(auth)/signup': typeof authSignupRoute
+  '/(main)/testtrello': typeof mainTesttrelloRoute
   '/(main)/three': typeof mainThreeRoute
   '/(main)/(cashier)/cashflow': typeof maincashierCashflowRoute
   '/(main)/drive/{-$drive}': typeof mainDriveChar123DriveChar125Route
@@ -196,6 +205,7 @@ export interface FileRouteTypes {
     | '/testfruits'
     | '/login'
     | '/signup'
+    | '/testtrello'
     | '/three'
     | '/cashflow'
     | '/drive/{-$drive}'
@@ -214,6 +224,7 @@ export interface FileRouteTypes {
     | '/testfruits'
     | '/login'
     | '/signup'
+    | '/testtrello'
     | '/three'
     | '/cashflow'
     | '/drive/{-$drive}'
@@ -236,6 +247,7 @@ export interface FileRouteTypes {
     | '/(main)/(cashier)'
     | '/(auth)/login'
     | '/(auth)/signup'
+    | '/(main)/testtrello'
     | '/(main)/three'
     | '/(main)/(cashier)/cashflow'
     | '/(main)/drive/{-$drive}'
@@ -307,6 +319,13 @@ declare module '@tanstack/react-router' {
       path: '/three'
       fullPath: '/three'
       preLoaderRoute: typeof mainThreeRouteImport
+      parentRoute: typeof mainRouteRoute
+    }
+    '/(main)/testtrello': {
+      id: '/(main)/testtrello'
+      path: '/testtrello'
+      fullPath: '/testtrello'
+      preLoaderRoute: typeof mainTesttrelloRouteImport
       parentRoute: typeof mainRouteRoute
     }
     '/(auth)/signup': {
@@ -445,6 +464,7 @@ const maincashierRouteRouteWithChildren =
 interface mainRouteRouteChildren {
   mainadminRouteRoute: typeof mainadminRouteRouteWithChildren
   maincashierRouteRoute: typeof maincashierRouteRouteWithChildren
+  mainTesttrelloRoute: typeof mainTesttrelloRoute
   mainThreeRoute: typeof mainThreeRoute
   mainDriveChar123DriveChar125Route: typeof mainDriveChar123DriveChar125Route
   mainJoJoIdRoute: typeof mainJoJoIdRoute
@@ -456,6 +476,7 @@ interface mainRouteRouteChildren {
 const mainRouteRouteChildren: mainRouteRouteChildren = {
   mainadminRouteRoute: mainadminRouteRouteWithChildren,
   maincashierRouteRoute: maincashierRouteRouteWithChildren,
+  mainTesttrelloRoute: mainTesttrelloRoute,
   mainThreeRoute: mainThreeRoute,
   mainDriveChar123DriveChar125Route: mainDriveChar123DriveChar125Route,
   mainJoJoIdRoute: mainJoJoIdRoute,

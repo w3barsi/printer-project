@@ -52,6 +52,8 @@ export default defineSchema({
     createdBy: v.optional(v.id("users")),
     orderedOn: v.optional(v.number()),
 
+    trelloId: v.optional(v.string()),
+
     name: v.union(v.string(), v.id("customer")),
     joNumber: v.number(),
     pickupDate: v.optional(v.number()),
@@ -63,6 +65,7 @@ export default defineSchema({
       v.literal("completed"),
     ),
   })
+    .index("by_trelloId", ["trelloId"])
     .index("by_joNumber", ["joNumber"])
     .index("by_name", ["name"])
     .index("by_lastUpdated", ["updatedAt"]),

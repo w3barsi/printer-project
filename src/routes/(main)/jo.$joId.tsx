@@ -10,7 +10,6 @@ import {
 } from "@tanstack/react-router";
 import { useMutation } from "convex/react";
 import {
-  ArrowLeftIcon,
   BanknoteIcon,
   Calendar,
   Clock,
@@ -96,11 +95,6 @@ function JoDetailComponent() {
   };
   return (
     <Container className="flex flex-col gap-2 md:gap-4">
-      <div className="flex items-center justify-between">
-        <Button variant="ghost" onClick={handleGoBackOrJo}>
-          <ArrowLeftIcon /> Back
-        </Button>
-      </div>
       <div className="grid grid-cols-1 gap-2 md:gap-4 lg:grid-cols-2">
         <JobOrderCard />
         <PaymentCard />
@@ -158,7 +152,7 @@ function PaymentCard() {
                   className="bg-accent/20 dark:bg-accent/20 flex items-center justify-between rounded pr-4"
                 >
                   <div className="flex gap-2 rounded p-2 md:gap-4 md:p-4">
-                    <span className="size-10 rounded-full bg-green-200 p-2 text-center text-green-700">
+                    <span className="size-10 rounded-full bg-green-700 p-2 text-center text-green-100">
                       <PhilippinePesoIcon className="s-4" />
                     </span>
                     <div className="flex w-full flex-col justify-between">
@@ -388,7 +382,7 @@ function JobOrderCard() {
           <div className="flex items-center gap-3">
             <p>Balance</p>
             {jo.totalPayments > jo.totalOrderValue - 1 && (
-              <Badge className="bg-green-100 text-green-700">Fully Paid</Badge>
+              <Badge className="bg-green-700">Fully Paid</Badge>
             )}
           </div>
           <p
