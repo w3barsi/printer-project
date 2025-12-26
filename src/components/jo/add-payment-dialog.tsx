@@ -6,6 +6,8 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 
 import { authClient } from "@/lib/auth-client";
+import { useHotkeys } from "react-hotkeys-hook";
+import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import {
   Dialog,
@@ -84,6 +86,10 @@ export function AddPaymentDialog({
     },
   );
 
+  useHotkeys("p", () => {
+    setOpen(true);
+  });
+
   const form = useForm<FormData>({
     defaultValues: {
       amount: 0,
@@ -113,7 +119,7 @@ export function AddPaymentDialog({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button>
-          <PlusIcon /> Add Payment
+          <PlusIcon /> Add Payment <Badge variant="hotkey">P</Badge>
         </Button>
       </DialogTrigger>
       <DialogContent>
