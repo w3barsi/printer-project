@@ -50,6 +50,7 @@ import {
   TableWrapper,
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
+import { useHotkeys } from "react-hotkeys-hook";
 
 export const Route = createFileRoute("/(main)/jo/$joId")({
   component: JoDetailComponent,
@@ -93,6 +94,9 @@ function JoDetailComponent() {
       navigate({ to: "/jo" });
     }
   };
+
+  useHotkeys("b", () => navigate({ to: "/jo" }));
+
   return (
     <Container className="flex flex-col gap-2 md:gap-4">
       <div className="grid grid-cols-1 gap-2 md:gap-4 lg:grid-cols-2">

@@ -17,7 +17,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useRouteContext } from "@tanstack/react-router";
+import { useHotkeys } from "react-hotkeys-hook";
 import DateAndTimePicker from "./date-and-time-picker";
+import { Badge } from "./ui/badge";
 
 export function CreateDialog() {
   const today = new Date();
@@ -91,12 +93,14 @@ export function CreateDialog() {
     }
   };
 
+  useHotkeys("c", () => setOpen(true));
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button>
           <PlusIcon className="h-4 w-4" />
-          Create
+          Create <Badge variant="hotkey">C</Badge>
         </Button>
       </DialogTrigger>
       <DialogContent className="flex max-h-[95vh] flex-col">

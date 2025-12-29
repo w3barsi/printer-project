@@ -17,6 +17,8 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useHotkeys } from "react-hotkeys-hook";
+import { Badge } from "../ui/badge";
 
 export function AddItemDialog({ joId }: { joId: Id<"jo"> }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -66,11 +68,13 @@ export function AddItemDialog({ joId }: { joId: Id<"jo"> }) {
     setIsOpen(false);
   };
 
+  useHotkeys("a", () => setIsOpen(true));
+
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button>
-          <PlusIcon className="" /> Add Item
+          <PlusIcon className="" /> Add Item <Badge variant="hotkey">A</Badge>
         </Button>
       </DialogTrigger>
       <DialogContent className="">
