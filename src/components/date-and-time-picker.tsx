@@ -77,21 +77,23 @@ export default function DateAndTimePicker({
     <div>
       <div className="overflow-hidden rounded-md border">
         <div className="grid grid-cols-1 md:grid-cols-3">
-          <Calendar
-            mode="single"
-            selected={date}
-            onSelect={(newDate) => {
-              if (newDate) {
-                setDate(newDate);
-                setTime(null);
-              }
-            }}
-            className="col-span-1 w-full p-2 sm:pe-5 md:col-span-2"
-            disabled={[
-              { before: today }, // Dates before today
-            ]}
-          />
-          <div className="col-span-1 flex h-full flex-col border-t py-4 md:border-s md:border-t-0">
+          <div className="col-span-1 md:col-span-2">
+            <Calendar
+              mode="single"
+              selected={date}
+              onSelect={(newDate) => {
+                if (newDate) {
+                  setDate(newDate);
+                  setTime(null);
+                }
+              }}
+              className="w-full p-2 sm:pe-5"
+              disabled={[
+                { before: today }, // Dates before today
+              ]}
+            />
+          </div>
+          <div className="col-span-1 flex flex-col border-t py-4 md:border-s md:border-t-0">
             <ScrollArea className="flex-1">
               <div className="space-y-3">
                 <div className="flex h-5 shrink-0 items-center px-5">
