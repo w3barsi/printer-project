@@ -2,12 +2,7 @@ import { convexQuery } from "@convex-dev/react-query";
 import { api } from "@convex/_generated/api";
 import type { Id } from "@convex/_generated/dataModel";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import {
-  createFileRoute,
-  useCanGoBack,
-  useNavigate,
-  useRouter,
-} from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useMutation } from "convex/react";
 import {
   BanknoteIcon,
@@ -50,6 +45,7 @@ import {
   TableWrapper,
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
+import { useRef } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 
 export const Route = createFileRoute("/(main)/jo/$joId")({
@@ -82,19 +78,7 @@ export const Route = createFileRoute("/(main)/jo/$joId")({
 });
 
 function JoDetailComponent() {
-  const canGoBack = useCanGoBack();
-  const router = useRouter();
   const navigate = Route.useNavigate();
-
-  const handleGoBackOrJo = () => {
-    // https://x.com/reactreaper/status/1960062834877894823/photo/1
-    if (canGoBack) {
-      router.history.back();
-    } else {
-      navigate({ to: "/jo" });
-    }
-  };
-
   useHotkeys("b", () => navigate({ to: "/jo" }));
 
   return (
@@ -261,7 +245,7 @@ function JoItemsCard() {
 
 function JobOrderCard() {
   const { joId } = Route.useParams();
-  const navigate = useNavigate();
+  const navigate = Route.useNavigate();
 
   const { data: jo } = useSuspenseQuery(
     // Fetch job order with items using Convex API
@@ -296,6 +280,9 @@ function JobOrderCard() {
       oldRecentJos.filter((c) => c.id !== args.joId),
     );
   });
+  const deleteButtonRef = useRef<HTMLButtonElement>(null);
+  useHotkeys("d", () => deleteButtonRef.current?.click());
+
   const deleteJo = () => {
     mutate({ joId: joId as Id<"jo"> });
     navigate({ to: "/jo" });
@@ -319,7 +306,7 @@ function JobOrderCard() {
           <div className="flex gap-2">
             <AlertDialog>
               <AlertDialogTrigger asChild>
-                <Button variant="destructive-ghost" size="icon">
+                <Button variant="destructive-ghost" size="icon" ref={deleteButtonRef}>
                   <Trash2Icon />
                 </Button>
               </AlertDialogTrigger>

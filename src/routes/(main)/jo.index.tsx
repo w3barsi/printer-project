@@ -19,6 +19,7 @@ import {
   TableRow,
   TableWrapper,
 } from "@/components/ui/table";
+import { useHotkeys } from "react-hotkeys-hook";
 
 export const Route = createFileRoute("/(main)/jo/")({
   component: RouteComponent,
@@ -63,6 +64,7 @@ type CursorHistory = (string | null)[];
 
 function JobOrderList() {
   const [history, setHistory] = useState<CursorHistory>([]);
+  const navigate = Route.useNavigate();
 
   const { data, isFetching } = useSuspenseQuery(
     convexQuery(api.jo.getWithPagination, {
@@ -85,6 +87,15 @@ function JobOrderList() {
   };
 
   const jos = data.jos;
+
+  useHotkeys("1,2,3,4,5,6,7,8,9,0", (_, handler) => {
+    const hotkey = Number(handler.hotkey);
+    if (hotkey === 0) {
+      navigate({ to: "/jo/$joId", params: { joId: jos[9]._id } });
+    } else {
+      navigate({ to: "/jo/$joId", params: { joId: jos[hotkey - 1]._id } });
+    }
+  });
 
   return (
     <div>
