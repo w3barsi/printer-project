@@ -93,8 +93,8 @@ export default function DateAndTimePicker({
               ]}
             />
           </div>
-          <div className="col-span-1 flex flex-col border-t py-4 md:border-s md:border-t-0">
-            <ScrollArea className="flex-1">
+          <div className="col-span-1 flex min-h-0 flex-col border-t py-4 max-md:h-64 md:border-s md:border-t-0">
+            <ScrollArea className="min-h-0 flex-1">
               <div className="space-y-3">
                 <div className="flex h-5 shrink-0 items-center px-5">
                   <p className="text-sm font-medium">{format(date, "EEEE, d")}</p>
