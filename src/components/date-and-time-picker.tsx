@@ -1,6 +1,4 @@
-import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import { format } from "date-fns";
 
 export default function DateAndTimePicker({
   date,
@@ -72,39 +70,38 @@ export default function DateAndTimePicker({
   // }, []);
 
   return (
-    <div className="grid grid-cols-1 overflow-hidden rounded-md border md:grid-cols-3">
-      <div className="col-span-2">
-        <Calendar
-          mode="single"
-          selected={date}
-          onSelect={(newDate) => {
-            if (newDate) {
-              setDate(newDate);
-              setTime(null);
-            }
-          }}
-          className="w-full p-2 md:pe-5"
-          disabled={[
-            { before: today }, // Dates before today
-          ]}
-        />
-      </div>
-      <div className="flex max-h-[400px] flex-col gap-1 overflow-y-auto border-t p-2 md:max-h-none md:border-t-0 md:border-l">
-        <p className="pb-1 text-sm font-medium">{format(date, "EEEE, d")}</p>
-        {timeSlots.map(({ time: timeSlot }) => (
-          <Button
-            key={timeSlot}
-            data-time={timeSlot}
-            variant={time === timeSlot ? "default" : "outline"}
-            size="sm"
-            className="w-full"
-            type="button"
-            onClick={() => setTime(timeSlot)}
-          >
-            {timeSlot}
-          </Button>
-        ))}
-      </div>
+    <div className="overflow-hidden rounded-md border">
+      <Calendar
+        mode="single"
+        selected={date}
+        onSelect={(newDate) => {
+          if (newDate) {
+            setDate(newDate);
+            setTime(null);
+          }
+        }}
+        className="w-full p-2 md:pe-5"
+        disabled={[
+          { before: today }, // Dates before today
+        ]}
+      />
     </div>
   );
 }
+
+// <div className="flex max-h-[400px] flex-col gap-1 overflow-y-auto border-t p-2 md:max-h-none md:border-t-0 md:border-l">
+//         <p className="pb-1 text-sm font-medium">{format(date, "EEEE, d")}</p>
+//         {timeSlots.map(({ time: timeSlot }) => (
+//           <Button
+//             key={timeSlot}
+//             data-time={timeSlot}
+//             variant={time === timeSlot ? "default" : "outline"}
+//             size="sm"
+//             className="w-full"
+//             type="button"
+//             onClick={() => setTime(timeSlot)}
+//           >
+//             {timeSlot}
+//           </Button>
+//         ))}
+//       </div>
