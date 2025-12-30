@@ -1,5 +1,3 @@
-import { format } from "date-fns";
-
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 
@@ -73,50 +71,37 @@ export default function DateAndTimePicker({
   // }, []);
 
   return (
-    <div>
-      <div className="overflow-hidden rounded-md border">
-        <div className="grid grid-cols-1 md:grid-cols-3">
-          <div className="col-span-1 md:col-span-2">
-            <Calendar
-              mode="single"
-              selected={date}
-              onSelect={(newDate) => {
-                if (newDate) {
-                  setDate(newDate);
-                  setTime(null);
-                }
-              }}
-              className="w-full p-2 sm:pe-5"
-              disabled={[
-                { before: today }, // Dates before today
-              ]}
-            />
-          </div>
-          <div className="col-span-1 flex min-h-0 flex-col border-t py-4 max-md:h-64 md:border-s md:border-t-0">
-            <div className="min-h-0 flex-1 overflow-y-auto">
-              <div className="space-y-3">
-                <div className="flex h-5 shrink-0 items-center px-5">
-                  <p className="text-sm font-medium">{format(date, "EEEE, d")}</p>
-                </div>
-                <div className="grid gap-1.5 px-5 max-sm:grid-cols-2">
-                  {timeSlots.map(({ time: timeSlot }) => (
-                    <Button
-                      key={timeSlot}
-                      data-time={timeSlot}
-                      variant={time === timeSlot ? "default" : "outline"}
-                      size="sm"
-                      className="w-full"
-                      type="button"
-                      onClick={() => setTime(timeSlot)}
-                    >
-                      {timeSlot}
-                    </Button>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+    <div className="grid grid-cols-1 rounded-md border md:grid-cols-3">
+      <div className="col-span-2">
+        <Calendar
+          mode="single"
+          selected={date}
+          onSelect={(newDate) => {
+            if (newDate) {
+              setDate(newDate);
+              setTime(null);
+            }
+          }}
+          className="w-full p-2 sm:pe-5"
+          disabled={[
+            { before: today }, // Dates before today
+          ]}
+        />
+      </div>
+      <div className="flex flex-col gap-1 border-t p-2 md:border-l">
+        {timeSlots.map(({ time: timeSlot }) => (
+          <Button
+            key={timeSlot}
+            data-time={timeSlot}
+            variant={time === timeSlot ? "default" : "outline"}
+            size="sm"
+            className="w-full"
+            type="button"
+            onClick={() => setTime(timeSlot)}
+          >
+            {timeSlot}
+          </Button>
+        ))}
       </div>
     </div>
   );
