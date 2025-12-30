@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
+import { format } from "date-fns";
 
 export default function DateAndTimePicker({
   date,
@@ -71,7 +72,7 @@ export default function DateAndTimePicker({
   // }, []);
 
   return (
-    <div className="grid grid-cols-1 rounded-md border md:grid-cols-3">
+    <div className="grid grid-cols-1 overflow-hidden rounded-md border md:grid-cols-3">
       <div className="col-span-2">
         <Calendar
           mode="single"
@@ -82,13 +83,14 @@ export default function DateAndTimePicker({
               setTime(null);
             }
           }}
-          className="w-full p-2 sm:pe-5"
+          className="w-full p-2 md:pe-5"
           disabled={[
             { before: today }, // Dates before today
           ]}
         />
       </div>
-      <div className="flex flex-col gap-1 border-t p-2 md:border-l">
+      <div className="flex max-h-[400px] flex-col gap-1 overflow-y-auto border-t p-2 md:max-h-none md:border-t-0 md:border-l">
+        <p className="pb-1 text-sm font-medium">{format(date, "EEEE, d")}</p>
         {timeSlots.map(({ time: timeSlot }) => (
           <Button
             key={timeSlot}
