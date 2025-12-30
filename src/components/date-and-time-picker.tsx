@@ -91,31 +91,29 @@ export default function DateAndTimePicker({
               { before: today }, // Dates before today
             ]}
           />
-          <div className="relative col-span-1 w-full max-md:h-48">
-            <div className="absolute inset-0 py-4 max-md:border-t">
-              <ScrollArea className="h-full md:border-s">
-                <div className="space-y-3">
-                  <div className="flex h-5 shrink-0 items-center px-5">
-                    <p className="text-sm font-medium">{format(date, "EEEE, d")}</p>
-                  </div>
-                  <div className="grid gap-1.5 px-5 max-sm:grid-cols-2">
-                    {timeSlots.map(({ time: timeSlot }) => (
-                      <Button
-                        key={timeSlot}
-                        data-time={timeSlot}
-                        variant={time === timeSlot ? "default" : "outline"}
-                        size="sm"
-                        className="w-full"
-                        type="button"
-                        onClick={() => setTime(timeSlot)}
-                      >
-                        {timeSlot}
-                      </Button>
-                    ))}
-                  </div>
+          <div className="col-span-1 flex h-full flex-col border-t py-4 md:border-s md:border-t-0">
+            <ScrollArea className="flex-1">
+              <div className="space-y-3">
+                <div className="flex h-5 shrink-0 items-center px-5">
+                  <p className="text-sm font-medium">{format(date, "EEEE, d")}</p>
                 </div>
-              </ScrollArea>
-            </div>
+                <div className="grid gap-1.5 px-5 max-sm:grid-cols-2">
+                  {timeSlots.map(({ time: timeSlot }) => (
+                    <Button
+                      key={timeSlot}
+                      data-time={timeSlot}
+                      variant={time === timeSlot ? "default" : "outline"}
+                      size="sm"
+                      className="w-full"
+                      type="button"
+                      onClick={() => setTime(timeSlot)}
+                    >
+                      {timeSlot}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            </ScrollArea>
           </div>
         </div>
       </div>

@@ -141,7 +141,7 @@ export function CreateDialog() {
                 today={today}
               />
             </div>
-            <DialogFooter className="flex-shrink-0">
+            <DialogFooter className="shrink-0">
               <Button type="submit">{"Create"}</Button>
             </DialogFooter>
           </form>
