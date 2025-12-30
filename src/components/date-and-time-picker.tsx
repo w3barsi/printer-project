@@ -2,7 +2,6 @@ import { format } from "date-fns";
 
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import { ScrollArea } from "@/components/ui/scroll-area";
 
 export default function DateAndTimePicker({
   date,
@@ -94,7 +93,7 @@ export default function DateAndTimePicker({
             />
           </div>
           <div className="col-span-1 flex min-h-0 flex-col border-t py-4 max-md:h-64 md:border-s md:border-t-0">
-            <ScrollArea className="min-h-0 flex-1">
+            <div className="min-h-0 flex-1 overflow-y-auto">
               <div className="space-y-3">
                 <div className="flex h-5 shrink-0 items-center px-5">
                   <p className="text-sm font-medium">{format(date, "EEEE, d")}</p>
@@ -115,7 +114,7 @@ export default function DateAndTimePicker({
                   ))}
                 </div>
               </div>
-            </ScrollArea>
+            </div>
           </div>
         </div>
       </div>
