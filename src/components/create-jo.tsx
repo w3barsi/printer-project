@@ -93,7 +93,10 @@ export function CreateDialog() {
     }
   };
 
-  useHotkeys("c", () => setOpen(true));
+  useHotkeys("c", (e) => {
+    e.preventDefault();
+    setOpen(true);
+  });
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>

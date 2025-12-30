@@ -68,7 +68,10 @@ export function AddItemDialog({ joId }: { joId: Id<"jo"> }) {
     setIsOpen(false);
   };
 
-  useHotkeys("a", () => setIsOpen(true));
+  useHotkeys("a", (e) => {
+    e.preventDefault();
+    setIsOpen(true);
+  });
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
