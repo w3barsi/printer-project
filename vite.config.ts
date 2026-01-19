@@ -8,6 +8,9 @@ import { defineConfig } from "vite";
 import tsConfigPaths from "vite-tsconfig-paths";
 
 export default defineConfig({
+  server: {
+    host: true,
+  },
   ssr: {
     noExternal: ["@convex-dev/better-auth"],
   },

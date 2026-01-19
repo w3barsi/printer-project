@@ -12,16 +12,18 @@ export const createPayment = authedMutation({
     full: v.boolean(),
   },
   handler: async (ctx, args) => {
-    const { joId, amount, mop, full } = args;
+    const { joId, amount, mop, full, note } = args;
     await ctx.db.insert("payment", {
       joId,
-      amount,
       createdBy: ctx.user.userId as Id<"users">,
       createdAt: new Date().getTime(),
+
+      amount,
       full,
       mop,
+      note,
     });
-    await ctx.db.patch(args.joId, { updatedAt: new Date().getTime() });
+    await ctx.db.patch(joId, { updatedAt: new Date().getTime() });
   },
 });
 
@@ -29,9 +31,12 @@ export const deletePayment = authedMutation({
   args: {
     amount: v.number(),
     paymentId: v.id("payment"),
+    joId: v.id("jo"),
   },
   handler: async (ctx, args) => {
-    const { paymentId } = args;
+    const { joId, paymentId } = args;
+
     await ctx.db.delete(paymentId);
+    await ctx.db.patch(joId, { updatedAt: new Date().getTime() });
   },
 });

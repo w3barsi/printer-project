@@ -32,7 +32,7 @@ interface MyRouterContext {
 }
 
 const getAuth = createServerFn({ method: "GET" }).handler(async () => {
-  return await getToken();
+  return (await getToken()) ?? null;
 });
 const authQueryOptions = queryOptions({
   queryKey: ["auth"],

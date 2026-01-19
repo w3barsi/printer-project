@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "concurrently -r pnpm:dev:web pnpm:dev:db",
-    "dev:web": "vite dev --port 3000",
+    "dev:web": "vite dev --port 3000 --host",
     "dev:db": "pnpx convex dev --live-component-sources --typecheck-components",
     "start": "node .output/server/index.mjs",
     "start:xargs": "export $(grep -v '^#' .env | xargs) && pnpm start",

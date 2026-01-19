@@ -33,3 +33,19 @@ export const createItem = authedMutation({
     await ctx.db.patch(args.joId, { updatedAt: new Date().getTime() });
   },
 });
+
+export const updateItem = authedMutation({
+  args: {
+    itemId: v.id("items"),
+    joId: v.id("jo"),
+    name: v.string(),
+    quantity: v.number(),
+    price: v.number(),
+  },
+  handler: async (ctx, args) => {
+    const { joId, itemId, ...rest } = args;
+    await ctx.db.patch(itemId, rest);
+
+    await ctx.db.patch(joId, { updatedAt: new Date().getTime() });
+  },
+});

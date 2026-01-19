@@ -8,7 +8,9 @@ import {
   BanknoteIcon,
   Calendar,
   Clock,
+  MoreHorizontalIcon,
   Package,
+  PencilIcon,
   PhilippinePesoIcon,
   Trash2Icon,
   UserIcon,
@@ -33,6 +35,12 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -91,11 +99,10 @@ function JoDetailComponent() {
     </Container>
   );
 }
+
 function PaymentCard() {
   const { joId } = Route.useParams();
   const { data: jo } = useSuspenseQuery(
-    // Fetch job order with items using Convex API
-    // Suspense query for /jo/${joId} route
     convexQuery(api.jo.getOneComplete, { id: joId as Id<"jo"> }),
   );
 
@@ -164,7 +171,11 @@ function PaymentCard() {
                   <DeleteConfirmButton
                     deleteFor="payment"
                     onConfirm={() =>
-                      deletePayment({ paymentId: payment._id, amount: payment.amount })
+                      deletePayment({
+                        paymentId: payment._id,
+                        amount: payment.amount,
+                        joId: jo._id,
+                      })
                     }
                   />
                 </div>
@@ -183,10 +194,9 @@ function JoItemsCard() {
   const { joId } = Route.useParams();
 
   const { data: jo } = useSuspenseQuery(
-    // Fetch job order with items using Convex API
-    // Suspense query for /jo/${joId} route
     convexQuery(api.jo.getOneComplete, { id: joId as Id<"jo"> }),
   );
+
   if (jo === null) {
     return null;
   }
@@ -223,7 +233,23 @@ function JoItemsCard() {
                   {formatCurrency(item.quantity * item.price)}
                 </TableCell>
                 <TableCell className="w-12 text-right">
-                  <DeleteItemButton itemId={item._id} />
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon">
+                        <MoreHorizontalIcon className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem>
+                        <PencilIcon />
+                        Edit
+                      </DropdownMenuItem>
+                      <DropdownMenuItem variant="destructive">
+                        <Trash2Icon />
+                        Delete
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </TableCell>
               </TableRow>
             ))}
@@ -248,8 +274,6 @@ function JobOrderCard() {
   const navigate = Route.useNavigate();
 
   const { data: jo } = useSuspenseQuery(
-    // Fetch job order with items using Convex API
-    // Suspense query for /jo/${joId} route
     convexQuery(api.jo.getOneComplete, { id: joId as Id<"jo"> }),
   );
 
@@ -390,34 +414,6 @@ function JobOrderCard() {
         </div>
       </CardContent>
     </Card>
-  );
-}
-
-function DeleteItemButton({ itemId }: { itemId: Id<"items"> }) {
-  const { joId } = Route.useParams();
-  const deleteItem = useMutation(api.items.deleteItem).withOptimisticUpdate(
-    (localStore, args) => {
-      const currentValue = localStore.getQuery(api.jo.getOneComplete, {
-        id: joId as Id<"jo">,
-      });
-
-      if (!currentValue) {
-        return;
-      }
-      const itemValue = currentValue.items.find((c) => c._id === args.itemId);
-
-      const newValue = {
-        ...currentValue,
-        totalOrderValue: currentValue.totalOrderValue - itemValue!.price,
-
-        items: currentValue.items.filter((c) => c._id !== args.itemId),
-      };
-      localStore.setQuery(api.jo.getOneComplete, { id: joId as Id<"jo"> }, newValue);
-    },
-  );
-
-  return (
-    <DeleteConfirmButton deleteFor="job order" onConfirm={() => deleteItem({ itemId })} />
   );
 }
 
