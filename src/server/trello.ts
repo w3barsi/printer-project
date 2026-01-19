@@ -63,7 +63,7 @@ const trelloCardsSchema = z.array(
     idList: z.string(),
     name: z.string(),
     pos: z.number(),
-    shortUrl: z.string().url(),
+    shortUrl: z.url(),
   }),
 );
 

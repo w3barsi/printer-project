@@ -7,7 +7,6 @@ import {
   useSensors,
 } from "@dnd-kit/core";
 import { createFileRoute } from "@tanstack/react-router";
-import type { ComponentPropsWithRef } from "react";
 import { useId } from "react";
 
 import { Container } from "@/components/layouts/container";
@@ -79,5 +78,3 @@ function Droppable() {
     </div>
   );
 }
-
-function Wrapper({ className }: ComponentPropsWithRef<"div">) {}

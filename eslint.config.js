@@ -3,6 +3,7 @@ import js from "@eslint/js";
 import pluginQuery from "@tanstack/eslint-plugin-query";
 import pluginRouter from "@tanstack/eslint-plugin-router";
 import eslintConfigPrettier from "eslint-config-prettier";
+import oxlint from "eslint-plugin-oxlint";
 import reactHooks from "eslint-plugin-react-hooks";
 import { defineConfig } from "eslint/config";
 import tseslint from "typescript-eslint";
@@ -33,7 +34,7 @@ export default defineConfig({
     ...pluginRouter.configs["flat/recommended"],
     reactHooks.configs.flat.recommended,
     react.configs["recommended-type-checked"],
-    // ...you can add plugins or configs here
+    ...oxlint.buildFromOxlintConfigFile("./.oxlintrc.json"),
   ],
   rules: {
     // You can override any rules here
