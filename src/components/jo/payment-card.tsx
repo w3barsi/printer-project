@@ -52,7 +52,7 @@ export function PaymentsCard({ joId }: { joId: Id<"jo"> }) {
             {jo.payments.map((payment) => (
               <div
                 key={payment._id}
-                className="bg-muted/50 flex items-center justify-between rounded pr-4"
+                className="bg-muted/50 flex items-center justify-between rounded-md pr-4"
               >
                 <div className="flex gap-2 rounded p-2 md:gap-4 md:p-4">
                   <div className="flex w-full flex-col justify-between">

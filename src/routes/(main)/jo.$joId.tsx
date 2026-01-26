@@ -41,6 +41,7 @@ import {
   TableRow,
   TableWrapper,
 } from "@/components/ui/table";
+import { cn } from "@/lib/utils";
 import { useHotkeys } from "react-hotkeys-hook";
 
 export const Route = createFileRoute("/(main)/jo/$joId")({
@@ -85,11 +86,11 @@ function JoDetailComponent() {
         <div className="flex flex-col gap-2 md:gap-4 lg:col-span-2">
           <JoDetails />
           <JoOrderSummary />
+          <JoItemsCard />
         </div>
         <PaymentsCard joId={joId} />
       </div>
       {/*  OLD CODE BELOW */}
-      <JoItemsCard />
     </Container>
   );
 }
@@ -101,6 +102,7 @@ function JoOrderSummary() {
   if (!jo) {
     return <div> Error JO Not Found</div>;
   }
+  const balance = jo.totalPayments - jo.totalOrderValue;
 
   return (
     <Card>
@@ -111,18 +113,23 @@ function JoOrderSummary() {
         <div className="flex flex-col gap-2 md:gap-4">
           <div className="flex items-center justify-between">
             <p className="">Total Order Value</p>
-            <p className="text-lg">{formatCurrency(jo.totalOrderValue)}</p>
+            <p className="font-mono text-xl">{formatCurrency(jo.totalOrderValue)}</p>
           </div>
           <Separator />
           <div className="flex items-center justify-between">
             <p className="">Total Payments</p>
-            <p className="text-lg">{formatCurrency(jo.totalPayments)}</p>
+            <p className="font-mono text-xl">{formatCurrency(jo.totalPayments)}</p>
           </div>
           <Separator />
           <div className="flex items-center justify-between">
-            <p className="">Total Payments</p>
-            <p className="text-lg">
-              {formatCurrency(jo.totalPayments - jo.totalOrderValue)}
+            <p className="">Balance</p>
+            <p
+              className={cn(
+                "font-mono text-xl",
+                balance >= 0 ? "text-green-600" : "text-red-700",
+              )}
+            >
+              {formatCurrency(balance)}
             </p>
           </div>
         </div>
