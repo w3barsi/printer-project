@@ -7,7 +7,6 @@ import { useForm } from "react-hook-form";
 
 import { authClient } from "@/lib/auth-client";
 import { useHotkeys } from "react-hotkeys-hook";
-import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import {
   Dialog,
@@ -26,6 +25,7 @@ import {
   FormMessage,
 } from "../ui/form";
 import { Input } from "../ui/input";
+import { Kbd } from "../ui/kbd";
 import {
   Select,
   SelectContent,
@@ -34,6 +34,7 @@ import {
   SelectValue,
 } from "../ui/select";
 import { Textarea } from "../ui/textarea";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
 interface FormData {
   amount: number;
@@ -117,11 +118,20 @@ export function AddPaymentDialog({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button>
-          <PlusIcon /> Add Payment <Badge variant="hotkey">P</Badge>
-        </Button>
-      </DialogTrigger>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <DialogTrigger asChild>
+            <Button variant="outline">
+              <PlusIcon /> Add Payment
+            </Button>
+          </DialogTrigger>
+        </TooltipTrigger>
+        <TooltipContent>
+          <div className="flex items-center gap-2">
+            Add Payment <Kbd>P</Kbd>
+          </div>
+        </TooltipContent>
+      </Tooltip>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Add New Payment</DialogTitle>

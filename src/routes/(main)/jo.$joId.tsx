@@ -3,57 +3,44 @@ import { api } from "@convex/_generated/api";
 import type { Id } from "@convex/_generated/dataModel";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { useMutation } from "convex/react";
 import {
-  BanknoteIcon,
-  Calendar,
-  Clock,
   MoreHorizontalIcon,
   Package,
+  PackageIcon,
   PencilIcon,
-  PhilippinePesoIcon,
   Trash2Icon,
-  UserIcon,
 } from "lucide-react";
 
 import { AddItemDialog } from "@/components/jo/add-item-dialog";
-import { AddPaymentDialog } from "@/components/jo/add-payment-dialog";
+import { DeleteJoAlertDialog } from "@/components/jo/delete-jo-alert-dialog";
+import { PaymentsCard } from "@/components/jo/payment-card";
 import { Container } from "@/components/layouts/container";
 import { PrintJoButton } from "@/components/printer/print-jo-button";
-import { DeleteConfirmButton } from "@/components/ui-custom/delete-confirm-button";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import {
   Table,
   TableBody,
   TableCell,
+  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
   TableWrapper,
 } from "@/components/ui/table";
-import { cn } from "@/lib/utils";
-import { useRef } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 
 export const Route = createFileRoute("/(main)/jo/$joId")({
@@ -65,6 +52,7 @@ export const Route = createFileRoute("/(main)/jo/$joId")({
     );
 
     return {
+      joId: id,
       joNumber: jo?.joNumber,
       crumb: [
         { value: "Job Order", href: "/jo/", type: "static" },
@@ -86,130 +74,152 @@ export const Route = createFileRoute("/(main)/jo/$joId")({
 });
 
 function JoDetailComponent() {
+  const { joId } = Route.useLoaderData();
   const navigate = Route.useNavigate();
   useHotkeys("b", () => navigate({ to: "/jo" }));
 
   return (
-    <Container className="flex flex-col gap-2 md:gap-4">
-      <div className="grid grid-cols-1 gap-2 md:gap-4 lg:grid-cols-2">
-        <JobOrderCard />
-        <PaymentCard />
+    <Container className="flex flex-col">
+      <JobOrderHeader />
+      <div className="grid gap-2 md:gap-4 lg:grid-cols-3">
+        <div className="flex flex-col gap-2 md:gap-4 lg:col-span-2">
+          <JoDetails />
+          <JoOrderSummary />
+        </div>
+        <PaymentsCard joId={joId} />
       </div>
+      {/*  OLD CODE BELOW */}
       <JoItemsCard />
     </Container>
   );
 }
 
-function PaymentCard() {
-  const { joId } = Route.useParams();
-  const { data: jo } = useSuspenseQuery(
-    convexQuery(api.jo.getOneComplete, { id: joId as Id<"jo"> }),
-  );
-
-  const deletePayment = useMutation(api.payment.deletePayment).withOptimisticUpdate(
-    (localStore, args) => {
-      const typedJoId = joId as Id<"jo">;
-      const currentValue = localStore.getQuery(api.jo.getOneComplete, { id: typedJoId });
-      if (!currentValue) return;
-      const newValue = {
-        ...currentValue,
-        totalPayments: currentValue.totalPayments - args.amount,
-        payments: currentValue.payments.filter((c) => c._id !== args.paymentId),
-      };
-      localStore.setQuery(api.jo.getOneComplete, { id: typedJoId }, newValue);
-    },
-  );
+function JoOrderSummary() {
+  const { joId } = Route.useLoaderData();
+  const { data: jo } = useSuspenseQuery(convexQuery(api.jo.getOneComplete, { id: joId }));
 
   if (!jo) {
-    return null;
+    return <div> Error JO Not Found</div>;
   }
 
   return (
     <Card>
-      <CardHeader className="flex items-center justify-between">
-        <CardTitle className="flex items-center gap-2 text-lg font-bold">
-          <BanknoteIcon className="h-6 w-6" />
-          <p>Payment/s</p>
-        </CardTitle>
-        <AddPaymentDialog
-          joId={joId as Id<"jo">}
-          totalPayments={jo.totalPayments}
-          totalOrderValue={jo.totalOrderValue}
-        />
+      <CardHeader>
+        <CardTitle>Order Summary</CardTitle>
       </CardHeader>
       <CardContent>
-        {jo.payments && jo.payments.length > 0 ? (
-          <ScrollArea className="h-56">
-            <div className="flex flex-col gap-2 md:gap-4">
-              {jo.payments.map((payment) => (
-                <div
-                  key={payment._id}
-                  className="bg-accent/20 dark:bg-accent/20 flex items-center justify-between rounded pr-4"
-                >
-                  <div className="flex gap-2 rounded p-2 md:gap-4 md:p-4">
-                    <span className="size-10 rounded-full bg-green-700 p-2 text-center text-green-100">
-                      <PhilippinePesoIcon className="s-4" />
-                    </span>
-                    <div className="flex w-full flex-col justify-between">
-                      <div>₱{payment.amount.toFixed(2)}</div>
-                      <div className="flex items-center gap-2 text-sm text-gray-500">
-                        <span>
-                          {new Date(payment._creationTime).toLocaleDateString()}
-                        </span>
-                        {payment.createdByName && (
-                          <>
-                            <span>•</span>
-                            <div className="flex items-center gap-1">
-                              <UserIcon className="h-3 w-3" />
-                              <span>{payment.createdByName}</span>
-                            </div>
-                          </>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                  <DeleteConfirmButton
-                    deleteFor="payment"
-                    onConfirm={() =>
-                      deletePayment({
-                        paymentId: payment._id,
-                        amount: payment.amount,
-                        joId: jo._id,
-                      })
-                    }
-                  />
-                </div>
-              ))}
-            </div>
-          </ScrollArea>
-        ) : (
-          <div className="text-muted-foreground text-center">No payments yet</div>
-        )}
+        <div className="flex flex-col gap-2 md:gap-4">
+          <div className="flex items-center justify-between">
+            <p className="">Total Order Value</p>
+            <p className="text-lg">{formatCurrency(jo.totalOrderValue)}</p>
+          </div>
+          <Separator />
+          <div className="flex items-center justify-between">
+            <p className="">Total Payments</p>
+            <p className="text-lg">{formatCurrency(jo.totalPayments)}</p>
+          </div>
+          <Separator />
+          <div className="flex items-center justify-between">
+            <p className="">Total Payments</p>
+            <p className="text-lg">
+              {formatCurrency(jo.totalPayments - jo.totalOrderValue)}
+            </p>
+          </div>
+        </div>
       </CardContent>
     </Card>
   );
 }
 
-function JoItemsCard() {
-  const { joId } = Route.useParams();
+function JoDetails() {
+  const { joId } = Route.useLoaderData();
+  const { data: jo } = useSuspenseQuery(convexQuery(api.jo.getOneComplete, { id: joId }));
 
-  const { data: jo } = useSuspenseQuery(
-    convexQuery(api.jo.getOneComplete, { id: joId as Id<"jo"> }),
+  if (!jo) {
+    return <div> Error JO Not Found</div>;
+  }
+
+  const itemCount = jo.items.reduce((acc, curr) => acc + curr.quantity * 1, 0);
+
+  return (
+    <div className="flex w-full gap-2 md:gap-4">
+      <Card className="flex-1 gap-0">
+        <CardHeader>
+          <CardDescription>PICKUP DATE</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <p className="text-xl">
+            {new Date(Number(jo.pickupDate)).toLocaleDateString()}
+          </p>
+        </CardContent>
+      </Card>
+      <Card className="flex-1 gap-0">
+        <CardHeader>
+          <CardDescription>CREATED AT</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <p className="text-xl">
+            {new Date(Number(jo._creationTime)).toLocaleDateString()}
+          </p>
+        </CardContent>
+      </Card>
+      <Card className="flex-1 gap-0">
+        <CardHeader>
+          <CardDescription>TOTAL ITEMS</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <p className="text-xl">
+            {itemCount} {itemCount === 1 ? "item" : "items"}
+          </p>
+        </CardContent>
+      </Card>
+    </div>
   );
+}
+
+function JobOrderHeader() {
+  const { joId } = Route.useLoaderData();
+  const { data: jo } = useSuspenseQuery(convexQuery(api.jo.getOneComplete, { id: joId }));
+
+  if (!jo) {
+    return <div> Error JO Not Found</div>;
+  }
+
+  return (
+    <div className="flex items-center justify-between">
+      <div className="flex flex-row items-center gap-4 md:flex-col md:gap-0">
+        <span className="flex items-center gap-2">
+          <PackageIcon />
+          <h1 className="text-3xl font-bold">{jo?.name}</h1>
+        </span>
+        <p className="text-muted-foreground text-sm">Job Order #{jo?.joNumber}</p>
+      </div>
+      <div className="flex gap-2">
+        <PrintJoButton jo={jo} />
+        <DeleteJoAlertDialog joId={joId} />
+      </div>
+    </div>
+  );
+}
+
+function JoItemsCard() {
+  const { joId } = Route.useLoaderData();
+
+  const { data: jo } = useSuspenseQuery(convexQuery(api.jo.getOneComplete, { id: joId }));
 
   if (jo === null) {
     return null;
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-2 md:gap-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Package className="h-5 w-5" />
           <h3 className="text-lg font-bold">Order Items ({jo.items.length})</h3>
         </div>
 
-        <AddItemDialog joId={joId as Id<"jo">} />
+        <AddItemDialog joId={joId} />
       </div>
 
       <TableWrapper>
@@ -253,167 +263,21 @@ function JoItemsCard() {
                 </TableCell>
               </TableRow>
             ))}
+          </TableBody>
+          <TableFooter>
             <TableRow className="border-t-2">
-              <TableCell colSpan={3} className="text-right font-semibold md:pr-4">
+              <TableCell colSpan={3} className="text-lg font-semibold md:pl-4">
                 Total Order Value
               </TableCell>
-              <TableCell className="text-right text-lg font-bold md:pr-4">
+              <TableCell className="text-right text-lg font-bold">
                 {formatCurrency(jo.totalOrderValue)}
               </TableCell>
-              <TableCell className="w-12 text-right"></TableCell>
+              <TableCell className=""></TableCell>
             </TableRow>
-          </TableBody>
+          </TableFooter>
         </Table>
       </TableWrapper>
     </div>
-  );
-}
-
-function JobOrderCard() {
-  const { joId } = Route.useParams();
-  const navigate = Route.useNavigate();
-
-  const { data: jo } = useSuspenseQuery(
-    convexQuery(api.jo.getOneComplete, { id: joId as Id<"jo"> }),
-  );
-
-  const mutate = useMutation(api.jo.deleteJo).withOptimisticUpdate((localStore, args) => {
-    const getWithPaginationArgs = { paginationOptions: { cursor: null, numItems: 10 } };
-
-    const currentValue = localStore.getQuery(
-      api.jo.getWithPagination,
-      getWithPaginationArgs,
-    );
-
-    if (currentValue === undefined) {
-      return;
-    }
-
-    const newValue = {
-      nextCursor: currentValue.nextCursor,
-      jos: currentValue.jos.filter((c) => c._id !== args.joId),
-    };
-
-    localStore.setQuery(api.jo.getWithPagination, getWithPaginationArgs, newValue);
-
-    const oldRecentJos = localStore.getQuery(api.jo.getRecent);
-    if (!oldRecentJos) return;
-    localStore.setQuery(
-      api.jo.getRecent,
-      {},
-      oldRecentJos.filter((c) => c.id !== args.joId),
-    );
-  });
-  const deleteButtonRef = useRef<HTMLButtonElement>(null);
-  useHotkeys("d", () => deleteButtonRef.current?.click());
-
-  const deleteJo = () => {
-    mutate({ joId: joId as Id<"jo"> });
-    navigate({ to: "/jo" });
-  };
-
-  if (jo === null) {
-    return <div className="text-muted-foreground text-center">No Items</div>;
-  }
-
-  return (
-    <Card>
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <div>
-            <CardTitle className="flex items-center gap-2 text-2xl font-bold">
-              <Package className="h-6 w-6" />
-              {jo.name}
-            </CardTitle>
-            <p className="text-muted-foreground mt-1">Job Order #{jo.joNumber}</p>
-          </div>
-          <div className="flex gap-2">
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button variant="destructive-ghost" size="icon" ref={deleteButtonRef}>
-                  <Trash2Icon />
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent className="sm:max-w-sm">
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    This action cannot be undone. This will permanently delete this Job
-                    Order.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction variant="destructive" onClick={deleteJo}>
-                    <Trash2Icon />
-                    Delete
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-            <PrintJoButton jo={jo} />
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent className="flex flex-col gap-4">
-        <div className="grid grid-cols-3 gap-4">
-          <div className="flex items-center gap-3">
-            <Calendar className="text-muted-foreground h-5 w-5" />
-            <div>
-              <p className="text-muted-foreground text-sm font-medium">Pickup Date</p>
-              <p className="text-sm">
-                {new Date(Number(jo.pickupDate)).toLocaleDateString()}
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <Clock className="text-muted-foreground h-5 w-5" />
-            <div>
-              <p className="text-muted-foreground text-sm font-medium">Created</p>
-              <p className="text-sm">{new Date(jo._creationTime).toLocaleDateString()}</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <Package className="text-muted-foreground h-5 w-5" />
-            <div>
-              <p className="text-muted-foreground text-sm font-medium">Total Items</p>
-              <p className="text-sm">{jo.items.length} items</p>
-            </div>
-          </div>
-        </div>
-        <Separator />
-        <div className="flex items-center justify-between">
-          <p>Total Order Value</p>
-          <p>₱{jo.totalOrderValue.toFixed(2)}</p>
-        </div>
-        <div className="flex items-center justify-between">
-          <p>Total Payments</p>
-          <p className="text-xl font-bold text-green-600">
-            ₱{jo.totalPayments.toFixed(2)}
-          </p>
-        </div>
-        <Separator />
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <p>Balance</p>
-            {jo.totalPayments > jo.totalOrderValue - 1 && (
-              <Badge className="bg-green-700">Fully Paid</Badge>
-            )}
-          </div>
-          <p
-            className={cn(
-              jo.totalPayments === jo.totalOrderValue ||
-                jo.totalPayments > jo.totalOrderValue
-                ? "text-green-600"
-                : "text-red-700",
-              "text-xl font-bold",
-            )}
-          >
-            ₱{(jo.totalPayments - jo.totalOrderValue).toFixed(2)}
-          </p>
-        </div>
-      </CardContent>
-    </Card>
   );
 }
 

@@ -16,9 +16,10 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Kbd } from "@/components/ui/kbd";
 import { Label } from "@/components/ui/label";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useHotkeys } from "react-hotkeys-hook";
-import { Badge } from "../ui/badge";
 
 export function AddItemDialog({ joId }: { joId: Id<"jo"> }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -75,11 +76,20 @@ export function AddItemDialog({ joId }: { joId: Id<"jo"> }) {
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button>
-          <PlusIcon className="" /> Add Item <Badge variant="hotkey">A</Badge>
-        </Button>
-      </DialogTrigger>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <DialogTrigger asChild>
+            <Button variant="outline">
+              <PlusIcon className="" /> Add Item
+            </Button>
+          </DialogTrigger>
+        </TooltipTrigger>
+        <TooltipContent>
+          <div className="flex items-center gap-2">
+            Add Item <Kbd>A</Kbd>
+          </div>
+        </TooltipContent>
+      </Tooltip>
       <DialogContent className="">
         <DialogHeader>
           <DialogTitle>Add New Item</DialogTitle>

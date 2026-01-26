@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 import { useDevice } from "@/contexts/DeviceContext";
 import { printReceipt } from "@/lib/printer";
 import { useHotkeys } from "react-hotkeys-hook";
-import { Badge } from "../ui/badge";
+import { Kbd } from "../ui/kbd";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
 export function PrintJoButton({ jo }: { jo: GetOneComplete }) {
   const { device, isConnected } = useDevice();
@@ -25,8 +26,17 @@ export function PrintJoButton({ jo }: { jo: GetOneComplete }) {
   });
 
   return (
-    <Button onClick={handlePrint}>
-      <PrinterIcon /> Print JO <Badge variant="hotkey">⌘ P</Badge>
-    </Button>
+    <Tooltip>
+      <TooltipTrigger>
+        <Button onClick={handlePrint} variant="outline">
+          <PrinterIcon /> Print JO
+        </Button>
+      </TooltipTrigger>
+      <TooltipContent>
+        <div className="flex items-center gap-2">
+          Print Job Order <Kbd>Ctrl + P</Kbd>
+        </div>
+      </TooltipContent>
+    </Tooltip>
   );
 }
