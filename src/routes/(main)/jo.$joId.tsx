@@ -210,15 +210,14 @@ function JoItemsCard() {
   const { joId } = Route.useLoaderData();
 
   const { data: jo } = useSuspenseQuery(convexQuery(api.jo.getOneComplete, { id: joId }));
+  const [item, setItem] = useState<Item | null>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isDeleteAlertDialogOpen, setIsDeleteAlertDialogOpen] = useState(false);
 
   if (jo === null) {
     return null;
   }
   console.log(joId);
-
-  const [item, setItem] = useState<Item | null>(null);
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [isDeleteAlertDialogOpen, setIsDeleteAlertDialogOpen] = useState(false);
 
   return (
     <>
