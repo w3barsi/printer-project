@@ -22,7 +22,7 @@ export default function CanvasPrinterComponent({ joId }: { joId: string | null }
   const [orNumber, setOrNumber] = useState(0);
 
   const typedId = joId as Id<"jo">;
-  const { data: jo } = useQuery(convexQuery(api.jo.getOneJoWithItems, { id: typedId }));
+  const { data: jo } = useQuery(convexQuery(api.jo.getOneComplete, { id: typedId }));
 
   return (
     <div className="flex w-full items-center justify-center">
@@ -41,9 +41,9 @@ export default function CanvasPrinterComponent({ joId }: { joId: string | null }
             <img src="/logo.jpg" className="w-2/3 p-2" />
             <Separator className="bg-black" />
             <div className="flex w-full items-center justify-between p-2">
-              <span>{jo?.jo.name}</span>
+              <span>{jo?.name}</span>
               <span className="text-center">
-                {jo?.jo.joNumber ?? Math.floor(Math.random() * 100)}
+                {jo?.joNumber ?? Math.floor(Math.random() * 100)}
               </span>
             </div>
             <Separator className="bg-black" />

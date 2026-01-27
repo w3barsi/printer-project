@@ -3,6 +3,7 @@ import { Calendar } from "@/components/ui/calendar";
 export default function DateAndTimePicker({
   date,
   setDate,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   time,
   setTime,
   today,

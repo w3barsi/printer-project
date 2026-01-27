@@ -6,7 +6,9 @@ import { createFileRoute } from "@tanstack/react-router";
 import { MoreHorizontalIcon, PackageIcon, PencilIcon, Trash2Icon } from "lucide-react";
 
 import { AddItemDialog } from "@/components/jo/add-item-dialog";
+import { DeleteItemAlertDialog } from "@/components/jo/delete-item-alert-dialog";
 import { DeleteJoAlertDialog } from "@/components/jo/delete-jo-alert-dialog";
+import { EditItemDialog } from "@/components/jo/edit-item-dialog";
 import { PaymentsCard } from "@/components/jo/payment-card";
 import { Container } from "@/components/layouts/container";
 import { PrintJoButton } from "@/components/printer/print-jo-button";
@@ -35,6 +37,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
+import type { Item } from "@/types/convex";
+import { useState } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 
 export const Route = createFileRoute("/(main)/jo/$joId")({
@@ -210,75 +214,114 @@ function JoItemsCard() {
   if (jo === null) {
     return null;
   }
+  console.log(joId);
+
+  const [item, setItem] = useState<Item | null>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isDeleteAlertDialogOpen, setIsDeleteAlertDialogOpen] = useState(false);
 
   return (
-    <Card className="pt-6 pb-0">
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <h3 className="text-lg font-bold">Order Items ({jo.items.length})</h3>
+    <>
+      <EditItemDialog
+        open={isEditDialogOpen}
+        setOpen={setIsEditDialogOpen}
+        item={item}
+        joId={joId}
+      />
+      <DeleteItemAlertDialog
+        open={isDeleteAlertDialogOpen}
+        setOpen={setIsDeleteAlertDialogOpen}
+        item={item}
+        joId={joId}
+      />
+      <Card className="pt-6 pb-0">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-bold">Order Items</h3>
 
-          <AddItemDialog joId={joId} />
-        </div>
-      </CardHeader>
-
-      <CardContent className="p-0">
-        <Table>
-          <TableHeader className="">
-            <TableRow>
-              <TableHead className="font-semibold md:pl-4">Item Name</TableHead>
-              <TableHead className="text-center font-semibold">Quantity</TableHead>
-              <TableHead className="text-right font-semibold">Unit Price</TableHead>
-              <TableHead className="text-right font-semibold">Total</TableHead>
-              <TableHead className="w-12 font-semibold"></TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {jo.items.map((item) => (
-              <TableRow key={item._id} className="group">
-                <TableCell className="font-medium md:pl-4">{item.name}</TableCell>
-                <TableCell className="text-center">{item.quantity}</TableCell>
-                <TableCell className="text-right">{formatCurrency(item.price)}</TableCell>
-                <TableCell className="text-right font-medium">
-                  {formatCurrency(item.quantity * item.price)}
-                </TableCell>
-                <TableCell className="w-12 text-right">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon">
-                        <MoreHorizontalIcon className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem>
-                        <PencilIcon />
-                        Edit
-                      </DropdownMenuItem>
-                      <DropdownMenuItem variant="destructive">
-                        <Trash2Icon />
-                        Delete
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </TableCell>
+            <AddItemDialog joId={joId} />
+          </div>
+        </CardHeader>
+        <CardContent className="p-0">
+          <Table>
+            <TableHeader className="">
+              <TableRow>
+                <TableHead className="text-muted-foreground text-xs font-semibold uppercase md:pl-4">
+                  Item Name
+                </TableHead>
+                <TableHead className="text-muted-foreground text-center text-xs font-semibold uppercase">
+                  Quantity
+                </TableHead>
+                <TableHead className="text-muted-foreground text-right text-xs font-semibold uppercase">
+                  Unit Price
+                </TableHead>
+                <TableHead className="text-muted-foreground text-right text-xs font-semibold uppercase">
+                  Total
+                </TableHead>
+                <TableHead className="text-muted-foreground w-12 text-xs font-semibold uppercase"></TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-          <TableFooter>
-            <TableRow className="border-t-2">
-              <TableCell
-                colSpan={3}
-                className="text-lg font-semibold md:pl-4"
-              ></TableCell>
-              <TableCell className="text-right">
-                <span className="text-muted-foreground">Total Order Value</span>
-                <p className="text-lg">{formatCurrency(jo.totalOrderValue)}</p>
-              </TableCell>
-              <TableCell className=""></TableCell>
-            </TableRow>
-          </TableFooter>
-        </Table>
-      </CardContent>
-    </Card>
+            </TableHeader>
+            <TableBody>
+              {jo.items.map((item) => (
+                <TableRow key={item._id} className="group">
+                  <TableCell className="font-medium md:pl-4">{item.name}</TableCell>
+                  <TableCell className="text-center">{item.quantity}</TableCell>
+                  <TableCell className="text-right">
+                    {formatCurrency(item.price)}
+                  </TableCell>
+                  <TableCell className="text-right font-medium">
+                    {formatCurrency(item.quantity * item.price)}
+                  </TableCell>
+                  <TableCell className="w-12 text-right">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon">
+                          <MoreHorizontalIcon className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem
+                          onSelect={() => {
+                            setIsEditDialogOpen(true);
+                            setItem(item);
+                          }}
+                        >
+                          <PencilIcon />
+                          Edit
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          variant="destructive"
+                          onSelect={() => {
+                            setIsDeleteAlertDialogOpen(true);
+                            setItem(item);
+                          }}
+                        >
+                          <Trash2Icon />
+                          Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+            <TableFooter>
+              <TableRow className="border-t-2">
+                <TableCell
+                  colSpan={3}
+                  className="text-lg font-semibold md:pl-4"
+                ></TableCell>
+                <TableCell className="text-right">
+                  <span className="text-muted-foreground">Total Order Value</span>
+                  <p className="text-lg">{formatCurrency(jo.totalOrderValue)}</p>
+                </TableCell>
+                <TableCell className=""></TableCell>
+              </TableRow>
+            </TableFooter>
+          </Table>
+        </CardContent>
+      </Card>
+    </>
   );
 }
 

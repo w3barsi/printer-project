@@ -7,9 +7,13 @@ import { authedMutation } from "./auth";
 export const deleteItem = mutation({
   args: {
     itemId: v.id("items"),
+    joId: v.id("jo"),
   },
   handler: async (ctx, args) => {
-    await ctx.db.delete(args.itemId);
+    Promise.all([
+      ctx.db.delete(args.itemId),
+      ctx.db.patch(args.joId, { updatedAt: new Date().getTime() }),
+    ]);
   },
 });
 
@@ -22,15 +26,16 @@ export const createItem = authedMutation({
   },
   handler: async (ctx, args) => {
     const { joId, name, quantity, price } = args;
-    await ctx.db.insert("items", {
+    const insertPromise = ctx.db.insert("items", {
       joId,
       name,
       quantity,
       price,
       createdBy: ctx.user.userId as Id<"users">,
     });
+    const patchPromise = ctx.db.patch(args.joId, { updatedAt: new Date().getTime() });
 
-    await ctx.db.patch(args.joId, { updatedAt: new Date().getTime() });
+    Promise.all([insertPromise, patchPromise]);
   },
 });
 

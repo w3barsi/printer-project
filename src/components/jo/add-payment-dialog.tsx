@@ -144,6 +144,7 @@ export function AddPaymentDialog({
             <FormField
               control={form.control}
               name="amount"
+              defaultValue={0}
               rules={{
                 required: "Amount is required",
                 min: {

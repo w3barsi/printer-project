@@ -1,4 +1,4 @@
-import type { Item } from "@/types/printer";
+import type { Item } from "@/types/convex";
 
 export function ItemRenderer({ item }: { item: Item[] | undefined }) {
   const total = item?.reduce((acc, i) => acc + i.price * i.quantity, 0);

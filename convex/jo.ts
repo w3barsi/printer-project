@@ -2,16 +2,9 @@ import { paginationOptsValidator } from "convex/server";
 import { v } from "convex/values";
 
 import { internal } from "./_generated/api";
-import type { Doc, Id } from "./_generated/dataModel";
+import type { Id } from "./_generated/dataModel";
 import { internalMutation, internalQuery } from "./_generated/server";
 import { authedMutation, authedQuery } from "./auth";
-
-export type Item = Doc<"items">;
-export type Jo = Doc<"jo">;
-export type JoWithItems = {
-  jo: Jo;
-  items: Item[];
-};
 
 export const deleteJo = authedMutation({
   args: v.object({ joId: v.id("jo") }),
