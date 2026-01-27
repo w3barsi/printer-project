@@ -77,7 +77,7 @@ function JoDetailComponent() {
   useHotkeys("b", () => navigate({ to: "/jo" }));
 
   return (
-    <Container className="flex flex-col pb-4">
+    <Container className="pwa-padding flex flex-col">
       <JobOrderHeader />
       <div className="grid gap-2 md:gap-4 lg:grid-cols-3">
         <div className="flex flex-col gap-2 md:gap-4 lg:col-span-2">

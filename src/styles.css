@@ -298,3 +298,11 @@ code {
     animation: border-pulse 2s ease-in-out infinite;
   }
 }
+
+@media all and (display-mode: standalone),
+  all and (display-mode: minimal-ui),
+  all and (display-mode: fullscreen) {
+  .pwa-padding {
+    padding-bottom: calc(var(--spacing) * 15) /* 3.75rem = 60px */;
+  }
+}
