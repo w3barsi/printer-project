@@ -9,6 +9,7 @@ import { BanknoteIcon, CalendarIcon, UserIcon } from "lucide-react";
 import { AddPaymentDialog } from "@/components/jo/add-payment-dialog";
 import { DeleteConfirmButton } from "@/components/ui-custom/delete-confirm-button";
 import { CardContent } from "@/components/ui/card";
+import { Item, ItemActions, ItemContent, ItemDescription, ItemTitle } from "../ui/item";
 
 export function PaymentsCard({ joId }: { joId: Id<"jo"> }) {
   const { data: jo } = useSuspenseQuery(
@@ -50,13 +51,12 @@ export function PaymentsCard({ joId }: { joId: Id<"jo"> }) {
         {jo.payments && jo.payments.length > 0 ? (
           <div className="flex flex-col gap-2 md:gap-4">
             {jo.payments.map((payment) => (
-              <div
-                key={payment._id}
-                className="bg-muted/50 flex items-center justify-between rounded-md pr-4"
-              >
-                <div className="flex gap-2 rounded p-2 md:gap-4 md:p-4">
-                  <div className="flex w-full flex-col justify-between">
-                    <p className="pb-2 font-mono text-xl">₱{payment.amount.toFixed(2)}</p>
+              <Item key={payment._id} variant="outline">
+                <ItemContent>
+                  <ItemTitle className="font-mono text-lg">
+                    {formatCurrency(payment.amount)}
+                  </ItemTitle>
+                  <ItemDescription>
                     <div className="flex items-center gap-2">
                       <CalendarIcon className="size-4" />
                       <p className="text-muted-foreground text-sm">
@@ -69,19 +69,21 @@ export function PaymentsCard({ joId }: { joId: Id<"jo"> }) {
                         {payment.createdByName}
                       </p>
                     </div>
-                  </div>
-                </div>
-                <DeleteConfirmButton
-                  deleteFor="payment"
-                  onConfirm={() =>
-                    deletePayment({
-                      paymentId: payment._id,
-                      amount: payment.amount,
-                      joId: jo._id,
-                    })
-                  }
-                />
-              </div>
+                  </ItemDescription>
+                </ItemContent>
+                <ItemActions>
+                  <DeleteConfirmButton
+                    deleteFor="payment"
+                    onConfirm={() =>
+                      deletePayment({
+                        paymentId: payment._id,
+                        amount: payment.amount,
+                        joId: jo._id,
+                      })
+                    }
+                  />
+                </ItemActions>
+              </Item>
             ))}
           </div>
         ) : (
@@ -90,4 +92,11 @@ export function PaymentsCard({ joId }: { joId: Id<"jo"> }) {
       </CardContent>
     </Card>
   );
+}
+
+function formatCurrency(amount: number) {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "PHP",
+  }).format(amount);
 }

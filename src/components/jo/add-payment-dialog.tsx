@@ -121,7 +121,7 @@ export function AddPaymentDialog({
       <Tooltip>
         <TooltipTrigger asChild>
           <DialogTrigger asChild>
-            <Button variant="outline">
+            <Button>
               <PlusIcon /> Add Payment
             </Button>
           </DialogTrigger>

@@ -79,7 +79,7 @@ export function AddItemDialog({ joId }: { joId: Id<"jo"> }) {
       <Tooltip>
         <TooltipTrigger asChild>
           <DialogTrigger asChild>
-            <Button variant="outline">
+            <Button>
               <PlusIcon className="" /> Add Item
             </Button>
           </DialogTrigger>

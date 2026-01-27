@@ -11,7 +11,7 @@ export default defineSchema({
   customer: defineTable({
     name: v.string(),
     handler: v.string(),
-    contactNumber: v.optional(v.string()),
+    contactNumbers: v.optional(v.array(v.string())),
     createdAt: v.number(),
     updatedAt: v.number(),
     createdBy: v.id("user"),

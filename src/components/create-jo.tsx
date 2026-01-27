@@ -107,7 +107,7 @@ export function CreateDialog() {
         </Button>
       </DialogTrigger>
       <DialogContent className="flex max-h-[95vh] flex-col">
-        <DialogHeader className="flex-shrink-0">
+        <DialogHeader className="shrink-0">
           <DialogTitle>Create Job Orders</DialogTitle>
           <DialogDescription>
             Create a new job order to start tracking items and progress.
