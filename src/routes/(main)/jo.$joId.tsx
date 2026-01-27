@@ -146,7 +146,7 @@ function JoDetails() {
   const itemCount = jo.items.reduce((acc, curr) => acc + curr.quantity * 1, 0);
 
   return (
-    <div className="flex w-full gap-2 md:gap-4">
+    <div className="flex w-full flex-col gap-2 md:flex-row md:gap-4">
       <Card className="flex-1 gap-0">
         <CardHeader>
           <CardDescription>PICKUP DATE</CardDescription>
@@ -190,7 +190,7 @@ function JobOrderHeader() {
   }
 
   return (
-    <div className="flex items-center justify-between">
+    <div className="flex items-center justify-between px-2 py-4 md:py-0">
       <div className="flex flex-row items-center gap-4 md:flex-col md:gap-0">
         <span className="flex items-center gap-2">
           <PackageIcon />
