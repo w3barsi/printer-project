@@ -3,13 +3,7 @@ import { api } from "@convex/_generated/api";
 import type { Id } from "@convex/_generated/dataModel";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import {
-  MoreHorizontalIcon,
-  Package,
-  PackageIcon,
-  PencilIcon,
-  Trash2Icon,
-} from "lucide-react";
+import { MoreHorizontalIcon, PackageIcon, PencilIcon, Trash2Icon } from "lucide-react";
 
 import { AddItemDialog } from "@/components/jo/add-item-dialog";
 import { DeleteJoAlertDialog } from "@/components/jo/delete-jo-alert-dialog";
@@ -39,7 +33,6 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-  TableWrapper,
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import { useHotkeys } from "react-hotkeys-hook";
@@ -219,19 +212,18 @@ function JoItemsCard() {
   }
 
   return (
-    <div className="flex flex-col gap-2 md:gap-4">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Package className="h-5 w-5" />
+    <Card className="pt-6 pb-0">
+      <CardHeader>
+        <div className="flex items-center justify-between">
           <h3 className="text-lg font-bold">Order Items ({jo.items.length})</h3>
+
+          <AddItemDialog joId={joId} />
         </div>
+      </CardHeader>
 
-        <AddItemDialog joId={joId} />
-      </div>
-
-      <TableWrapper>
+      <CardContent className="p-0">
         <Table>
-          <TableHeader className="bg-muted">
+          <TableHeader className="">
             <TableRow>
               <TableHead className="font-semibold md:pl-4">Item Name</TableHead>
               <TableHead className="text-center font-semibold">Quantity</TableHead>
@@ -273,18 +265,20 @@ function JoItemsCard() {
           </TableBody>
           <TableFooter>
             <TableRow className="border-t-2">
-              <TableCell colSpan={3} className="text-lg font-semibold md:pl-4">
-                Total Order Value
-              </TableCell>
-              <TableCell className="text-right text-lg font-bold">
-                {formatCurrency(jo.totalOrderValue)}
+              <TableCell
+                colSpan={3}
+                className="text-lg font-semibold md:pl-4"
+              ></TableCell>
+              <TableCell className="text-right">
+                <span className="text-muted-foreground">Total Order Value</span>
+                <p className="text-lg">{formatCurrency(jo.totalOrderValue)}</p>
               </TableCell>
               <TableCell className=""></TableCell>
             </TableRow>
           </TableFooter>
         </Table>
-      </TableWrapper>
-    </div>
+      </CardContent>
+    </Card>
   );
 }
 

@@ -81,7 +81,7 @@ export function AddPaymentDialog({
         {
           ...currentValue,
           totalPayments: updatedTotalPayments,
-          payments: [...currentValue.payments, newPayment],
+          payments: [newPayment, ...currentValue.payments],
         },
       );
     },
