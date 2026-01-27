@@ -9,7 +9,7 @@ import { BanknoteIcon, CalendarIcon, UserIcon } from "lucide-react";
 import { AddPaymentDialog } from "@/components/jo/add-payment-dialog";
 import { DeleteConfirmButton } from "@/components/ui-custom/delete-confirm-button";
 import { CardContent } from "@/components/ui/card";
-import { Item, ItemActions, ItemContent, ItemDescription, ItemTitle } from "../ui/item";
+import { Item, ItemActions, ItemContent, ItemTitle } from "../ui/item";
 
 export function PaymentsCard({ joId }: { joId: Id<"jo"> }) {
   const { data: jo } = useSuspenseQuery(
@@ -56,7 +56,7 @@ export function PaymentsCard({ joId }: { joId: Id<"jo"> }) {
                   <ItemTitle className="font-mono text-lg">
                     {formatCurrency(payment.amount)}
                   </ItemTitle>
-                  <ItemDescription>
+                  <div>
                     <div className="flex items-center gap-2">
                       <CalendarIcon className="size-4" />
                       <p className="text-muted-foreground text-sm">
@@ -69,7 +69,7 @@ export function PaymentsCard({ joId }: { joId: Id<"jo"> }) {
                         {payment.createdByName}
                       </p>
                     </div>
-                  </ItemDescription>
+                  </div>
                 </ItemContent>
                 <ItemActions>
                   <DeleteConfirmButton

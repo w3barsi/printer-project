@@ -27,7 +27,7 @@ export function PrintJoButton({ jo }: { jo: GetOneComplete }) {
 
   return (
     <Tooltip>
-      <TooltipTrigger>
+      <TooltipTrigger asChild>
         <Button onClick={handlePrint} variant="outline">
           <PrinterIcon /> Print JO
         </Button>
