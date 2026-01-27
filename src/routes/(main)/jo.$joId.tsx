@@ -77,7 +77,7 @@ function JoDetailComponent() {
   useHotkeys("b", () => navigate({ to: "/jo" }));
 
   return (
-    <Container className="flex flex-col">
+    <Container className="flex flex-col pb-4">
       <JobOrderHeader />
       <div className="grid gap-2 md:gap-4 lg:grid-cols-3">
         <div className="flex flex-col gap-2 md:gap-4 lg:col-span-2">
@@ -311,7 +311,7 @@ function JoItemsCard() {
                   className="text-lg font-semibold md:pl-4"
                 ></TableCell>
                 <TableCell className="text-right">
-                  <span className="text-muted-foreground">Total Order Value</span>
+                  <span className="text-muted-foreground text-xs">Total Order Value</span>
                   <p className="text-lg">{formatCurrency(jo.totalOrderValue)}</p>
                 </TableCell>
                 <TableCell className=""></TableCell>

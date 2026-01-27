@@ -35,8 +35,8 @@ export function PaymentsCard({ joId }: { joId: Id<"jo"> }) {
   }
 
   return (
-    <Card>
-      <CardHeader className="flex items-center justify-between">
+    <Card className="@container">
+      <CardHeader className="flex flex-col items-center justify-between @xs:flex-row">
         <CardTitle className="flex items-center gap-2">
           <BanknoteIcon className="h-6 w-6" />
           <p>Payment/s</p>
