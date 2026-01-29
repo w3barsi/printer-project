@@ -7,6 +7,25 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+// taken from is-standalone-pwa
+export function isStandalonePWA(): boolean {
+  return (
+    typeof window !== "undefined" &&
+    // matchMedia()
+    (window?.matchMedia("(display-mode: standalone)").matches ||
+      // iOS
+      // @ts-ignore
+      window.navigator?.standalone ||
+      // Android
+      document.referrer.startsWith("android-app://") ||
+      // Windows
+      // @ts-ignore
+      window?.Windows ||
+      /trident.+(msapphost|webview)\//i.test(navigator.userAgent) ||
+      document.referrer.startsWith("app-info://platform/microsoft-store"))
+  );
+}
+
 export const isAuthError = (error: unknown) => {
   // This broadly matches potentially auth related errors, can be rewritten to
   // work with your app's own error handling.
