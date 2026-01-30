@@ -1,10 +1,11 @@
-import type { CashflowType } from "@/types/convex";
 import { api } from "@convex/_generated/api";
 import type { Id } from "@convex/_generated/dataModel";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useSearch } from "@tanstack/react-router";
 import { useMutation } from "convex/react";
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
+import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -15,17 +16,18 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { authClient } from "@/lib/auth-client";
 import { todayZero } from "@/routes/(main)/(cashier)/cashflow";
 
-type FormData = {
-  description: string;
-  amount: number;
-  type: CashflowType;
-};
+const formSchema = z.object({
+  description: z.string().min(1, "Description is required"),
+  amount: z.number().refine((val) => val !== 0, "Amount must not be zero"),
+  type: z.enum(["Expense", "CA"]),
+});
+
+type FormData = z.infer<typeof formSchema>;
 
 export function AddCashflow({ date }: { date?: number }) {
   const [open, setOpen] = useState(false);
@@ -75,6 +77,7 @@ export function AddCashflow({ date }: { date?: number }) {
   );
 
   const form = useForm<FormData>({
+    resolver: zodResolver(formSchema),
     defaultValues: { description: "", amount: 0, type: "Expense" },
   });
 
@@ -106,65 +109,57 @@ export function AddCashflow({ date }: { date?: number }) {
         {form.formState.errors.root && (
           <p className="text-sm text-red-500">{form.formState.errors.root.message}</p>
         )}
-        <form onSubmit={handleSave}>
-          <div className="grid gap-4 py-2">
-            <div className="grid gap-2">
-              <Label htmlFor="amt">Amount</Label>
-              <Input
-                id="amt"
-                type="number"
-                inputMode="decimal"
-                {...form.register("amount", {
-                  required: "Amount is required",
-                  valueAsNumber: true,
-                  validate: (value) => value !== 0 || "Amount must not be zero",
-                })}
-              />
-              {form.formState.errors.amount && (
-                <p className="text-sm text-red-500">
-                  {form.formState.errors.amount.message ||
-                    "Amount is required and must not be zero"}
-                </p>
-              )}
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="desc">Description</Label>
-              <Input
-                id="desc"
-                {...form.register("description", { required: "Description is required" })}
-              />
-              {form.formState.errors.description && (
-                <p className="text-sm text-red-500">
-                  {form.formState.errors.description.message}
-                </p>
-              )}
-            </div>
-            <div className="grid gap-2">
-              <Label>Type</Label>
-              <RadioGroup
-                {...form.register("type")}
-                onValueChange={(value) => form.setValue("type", value as CashflowType)}
-                className="grid grid-cols-1 gap-4 md:grid-cols-3"
-                defaultValue="Expense"
-              >
-                <div className="group flex items-center space-x-2">
-                  <RadioGroupItem value="Expense" id="expense" defaultChecked={true} />
-                  <Label
-                    htmlFor="expense"
-                    className="w-full text-sm group-hover:font-bold"
-                  >
-                    Expense
-                  </Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="CA" id="cash-advance" />
-                  <Label htmlFor="cash-advance" className="text-sm">
-                    Cash Advance
-                  </Label>
-                </div>
-              </RadioGroup>
-            </div>
-          </div>
+        <form onSubmit={handleSave} className="space-y-4">
+          <Controller
+            name="amount"
+            control={form.control}
+            render={({ field, fieldState }) => (
+              <Field data-invalid={fieldState.invalid}>
+                <FieldLabel htmlFor="cashflow-amount">Amount</FieldLabel>
+                <Input
+                  {...field}
+                  id="cashflow-amount"
+                  type="number"
+                  inputMode="decimal"
+                  aria-invalid={fieldState.invalid}
+                  onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                />
+                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+              </Field>
+            )}
+          />
+          <Controller
+            name="description"
+            control={form.control}
+            render={({ field, fieldState }) => (
+              <Field data-invalid={fieldState.invalid}>
+                <FieldLabel htmlFor="cashflow-description">Description</FieldLabel>
+                <Input
+                  {...field}
+                  id="cashflow-description"
+                  aria-invalid={fieldState.invalid}
+                />
+                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+              </Field>
+            )}
+          />
+          <Controller
+            name="type"
+            control={form.control}
+            render={({ field }) => (
+              <Field>
+                <FieldLabel htmlFor="cashflow-type">Type</FieldLabel>
+                <select
+                  {...field}
+                  id="cashflow-type"
+                  className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex h-10 w-full rounded-md border px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <option value="Expense">Expense</option>
+                  <option value="CA">Cash Advance</option>
+                </select>
+              </Field>
+            )}
+          />
           <DialogFooter>
             <Button type="submit">Save</Button>
           </DialogFooter>

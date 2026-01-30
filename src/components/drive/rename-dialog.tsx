@@ -2,7 +2,7 @@
 import type { GetDriveType } from "@/types/convex";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRef } from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
@@ -14,14 +14,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
+import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { useRenameFileOrFolder } from "@/lib/convex/optimistic-mutations";
 import { useGetParentFolder } from "@/lib/get-parent-folder";
@@ -62,42 +55,42 @@ export function RenameDialog({ d, openRename, setOpenRename }: RenameDialogProps
           <DialogDescription>Enter a new name for "{d.name}".</DialogDescription>
         </DialogHeader>
 
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{d.isFile ? "File " : "Folder "}Name</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder={`Enter ${d.isFile ? "File " : "Folder "} name`}
-                      {...field}
-                      ref={(el) => {
-                        inputRef.current = el;
-                        field.ref(el);
-                      }}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <Controller
+            name="name"
+            control={form.control}
+            render={({ field, fieldState }) => (
+              <Field data-invalid={fieldState.invalid}>
+                <FieldLabel htmlFor="rename-name">
+                  {d.isFile ? "File " : "Folder "}Name
+                </FieldLabel>
+                <Input
+                  {...field}
+                  id="rename-name"
+                  placeholder={`Enter ${d.isFile ? "File " : "Folder "} name`}
+                  aria-invalid={fieldState.invalid}
+                  ref={(el) => {
+                    inputRef.current = el;
+                    field.ref(el);
+                  }}
+                />
+                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+              </Field>
+            )}
+          />
 
-            <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setOpenRename(false)}
-                disabled={isPending}
-              >
-                Cancel
-              </Button>
-              <Button type="submit">Rename</Button>
-            </DialogFooter>
-          </form>
-        </Form>
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setOpenRename(false)}
+              disabled={isPending}
+            >
+              Cancel
+            </Button>
+            <Button type="submit">Rename</Button>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   );

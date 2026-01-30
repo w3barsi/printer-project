@@ -1,8 +1,10 @@
 import type { Item } from "@/types/convex";
 import { api } from "@convex/_generated/api";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "convex/react";
 import { useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
+import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -13,9 +15,17 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import type { Id } from "@convex/_generated/dataModel";
+
+const formSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  quantity: z.number().min(1, "Quantity must be at least 1"),
+  price: z.number().min(0, "Price must be at least 0"),
+});
+
+type FormData = z.infer<typeof formSchema>;
 
 export function EditItemDialog({
   open,
@@ -30,12 +40,8 @@ export function EditItemDialog({
 }) {
   const editItem = useMutation(api.items.updateItem);
 
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors, isSubmitting },
-  } = useForm({
+  const form = useForm<FormData>({
+    resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
       quantity: 1,
@@ -46,15 +52,15 @@ export function EditItemDialog({
   // Update form values when item changes
   useEffect(() => {
     if (item) {
-      reset({
+      form.reset({
         name: item.name,
         quantity: item.quantity,
         price: item.price,
       });
     }
-  }, [item, reset]);
+  }, [item, form]);
 
-  const onSubmit = async (data: { name: string; quantity: number; price: number }) => {
+  const onSubmit = async (data: FormData) => {
     if (!item) return;
     console.log(joId);
 
@@ -74,7 +80,7 @@ export function EditItemDialog({
 
   const handleOpenChange = (newOpen: boolean) => {
     if (!newOpen) {
-      reset();
+      form.reset();
     }
     setOpen(newOpen);
   };
@@ -90,74 +96,64 @@ export function EditItemDialog({
             Update the details below to edit the item.
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4">
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="name" className="text-right">
-              Name
-            </Label>
-            <div className="col-span-3">
-              <Input
-                id="name"
-                {...register("name", { required: "Name is required" })}
-                className={errors.name ? "border-destructive" : ""}
-              />
-              {errors.name && (
-                <p className="text-destructive mt-1 text-sm">{errors.name.message}</p>
-              )}
-            </div>
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="quantity" className="text-right">
-              Quantity
-            </Label>
-            <div className="col-span-3">
-              <Input
-                id="quantity"
-                type="number"
-                {...register("quantity", {
-                  required: "Quantity is required",
-                  valueAsNumber: true,
-                  min: { value: 1, message: "Quantity must be at least 1" },
-                })}
-                className={errors.quantity ? "border-destructive" : ""}
-              />
-              {errors.quantity && (
-                <p className="text-destructive mt-1 text-sm">{errors.quantity.message}</p>
-              )}
-            </div>
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="price" className="text-right">
-              Price
-            </Label>
-            <div className="col-span-3">
-              <Input
-                id="price"
-                type="number"
-                step="0.01"
-                {...register("price", {
-                  required: "Price is required",
-                  valueAsNumber: true,
-                  min: { value: 0, message: "Price must be at least 0" },
-                })}
-                className={errors.price ? "border-destructive" : ""}
-              />
-              {errors.price && (
-                <p className="text-destructive mt-1 text-sm">{errors.price.message}</p>
-              )}
-            </div>
-          </div>
-          <DialogFooter>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <Controller
+            name="name"
+            control={form.control}
+            render={({ field, fieldState }) => (
+              <Field data-invalid={fieldState.invalid}>
+                <FieldLabel htmlFor="edit-item-name">Name</FieldLabel>
+                <Input {...field} id="edit-item-name" aria-invalid={fieldState.invalid} />
+                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+              </Field>
+            )}
+          />
+          <Controller
+            name="quantity"
+            control={form.control}
+            render={({ field, fieldState }) => (
+              <Field data-invalid={fieldState.invalid}>
+                <FieldLabel htmlFor="edit-item-quantity">Quantity</FieldLabel>
+                <Input
+                  {...field}
+                  id="edit-item-quantity"
+                  type="number"
+                  aria-invalid={fieldState.invalid}
+                  onChange={(e) => field.onChange(parseInt(e.target.value))}
+                />
+                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+              </Field>
+            )}
+          />
+          <Controller
+            name="price"
+            control={form.control}
+            render={({ field, fieldState }) => (
+              <Field data-invalid={fieldState.invalid}>
+                <FieldLabel htmlFor="edit-item-price">Price</FieldLabel>
+                <Input
+                  {...field}
+                  id="edit-item-price"
+                  type="number"
+                  step="0.01"
+                  aria-invalid={fieldState.invalid}
+                  onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                />
+                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+              </Field>
+            )}
+          />
+          <DialogFooter className="gap-2">
             <Button
               type="button"
               variant="outline"
               onClick={() => setOpen(false)}
-              disabled={isSubmitting}
+              disabled={form.formState.isSubmitting}
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? "Saving..." : "Save Changes"}
+            <Button type="submit" disabled={form.formState.isSubmitting}>
+              {form.formState.isSubmitting ? "Saving..." : "Save Changes"}
             </Button>
           </DialogFooter>
         </form>

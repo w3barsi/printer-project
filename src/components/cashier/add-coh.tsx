@@ -1,28 +1,29 @@
 import type { GetCashflowQueryType } from "@/types/convex";
 import { api } from "@convex/_generated/api";
 import type { Id } from "@convex/_generated/dataModel";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "convex/react";
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
+import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { authClient } from "@/lib/auth-client";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "../ui/dialog";
+} from "@/components/ui/dialog";
+import { Field, FieldError, FieldLabel } from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import { authClient } from "@/lib/auth-client";
+
+const formSchema = z.object({
+  amount: z.number(),
+});
+
+type FormData = z.infer<typeof formSchema>;
 
 export function AddCoh({ start }: { start: number }) {
   const [open, setOpen] = useState(false);
@@ -59,13 +60,14 @@ export function AddCoh({ start }: { start: number }) {
     },
   );
 
-  const form = useForm({
+  const form = useForm<FormData>({
+    resolver: zodResolver(formSchema),
     defaultValues: {
       amount: 0,
     },
   });
 
-  const onSubmit = async (data: { amount: number }) => {
+  const onSubmit = async (data: FormData) => {
     createCashOnHand({
       amount: data.amount,
       description: "Cash On Hand",
@@ -84,32 +86,30 @@ export function AddCoh({ start }: { start: number }) {
         <DialogHeader>
           <DialogTitle>Add Cash On Hand</DialogTitle>
         </DialogHeader>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="amount"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Amount</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      {...field}
-                      onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <div className="flex w-full justify-end">
-              <Button type="submit" className="w-24">
-                Submit
-              </Button>
-            </div>
-          </form>
-        </Form>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <Controller
+            name="amount"
+            control={form.control}
+            render={({ field, fieldState }) => (
+              <Field data-invalid={fieldState.invalid}>
+                <FieldLabel htmlFor="coh-amount">Amount</FieldLabel>
+                <Input
+                  {...field}
+                  id="coh-amount"
+                  type="number"
+                  aria-invalid={fieldState.invalid}
+                  onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                />
+                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+              </Field>
+            )}
+          />
+          <div className="flex w-full justify-end">
+            <Button type="submit" className="w-24">
+              Submit
+            </Button>
+          </div>
+        </form>
       </DialogContent>
     </Dialog>
   );

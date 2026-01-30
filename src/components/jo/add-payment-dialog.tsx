@@ -1,9 +1,11 @@
 import { api } from "@convex/_generated/api";
 import type { Id } from "@convex/_generated/dataModel";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "convex/react";
 import { PlusIcon } from "lucide-react";
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
+import { z } from "zod";
 
 import { authClient } from "@/lib/auth-client";
 import { useHotkeys } from "react-hotkeys-hook";
@@ -17,14 +19,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "../ui/dialog";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "../ui/form";
+import { Field, FieldError, FieldLabel } from "../ui/field";
 import { Input } from "../ui/input";
 import { Kbd } from "../ui/kbd";
 import {
@@ -37,11 +32,13 @@ import {
 import { Textarea } from "../ui/textarea";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
-interface FormData {
-  amount: number;
-  paymentType: "cash" | "bank";
-  note: string;
-}
+const formSchema = z.object({
+  amount: z.number().min(0.01, "Amount must be greater than 0"),
+  paymentType: z.enum(["cash", "bank"]),
+  note: z.string(),
+});
+
+type FormData = z.infer<typeof formSchema>;
 
 export function AddPaymentDialog({
   joId,
@@ -93,6 +90,7 @@ export function AddPaymentDialog({
   });
 
   const form = useForm<FormData>({
+    resolver: zodResolver(formSchema),
     defaultValues: {
       amount: 0,
       paymentType: "cash",
@@ -140,97 +138,87 @@ export function AddPaymentDialog({
             Fill in the details below to add a new payment to the job order.
           </DialogDescription>
         </DialogHeader>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="amount"
-              defaultValue={0}
-              rules={{
-                required: "Amount is required",
-                min: {
-                  value: 0.01,
-                  message: "Amount must be greater than 0",
-                },
-                validate: (value) =>
-                  !isNaN(Number(value)) || "Please enter a valid number",
-              }}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Amount</FormLabel>
-                  <FormControl>
-                    <div className="flex gap-2">
-                      <Input
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        placeholder="0.00"
-                        {...field}
-                        onChange={(e) => field.onChange(parseFloat(e.target.value))}
-                      />
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={handleTotalPayment}
-                        className="whitespace-nowrap"
-                      >
-                        Full Payment
-                      </Button>
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="paymentType"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Payment Type</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select payment type" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="cash">Cash</SelectItem>
-                      <SelectItem value="bank">Bank</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="note"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Note (optional)</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Add any notes..."
-                      className="resize-none"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <DialogFooter>
-              <Button
-                type="submit"
-                className="w-full"
-                disabled={form.formState.isSubmitting}
-              >
-                {form.formState.isSubmitting ? "Adding..." : "Add Payment"}
-              </Button>
-            </DialogFooter>
-          </form>
-        </Form>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <Controller
+            name="amount"
+            control={form.control}
+            render={({ field, fieldState }) => (
+              <Field data-invalid={fieldState.invalid}>
+                <FieldLabel htmlFor="payment-amount">Amount</FieldLabel>
+                <div className="flex gap-2">
+                  <Input
+                    {...field}
+                    id="payment-amount"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    placeholder="0.00"
+                    aria-invalid={fieldState.invalid}
+                    onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleTotalPayment}
+                    className="whitespace-nowrap"
+                  >
+                    Full Payment
+                  </Button>
+                </div>
+                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+              </Field>
+            )}
+          />
+          <Controller
+            name="paymentType"
+            control={form.control}
+            render={({ field, fieldState }) => (
+              <Field data-invalid={fieldState.invalid}>
+                <FieldLabel htmlFor="payment-type">Payment Type</FieldLabel>
+                <Select
+                  name={field.name}
+                  value={field.value}
+                  onValueChange={field.onChange}
+                >
+                  <SelectTrigger id="payment-type" aria-invalid={fieldState.invalid}>
+                    <SelectValue placeholder="Select payment type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="cash">Cash</SelectItem>
+                    <SelectItem value="bank">Bank</SelectItem>
+                  </SelectContent>
+                </Select>
+                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+              </Field>
+            )}
+          />
+          <Controller
+            name="note"
+            control={form.control}
+            render={({ field, fieldState }) => (
+              <Field data-invalid={fieldState.invalid}>
+                <FieldLabel htmlFor="payment-note">Note (optional)</FieldLabel>
+                <Textarea
+                  {...field}
+                  id="payment-note"
+                  placeholder="Add any notes..."
+                  className="resize-none"
+                  aria-invalid={fieldState.invalid}
+                />
+                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+              </Field>
+            )}
+          />
+          <DialogFooter>
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={form.formState.isSubmitting}
+            >
+              {form.formState.isSubmitting ? "Adding..." : "Add Payment"}
+            </Button>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   );
