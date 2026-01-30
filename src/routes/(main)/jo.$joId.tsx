@@ -191,7 +191,7 @@ function JobOrderHeader() {
 
   return (
     <div className="flex items-center justify-between px-2 py-4 md:py-0">
-      <div className="flex flex-row items-center gap-4 md:flex-col md:gap-0">
+      <div className="flex flex-col items-center md:gap-0">
         <span className="flex items-center gap-2">
           <PackageIcon />
           <h1 className="text-3xl font-bold">{jo?.name}</h1>
