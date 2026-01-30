@@ -10,6 +10,7 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -171,13 +172,15 @@ export function AddItemDialog({ joId }: { joId: Id<"jo"> }) {
                 </FormItem>
               )}
             />
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={form.formState.isSubmitting}
-            >
-              {form.formState.isSubmitting ? "Adding..." : "Add Item"}
-            </Button>
+            <DialogFooter>
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={form.formState.isSubmitting}
+              >
+                {form.formState.isSubmitting ? "Adding..." : "Add Item"}
+              </Button>
+            </DialogFooter>
           </form>
         </Form>
       </DialogContent>

@@ -113,7 +113,7 @@ export function CreateDialog() {
             Create a new job order to start tracking items and progress.
           </DialogDescription>
         </DialogHeader>
-        <div className="flex-1 overflow-y-auto px-1">
+        <div className="flex-1">
           <form onSubmit={handleSubmit}>
             <div className="grid gap-4 py-4">
               <div className="grid gap-2">

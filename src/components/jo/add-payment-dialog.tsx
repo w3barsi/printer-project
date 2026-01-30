@@ -12,6 +12,7 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -219,13 +220,15 @@ export function AddPaymentDialog({
                 </FormItem>
               )}
             />
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={form.formState.isSubmitting}
-            >
-              {form.formState.isSubmitting ? "Adding..." : "Add Payment"}
-            </Button>
+            <DialogFooter>
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={form.formState.isSubmitting}
+              >
+                {form.formState.isSubmitting ? "Adding..." : "Add Payment"}
+              </Button>
+            </DialogFooter>
           </form>
         </Form>
       </DialogContent>
