@@ -10,20 +10,32 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Kbd } from "@/components/ui/kbd";
-import { Label } from "@/components/ui/label";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useHotkeys } from "react-hotkeys-hook";
 
+interface FormData {
+  name: string;
+  quantity: number;
+  price: number;
+}
+
 export function AddItemDialog({ joId }: { joId: Id<"jo"> }) {
   const [isOpen, setIsOpen] = useState(false);
-  const { register, handleSubmit, reset } = useForm({
+  const form = useForm<FormData>({
     defaultValues: {
       name: "",
       quantity: 1,
@@ -63,9 +75,9 @@ export function AddItemDialog({ joId }: { joId: Id<"jo"> }) {
     },
   );
 
-  const onSubmit = (data: { name: string; quantity: number; price: number }) => {
+  const onSubmit = (data: FormData) => {
     createItem({ joId, ...data });
-    reset();
+    form.reset();
     setIsOpen(false);
   };
 
@@ -97,39 +109,77 @@ export function AddItemDialog({ joId }: { joId: Id<"jo"> }) {
             Fill in the details below to add a new item to the job order.
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4 py-4">
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="name" className="text-right">
-              Name
-            </Label>
-            <Input id="name" {...register("name")} className="col-span-3" />
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="quantity" className="text-right">
-              Quantity
-            </Label>
-            <Input
-              id="quantity"
-              type="number"
-              {...register("quantity", { valueAsNumber: true })}
-              className="col-span-3"
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="name"
+              rules={{ required: "Name is required" }}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Name</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Item name" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="price" className="text-right">
-              Price
-            </Label>
-            <Input
-              id="price"
-              type="number"
-              {...register("price", { valueAsNumber: true })}
-              className="col-span-3"
+            <FormField
+              control={form.control}
+              name="quantity"
+              rules={{
+                required: "Quantity is required",
+                min: { value: 1, message: "Quantity must be at least 1" },
+              }}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Quantity</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      min="1"
+                      {...field}
+                      onChange={(e) => field.onChange(parseInt(e.target.value))}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
-          <DialogFooter>
-            <Button type="submit">Add Item</Button>
-          </DialogFooter>
-        </form>
+            <FormField
+              control={form.control}
+              name="price"
+              rules={{
+                required: "Price is required",
+                min: { value: 0, message: "Price cannot be negative" },
+              }}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Price</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      placeholder="0.00"
+                      {...field}
+                      onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={form.formState.isSubmitting}
+            >
+              {form.formState.isSubmitting ? "Adding..." : "Add Item"}
+            </Button>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );
