@@ -54,6 +54,8 @@ export default defineSchema({
 
     trelloId: v.optional(v.string()),
 
+    forPrinting: v.optional(v.boolean()),
+
     name: v.union(v.string(), v.id("customer")),
     joNumber: v.number(),
     pickupDate: v.optional(v.number()),

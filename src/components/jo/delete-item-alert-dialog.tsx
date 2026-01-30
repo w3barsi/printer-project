@@ -26,9 +26,8 @@ export function DeleteItemAlertDialog({
 }) {
   const deleteItem = useMutation(api.items.deleteItem);
 
-  if (!item) return null;
-
   const handleDeleteItem = () => {
+    if (!item) return null;
     deleteItem({ itemId: item._id, joId });
     setOpen(false);
   };
