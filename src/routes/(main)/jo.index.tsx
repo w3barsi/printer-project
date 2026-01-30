@@ -3,12 +3,13 @@ import { convexQuery } from "@convex-dev/react-query";
 import { api } from "@convex/_generated/api";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, useNavigate, useRouter } from "@tanstack/react-router";
-import { ArrowLeftIcon, ArrowRightIcon, HashIcon } from "lucide-react";
+import { ArrowLeftIcon, ArrowRightIcon, ChevronRightIcon, HashIcon } from "lucide-react";
 import { Suspense, useRef, useState } from "react";
 
 import { CreateDialog } from "@/components/jo/create-jo";
 import { Container } from "@/components/layouts/container";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
@@ -17,7 +18,6 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-  TableWrapper,
 } from "@/components/ui/table";
 import { useHotkeys } from "react-hotkeys-hook";
 
@@ -45,18 +45,11 @@ export const Route = createFileRoute("/(main)/jo/")({
 
 function RouteComponent() {
   return (
-    <>
-      <Container className="flex flex-col gap-2 md:gap-4">
-        <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold tracking-tight">Job Orders</h1>
-          <CreateDialog />
-        </div>
-
-        <Suspense fallback={<JobOrderListSkeleton />}>
-          <JobOrderList />
-        </Suspense>
-      </Container>
-    </>
+    <Container className="flex flex-col gap-2 md:gap-4">
+      <Suspense fallback={<JobOrderListSkeleton />}>
+        <JobOrderList />
+      </Suspense>
+    </Container>
   );
 }
 
@@ -98,30 +91,44 @@ function JobOrderList() {
   });
 
   return (
-    <div>
-      <TableWrapper>
-        <Table>
-          <TableHeader className="bg-muted">
-            <TableRow>
-              <TableHead className="w-16 font-semibold md:pl-4">
-                <HashIcon className="h-4 w-4" />
-              </TableHead>
-              <TableHead className="font-semibold">Name</TableHead>
-              <TableHead className="hidden font-semibold sm:table-cell">
-                Pickup Date
-              </TableHead>
-              <TableHead className="hidden font-semibold sm:table-cell">
-                Pickup Time
-              </TableHead>
-              <TableHead className="font-semibold">Contact Number</TableHead>
-              <TableHead className="text-right font-semibold">Total Value</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            <JobOrderListBody jos={jos} />
-          </TableBody>
-        </Table>
-      </TableWrapper>
+    <>
+      <Card className="pt-6 pb-0">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <h1 className="text-3xl font-bold"> Job Orders</h1>
+            <CreateDialog />
+          </div>
+        </CardHeader>
+        <CardContent className="p-0">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="text-muted-foreground w-16 text-xs font-semibold uppercase md:pl-4">
+                  <HashIcon className="h-4 w-4" />
+                </TableHead>
+                <TableHead className="text-muted-foreground text-xs font-semibold uppercase">
+                  Name
+                </TableHead>
+                <TableHead className="text-muted-foreground hidden text-xs font-semibold uppercase sm:table-cell">
+                  Pickup Date
+                </TableHead>
+                <TableHead className="text-muted-foreground hidden text-xs font-semibold uppercase sm:table-cell">
+                  Pickup Time
+                </TableHead>
+                <TableHead className="text-muted-foreground text-xs font-semibold uppercase">
+                  Contact Number
+                </TableHead>
+                <TableHead className="text-muted-foreground text-right text-xs font-semibold uppercase">
+                  Total Value
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              <JobOrderListBody jos={jos} />
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
 
       <div className="flex w-full justify-center gap-2 pt-2">
         <Button
@@ -139,7 +146,7 @@ function JobOrderList() {
           Next <ArrowRightIcon />
         </Button>
       </div>
-    </div>
+    </>
   );
 }
 
@@ -190,6 +197,9 @@ function JobOrderListBody({ jos }: { jos: JoWithItems[] }) {
           <TableCell>{jo.contactNumber ? jo.contactNumber : "N/A"}</TableCell>
 
           <TableCell className="text-right md:pr-4">
+            <Button variant="ghost" size="icon" className="invisible">
+              <ChevronRightIcon className="h-4 w-4" />
+            </Button>
             {formatCurrency(
               jo.items.reduce((sum, item) => sum + item.quantity * item.price, 0),
             )}
@@ -202,51 +212,66 @@ function JobOrderListBody({ jos }: { jos: JoWithItems[] }) {
 
 function JobOrderListSkeleton() {
   return (
-    <div className="flex flex-col overflow-hidden rounded">
-      <TableWrapper>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-16 font-semibold md:pl-4">
-                <Skeleton className="h-4 w-4" />
-              </TableHead>
-              <TableHead className="font-semibold">
-                <Skeleton className="h-4 w-16" />
-              </TableHead>
-              <TableHead className="hidden font-semibold sm:table-cell">
-                <Skeleton className="h-4 w-20" />
-              </TableHead>
-              <TableHead className="font-semibold">
-                <Skeleton className="h-4 w-24" />
-              </TableHead>
-              <TableHead className="text-right font-semibold md:pr-4">
-                <Skeleton className="ml-auto h-4 w-16" />
-              </TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {Array.from({ length: 10 }).map((_, index) => (
-              <TableRow key={index}>
-                <TableCell className="w-16 md:pl-4">
-                  <Skeleton className="h-4 w-4" />
-                </TableCell>
-                <TableCell>
-                  <Skeleton className="h-4 w-32" />
-                </TableCell>
-                <TableCell className="hidden sm:table-cell">
-                  <Skeleton className="h-4 w-24" />
-                </TableCell>
-                <TableCell>
-                  <Skeleton className="h-4 w-28" />
-                </TableCell>
-                <TableCell className="text-right md:pr-4">
-                  <Skeleton className="ml-auto h-4 w-20" />
-                </TableCell>
+    <>
+      <Card className="pt-6 pb-0">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <Skeleton className="h-9 w-48" />
+            <Skeleton className="h-9 w-32" />
+          </div>
+        </CardHeader>
+        <CardContent className="p-0">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="text-muted-foreground w-16 text-xs font-semibold uppercase md:pl-4">
+                  <HashIcon className="h-4 w-4" />
+                </TableHead>
+                <TableHead className="text-muted-foreground text-xs font-semibold uppercase">
+                  Name
+                </TableHead>
+                <TableHead className="text-muted-foreground hidden text-xs font-semibold uppercase sm:table-cell">
+                  Pickup Date
+                </TableHead>
+                <TableHead className="text-muted-foreground hidden text-xs font-semibold uppercase sm:table-cell">
+                  Pickup Time
+                </TableHead>
+                <TableHead className="text-muted-foreground text-xs font-semibold uppercase">
+                  Contact Number
+                </TableHead>
+                <TableHead className="text-muted-foreground text-right text-xs font-semibold uppercase">
+                  Total Value
+                </TableHead>
+                <TableHead className="text-muted-foreground w-12 text-xs font-semibold uppercase"></TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableWrapper>
+            </TableHeader>
+            <TableBody>
+              {Array.from({ length: 10 }).map((_, index) => (
+                <TableRow key={index}>
+                  <TableCell className="w-16 py-4.5 md:pl-4">
+                    <Skeleton className="h-4 w-5" />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton className="h-4 w-32" />
+                  </TableCell>
+                  <TableCell className="hidden sm:table-cell">
+                    <Skeleton className="h-4 w-24" />
+                  </TableCell>
+                  <TableCell className="hidden sm:table-cell">
+                    <Skeleton className="h-4 w-20" />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton className="h-4 w-28" />
+                  </TableCell>
+                  <TableCell className="text-right md:pr-4">
+                    <Skeleton className="ml-auto h-4 w-20" />
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
       <div className="flex w-full justify-center gap-2 pt-2">
         <Button variant="outline" disabled>
           <ArrowLeftIcon /> Prev
@@ -255,7 +280,7 @@ function JobOrderListSkeleton() {
           Next <ArrowRightIcon />
         </Button>
       </div>
-    </div>
+    </>
   );
 }
 
