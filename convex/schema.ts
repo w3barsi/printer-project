@@ -70,7 +70,8 @@ export default defineSchema({
     .index("by_trelloId", ["trelloId"])
     .index("by_joNumber", ["joNumber"])
     .index("by_name", ["name"])
-    .index("by_lastUpdated", ["updatedAt"]),
+    .index("by_lastUpdated", ["updatedAt"])
+    .index("by_forPrinting", ["forPrinting"]),
 
   payment: defineTable({
     createdBy: v.id("users"),

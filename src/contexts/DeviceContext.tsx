@@ -13,6 +13,7 @@ interface DeviceProviderProps {
 // Provider component
 export const DeviceProvider = ({ children }: DeviceProviderProps) => {
   const [device, setDevice] = useState<USBDevice | null>(null);
+  const [isPrinterMode, setIsPrinterMode] = useState<boolean>(false);
 
   // Computed property to check if device is connected
   const isConnected = device !== null;
@@ -92,8 +93,10 @@ export const DeviceProvider = ({ children }: DeviceProviderProps) => {
       connectDevice,
       disconnectDevice,
       setDevice,
+      isPrinterMode,
+      setIsPrinterMode,
     }),
-    [device, isConnected, connectDevice, disconnectDevice, setDevice],
+    [device, isConnected, connectDevice, disconnectDevice, setDevice, isPrinterMode],
   );
 
   return <DeviceContext value={value}>{children}</DeviceContext>;

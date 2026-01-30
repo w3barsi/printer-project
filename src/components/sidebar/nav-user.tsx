@@ -18,7 +18,9 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { useDevice } from "@/contexts/DeviceContext";
 import { authClient } from "@/lib/auth-client";
+import { PrinterModeToggle } from "../printer-mode-toggle";
 
 const handleSignOut = async () => {
   await authClient.signOut({
@@ -35,6 +37,7 @@ export function NavUser() {
   const { user } = useRouteContext({ from: "/(main)" });
   const image = user.image ?? undefined;
   const nameFallback = "DG";
+  const { isConnected } = useDevice();
 
   return (
     <SidebarMenu>
@@ -75,6 +78,7 @@ export function NavUser() {
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
+            <PrinterModeToggle />
             <DropdownMenuItem
               onClick={async () => {
                 console.log("Logging out");

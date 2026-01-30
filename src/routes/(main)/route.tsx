@@ -2,6 +2,7 @@ import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 
 import { MainBreadcrumbs } from "@/components/breadcrumbs";
 import { Container } from "@/components/layouts/container";
+import { PrinterModeHandler } from "@/components/printer-mode-handler";
 import { AppSidebar } from "@/components/sidebar/app-sidebar";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Separator } from "@/components/ui/separator";
@@ -50,6 +51,7 @@ function RouteComponent() {
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset>
+        <PrinterModeHandler />
         <Container className="flex h-16 items-center justify-center">
           <header className="mx-auto flex w-full shrink-0 items-center justify-between">
             <div className="flex items-center gap-2">

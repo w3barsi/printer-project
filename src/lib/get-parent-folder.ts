@@ -1,4 +1,4 @@
-import type { Parent } from "@/components/ui/upload-dropzone";
+import type { Parent } from "@/components/ui-custom/upload-dropzone";
 import type { Id } from "@convex/_generated/dataModel";
 import { useParams } from "@tanstack/react-router";
 

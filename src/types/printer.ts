@@ -4,4 +4,6 @@ export interface DeviceContextType {
   connectDevice: () => Promise<void>;
   disconnectDevice: () => Promise<void>;
   setDevice: (device: USBDevice | null) => void;
+  isPrinterMode: boolean;
+  setIsPrinterMode: (value: boolean) => void;
 }

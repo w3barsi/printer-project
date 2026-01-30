@@ -13,6 +13,53 @@ export const markForPrinting = authedMutation({
   },
 });
 
+export const unmarkForPrinting = authedMutation({
+  args: v.object({ joId: v.id("jo") }),
+  handler: async (ctx, args) => {
+    await ctx.db.patch(args.joId, { forPrinting: false });
+  },
+});
+
+export const getForPrinting = authedQuery({
+  args: {},
+  handler: async (ctx) => {
+    const forPrinting = await ctx.db
+      .query("jo")
+      .withIndex("by_forPrinting", (q) => q.eq("forPrinting", true))
+      .collect();
+
+    const completeJosPromise = forPrinting.map(async (jo) => {
+      const items = await ctx.db
+        .query("items")
+        .withIndex("by_joId", (q) => q.eq("joId", jo._id))
+        .collect();
+
+      const payments = await ctx.db
+        .query("payment")
+        .withIndex("by_joId", (q) => q.eq("joId", jo._id))
+        .order("desc")
+        .collect();
+
+      const paymentWithNamePromise = payments.map(async (payment) => {
+        const user = await ctx.db.get(payment.createdBy);
+        return { ...payment, createdByName: user?.name ?? "Unknown" };
+      });
+
+      const paymentWithName = await Promise.all(paymentWithNamePromise);
+
+      const totalPayments = payments.reduce((sum, payment) => sum + payment.amount, 0);
+      const totalOrderValue = items.reduce(
+        (sum, item) => sum + item.quantity * item.price,
+        0,
+      );
+
+      return { ...jo, totalPayments, totalOrderValue, items, payments: paymentWithName };
+    });
+
+    return await Promise.all(completeJosPromise);
+  },
+});
+
 export const deleteJo = authedMutation({
   args: v.object({ joId: v.id("jo") }),
   handler: async (ctx, args) => {
@@ -141,6 +188,45 @@ export const getWithPagination = authedQuery({
       jos: all,
       nextCursor: isDone ? undefined : continueCursor,
     };
+  },
+});
+
+export const getOneCompleteMutation = authedMutation({
+  args: { id: v.id("jo") },
+  handler: async (ctx, args) => {
+    const jo = await ctx.db
+      .query("jo")
+      .withIndex("by_id", (q) => q.eq("_id", args.id))
+      .first();
+    if (!jo) {
+      return null;
+    }
+
+    const items = await ctx.db
+      .query("items")
+      .withIndex("by_joId", (q) => q.eq("joId", jo._id))
+      .collect();
+
+    const payments = await ctx.db
+      .query("payment")
+      .withIndex("by_joId", (q) => q.eq("joId", jo._id))
+      .order("desc")
+      .collect();
+
+    const paymentWithNamePromise = payments.map(async (payment) => {
+      const user = await ctx.db.get(payment.createdBy);
+      return { ...payment, createdByName: user?.name ?? "Unknown" };
+    });
+
+    const paymentWithName = await Promise.all(paymentWithNamePromise);
+
+    const totalPayments = payments.reduce((sum, payment) => sum + payment.amount, 0);
+    const totalOrderValue = items.reduce(
+      (sum, item) => sum + item.quantity * item.price,
+      0,
+    );
+
+    return { ...jo, totalPayments, totalOrderValue, items, payments: paymentWithName };
   },
 });
 
