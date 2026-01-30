@@ -71,7 +71,7 @@ export default function DateAndTimePicker({
   // }, []);
 
   return (
-    <div className="overflow-x-auto rounded-md border">
+    <div className="bg-background rounded-md border">
       <Calendar
         mode="single"
         selected={date}
@@ -81,7 +81,7 @@ export default function DateAndTimePicker({
             setTime(null);
           }
         }}
-        className="w-full min-w-[280px] p-2"
+        className="mx-auto w-full p-2"
         disabled={[
           { before: today }, // Dates before today
         ]}

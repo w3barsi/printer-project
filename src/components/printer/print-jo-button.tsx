@@ -5,18 +5,26 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { useDevice } from "@/contexts/DeviceContext";
 import { printReceipt } from "@/lib/printer";
+import { api } from "@convex/_generated/api";
+import { useMutation } from "convex/react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { Kbd } from "../ui/kbd";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
 export function PrintJoButton({ jo }: { jo: GetOneComplete }) {
   const { device, isConnected } = useDevice();
+  const markForPrinting = useMutation(api.jo.markForPrinting);
 
-  const handlePrint = (e: React.MouseEvent<HTMLButtonElement> | KeyboardEvent) => {
+  const handlePrint = async (e: React.MouseEvent<HTMLButtonElement> | KeyboardEvent) => {
     e.stopPropagation();
     e.preventDefault();
     if (!isConnected) {
-      return toast.error("Printer not connected");
+      try {
+        await markForPrinting({ joId: jo._id });
+        return toast("Marked for printing.", { icon: "🖨️" });
+      } catch (e) {
+        return toast.error("No printer connected.", { icon: "🖨️" });
+      }
     }
     printReceipt({ jo, device });
   };

@@ -6,6 +6,13 @@ import type { Id } from "./_generated/dataModel";
 import { internalMutation, internalQuery } from "./_generated/server";
 import { authedMutation, authedQuery } from "./auth";
 
+export const markForPrinting = authedMutation({
+  args: v.object({ joId: v.id("jo") }),
+  handler: async (ctx, args) => {
+    await ctx.db.patch(args.joId, { forPrinting: true });
+  },
+});
+
 export const deleteJo = authedMutation({
   args: v.object({ joId: v.id("jo") }),
   handler: async (ctx, args) => {

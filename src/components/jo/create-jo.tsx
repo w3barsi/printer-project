@@ -121,14 +121,14 @@ export function CreateDialog() {
           </div>
         </TooltipContent>
       </Tooltip>
-      <DialogContent className="flex max-h-[95vh] flex-col">
-        <DialogHeader className="shrink-0">
+      <DialogContent className="md:max-w-sm">
+        <DialogHeader className="">
           <DialogTitle>Create Job Orders</DialogTitle>
           <DialogDescription>
             Create a new job order to start tracking items and progress.
           </DialogDescription>
         </DialogHeader>
-        <div className="flex-1">
+        <div className="">
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <Controller
               name="name"
