@@ -25,7 +25,7 @@ import {
   useMoveFilesOrFolders,
 } from "@/lib/convex/optimistic-mutations";
 import { cn } from "@/lib/utils";
-import type { Parent } from "../ui/upload-dropzone";
+import type { Parent } from "../ui-custom/upload-dropzone";
 import { CreateFolderDialog } from "./create-folder-dialog";
 import { EntryWrapper } from "./entry";
 import { TotalSpaceUsed } from "./total-space-used";

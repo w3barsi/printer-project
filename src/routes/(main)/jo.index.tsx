@@ -6,7 +6,7 @@ import { createFileRoute, useNavigate, useRouter } from "@tanstack/react-router"
 import { ArrowLeftIcon, ArrowRightIcon, HashIcon } from "lucide-react";
 import { Suspense, useRef, useState } from "react";
 
-import { CreateDialog } from "@/components/create-jo";
+import { CreateDialog } from "@/components/jo/create-jo";
 import { Container } from "@/components/layouts/container";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";

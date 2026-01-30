@@ -3,12 +3,7 @@
 import { useRouteContext } from "@tanstack/react-router";
 import { ChevronsUpDown, LogOut } from "lucide-react";
 
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-  getFallbackFromName,
-} from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -39,7 +34,7 @@ export function NavUser() {
   const { isMobile } = useSidebar();
   const { user } = useRouteContext({ from: "/(main)" });
   const image = user.image ?? undefined;
-  const nameFallback = getFallbackFromName(user.name);
+  const nameFallback = "DG";
 
   return (
     <SidebarMenu>

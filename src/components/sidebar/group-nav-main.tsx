@@ -27,19 +27,21 @@ function ThreeDSidebarItem() {
   const { isMobile, setOpenMobile } = useSidebar();
 
   return (
-    <SidebarMenuButton asChild tooltip="Drive">
-      <Link
-        to="/three"
-        onClick={() => isMobile && setOpenMobile(false)}
-        activeProps={{
-          className: "bg-sidebar-accent text-sidebar-accent-foreground",
-        }}
-        tabIndex={0}
-      >
-        <Rotate3dIcon />
-        <span>3D</span>
-      </Link>
-    </SidebarMenuButton>
+    <SidebarMenuItem>
+      <SidebarMenuButton asChild tooltip="Drive">
+        <Link
+          to="/three"
+          onClick={() => isMobile && setOpenMobile(false)}
+          activeProps={{
+            className: "bg-sidebar-accent text-sidebar-accent-foreground",
+          }}
+          tabIndex={0}
+        >
+          <Rotate3dIcon />
+          <span>3D</span>
+        </Link>
+      </SidebarMenuButton>
+    </SidebarMenuItem>
   );
 }
 
@@ -47,19 +49,21 @@ function DriveSidebarItem() {
   const { isMobile, setOpenMobile } = useSidebar();
 
   return (
-    <SidebarMenuButton asChild tooltip="Drive">
-      <Link
-        to="/drive/{-$drive}"
-        onClick={() => isMobile && setOpenMobile(false)}
-        activeProps={{
-          className: "bg-sidebar-accent text-sidebar-accent-foreground",
-        }}
-        tabIndex={0}
-      >
-        <HardDriveIcon />
-        <span>Drive</span>
-      </Link>
-    </SidebarMenuButton>
+    <SidebarMenuItem>
+      <SidebarMenuButton asChild tooltip="Drive">
+        <Link
+          to="/drive/{-$drive}"
+          onClick={() => isMobile && setOpenMobile(false)}
+          activeProps={{
+            className: "bg-sidebar-accent text-sidebar-accent-foreground",
+          }}
+          tabIndex={0}
+        >
+          <HardDriveIcon />
+          <span>Drive</span>
+        </Link>
+      </SidebarMenuButton>
+    </SidebarMenuItem>
   );
 }
 

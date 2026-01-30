@@ -4,10 +4,10 @@ import { Suspense } from "react";
 
 import { DetailsView } from "@/components/drive/details-view";
 import { Container } from "@/components/layouts/container";
+import { UploadDropzone } from "@/components/ui-custom/upload-dropzone";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { UploadDropzone } from "@/components/ui/upload-dropzone";
 import { SelectedProvider, useSelected } from "@/contexts/SelectedContext";
 import { cn } from "@/lib/utils";
 

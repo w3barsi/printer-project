@@ -306,3 +306,12 @@ code {
     padding-bottom: calc(var(--spacing) * 15) /* 3.75rem = 60px */;
   }
 }
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}

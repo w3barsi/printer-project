@@ -23,6 +23,7 @@ import { useSelected } from "@/contexts/SelectedContext";
 import { useDeleteFilesOrFolders } from "@/lib/convex/optimistic-mutations";
 import { useGetParentFolder } from "@/lib/get-parent-folder";
 import { cn } from "@/lib/utils";
+import type { Parent } from "../ui-custom/upload-dropzone";
 import {
   ContextMenu,
   ContextMenuContent,
@@ -36,7 +37,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
-import type { Parent } from "../ui/upload-dropzone";
 import { RenameDialog } from "./rename-dialog";
 
 export function EntryWrapper({

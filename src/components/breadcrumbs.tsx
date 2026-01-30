@@ -13,7 +13,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import type { Parent } from "./ui/upload-dropzone";
+import type { Parent } from "./ui-custom/upload-dropzone";
 
 type CrumbType = {
   value: string;
