@@ -12,6 +12,7 @@ import { EditItemDialog } from "@/components/jo/edit-item-dialog";
 import { PaymentsCard } from "@/components/jo/payment-card";
 import { Container } from "@/components/layouts/container";
 import { PrintJoButton } from "@/components/printer/print-jo-button";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -189,18 +190,48 @@ function JobOrderHeader() {
     return <div> Error JO Not Found</div>;
   }
 
+  const balance = jo.totalPayments - jo.totalOrderValue;
+  const getStatusBadge = () => {
+    if (balance >= 0) {
+      return (
+        <Badge
+          variant="destructive"
+          className="bg-green-500/10 text-green-600 focus-visible:ring-green-500/20 dark:bg-green-500/20 dark:focus-visible:ring-green-500/40 [a]:hover:bg-green-500/20"
+        >
+          Paid
+        </Badge>
+      );
+    } else if (jo.totalPayments > 0) {
+      return (
+        <Badge
+          variant="destructive"
+          className="bg-amber-500/10 text-amber-500 focus-visible:ring-amber-500/20 dark:bg-amber-500/20 dark:focus-visible:ring-amber-500/40 [a]:hover:bg-amber-500/20"
+        >
+          Partial
+        </Badge>
+      );
+    } else {
+      return <Badge variant="destructive">Unpaid</Badge>;
+    }
+  };
+
   return (
-    <div className="flex items-center justify-between px-2 py-4 md:py-0">
+    <div className="flex items-center justify-between py-4 md:py-0">
       <div className="flex flex-col items-center md:gap-0">
         <span className="flex items-center gap-2">
           <PackageIcon />
           <h1 className="text-3xl font-bold">{jo?.name}</h1>
+          {getStatusBadge()}
         </span>
         <p className="text-muted-foreground text-sm">Job Order #{jo?.joNumber}</p>
       </div>
       <div className="flex gap-2">
         <PrintJoButton jo={jo} />
-        <DeleteJoAlertDialog joId={joId} />
+        <DeleteJoAlertDialog
+          joId={joId}
+          joName={jo.name}
+          joNumber={String(jo.joNumber)}
+        />
       </div>
     </div>
   );
@@ -217,7 +248,6 @@ function JoItemsCard() {
   if (jo === null) {
     return null;
   }
-  console.log(joId);
 
   return (
     <>

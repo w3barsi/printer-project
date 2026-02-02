@@ -5,6 +5,7 @@ import { useMutation } from "convex/react";
 import { PlusIcon } from "lucide-react";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
@@ -77,6 +78,7 @@ export function AddItemDialog({ joId }: { joId: Id<"jo"> }) {
 
   const onSubmit = (data: FormData) => {
     createItem({ joId, ...data });
+    toast.success(`"${data.name}" has been added.`);
     form.reset();
     setIsOpen(false);
   };

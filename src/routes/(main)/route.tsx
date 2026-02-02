@@ -56,10 +56,7 @@ function RouteComponent() {
           <header className="mx-auto flex w-full shrink-0 items-center justify-between">
             <div className="flex items-center gap-2">
               <SidebarTrigger className="-ml-1 size-9" />
-              <Separator
-                orientation="vertical"
-                className="mr-2 data-[orientation=vertical]:h-4"
-              />
+              <Separator orientation="vertical" className="mr-2" />
               <MainBreadcrumbs />
             </div>
             <div>

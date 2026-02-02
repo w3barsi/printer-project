@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "convex/react";
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
@@ -62,7 +63,6 @@ export function EditItemDialog({
 
   const onSubmit = async (data: FormData) => {
     if (!item) return;
-    console.log(joId);
 
     try {
       await editItem({
@@ -72,9 +72,10 @@ export function EditItemDialog({
         quantity: data.quantity,
         price: data.price,
       });
+      toast.success(`"${data.name}" has been updated.`);
       setOpen(false);
     } catch (error) {
-      console.error("Failed to edit item:", error);
+      toast.error("Failed to update item. Please try again.");
     }
   };
 

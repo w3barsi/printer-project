@@ -13,6 +13,8 @@ import {
 import type { Item } from "@/types/convex";
 import type { Id } from "@convex/_generated/dataModel";
 import { useMutation } from "convex/react";
+import { useState } from "react";
+import { toast } from "sonner";
 
 export function DeleteItemAlertDialog({
   open,
@@ -26,26 +28,44 @@ export function DeleteItemAlertDialog({
   joId: Id<"jo">;
 }) {
   const deleteItem = useMutation(api.items.deleteItem);
+  const [isDeleting, setIsDeleting] = useState(false);
 
-  const handleDeleteItem = () => {
+  const handleDeleteItem = async () => {
     if (!item) return null;
-    deleteItem({ itemId: item._id, joId });
-    setOpen(false);
+    setIsDeleting(true);
+    try {
+      await deleteItem({ itemId: item._id, joId });
+      toast.success(`"${item.name}" has been deleted.`);
+      setOpen(false);
+    } catch (error) {
+      toast.error("Failed to delete item. Please try again.");
+    } finally {
+      setIsDeleting(false);
+    }
   };
+
+  if (!item) return null;
 
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
       <AlertDialogContent className="sm:max-w-sm">
         <AlertDialogHeader>
-          <AlertDialogTitle>Are you want to delete this item?</AlertDialogTitle>
+          <AlertDialogTitle>Do you want to delete this item?</AlertDialogTitle>
           <AlertDialogDescription>
-            This action cannot be undone. This will permanently delete this Job Order.
+            This action cannot be undone. This will permanently delete{" "}
+            <strong>{item.name}</strong>.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel variant="outline">Cancel</AlertDialogCancel>
-          <AlertDialogAction variant="destructive" onClick={handleDeleteItem}>
-            Delete
+          <AlertDialogCancel variant="outline" disabled={isDeleting}>
+            Cancel
+          </AlertDialogCancel>
+          <AlertDialogAction
+            variant="destructive"
+            onClick={handleDeleteItem}
+            disabled={isDeleting}
+          >
+            {isDeleting ? "Deleting..." : "Delete"}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

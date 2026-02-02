@@ -2,7 +2,8 @@ import { api } from "@convex/_generated/api";
 import type { Id } from "@convex/_generated/dataModel";
 import { useMutation } from "convex/react";
 import { Trash2Icon } from "lucide-react";
-import { useRef } from "react";
+import { useRef, useState } from "react";
+import { toast } from "sonner";
 
 import {
   AlertDialog,
@@ -21,9 +22,18 @@ import { useHotkeys } from "react-hotkeys-hook";
 import { Kbd } from "../ui/kbd";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
-export function DeleteJoAlertDialog({ joId }: { joId: Id<"jo"> }) {
+export function DeleteJoAlertDialog({
+  joId,
+  joName,
+  joNumber,
+}: {
+  joId: Id<"jo">;
+  joName?: string;
+  joNumber?: string;
+}) {
   const navigate = useNavigate();
   const deleteButtonRef = useRef<HTMLButtonElement>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   useHotkeys("d", () => deleteButtonRef.current?.click());
 
   const mutate = useMutation(api.jo.deleteJo).withOptimisticUpdate((localStore, args) => {
@@ -54,9 +64,21 @@ export function DeleteJoAlertDialog({ joId }: { joId: Id<"jo"> }) {
     );
   });
 
-  const deleteJo = () => {
-    mutate({ joId: joId });
-    navigate({ to: "/jo" });
+  const deleteJo = async () => {
+    setIsDeleting(true);
+    try {
+      await mutate({ joId: joId });
+      toast.success(
+        joName
+          ? `"${joName}" has been deleted.`
+          : `Job Order #${joNumber} has been deleted.`,
+      );
+      navigate({ to: "/jo" });
+    } catch (error) {
+      toast.error("Failed to delete job order. Please try again.");
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   return (
@@ -64,7 +86,12 @@ export function DeleteJoAlertDialog({ joId }: { joId: Id<"jo"> }) {
       <Tooltip>
         <TooltipTrigger asChild>
           <AlertDialogTrigger asChild>
-            <Button variant="destructive-outline" size="icon" ref={deleteButtonRef}>
+            <Button
+              variant="outline"
+              size="icon"
+              className="text-destructive hover:text-destructive hover:bg-destructive/10"
+              ref={deleteButtonRef}
+            >
               <Trash2Icon />
             </Button>
           </AlertDialogTrigger>
@@ -79,14 +106,19 @@ export function DeleteJoAlertDialog({ joId }: { joId: Id<"jo"> }) {
         <AlertDialogHeader>
           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
           <AlertDialogDescription>
-            This action cannot be undone. This will permanently delete this Job Order.
+            This action cannot be undone. This will permanently delete{" "}
+            <strong>"{joName}"</strong>.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction variant="destructive" onClick={deleteJo}>
+          <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+          <AlertDialogAction
+            variant="destructive"
+            onClick={deleteJo}
+            disabled={isDeleting}
+          >
             <Trash2Icon />
-            Delete
+            {isDeleting ? "Deleting..." : "Delete"}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
