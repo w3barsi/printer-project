@@ -243,7 +243,7 @@ function JobOrderHeader() {
 
   return (
     <div className="flex items-center justify-between py-4 md:py-0">
-      <div className="flex flex-col md:gap-0">
+      <div className="flex flex-col pr-4 md:gap-0">
         <h1 className="text-2xl font-bold">{jo?.name}</h1>
         <div className="flex gap-2">
           <p className="text-muted-foreground text-sm">Job Order #{jo?.joNumber}</p>
