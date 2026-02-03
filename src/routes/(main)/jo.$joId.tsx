@@ -3,7 +3,7 @@ import { api } from "@convex/_generated/api";
 import type { Id } from "@convex/_generated/dataModel";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { MoreHorizontalIcon, PackageIcon, PencilIcon, Trash2Icon } from "lucide-react";
+import { MoreHorizontalIcon, PencilIcon, Trash2Icon } from "lucide-react";
 
 import { AddItemDialog } from "@/components/jo/add-item-dialog";
 import { DeleteItemAlertDialog } from "@/components/jo/delete-item-alert-dialog";
@@ -217,13 +217,12 @@ function JobOrderHeader() {
 
   return (
     <div className="flex items-center justify-between py-4 md:py-0">
-      <div className="flex flex-col items-center md:gap-0">
-        <span className="flex items-center gap-2">
-          <PackageIcon />
-          <h1 className="text-3xl font-bold">{jo?.name}</h1>
+      <div className="flex flex-col md:gap-0">
+        <h1 className="text-2xl font-bold">{jo?.name}</h1>
+        <div className="flex gap-2">
+          <p className="text-muted-foreground text-sm">Job Order #{jo?.joNumber}</p>
           {getStatusBadge()}
-        </span>
-        <p className="text-muted-foreground text-sm">Job Order #{jo?.joNumber}</p>
+        </div>
       </div>
       <div className="flex gap-2">
         <PrintJoButton jo={jo} />
