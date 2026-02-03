@@ -12,7 +12,7 @@ type GetDriveQueryData = FunctionReturnType<typeof api.drive.getDrive>;
 export function useMoveFilesOrFolders(parent: Parent) {
   const queryClient = useQueryClient();
 
-  const { mutate } = useMutation<
+  const { mutate, isPending } = useMutation<
     null,
     unknown,
     { ids: Array<Id<"folder"> | Id<"file">>; parent: Parent },
@@ -61,14 +61,14 @@ export function useMoveFilesOrFolders(parent: Parent) {
     },
   });
 
-  return mutate;
+  return { mutate, isPending };
 }
 
 export function useDeleteFilesOrFolders(parent: Parent) {
   const queryClient = useQueryClient();
   const { clearSelected } = useSelected();
 
-  const { mutate } = useMutation<
+  const { mutate, isPending } = useMutation<
     null,
     unknown,
     { ids: Array<Id<"folder"> | Id<"file">> },
@@ -116,7 +116,7 @@ export function useDeleteFilesOrFolders(parent: Parent) {
     },
   });
 
-  return mutate;
+  return { mutate, isPending };
 }
 
 export function useRenameFileOrFolder(parent: Parent) {

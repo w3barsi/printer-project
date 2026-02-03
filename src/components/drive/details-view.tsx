@@ -40,11 +40,11 @@ export function DetailsView() {
   );
   const [isOverTrash, setIsOverTrash] = useState(false);
 
-  const { selected, clearSelected, addSelected } = useSelected();
+  const { selected, clearSelected } = useSelected();
   const { data } = useSuspenseQuery(convexQuery(api.drive.getDrive, { parent }));
 
   const mutate = useMoveFilesOrFolders(parent);
-  const deleteMutate = useDeleteFilesOrFolders(parent);
+  const { mutate: deleteMutate } = useDeleteFilesOrFolders(parent);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -106,7 +106,7 @@ export function DetailsView() {
     const ids =
       selected.length > 0 ? selected : [activeItemId as Id<"folder"> | Id<"file">];
 
-    mutate({
+    mutate.mutate({
       ids,
       parent: overItemId as Parent,
     });
@@ -157,7 +157,7 @@ function TrashButton() {
   const { selected, clearSelected } = useSelected();
 
   const parent = useGetParentFolder();
-  const deleteMutate = useDeleteFilesOrFolders(parent);
+  const { mutate: deleteMutate } = useDeleteFilesOrFolders(parent);
 
   return (
     <Button

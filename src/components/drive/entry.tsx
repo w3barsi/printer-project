@@ -54,7 +54,7 @@ export function EntryWrapper({
 
   const parent = useGetParentFolder();
 
-  const deleteMutate = useDeleteFilesOrFolders(parent);
+  const { mutate: deleteMutate } = useDeleteFilesOrFolders(parent);
 
   const handleClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     if (selected.length === 1 && !e.ctrlKey && isSelected(d._id)) return clearSelected();
@@ -141,7 +141,7 @@ export function EntryWrapper({
 function Entry({ d }: { d: GetDriveType }) {
   const { drive } = useParams({ from: "/(main)/drive/{-$drive}" });
   const parent: Parent = drive ? (drive as Id<"folder">) : "private";
-  const mutate = useDeleteFilesOrFolders(parent);
+  const { mutate: deleteSingleMutate } = useDeleteFilesOrFolders(parent);
 
   return (
     <>
@@ -177,7 +177,7 @@ function Entry({ d }: { d: GetDriveType }) {
             <DropdownMenuItem
               variant="destructive"
               onClick={() => {
-                mutate({ ids: [d._id] });
+                deleteSingleMutate({ ids: [d._id] });
               }}
             >
               <TrashIcon className="size-4" />

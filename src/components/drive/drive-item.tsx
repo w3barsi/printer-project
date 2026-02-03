@@ -50,6 +50,11 @@ export function DriveItem({
       {...listeners}
       {...attributes}
       isDragging={isDragging}
+      role="option"
+      aria-label={`${item.isFile ? "File" : "Folder"}: ${item.name}`}
+      aria-selected={isItemSelected}
+      aria-grabbed={isDragging}
+      tabIndex={0}
     />
   );
 }

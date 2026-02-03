@@ -6,8 +6,10 @@ import { DetailsViewSkeleton } from "@/components/drive/details-view-skeleton";
 import { Container } from "@/components/layouts/container";
 import { UploadDropzone } from "@/components/ui-custom/upload-dropzone";
 import { SelectedProvider, useSelected } from "@/contexts/SelectedContext";
+import { useDeleteFilesOrFolders } from "@/lib/convex/optimistic-mutations";
 import { useGetParentFolder } from "@/lib/get-parent-folder";
 import { cn } from "@/lib/utils";
+import { useHotkeys } from "react-hotkeys-hook";
 
 type BreadcrumbItem = {
   value: string;
@@ -45,8 +47,29 @@ function RouteComponent() {
 }
 
 function Drive() {
-  const { clearSelected } = useSelected();
+  const { selected, clearSelected } = useSelected();
   const parent = useGetParentFolder();
+
+  const { mutate: deleteMutate } = useDeleteFilesOrFolders(parent);
+
+  useHotkeys(
+    "delete",
+    (e) => {
+      e.preventDefault();
+      console.log("DELETE HIT");
+      if (selected.length > 0) {
+        deleteMutate({ ids: selected });
+        clearSelected();
+      }
+    },
+    {
+      enableOnFormTags: true, // Capture even when inputs are focused
+      preventDefault: true, // Prevent browser default Delete behavior
+      enabled: true, // Always enabled
+    },
+    [selected, deleteMutate, clearSelected],
+  ); // Dependencies array
+
   return (
     <div
       className="h-full"
