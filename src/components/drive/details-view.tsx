@@ -14,7 +14,7 @@ import {
   useSensors,
 } from "@dnd-kit/core";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { useNavigate, useParams } from "@tanstack/react-router";
+import { useNavigate } from "@tanstack/react-router";
 import { CornerLeftUpIcon, TrashIcon } from "lucide-react";
 import { useState } from "react";
 
@@ -24,6 +24,7 @@ import {
   useDeleteFilesOrFolders,
   useMoveFilesOrFolders,
 } from "@/lib/convex/optimistic-mutations";
+import { useGetParentFolder } from "@/lib/get-parent-folder";
 import { cn } from "@/lib/utils";
 import type { Parent } from "../ui-custom/upload-dropzone";
 import { CreateFolderDialog } from "./create-folder-dialog";
@@ -59,8 +60,7 @@ function MultiDragPreview({
 }
 
 export function DetailsView() {
-  const { drive } = useParams({ from: "/(main)/drive/{-$drive}" });
-  const parent: Parent = drive ? (drive as Id<"folder">) : "private";
+  const parent = useGetParentFolder();
 
   const [activeId, setActiveId] = useState<string | null>(null);
   const [sharedTransform, setSharedTransform] = useState<{ x: number; y: number } | null>(
@@ -146,7 +146,6 @@ export function DetailsView() {
     if (!selected.includes(activeId as Id<"folder"> | Id<"file">)) {
       addSelected(activeId as Id<"folder"> | Id<"file">);
     }
-    console.log("Dragged item:", active.id);
   }
 
   function handleDragEnd(event: DragEndEvent) {
@@ -158,7 +157,7 @@ export function DetailsView() {
     if (active && over) {
       const activeId = active.id.toString().split("-")[0];
       const overId = over.id.toString().split("-")[0];
-      if (activeId === overId) return console.log("same id");
+      if (activeId === overId) return;
       // TODO: handle trash
       if (overId === "trash") {
         deleteMutate({ ids: selected });
@@ -166,7 +165,6 @@ export function DetailsView() {
         return;
       }
 
-      console.log(overId, activeId);
       const ids =
         selected.length > 0 ? selected : [activeId as Id<"folder"> | Id<"file">];
 
@@ -186,8 +184,7 @@ function TrashButton() {
   });
   const { selected, clearSelected } = useSelected();
 
-  const { drive } = useParams({ from: "/(main)/drive/{-$drive}" });
-  const parent: Parent = drive ? (drive as Id<"folder">) : "private";
+  const parent = useGetParentFolder();
   const deleteMutate = useDeleteFilesOrFolders(parent);
 
   return (
@@ -223,7 +220,6 @@ function ParentFolder({ parentFolder: p }: { parentFolder: GetDriveParentFolderT
           to: "/drive/{-$drive}",
           params: { drive: p._id === "private" ? undefined : p._id },
         });
-        console.log("Double clicked");
       }}
       ref={setNodeRef}
       className={cn(
