@@ -147,7 +147,7 @@ function JoDetails() {
   const itemCount = jo.items.reduce((acc, curr) => acc + curr.quantity * 1, 0);
 
   return (
-    <>
+    <div>
       <div>
         <Card className="block p-0 md:hidden">
           <CardContent className="flex gap-2 p-4">
@@ -204,7 +204,7 @@ function JoDetails() {
           </CardContent>
         </Card>
       </div>
-    </>
+    </div>
   );
 }
 
