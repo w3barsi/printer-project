@@ -71,9 +71,10 @@ export function DetailsView() {
     setIsOverTrash(false);
 
     if (
-      selected.length === 1 &&
+      selected.length >= 1 &&
       !selected.includes(activeItemId as Id<"folder"> | Id<"file">)
     ) {
+      console.log("clearing");
       clearSelected();
     }
 
@@ -92,7 +93,6 @@ export function DetailsView() {
 
     const activeItemId = extractId(active.id);
     const overItemId = extractId(over.id);
-    console.log(over);
 
     if (!activeItemId || !overItemId) return;
     if (activeItemId === overItemId) return;
