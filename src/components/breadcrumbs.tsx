@@ -14,6 +14,8 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import type { Parent } from "./ui-custom/upload-dropzone";
+import { Suspense } from "react";
+import { Skeleton } from "./ui/skeleton";
 
 type CrumbType = {
   value: string;
@@ -65,7 +67,9 @@ function Crumb({ idx, crumb }: { idx: number; crumb: CrumbType }) {
       ) : null}
 
       {crumb.type === "jo" ? <JoCrumb crumb={crumb} /> : null}
+      <Suspense fallback={< Skeleton className="h-4 w-8" />}>
       {crumb.type === "drive" ? <DriveCrumb crumb={crumb} /> : null}
+      </Suspense>
     </>
   );
 }
