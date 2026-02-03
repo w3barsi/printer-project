@@ -58,7 +58,7 @@ function RecentSubMenu() {
       {recent.map((item) => (
         <SidebarMenuItem key={item.id}>
           <SidebarMenuSub>
-            <SidebarMenuSubItem>
+            <SidebarMenuSubItem className="truncate">
               <SidebarMenuSubButton asChild>
                 <Link
                   to={`/jo/$joId`}
