@@ -147,38 +147,64 @@ function JoDetails() {
   const itemCount = jo.items.reduce((acc, curr) => acc + curr.quantity * 1, 0);
 
   return (
-    <div className="flex w-full flex-col gap-2 md:flex-row md:gap-4">
-      <Card className="flex-1 gap-0">
-        <CardHeader>
-          <CardDescription>PICKUP DATE</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <p className="text-xl">
-            {new Date(Number(jo.pickupDate)).toLocaleDateString()}
-          </p>
-        </CardContent>
-      </Card>
-      <Card className="flex-1 gap-0">
-        <CardHeader>
-          <CardDescription>CREATED AT</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <p className="text-xl">
-            {new Date(Number(jo._creationTime)).toLocaleDateString()}
-          </p>
-        </CardContent>
-      </Card>
-      <Card className="flex-1 gap-0">
-        <CardHeader>
-          <CardDescription>TOTAL ITEMS</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <p className="text-xl">
-            {itemCount} {itemCount === 1 ? "item" : "items"}
-          </p>
-        </CardContent>
-      </Card>
-    </div>
+    <>
+      <div>
+        <Card className="block p-0 md:hidden">
+          <CardContent className="flex gap-2 p-4">
+            <div className="flex w-full flex-col items-center">
+              <h3 className="text-muted-foreground">PICKUP DATE</h3>
+              <p className="">{new Date(Number(jo.pickupDate)).toLocaleDateString()}</p>
+            </div>
+            <Separator orientation="vertical" />
+            <div className="flex w-full flex-col items-center">
+              <h3 className="text-muted-foreground">PICKUP DATE</h3>
+              <p className="">
+                {new Date(Number(jo._creationTime)).toLocaleDateString()}
+              </p>
+            </div>
+            <Separator orientation="vertical" />
+            <div className="flex w-full flex-col items-center">
+              <h3 className="text-muted-foreground">TOTAL ITEMS</h3>
+              <p className="">
+                {itemCount} {itemCount === 1 ? "item" : "items"}
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+      <div className="hidden w-full flex-col gap-2 md:flex md:flex-row md:gap-4">
+        <Card className="flex-1 gap-0">
+          <CardHeader>
+            <CardDescription>PICKUP DATE</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-xl">
+              {new Date(Number(jo.pickupDate)).toLocaleDateString()}
+            </p>
+          </CardContent>
+        </Card>
+        <Card className="flex-1 gap-0">
+          <CardHeader>
+            <CardDescription>CREATED AT</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-xl">
+              {new Date(Number(jo._creationTime)).toLocaleDateString()}
+            </p>
+          </CardContent>
+        </Card>
+        <Card className="flex-1 gap-0">
+          <CardHeader>
+            <CardDescription>TOTAL ITEMS</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-xl">
+              {itemCount} {itemCount === 1 ? "item" : "items"}
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    </>
   );
 }
 
