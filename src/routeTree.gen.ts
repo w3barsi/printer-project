@@ -155,10 +155,10 @@ export interface FileRoutesByFullPath {
   '/jo/$joId': typeof mainJoJoIdRoute
   '/trello/$listId': typeof mainTrelloListIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
-  '/jo': typeof mainJoIndexRoute
-  '/trello': typeof mainTrelloIndexRoute
+  '/jo/': typeof mainJoIndexRoute
+  '/trello/': typeof mainTrelloIndexRoute
   '/admin/users': typeof mainadminAdminUsersRoute
-  '/admin': typeof mainadminAdminIndexRoute
+  '/admin/': typeof mainadminAdminIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -222,10 +222,10 @@ export interface FileRouteTypes {
     | '/jo/$joId'
     | '/trello/$listId'
     | '/api/auth/$'
-    | '/jo'
-    | '/trello'
+    | '/jo/'
+    | '/trello/'
     | '/admin/users'
-    | '/admin'
+    | '/admin/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -378,14 +378,14 @@ declare module '@tanstack/react-router' {
     '/(main)/trello/': {
       id: '/(main)/trello/'
       path: '/trello'
-      fullPath: '/trello'
+      fullPath: '/trello/'
       preLoaderRoute: typeof mainTrelloIndexRouteImport
       parentRoute: typeof mainRouteRoute
     }
     '/(main)/jo/': {
       id: '/(main)/jo/'
       path: '/jo'
-      fullPath: '/jo'
+      fullPath: '/jo/'
       preLoaderRoute: typeof mainJoIndexRouteImport
       parentRoute: typeof mainRouteRoute
     }
@@ -427,7 +427,7 @@ declare module '@tanstack/react-router' {
     '/(main)/(admin)/admin/': {
       id: '/(main)/(admin)/admin/'
       path: '/admin'
-      fullPath: '/admin'
+      fullPath: '/admin/'
       preLoaderRoute: typeof mainadminAdminIndexRouteImport
       parentRoute: typeof mainadminRouteRoute
     }
