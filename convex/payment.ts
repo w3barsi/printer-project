@@ -23,7 +23,7 @@ export const createPayment = authedMutation({
       mop,
       note,
     });
-    await ctx.db.patch(joId, { updatedAt: new Date().getTime() });
+    await ctx.db.patch("jo", joId, { updatedAt: new Date().getTime() });
   },
 });
 
@@ -36,7 +36,7 @@ export const deletePayment = authedMutation({
   handler: async (ctx, args) => {
     const { joId, paymentId } = args;
 
-    await ctx.db.delete(paymentId);
-    await ctx.db.patch(joId, { updatedAt: new Date().getTime() });
+    await ctx.db.delete("payment", paymentId);
+    await ctx.db.patch("jo", joId, { updatedAt: new Date().getTime() });
   },
 });

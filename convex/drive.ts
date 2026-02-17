@@ -118,7 +118,7 @@ async function collectItemsToDelete(
     itemsToDelete.push(id);
 
     // Check if this is a folder by getting it from folder table
-    const folder = await ctx.db.get(id as Id<"folder">);
+    const folder = await ctx.db.get("folder", id as Id<"folder">);
     if (folder && folder.parent !== undefined) {
       // This is a folder, recursively collect its contents
       const folderContents = await collectFolderContents(ctx, id as Id<"folder">);
@@ -212,7 +212,7 @@ export const getDrive = authedQuery({
 
     let currentFolder = null;
     if (parent !== "private" && parent !== "public") {
-      const f = await ctx.db.get(parent as Id<"folder">);
+      const f = await ctx.db.get("folder", parent as Id<"folder">);
       currentFolder = {
         ...f,
         type: "folder",
@@ -226,7 +226,7 @@ export const getDrive = authedQuery({
       currentFolder.parent !== "private" &&
       currentFolder.parent !== "public"
     ) {
-      const f = await ctx.db.get(currentFolder.parent as Id<"folder">);
+      const f = await ctx.db.get("folder", currentFolder.parent as Id<"folder">);
       parentFolder = {
         ...f,
         type: "folder",

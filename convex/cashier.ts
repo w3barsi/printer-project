@@ -63,7 +63,7 @@ export const deleteCashflowExpense = authedMutation({
     isStartingCash: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
-    await ctx.db.delete(args.expenseId);
+    await ctx.db.delete("cashflow", args.expenseId);
   },
 });
 
@@ -83,8 +83,8 @@ export const getCashflow = authedQuery({
 
     const payments = await Promise.all(
       rawPayments.map(async (p) => {
-        const user = (await ctx.db.get(p.createdBy)) ?? { name: "Unknown" };
-        const jo = (await ctx.db.get(p.joId)) ?? { name: "Unknown", joNumber: "Unknown" };
+        const user = (await ctx.db.get("users", p.createdBy)) ?? { name: "Unknown" };
+        const jo = (await ctx.db.get("jo", p.joId)) ?? { name: "Unknown", joNumber: "Unknown" };
         return {
           type: "Payment" as const,
           ...p,
@@ -104,7 +104,7 @@ export const getCashflow = authedQuery({
 
     const cashflow = await Promise.all(
       rawCashflow.map(async (e) => {
-        const user = (await ctx.db.get(e.createdBy)) ?? { name: "Unknown" };
+        const user = (await ctx.db.get("users", e.createdBy)) ?? { name: "Unknown" };
         return {
           ...e,
           type: "Cashflow" as const,
@@ -143,8 +143,8 @@ export const listDayData = authedQuery({
       .collect();
 
     const shapedPayments = payments.map(async (p) => {
-      const user = (await ctx.db.get(p.createdBy)) ?? { name: "Unknown" };
-      const jo = (await ctx.db.get(p.joId)) ?? { name: "Unknown", joNumber: "Unknown" };
+      const user = (await ctx.db.get("users", p.createdBy)) ?? { name: "Unknown" };
+      const jo = (await ctx.db.get("jo", p.joId)) ?? { name: "Unknown", joNumber: "Unknown" };
       return {
         ...p,
         createdByName: user.name,
@@ -162,7 +162,7 @@ export const listDayData = authedQuery({
       .collect();
 
     const expensesWithType = expenses.map(async (e) => {
-      const user = (await ctx.db.get(e.createdBy)) ?? { name: "Unknown" };
+      const user = (await ctx.db.get("users", e.createdBy)) ?? { name: "Unknown" };
       return {
         ...e,
         createdByName: user.name,

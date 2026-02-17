@@ -9,14 +9,14 @@ import { authedMutation, authedQuery } from "./auth";
 export const markForPrinting = authedMutation({
   args: v.object({ joId: v.id("jo") }),
   handler: async (ctx, args) => {
-    await ctx.db.patch(args.joId, { forPrinting: true });
+    await ctx.db.patch("jo", args.joId, { forPrinting: true });
   },
 });
 
 export const unmarkForPrinting = authedMutation({
   args: v.object({ joId: v.id("jo") }),
   handler: async (ctx, args) => {
-    await ctx.db.patch(args.joId, { forPrinting: false });
+    await ctx.db.patch("jo", args.joId, { forPrinting: false });
   },
 });
 
@@ -41,7 +41,7 @@ export const getForPrinting = authedQuery({
         .collect();
 
       const paymentWithNamePromise = payments.map(async (payment) => {
-        const user = await ctx.db.get(payment.createdBy);
+        const user = await ctx.db.get("users", payment.createdBy);
         return { ...payment, createdByName: user?.name ?? "Unknown" };
       });
 
@@ -63,23 +63,23 @@ export const getForPrinting = authedQuery({
 export const deleteJo = authedMutation({
   args: v.object({ joId: v.id("jo") }),
   handler: async (ctx, args) => {
-    const jo = await ctx.db.get(args.joId);
+    const jo = await ctx.db.get("jo", args.joId);
 
     // Delete all items
     for await (const payment of ctx.db
       .query("payment")
       .withIndex("by_joId", (q) => q.eq("joId", args.joId))) {
-      await ctx.db.delete(payment._id);
+      await ctx.db.delete("payment", payment._id);
     }
 
     // Delete all items
     for await (const payment of ctx.db
       .query("items")
       .withIndex("by_joId", (q) => q.eq("joId", args.joId))) {
-      await ctx.db.delete(payment._id);
+      await ctx.db.delete("items", payment._id);
     }
 
-    await ctx.db.delete(args.joId);
+    await ctx.db.delete("jo", args.joId);
 
     if (jo?.trelloId) {
       await ctx.scheduler.runAfter(0, internal.trello.archiveTrelloCard, {
@@ -92,7 +92,7 @@ export const deleteJo = authedMutation({
 export const getOne = internalQuery({
   args: { id: v.id("jo") },
   handler: async (ctx, args) => {
-    const jo = await ctx.db.get(args.id);
+    const jo = await ctx.db.get("jo", args.id);
     return jo;
   },
 });
@@ -214,7 +214,7 @@ export const getOneCompleteMutation = authedMutation({
       .collect();
 
     const paymentWithNamePromise = payments.map(async (payment) => {
-      const user = await ctx.db.get(payment.createdBy);
+      const user = await ctx.db.get("users", payment.createdBy);
       return { ...payment, createdByName: user?.name ?? "Unknown" };
     });
 
@@ -253,7 +253,7 @@ export const getOneComplete = authedQuery({
       .collect();
 
     const paymentWithNamePromise = payments.map(async (payment) => {
-      const user = await ctx.db.get(payment.createdBy);
+      const user = await ctx.db.get("users", payment.createdBy);
       return { ...payment, createdByName: user?.name ?? "Unknown" };
     });
 

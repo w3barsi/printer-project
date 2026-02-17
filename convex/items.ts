@@ -11,8 +11,8 @@ export const deleteItem = mutation({
   },
   handler: async (ctx, args) => {
     Promise.all([
-      ctx.db.delete(args.itemId),
-      ctx.db.patch(args.joId, { updatedAt: new Date().getTime() }),
+      ctx.db.delete("items", args.itemId),
+      ctx.db.patch("jo", args.joId, { updatedAt: new Date().getTime() }),
     ]);
   },
 });
@@ -33,7 +33,7 @@ export const createItem = authedMutation({
       price,
       createdBy: ctx.user.userId as Id<"users">,
     });
-    const patchPromise = ctx.db.patch(args.joId, { updatedAt: new Date().getTime() });
+    const patchPromise = ctx.db.patch("jo", args.joId, { updatedAt: new Date().getTime() });
 
     Promise.all([insertPromise, patchPromise]);
   },
@@ -49,8 +49,8 @@ export const updateItem = authedMutation({
   },
   handler: async (ctx, args) => {
     const { joId, itemId, ...rest } = args;
-    await ctx.db.patch(itemId, rest);
+    await ctx.db.patch("items", itemId, rest);
 
-    await ctx.db.patch(joId, { updatedAt: new Date().getTime() });
+    await ctx.db.patch("jo", joId, { updatedAt: new Date().getTime() });
   },
 });

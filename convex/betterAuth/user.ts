@@ -7,7 +7,7 @@ export const setUserId = mutation({
     userId: v.string(),
   },
   handler: async (ctx, args) => {
-    await ctx.db.patch(args.authId, {
+    await ctx.db.patch("user", args.authId, {
       userId: args.userId,
     });
   },
@@ -19,7 +19,7 @@ export const setRole = mutation({
     role: v.union(v.literal("user"), v.literal("admin"), v.literal("cashier")),
   },
   handler: async (ctx, args) => {
-    await ctx.db.patch(args.userId, {
+    await ctx.db.patch("user", args.userId, {
       role: args.role,
     });
   },

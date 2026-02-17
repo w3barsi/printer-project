@@ -86,7 +86,7 @@ export const saveTrelloidToJo = internalMutation({
   args: { joId: v.id("jo"), trelloId: v.string() },
   handler: async (ctx, args) => {
     const { joId, trelloId } = args;
-    ctx.db.patch(joId, { trelloId: trelloId });
+    ctx.db.patch("jo", joId, { trelloId: trelloId });
   },
 });
 

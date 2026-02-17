@@ -52,7 +52,7 @@ export const authComponent = createClient<DataModel, typeof authSchema>(
         },
 
         onUpdate: async (ctx, newDoc, oldDoc) => {
-          return ctx.db.patch(oldDoc.userId as Id<"users">, {
+          return ctx.db.patch("users", oldDoc.userId as Id<"users">, {
             name: newDoc.name,
             username: newDoc.username,
             displayUsername: newDoc.displayUsername,
@@ -66,7 +66,7 @@ export const authComponent = createClient<DataModel, typeof authSchema>(
           });
         },
         onDelete: async (ctx, authUser) => {
-          await ctx.db.delete(authUser.userId as Id<"users">);
+          await ctx.db.delete("users", authUser.userId as Id<"users">);
         },
       },
     },

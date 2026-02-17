@@ -10,6 +10,6 @@ export const run = migrations.runner();
 export const joOrderedOn = migrations.define({
   table: "jo",
   migrateOne: async (ctx, jo) => {
-    await ctx.db.patch(jo._id, { orderedOn: jo._creationTime });
+    await ctx.db.patch("jo", jo._id, { orderedOn: jo._creationTime });
   },
 });
