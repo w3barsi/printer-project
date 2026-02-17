@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { Link } from "@tanstack/react-router";
+import { Link, useMatch } from "@tanstack/react-router";
 import { ChevronRight, TrelloIcon } from "lucide-react";
 
 import {
@@ -28,6 +28,8 @@ export function TrelloSidebar() {
     queryFn: getTrelloLists,
   });
   const { isMobile, setOpenMobile } = useSidebar();
+  const match = useMatch({ from: "/(main)/trello/", shouldThrow: false });
+  const listMatch = useMatch({ from: "/(main)/trello/$listId", shouldThrow: false });
 
   if (isLoading) {
     return (
@@ -73,12 +75,10 @@ export function TrelloSidebar() {
   return (
     <Collapsible asChild defaultOpen={isOpen}>
       <SidebarMenuItem>
-        <SidebarMenuButton asChild tooltip="Trello">
+        <SidebarMenuButton asChild tooltip="Trello" isActive={!!match}>
           <Link
             to="/trello"
             onClick={() => isMobile && setOpenMobile(false)}
-            activeOptions={{ exact: true }}
-            activeProps={{ className: "bg-sidebar-accent" }}
             tabIndex={0}
           >
             <TrelloIcon />
@@ -100,12 +100,14 @@ export function TrelloSidebar() {
               <SidebarMenuSub>
                 {lists.map((list) => (
                   <SidebarMenuSubItem key={list.id}>
-                    <SidebarMenuSubButton asChild>
+                    <SidebarMenuSubButton
+                      asChild
+                      isActive={listMatch?.params?.listId === list.id}
+                    >
                       <Link
                         to={`/trello/$listId`}
                         params={{ listId: list.id }}
                         onClick={() => isMobile && setOpenMobile(false)}
-                        activeProps={{ className: "bg-sidebar-accent" }}
                         preload={false}
                         tabIndex={0}
                       >

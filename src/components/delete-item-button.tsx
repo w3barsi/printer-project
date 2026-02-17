@@ -1,12 +1,12 @@
 import { api } from "@convex/_generated/api";
 import type { Id } from "@convex/_generated/dataModel";
-import { createFileRoute } from "@tanstack/react-router";
+import { useParams } from "@tanstack/react-router";
 import { useMutation } from "convex/react";
 
 import { DeleteConfirmButton } from "@/components/ui-custom/delete-confirm-button";
 
 export function DeleteItemButton({ itemId }: { itemId: Id<"items"> }) {
-  const { joId } = createFileRoute("/(main)/jo/$joId")().useParams();
+  const { joId } = useParams({ from: "/(main)/jo/$joId" });
   const deleteItem = useMutation(api.items.deleteItem).withOptimisticUpdate(
     (localStore, args) => {
       const currentValue = localStore.getQuery(api.jo.getOneComplete, {
@@ -29,6 +29,9 @@ export function DeleteItemButton({ itemId }: { itemId: Id<"items"> }) {
   );
 
   return (
-    <DeleteConfirmButton deleteFor="job order" onConfirm={() => deleteItem({ itemId })} />
+    <DeleteConfirmButton
+      deleteFor="job order"
+      onConfirm={() => deleteItem({ itemId, joId: joId as Id<"jo"> })}
+    />
   );
 }

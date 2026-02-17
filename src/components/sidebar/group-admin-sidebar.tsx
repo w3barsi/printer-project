@@ -1,4 +1,4 @@
-import { Link, useRouteContext } from "@tanstack/react-router";
+import { Link, useMatch, useRouteContext } from "@tanstack/react-router";
 import { ShieldUserIcon } from "lucide-react";
 
 import {
@@ -13,6 +13,7 @@ import {
 export function AdminSidebarGroup() {
   const { user } = useRouteContext({ from: "/(main)" });
   const { isMobile, setOpenMobile } = useSidebar();
+  const match = useMatch({ from: "/(main)/(admin)/admin/users", shouldThrow: false });
 
   return (
     <>
@@ -23,13 +24,10 @@ export function AdminSidebarGroup() {
           </SidebarGroupLabel>
           <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton asChild>
+              <SidebarMenuButton asChild isActive={!!match}>
                 <Link
                   to={`/admin/users`}
                   onClick={() => isMobile && setOpenMobile(false)}
-                  activeProps={{
-                    className: "bg-sidebar-accent text-sidebar-accent-foreground",
-                  }}
                   tabIndex={0}
                 >
                   <ShieldUserIcon />
