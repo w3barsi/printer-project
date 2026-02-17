@@ -12,7 +12,7 @@ export default defineConfig({
     host: true,
   },
   ssr: {
-    noExternal: ["@convex-dev/better-auth"],
+    noExternal: ["@convex-dev/better-auth", "@radix-ui/react-alert-dialog"],
   },
   plugins: [
     devtools(),
