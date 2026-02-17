@@ -12,7 +12,6 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as TestfruitsRouteImport } from './routes/testfruits'
 import { Route as TestdndRouteImport } from './routes/testdnd'
 import { Route as ConvexRouteImport } from './routes/convex'
-import { Route as valentinaRouteRouteImport } from './routes/(valentina)/route'
 import { Route as mainRouteRouteImport } from './routes/(main)/route'
 import { Route as authRouteRouteImport } from './routes/(auth)/route'
 import { Route as IndexRouteImport } from './routes/index'
@@ -26,7 +25,6 @@ import { Route as mainadminRouteRouteImport } from './routes/(main)/(admin)/rout
 import { Route as mainTrelloIndexRouteImport } from './routes/(main)/trello.index'
 import { Route as mainJoIndexRouteImport } from './routes/(main)/jo.index'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth.$'
-import { Route as valentinaValentinaStepRouteImport } from './routes/(valentina)/valentina.$step'
 import { Route as mainTrelloListIdRouteImport } from './routes/(main)/trello.$listId'
 import { Route as mainJoJoIdRouteImport } from './routes/(main)/jo.$joId'
 import { Route as mainDriveChar123DriveChar125RouteImport } from './routes/(main)/drive.{-$drive}'
@@ -47,10 +45,6 @@ const TestdndRoute = TestdndRouteImport.update({
 const ConvexRoute = ConvexRouteImport.update({
   id: '/convex',
   path: '/convex',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const valentinaRouteRoute = valentinaRouteRouteImport.update({
-  id: '/(valentina)',
   getParentRoute: () => rootRouteImport,
 } as any)
 const mainRouteRoute = mainRouteRouteImport.update({
@@ -114,11 +108,6 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
 } as any)
-const valentinaValentinaStepRoute = valentinaValentinaStepRouteImport.update({
-  id: '/valentina/$step',
-  path: '/valentina/$step',
-  getParentRoute: () => valentinaRouteRoute,
-} as any)
 const mainTrelloListIdRoute = mainTrelloListIdRouteImport.update({
   id: '/trello/$listId',
   path: '/trello/$listId',
@@ -165,7 +154,6 @@ export interface FileRoutesByFullPath {
   '/drive/{-$drive}': typeof mainDriveChar123DriveChar125Route
   '/jo/$joId': typeof mainJoJoIdRoute
   '/trello/$listId': typeof mainTrelloListIdRoute
-  '/valentina/$step': typeof valentinaValentinaStepRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/jo': typeof mainJoIndexRoute
   '/trello': typeof mainTrelloIndexRoute
@@ -186,7 +174,6 @@ export interface FileRoutesByTo {
   '/drive/{-$drive}': typeof mainDriveChar123DriveChar125Route
   '/jo/$joId': typeof mainJoJoIdRoute
   '/trello/$listId': typeof mainTrelloListIdRoute
-  '/valentina/$step': typeof valentinaValentinaStepRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/jo': typeof mainJoIndexRoute
   '/trello': typeof mainTrelloIndexRoute
@@ -198,7 +185,6 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/(auth)': typeof authRouteRouteWithChildren
   '/(main)': typeof mainRouteRouteWithChildren
-  '/(valentina)': typeof valentinaRouteRouteWithChildren
   '/convex': typeof ConvexRoute
   '/testdnd': typeof TestdndRoute
   '/testfruits': typeof TestfruitsRoute
@@ -213,7 +199,6 @@ export interface FileRoutesById {
   '/(main)/drive/{-$drive}': typeof mainDriveChar123DriveChar125Route
   '/(main)/jo/$joId': typeof mainJoJoIdRoute
   '/(main)/trello/$listId': typeof mainTrelloListIdRoute
-  '/(valentina)/valentina/$step': typeof valentinaValentinaStepRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/(main)/jo/': typeof mainJoIndexRoute
   '/(main)/trello/': typeof mainTrelloIndexRoute
@@ -236,7 +221,6 @@ export interface FileRouteTypes {
     | '/drive/{-$drive}'
     | '/jo/$joId'
     | '/trello/$listId'
-    | '/valentina/$step'
     | '/api/auth/$'
     | '/jo'
     | '/trello'
@@ -257,7 +241,6 @@ export interface FileRouteTypes {
     | '/drive/{-$drive}'
     | '/jo/$joId'
     | '/trello/$listId'
-    | '/valentina/$step'
     | '/api/auth/$'
     | '/jo'
     | '/trello'
@@ -268,7 +251,6 @@ export interface FileRouteTypes {
     | '/'
     | '/(auth)'
     | '/(main)'
-    | '/(valentina)'
     | '/convex'
     | '/testdnd'
     | '/testfruits'
@@ -283,7 +265,6 @@ export interface FileRouteTypes {
     | '/(main)/drive/{-$drive}'
     | '/(main)/jo/$joId'
     | '/(main)/trello/$listId'
-    | '/(valentina)/valentina/$step'
     | '/api/auth/$'
     | '/(main)/jo/'
     | '/(main)/trello/'
@@ -295,7 +276,6 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   authRouteRoute: typeof authRouteRouteWithChildren
   mainRouteRoute: typeof mainRouteRouteWithChildren
-  valentinaRouteRoute: typeof valentinaRouteRouteWithChildren
   ConvexRoute: typeof ConvexRoute
   TestdndRoute: typeof TestdndRoute
   TestfruitsRoute: typeof TestfruitsRoute
@@ -323,13 +303,6 @@ declare module '@tanstack/react-router' {
       path: '/convex'
       fullPath: '/convex'
       preLoaderRoute: typeof ConvexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/(valentina)': {
-      id: '/(valentina)'
-      path: ''
-      fullPath: ''
-      preLoaderRoute: typeof valentinaRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/(main)': {
@@ -422,13 +395,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/auth/$'
       preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
-    }
-    '/(valentina)/valentina/$step': {
-      id: '/(valentina)/valentina/$step'
-      path: '/valentina/$step'
-      fullPath: '/valentina/$step'
-      preLoaderRoute: typeof valentinaValentinaStepRouteImport
-      parentRoute: typeof valentinaRouteRoute
     }
     '/(main)/trello/$listId': {
       id: '/(main)/trello/$listId'
@@ -544,23 +510,10 @@ const mainRouteRouteWithChildren = mainRouteRoute._addFileChildren(
   mainRouteRouteChildren,
 )
 
-interface valentinaRouteRouteChildren {
-  valentinaValentinaStepRoute: typeof valentinaValentinaStepRoute
-}
-
-const valentinaRouteRouteChildren: valentinaRouteRouteChildren = {
-  valentinaValentinaStepRoute: valentinaValentinaStepRoute,
-}
-
-const valentinaRouteRouteWithChildren = valentinaRouteRoute._addFileChildren(
-  valentinaRouteRouteChildren,
-)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   authRouteRoute: authRouteRouteWithChildren,
   mainRouteRoute: mainRouteRouteWithChildren,
-  valentinaRouteRoute: valentinaRouteRouteWithChildren,
   ConvexRoute: ConvexRoute,
   TestdndRoute: TestdndRoute,
   TestfruitsRoute: TestfruitsRoute,

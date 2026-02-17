@@ -71,7 +71,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
         content: "Business management system for DARCYGRAPHiX Advertising",
       },
       {
-        name: "apple-mobile-web-app-capable",
+        name: "mobile-web-app-capable",
         content: "yes",
       },
       {
