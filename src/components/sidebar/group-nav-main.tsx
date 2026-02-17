@@ -1,5 +1,10 @@
 import { Link, useRouteContext } from "@tanstack/react-router";
-import { HardDriveIcon, PiggyBankIcon, Rotate3dIcon } from "lucide-react";
+import {
+  GraduationCapIcon,
+  HardDriveIcon,
+  PiggyBankIcon,
+  Rotate3dIcon,
+} from "lucide-react";
 
 import {
   SidebarGroup,
@@ -16,10 +21,33 @@ export function MainNavGroup() {
       <SidebarMenu>
         <CashflowSidebarItem />
         <DriveSidebarItem />
+        <GraduationSidebarItem />
         <TrelloSidebar />
         <ThreeDSidebarItem />
       </SidebarMenu>
     </SidebarGroup>
+  );
+}
+
+function GraduationSidebarItem() {
+  const { isMobile, setOpenMobile } = useSidebar();
+
+  return (
+    <SidebarMenuItem>
+      <SidebarMenuButton asChild tooltip="Drive">
+        <Link
+          to="/graduation"
+          onClick={() => isMobile && setOpenMobile(false)}
+          activeProps={{
+            className: "bg-sidebar-accent text-sidebar-accent-foreground",
+          }}
+          tabIndex={0}
+        >
+          <GraduationCapIcon />
+          <span>Graduation</span>
+        </Link>
+      </SidebarMenuButton>
+    </SidebarMenuItem>
   );
 }
 

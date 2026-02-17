@@ -7,7 +7,28 @@ export const cashflowType = v.optional(
   v.union(v.literal("Expense"), v.literal("CA"), v.literal("COH")),
 );
 
+const graduationSchema = {
+  school: defineTable({
+    name: v.string(),
+    schoolYear: v.number(),
+  }).index("by_schoolYear", ["schoolYear"]),
+
+  order: defineTable({
+    schoolId: v.id("school"),
+    name: v.string(),
+    quantity: v.number(),
+  }).index("by_schoolId", ["schoolId"]),
+
+  printed: defineTable({
+    schoolId: v.id("school"),
+    gradeId: v.id("grade"),
+    number: v.number(),
+  }).index("by_gradeId", ["gradeId"]),
+};
+
 export default defineSchema({
+  ...graduationSchema,
+
   customer: defineTable({
     name: v.string(),
     handler: v.string(),
