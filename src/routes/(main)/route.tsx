@@ -52,7 +52,11 @@ function RouteComponent() {
       <AppSidebar />
       <SidebarInset>
         <PrinterModeHandler />
-        <Container className="flex h-16 items-center justify-center">
+
+        <Container
+          className="flex h-16 items-center justify-center"
+          parentClassName="bg-card"
+        >
           <header className="mx-auto flex w-full shrink-0 items-center justify-between">
             <div className="flex items-center gap-2">
               <SidebarTrigger className="-ml-1 size-9" />

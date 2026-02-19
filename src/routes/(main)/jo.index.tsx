@@ -91,14 +91,12 @@ function JobOrderList() {
   });
 
   return (
-    <>
-      <Card className="pt-6 pb-0">
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <h1 className="text-3xl font-bold"> Job Orders</h1>
-            <CreateDialog />
-          </div>
-        </CardHeader>
+    <div className="flex flex-col gap-2 md:gap-4">
+      <div className="flex items-center justify-between">
+        <h1 className="text-3xl font-bold"> Job Orders</h1>
+        <CreateDialog />
+      </div>
+      <Card className="pt-0 pb-0">
         <CardContent className="p-0">
           <Table>
             <TableHeader>
@@ -146,7 +144,7 @@ function JobOrderList() {
           Next <ArrowRightIcon />
         </Button>
       </div>
-    </>
+    </div>
   );
 }
 

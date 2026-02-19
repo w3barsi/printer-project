@@ -89,7 +89,7 @@ export function DeleteJoAlertDialog({
             <Button
               variant="outline"
               size="icon"
-              className="text-destructive hover:text-destructive hover:bg-destructive/10"
+              className="text-destructive hover:text-destructive hover:bg-destructive/10 hover:border-destructive/50"
               ref={deleteButtonRef}
             >
               <Trash2Icon />
