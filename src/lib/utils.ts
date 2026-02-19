@@ -14,12 +14,12 @@ export function isStandalonePWA(): boolean {
     // matchMedia()
     (window?.matchMedia("(display-mode: standalone)").matches ||
       // iOS
-      // @ts-ignore
+      // @ts-expect-error iOS non-standard standalone property
       window.navigator?.standalone ||
       // Android
       document.referrer.startsWith("android-app://") ||
       // Windows
-      // @ts-ignore
+      // @ts-expect-error Windows non-standard Windows property
       window?.Windows ||
       /trident.+(msapphost|webview)\//i.test(navigator.userAgent) ||
       document.referrer.startsWith("app-info://platform/microsoft-store"))
