@@ -12,13 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  useSidebar,
-} from "@/components/ui/sidebar";
-import { useDevice } from "@/contexts/DeviceContext";
+import { SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
 import { authClient } from "@/lib/auth-client";
 import { PrinterModeToggle } from "../printer-mode-toggle";
 
@@ -33,11 +27,9 @@ const handleSignOut = async () => {
 };
 
 export function NavUser() {
-  const { isMobile } = useSidebar();
   const { user } = useRouteContext({ from: "/(main)" });
   const image = user.image ?? undefined;
   const nameFallback = "DG";
-  const { isConnected } = useDevice();
 
   return (
     <SidebarMenu>
