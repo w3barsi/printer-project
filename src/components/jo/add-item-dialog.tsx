@@ -49,15 +49,18 @@ export function AddItemDialog({ joId }: { joId: Id<"jo"> }) {
       const currentValue = localStore.getQuery(api.jo.getOneComplete, { id: joId });
       if (!currentValue) return;
 
+      // eslint-disable-next-line react-hooks/purity
+      const now = Date.now();
+
       const newItem = {
-        _id: `optimistic-${Date.now()}` as Id<"items">,
-        _creationTime: Date.now(),
+        _id: `optimistic-${now}` as Id<"items">,
+        _creationTime: now,
         joId: args.joId,
         name: args.name,
         quantity: args.quantity,
         price: args.price,
         createdBy: undefined,
-        updatedAt: Date.now(),
+        updatedAt: now,
       };
 
       const updatedItems = [...currentValue.items, newItem];

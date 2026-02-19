@@ -45,6 +45,9 @@ export function AddCashflow({ date }: { date?: number }) {
       if (!currentValue) return;
       if (!user) return;
 
+      // eslint-disable-next-line react-hooks/purity
+      const now = Date.now();
+
       const newCashflow = {
         type: "Cashflow" as const,
         cashflowType: type,
@@ -53,7 +56,7 @@ export function AddCashflow({ date }: { date?: number }) {
         description,
         amount,
         createdAt: date,
-        _creationTime: Date.now(),
+        _creationTime: now,
         _id: crypto.randomUUID() as Id<"cashflow">,
       };
 

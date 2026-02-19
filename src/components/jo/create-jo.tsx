@@ -66,10 +66,12 @@ export function CreateDialog() {
         getWithPaginationArgs,
       );
 
+      // eslint-disable-next-line react-hooks/purity
+      const now = Date.now();
+
       const newJo = {
         _id: crypto.randomUUID() as Id<"jo">,
-        // eslint-disable-next-line react-hooks/purity
-        _creationTime: Date.now(),
+        _creationTime: now,
         createdBy: userData.user.userId as Id<"users">,
         updatedAt: undefined,
         pickupDate,

@@ -43,6 +43,7 @@ export default function CanvasPrinterComponent({ joId }: { joId: string | null }
             <div className="flex w-full items-center justify-between p-2">
               <span>{jo?.name}</span>
               <span className="text-center">
+                {/* eslint-disable-next-line react-hooks/purity */}
                 {jo?.joNumber ?? Math.floor(Math.random() * 100)}
               </span>
             </div>

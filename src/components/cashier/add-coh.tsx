@@ -45,7 +45,7 @@ export function AddCoh({ start }: { start: number }) {
         ...currentValue,
         startingCash: {
           _id: crypto.randomUUID() as Id<"cashflow">,
-          _creationTime: Date.now(),
+          _creationTime: now,
           amount: args.amount,
           description: args.description,
           type: "Cashflow" as const,

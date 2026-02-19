@@ -48,13 +48,16 @@ export function CreateFolderDialog({
         const folders = currentValue.data.filter((f) => !f.isFile);
         const files = currentValue.data.filter((f) => f.isFile);
 
+        // eslint-disable-next-line react-hooks/purity
+        const now = Date.now();
+
         const newFolders = [
           ...folders,
           {
             isFile: false as const,
             type: "folder",
             _id: crypto.randomUUID() as Id<"folder">,
-            _creationTime: Date.now(),
+            _creationTime: now,
             toDelete: false,
             name,
             parent,

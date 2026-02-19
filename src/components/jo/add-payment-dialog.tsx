@@ -58,10 +58,13 @@ export function AddPaymentDialog({
       const currentValue = localStore.getQuery(api.jo.getOneComplete, { id: joId });
       if (!currentValue) return;
 
+      // eslint-disable-next-line react-hooks/purity
+      const now = Date.now();
+
       const newPayment = {
-        _id: `optimistic-${Date.now()}` as Id<"payment">,
-        _creationTime: Date.now(),
-        createdAt: Date.now(),
+        _id: `optimistic-${now}` as Id<"payment">,
+        _creationTime: now,
+        createdAt: now,
         joId: args.joId,
         amount: args.amount,
         full: args.full,
