@@ -13,7 +13,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import type { Parent } from "./ui-custom/upload-dropzone";
+import type { Parent } from "@/types/drive";
 import { Suspense } from "react";
 import { Skeleton } from "./ui/skeleton";
 

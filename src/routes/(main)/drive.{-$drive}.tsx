@@ -6,7 +6,7 @@ import { DetailsViewSkeleton } from "@/components/drive/details-view-skeleton";
 import { Container } from "@/components/layouts/container";
 import { UploadDropzone } from "@/components/ui-custom/upload-dropzone";
 import { SelectedProvider, useSelected } from "@/contexts/SelectedContext";
-import { useDeleteFilesOrFolders } from "@/lib/convex/optimistic-mutations";
+import { useDeleteSelected } from "@/lib/drive/use-delete-selected";
 import { useGetParentFolder } from "@/lib/get-parent-folder";
 import { cn } from "@/lib/utils";
 import { useHotkeys } from "react-hotkeys-hook";
@@ -47,28 +47,23 @@ function RouteComponent() {
 }
 
 function Drive() {
-  const { selected, clearSelected } = useSelected();
+  const { clearSelected } = useSelected();
   const parent = useGetParentFolder();
-
-  const { mutate: deleteMutate } = useDeleteFilesOrFolders(parent);
+  const { deleteSelected } = useDeleteSelected(parent);
 
   useHotkeys(
     "delete",
     (e) => {
       e.preventDefault();
-      console.log("DELETE HIT");
-      if (selected.length > 0) {
-        deleteMutate({ ids: selected });
-        clearSelected();
-      }
+      deleteSelected();
     },
     {
-      enableOnFormTags: true, // Capture even when inputs are focused
-      preventDefault: true, // Prevent browser default Delete behavior
-      enabled: true, // Always enabled
+      enableOnFormTags: true,
+      preventDefault: true,
+      enabled: true,
     },
-    [selected, deleteMutate, clearSelected],
-  ); // Dependencies array
+    [deleteSelected],
+  );
 
   return (
     <div
@@ -82,7 +77,7 @@ function Drive() {
       <Container className="flex flex-col">
         <UploadDropzone parent={parent} />
         <Suspense fallback={<DetailsViewSkeleton />}>
-          <DetailsView />
+          <DetailsView parent={parent} />
         </Suspense>
       </Container>
     </div>

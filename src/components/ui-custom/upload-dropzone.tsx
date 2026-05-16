@@ -1,12 +1,12 @@
 import { useUploadFile } from "@convex-dev/r2/react";
 import { useConvexMutation } from "@convex-dev/react-query";
 import { api } from "@convex/_generated/api";
-import type { Id } from "@convex/_generated/dataModel";
 import { useMutation } from "@tanstack/react-query";
 import { Loader2, Upload } from "lucide-react";
 import { useId, useState } from "react";
 import { useDropzone } from "react-dropzone";
 
+import type { Parent } from "@/types/drive";
 import { cn } from "@/lib/utils";
 
 type UploadDropzoneProps = {
@@ -22,10 +22,6 @@ type UploadDropzoneProps = {
   // Add any additional props you need.
 };
 
-const PRIVATE = "private" as const;
-const PUBLIC = "public" as const;
-
-export type Parent = typeof PRIVATE | typeof PUBLIC | Id<"folder">; // string for folder IDs
 
 type UploadDropzonePropsNoControl = Omit<UploadDropzoneProps, "control"> & {
   parent: Parent;

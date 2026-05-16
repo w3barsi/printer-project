@@ -1,28 +1,23 @@
 import { useDroppable } from "@dnd-kit/core";
 import { TrashIcon } from "lucide-react";
 
+import type { Parent } from "@/types/drive";
 import { Button } from "@/components/ui/button";
 import { useSelected } from "@/contexts/SelectedContext";
-import { useDeleteFilesOrFolders } from "@/lib/convex/optimistic-mutations";
 import { TRASH_ID } from "@/lib/drive/drag-utils";
-import { useGetParentFolder } from "@/lib/get-parent-folder";
+import { useDeleteSelected } from "@/lib/drive/use-delete-selected";
 import { cn } from "@/lib/utils";
 
-export function TrashButton() {
+export function TrashButton({ parent }: { parent: Parent }) {
   const { setNodeRef, isOver, active } = useDroppable({
     id: TRASH_ID,
   });
-  const { selected, clearSelected } = useSelected();
-
-  const parent = useGetParentFolder();
-  const { mutate: deleteMutate, isPending: isDeleting } = useDeleteFilesOrFolders(parent);
+  const { selected } = useSelected();
+  const { deleteSelected, isDeleting } = useDeleteSelected(parent);
 
   return (
     <Button
-      onClick={() => {
-        deleteMutate({ ids: selected });
-        clearSelected();
-      }}
+      onClick={() => { deleteSelected(); }}
       ref={setNodeRef}
       size="icon"
       variant="destructive"

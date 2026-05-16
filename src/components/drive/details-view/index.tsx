@@ -13,14 +13,11 @@ import {
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
 
-import type { Parent } from "@/components/ui-custom/upload-dropzone";
 import { useSelected } from "@/contexts/SelectedContext";
-import {
-  useDeleteFilesOrFolders,
-  useMoveFilesOrFolders,
-} from "@/lib/convex/optimistic-mutations";
+import { useMoveFilesOrFolders } from "@/lib/convex/optimistic-mutations";
 import { extractId, isTrashTarget, TRASH_ID } from "@/lib/drive/drag-utils";
-import { useGetParentFolder } from "@/lib/get-parent-folder";
+import { useDeleteSelected } from "@/lib/drive/use-delete-selected";
+import type { Parent } from "@/types/drive";
 import { CreateFolderDialog } from "../create-folder-dialog";
 import { DriveItem } from "../drive-item";
 import { TotalSpaceUsed } from "../total-space-used";
@@ -29,9 +26,7 @@ import { MultiDragPreview } from "./multi-drag-preview";
 import { ParentFolder } from "./parent-folder";
 import { TrashButton } from "./trash-button";
 
-export function DetailsView() {
-  const parent = useGetParentFolder();
-
+export function DetailsView({ parent }: { parent: Parent }) {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [sharedTransform, setSharedTransform] = useState<{ x: number; y: number } | null>(
     null,
@@ -42,7 +37,7 @@ export function DetailsView() {
   const { data } = useSuspenseQuery(convexQuery(api.drive.getDrive, { parent }));
 
   const { mutate: moveMutate, isPending: isMoving } = useMoveFilesOrFolders(parent);
-  const { mutate: deleteMutate, isPending: isDeleting } = useDeleteFilesOrFolders(parent);
+  const { deleteSelected, isDeleting } = useDeleteSelected(parent);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -63,12 +58,13 @@ export function DetailsView() {
     const { active } = event;
     const activeItemId = extractId(active.id);
 
-    if (!activeItemId) return;
+    if (!activeItemId) return clearSelected();
 
     setActiveId(active.id as string);
     setIsOverTrash(false);
 
     if (!selected.includes(activeItemId as Id<"folder"> | Id<"file">)) {
+      clearSelected();
       addSelected(activeItemId as Id<"folder"> | Id<"file">);
     }
   }
@@ -88,8 +84,7 @@ export function DetailsView() {
     if (activeItemId === overItemId) return;
 
     if (isTrashTarget(overItemId)) {
-      deleteMutate({ ids: selected });
-      clearSelected();
+      deleteSelected();
       return;
     }
 
@@ -115,7 +110,7 @@ export function DetailsView() {
         <div className="flex items-center justify-between gap-4">
           <div className="flex gap-2">
             <CreateFolderDialog parent={parent} />
-            <TrashButton />
+            <TrashButton parent={parent} />
           </div>
 
           <TotalSpaceUsed />
