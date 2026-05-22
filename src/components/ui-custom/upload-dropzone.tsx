@@ -49,19 +49,21 @@ export function UploadDropzone({
         try {
           await Promise.allSettled(
             files.map(async (file) => {
-              const toastId = toast(
-                <UploadToast name={file.name} progress={0} status="uploading" />,
+              const toastId = toast.custom(
+                () => <UploadToast name={file.name} progress={0} status="uploading" />,
                 { duration: Infinity },
               );
 
               try {
                 const key = await uploadFile(file, (progress) => {
-                  toast(
-                    <UploadToast
-                      name={file.name}
-                      progress={progress}
-                      status="uploading"
-                    />,
+                  toast.custom(
+                    () => (
+                      <UploadToast
+                        name={file.name}
+                        progress={progress}
+                        status="uploading"
+                      />
+                    ),
                     { id: toastId, duration: Infinity },
                   );
                 });
@@ -78,14 +80,20 @@ export function UploadDropzone({
                   ],
                 });
 
-                toast(
-                  <UploadToast name={file.name} progress={100} status="done" />,
-                  { id: toastId, duration: 3000 },
+                toast.custom(
+                  () => <UploadToast name={file.name} progress={100} status="done" />,
+                  {
+                    id: toastId,
+                    duration: 3000,
+                  },
                 );
               } catch (error) {
-                toast(
-                  <UploadToast name={file.name} progress={0} status="error" />,
-                  { id: toastId, duration: 4000 },
+                toast.custom(
+                  () => <UploadToast name={file.name} progress={0} status="error" />,
+                  {
+                    id: toastId,
+                    duration: 4000,
+                  },
                 );
                 console.error(`Upload failed for ${file.name}:`, error);
               }
