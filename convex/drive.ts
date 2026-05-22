@@ -118,7 +118,12 @@ async function collectItemsToDelete(
     itemsToDelete.push(id);
 
     // Check if this is a folder by getting it from folder table
-    const folder = await ctx.db.get("folder", id as Id<"folder">);
+    let folder = null;
+    try {
+      folder = await ctx.db.get("folder", id as Id<"folder">);
+    } catch (e: any) {
+      if (!e.message?.includes("expected to be an Id")) throw e;
+    }
     if (folder && folder.parent !== undefined) {
       // This is a folder, recursively collect its contents
       const folderContents = await collectFolderContents(ctx, id as Id<"folder">);
