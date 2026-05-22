@@ -1,13 +1,15 @@
-import { useUploadFile } from "@convex-dev/r2/react";
 import { useConvexMutation } from "@convex-dev/react-query";
 import { api } from "@convex/_generated/api";
 import { useMutation } from "@tanstack/react-query";
 import { Loader2, Upload } from "lucide-react";
 import { useId, useState } from "react";
 import { useDropzone } from "react-dropzone";
+import { toast } from "sonner";
 
-import type { Parent } from "@/types/drive";
+import { UploadToast } from "@/components/ui-custom/upload-toast";
+import { useUploadFile } from "@/lib/drive/use-upload-file";
 import { cn } from "@/lib/utils";
+import type { Parent } from "@/types/drive";
 
 type UploadDropzoneProps = {
   accept?: string;
@@ -22,7 +24,6 @@ type UploadDropzoneProps = {
   // Add any additional props you need.
 };
 
-
 type UploadDropzonePropsNoControl = Omit<UploadDropzoneProps, "control"> & {
   parent: Parent;
 };
@@ -34,12 +35,11 @@ export function UploadDropzone({
 }: UploadDropzonePropsNoControl) {
   const id = useId();
 
-  const { mutate: saveFileToDb } = useMutation({
+  const { mutateAsync: saveFileToDb } = useMutation({
     mutationFn: useConvexMutation(api.drive.saveFileToDb),
   });
 
-  // Use the Convex R2 upload hook
-  const uploadFile = useUploadFile(api.r2);
+  const { uploadFile } = useUploadFile();
   const [isPending, setIsPending] = useState(false);
 
   const { getRootProps, getInputProps, isDragActive, inputRef } = useDropzone({
@@ -47,26 +47,50 @@ export function UploadDropzone({
       if (files.length > 0 && !isPending) {
         setIsPending(true);
         try {
-          // Upload files using R2
-          for (const file of files) {
-            const key = await uploadFile(file);
-            console.log("Upload result key:", key);
+          await Promise.allSettled(
+            files.map(async (file) => {
+              const toastId = toast(
+                <UploadToast name={file.name} progress={0} status="uploading" />,
+                { duration: Infinity },
+              );
 
-            // Save file info to database
-            saveFileToDb({
-              files: [
-                {
-                  parent,
-                  name: file.name,
-                  key,
-                  type: file.type,
-                  size: file.size,
-                },
-              ],
-            });
-          }
-        } catch (error) {
-          console.error("Upload failed:", error);
+              try {
+                const key = await uploadFile(file, (progress) => {
+                  toast(
+                    <UploadToast
+                      name={file.name}
+                      progress={progress}
+                      status="uploading"
+                    />,
+                    { id: toastId, duration: Infinity },
+                  );
+                });
+
+                await saveFileToDb({
+                  files: [
+                    {
+                      parent,
+                      name: file.name,
+                      key,
+                      type: file.type,
+                      size: file.size,
+                    },
+                  ],
+                });
+
+                toast(
+                  <UploadToast name={file.name} progress={100} status="done" />,
+                  { id: toastId, duration: 3000 },
+                );
+              } catch (error) {
+                toast(
+                  <UploadToast name={file.name} progress={0} status="error" />,
+                  { id: toastId, duration: 4000 },
+                );
+                console.error(`Upload failed for ${file.name}:`, error);
+              }
+            }),
+          );
         } finally {
           setIsPending(false);
         }
