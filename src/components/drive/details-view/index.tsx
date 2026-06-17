@@ -10,6 +10,7 @@ import {
   useSensors,
 } from "@dnd-kit/core";
 import { useSuspenseQuery } from "@tanstack/react-query";
+import { FolderOpenIcon } from "lucide-react";
 import { useState } from "react";
 
 import { useSelected } from "@/contexts/SelectedContext";
@@ -131,15 +132,22 @@ export function DetailsView({ parent }: { parent: Parent }) {
           {data.currentFolder && data.parentFolder && (
             <ParentFolder parentFolder={data.parentFolder} />
           )}
-          {data.data.map((item: GetDriveType) => (
-            <DriveItem
-              key={item._id}
-              item={item}
-              activeId={activeId}
-              sharedTransform={sharedTransform}
-              isOverTrash={isOverTrash}
-            />
-          ))}
+          {data.data.length === 0 ? (
+            <div className="flex flex-col items-center justify-center gap-3 py-16 text-muted-foreground">
+              <FolderOpenIcon className="size-10" />
+              <p className="text-sm">No files uploaded</p>
+            </div>
+          ) : (
+            data.data.map((item: GetDriveType) => (
+              <DriveItem
+                key={item._id}
+                item={item}
+                activeId={activeId}
+                sharedTransform={sharedTransform}
+                isOverTrash={isOverTrash}
+              />
+            ))
+          )}
         </div>
       </DndContext>
       <DragOverlay>

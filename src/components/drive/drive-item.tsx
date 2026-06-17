@@ -44,6 +44,7 @@ export function DriveItem({
       style={style}
       ref={setNodeRef}
       className={cn(
+        shouldTransform && "opacity-50",
         isItemSelected && "border-blue-800",
         isOver && overId !== activeDragId && "border-blue-500",
         isOverTrash && shouldTransform && "border-red-500",
