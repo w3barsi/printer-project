@@ -20,7 +20,7 @@ import {
 
 export function RecentJobOrdersGroup() {
   const { isMobile, setOpenMobile } = useSidebar();
-  const match = useMatch({ from: "/(main)/jo/", shouldThrow: false });
+  const match = useMatch({ from: "/_main/jo/", shouldThrow: false });
 
   return (
     <SidebarGroup>
@@ -49,7 +49,7 @@ function RecentSubMenu() {
   const { data: recent } = useSuspenseQuery(convexQuery(api.jo.getRecent, {}));
   const [parent] = useAutoAnimate(/* optional config */);
   const { isMobile, setOpenMobile } = useSidebar();
-  const match = useMatch({ from: "/(main)/jo/$joId", shouldThrow: false });
+  const match = useMatch({ from: "/_main/jo/$joId", shouldThrow: false });
 
   return (
     <div ref={parent}>

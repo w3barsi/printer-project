@@ -1,10 +1,5 @@
 import { Link, useMatch, useRouteContext } from "@tanstack/react-router";
-import {
-  GraduationCapIcon,
-  HardDriveIcon,
-  PiggyBankIcon,
-  Rotate3dIcon,
-} from "lucide-react";
+import { HardDriveIcon, PiggyBankIcon, Rotate3dIcon } from "lucide-react";
 
 import {
   SidebarGroup,
@@ -22,7 +17,6 @@ export function MainNavGroup() {
       <SidebarMenu>
         <CashflowSidebarItem />
         <DriveSidebarItem />
-        <GraduationSidebarItem />
         <TrelloSidebar />
         <ThreeDSidebarItem />
       </SidebarMenu>
@@ -30,29 +24,9 @@ export function MainNavGroup() {
   );
 }
 
-function GraduationSidebarItem() {
-  const { isMobile, setOpenMobile } = useSidebar();
-  const match = useMatch({ from: "/(main)/graduation", shouldThrow: false });
-
-  return (
-    <SidebarMenuItem>
-      <SidebarMenuButton asChild tooltip="Drive" isActive={!!match}>
-        <Link
-          to="/graduation"
-          onClick={() => isMobile && setOpenMobile(false)}
-          tabIndex={0}
-        >
-          <GraduationCapIcon />
-          <span>Graduation</span>
-        </Link>
-      </SidebarMenuButton>
-    </SidebarMenuItem>
-  );
-}
-
 function ThreeDSidebarItem() {
   const { isMobile, setOpenMobile } = useSidebar();
-  const match = useMatch({ from: "/(main)/three", shouldThrow: false });
+  const match = useMatch({ from: "/_main/three", shouldThrow: false });
 
   return (
     <SidebarMenuItem>
@@ -68,7 +42,7 @@ function ThreeDSidebarItem() {
 
 function DriveSidebarItem() {
   const { isMobile, setOpenMobile } = useSidebar();
-  const match = useMatch({ from: "/(main)/drive/{-$drive}", shouldThrow: false });
+  const match = useMatch({ from: "/_main/drive/{-$drive}", shouldThrow: false });
 
   return (
     <SidebarMenuItem>
@@ -87,9 +61,9 @@ function DriveSidebarItem() {
 }
 
 function CashflowSidebarItem() {
-  const { user } = useRouteContext({ from: "/(main)" });
+  const { user } = useRouteContext({ from: "/_main" });
   const { isMobile, setOpenMobile } = useSidebar();
-  const match = useMatch({ from: "/(main)/(cashier)/cashflow", shouldThrow: false });
+  const match = useMatch({ from: "/_main/_cashier/cashflow", shouldThrow: false });
 
   return (
     <SidebarMenuItem>

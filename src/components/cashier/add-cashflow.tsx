@@ -19,7 +19,7 @@ import {
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { authClient } from "@/lib/auth-client";
-import { todayZero } from "@/routes/(main)/(cashier)/cashflow";
+import { todayZero } from "@/routes/_main/_cashier/cashflow";
 
 const formSchema = z.object({
   description: z.string().min(1, "Description is required"),
@@ -31,7 +31,7 @@ type FormData = z.infer<typeof formSchema>;
 
 export function AddCashflow({ date }: { date?: number }) {
   const [open, setOpen] = useState(false);
-  const { start } = useSearch({ from: "/(main)/(cashier)/cashflow" });
+  const { start } = useSearch({ from: "/_main/_cashier/cashflow" });
   const dayStart = start ?? todayZero().getTime();
 
   const { data: session } = authClient.useSession();

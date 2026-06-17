@@ -29,8 +29,8 @@ export function TrelloSidebar() {
     queryFn: getTrelloLists,
   });
   const { isMobile, setOpenMobile } = useSidebar();
-  const match = useMatch({ from: "/(main)/trello/", shouldThrow: false });
-  const listMatch = useMatch({ from: "/(main)/trello/$listId", shouldThrow: false });
+  const match = useMatch({ from: "/_main/trello/", shouldThrow: false });
+  const listMatch = useMatch({ from: "/_main/trello/$listId", shouldThrow: false });
 
   if (isLoading) {
     return (

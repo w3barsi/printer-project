@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 
 import { Container } from "@/components/layouts/container";
 
-export const Route = createFileRoute("/(main)/three")({
+export const Route = createFileRoute("/_main/three")({
   component: RouteComponent,
   loader: () => ({
     crumb: [{ value: "3D Viewer", href: "/three", type: "static" }],

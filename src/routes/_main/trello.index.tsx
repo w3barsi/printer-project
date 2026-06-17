@@ -5,7 +5,7 @@ import { Container } from "@/components/layouts/container";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getTrelloLists } from "@/server/trello";
 
-export const Route = createFileRoute("/(main)/trello/")({
+export const Route = createFileRoute("/_main/trello/")({
   component: TrelloPage,
   loader: () => ({
     crumb: [{ value: "Trello", href: "/trello/", type: "static" }],

@@ -39,7 +39,7 @@ export function CreateDialog() {
   const today = new Date();
   const [open, setOpen] = useState(false);
 
-  const userData = useRouteContext({ from: "/(main)/jo/" });
+  const userData = useRouteContext({ from: "/_main/jo/" });
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),

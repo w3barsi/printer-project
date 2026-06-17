@@ -11,9 +11,9 @@ import {
 } from "@/components/ui/sidebar";
 
 export function AdminSidebarGroup() {
-  const { user } = useRouteContext({ from: "/(main)" });
+  const { user } = useRouteContext({ from: "/_main" });
   const { isMobile, setOpenMobile } = useSidebar();
-  const match = useMatch({ from: "/(main)/(admin)/admin/users", shouldThrow: false });
+  const match = useMatch({ from: "/_main/_admin/admin/users", shouldThrow: false });
 
   return (
     <>

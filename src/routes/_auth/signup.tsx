@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { env } from "@/env/client";
 import { authClient } from "@/lib/auth-client";
 
-export const Route = createFileRoute("/(auth)/signup")({
+export const Route = createFileRoute("/_auth/signup")({
   component: SignupForm,
   beforeLoad: () => {
     const FLAG = env.VITE_FLAG_SIGNUP;

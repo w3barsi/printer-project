@@ -17,7 +17,7 @@ type BreadcrumbItem = {
   type: "static" | "drive";
 };
 
-export const Route = createFileRoute("/(main)/drive/{-$drive}")({
+export const Route = createFileRoute("/_main/drive/{-$drive}")({
   component: RouteComponent,
   loader: ({ params }): { crumb: BreadcrumbItem[] } => {
     const crumb: BreadcrumbItem[] =

@@ -28,7 +28,7 @@ const handleSignOut = async () => {
 };
 
 export function NavUser() {
-  const { user } = useRouteContext({ from: "/(main)" });
+  const { user } = useRouteContext({ from: "/_main" });
   const image = user.image ?? undefined;
   const nameFallback = "DG";
 

@@ -140,7 +140,7 @@ export function EntryWrapper({
 }
 
 function Entry({ d }: { d: GetDriveType }) {
-  const { drive } = useParams({ from: "/(main)/drive/{-$drive}" });
+  const { drive } = useParams({ from: "/_main/drive/{-$drive}" });
   const parent: Parent = drive ? (drive as Id<"folder">) : "private";
   const { mutate: deleteSingleMutate } = useDeleteFilesOrFolders(parent);
 

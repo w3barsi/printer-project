@@ -22,7 +22,7 @@ type ImagesFromCard = {
   name: string;
 };
 
-export const Route = createFileRoute("/(main)/trello/$listId")({
+export const Route = createFileRoute("/_main/trello/$listId")({
   component: RouteComponent,
   loader: () => {
     return {

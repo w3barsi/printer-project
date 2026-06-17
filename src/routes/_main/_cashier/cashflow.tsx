@@ -38,7 +38,7 @@ import {
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 
-export const Route = createFileRoute("/(main)/(cashier)/cashflow")({
+export const Route = createFileRoute("/_main/_cashier/cashflow")({
   validateSearch: z.object({
     start: z.number().optional(),
   }),

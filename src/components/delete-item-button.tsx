@@ -6,7 +6,7 @@ import { useMutation } from "convex/react";
 import { DeleteConfirmButton } from "@/components/ui-custom/delete-confirm-button";
 
 export function DeleteItemButton({ itemId }: { itemId: Id<"items"> }) {
-  const { joId } = useParams({ from: "/(main)/jo/$joId" });
+  const { joId } = useParams({ from: "/_main/jo/$joId" });
   const deleteItem = useMutation(api.items.deleteItem).withOptimisticUpdate(
     (localStore, args) => {
       const currentValue = localStore.getQuery(api.jo.getOneComplete, {

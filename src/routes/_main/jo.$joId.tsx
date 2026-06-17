@@ -42,7 +42,7 @@ import {
 import { cn } from "@/lib/utils";
 import type { Item } from "@/types/convex";
 
-export const Route = createFileRoute("/(main)/jo/$joId")({
+export const Route = createFileRoute("/_main/jo/$joId")({
   component: JoDetailComponent,
   loader: async ({ context, params }) => {
     const id = params.joId as Id<"jo">;

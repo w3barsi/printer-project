@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/table";
 import type { JoWithItems } from "@/types/convex";
 
-export const Route = createFileRoute("/(main)/jo/")({
+export const Route = createFileRoute("/_main/jo/")({
   component: RouteComponent,
   loader: async ({ context }) => {
     await context.queryClient.ensureQueryData(
