@@ -29,7 +29,6 @@
 - Do not modify `routeTree.gen.ts`
 - Do not modify anything from `convex/_generated/`
 - NEVER run `pnpm check`
-- **IMPORTANT**: If AI is asked to make a commit, start the commit message with "(AI) " (this helps track AI-generated changes in the repository)
 
 ## Todo Management
 

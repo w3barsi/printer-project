@@ -1,0 +1,31 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "tabWidth": 2,
+  "semi": true,
+  "printWidth": 90,
+  "singleQuote": false,
+  "endOfLine": "lf",
+  "trailingComma": "all",
+  "sortImports": {},
+  "sortTailwindcss": {
+    "stylesheet": "./src/styles.css",
+    "attributes": ["class", "className"],
+    "functions": ["clsx", "cn", "cva", "tw"]
+  },
+  "sortPackageJson": true,
+  "ignorePatterns": [
+    "pnpm-lock.yaml",
+    "package-lock.json",
+    "yarn.lock",
+    "bun.lock",
+    "routeTree.gen.ts",
+    ".tanstack/",
+    "convex/_generated/",
+    "convex/betterAuth/_generated/",
+    ".vercel",
+    ".output",
+    ".wrangler",
+    ".netlify",
+    "dist"
+  ]
+}
