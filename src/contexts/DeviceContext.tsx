@@ -1,6 +1,7 @@
-import type { DeviceContextType } from "@/types/printer";
 import type { ReactNode } from "react";
 import { createContext, use, useCallback, useEffect, useMemo, useState } from "react";
+
+import type { DeviceContextType } from "@/types/printer";
 
 // Create context with undefined as default
 const DeviceContext = createContext<DeviceContextType | undefined>(undefined);

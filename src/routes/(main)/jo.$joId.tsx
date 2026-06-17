@@ -4,6 +4,8 @@ import type { Id } from "@convex/_generated/dataModel";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { MoreHorizontalIcon, PencilIcon, Trash2Icon } from "lucide-react";
+import { useState } from "react";
+import { useHotkeys } from "react-hotkeys-hook";
 
 import { AddItemDialog } from "@/components/jo/add-item-dialog";
 import { DeleteItemAlertDialog } from "@/components/jo/delete-item-alert-dialog";
@@ -39,8 +41,6 @@ import {
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import type { Item } from "@/types/convex";
-import { useState } from "react";
-import { useHotkeys } from "react-hotkeys-hook";
 
 export const Route = createFileRoute("/(main)/jo/$joId")({
   component: JoDetailComponent,
@@ -246,7 +246,7 @@ function JobOrderHeader() {
       <div className="flex flex-col pr-4 md:gap-0">
         <h1 className="text-2xl font-bold">{jo?.name}</h1>
         <div className="flex gap-2">
-          <p className="text-muted-foreground text-sm">Job Order #{jo?.joNumber}</p>
+          <p className="text-sm text-muted-foreground">Job Order #{jo?.joNumber}</p>
           {getStatusBadge()}
         </div>
       </div>
@@ -300,19 +300,19 @@ function JoItemsCard() {
           <Table>
             <TableHeader className="">
               <TableRow>
-                <TableHead className="text-muted-foreground text-xs font-semibold uppercase md:pl-4">
+                <TableHead className="text-xs font-semibold text-muted-foreground uppercase md:pl-4">
                   Item Name
                 </TableHead>
-                <TableHead className="text-muted-foreground text-center text-xs font-semibold uppercase">
+                <TableHead className="text-center text-xs font-semibold text-muted-foreground uppercase">
                   Quantity
                 </TableHead>
-                <TableHead className="text-muted-foreground text-right text-xs font-semibold uppercase">
+                <TableHead className="text-right text-xs font-semibold text-muted-foreground uppercase">
                   Unit Price
                 </TableHead>
-                <TableHead className="text-muted-foreground text-right text-xs font-semibold uppercase">
+                <TableHead className="text-right text-xs font-semibold text-muted-foreground uppercase">
                   Total
                 </TableHead>
-                <TableHead className="text-muted-foreground w-12 text-xs font-semibold uppercase"></TableHead>
+                <TableHead className="w-12 text-xs font-semibold text-muted-foreground uppercase"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -366,7 +366,7 @@ function JoItemsCard() {
                   className="text-lg font-semibold md:pl-4"
                 ></TableCell>
                 <TableCell className="text-right">
-                  <span className="text-muted-foreground text-xs">Total Order Value</span>
+                  <span className="text-xs text-muted-foreground">Total Order Value</span>
                   <p className="text-lg">{formatCurrency(jo.totalOrderValue)}</p>
                 </TableCell>
                 <TableCell className=""></TableCell>

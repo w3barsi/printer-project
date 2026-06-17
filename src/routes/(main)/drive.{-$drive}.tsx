@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Suspense } from "react";
+import { useHotkeys } from "react-hotkeys-hook";
 
 import { DetailsView } from "@/components/drive/details-view";
 import { DetailsViewSkeleton } from "@/components/drive/details-view-skeleton";
@@ -9,7 +10,6 @@ import { SelectedProvider, useSelected } from "@/contexts/SelectedContext";
 import { useDeleteSelected } from "@/lib/drive/use-delete-selected";
 import { useGetParentFolder } from "@/lib/get-parent-folder";
 import { cn } from "@/lib/utils";
-import { useHotkeys } from "react-hotkeys-hook";
 
 type BreadcrumbItem = {
   value: string;

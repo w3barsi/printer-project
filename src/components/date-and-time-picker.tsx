@@ -71,7 +71,7 @@ export default function DateAndTimePicker({
   // }, []);
 
   return (
-    <div className="bg-background overflow-hidden rounded-md border">
+    <div className="overflow-hidden rounded-md border bg-background">
       <Calendar
         mode="single"
         selected={date}

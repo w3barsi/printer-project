@@ -1,10 +1,10 @@
-import type { GetDriveParentFolderType } from "@/types/convex";
 import { useDroppable } from "@dnd-kit/core";
 import { useNavigate } from "@tanstack/react-router";
 import { CornerLeftUpIcon } from "lucide-react";
 
 import { createDropId, extractId } from "@/lib/drive/drag-utils";
 import { cn } from "@/lib/utils";
+import type { GetDriveParentFolderType } from "@/types/convex";
 
 interface ParentFolderProps {
   parentFolder: GetDriveParentFolderType;
@@ -31,7 +31,7 @@ export function ParentFolder({ parentFolder }: ParentFolderProps) {
       }}
       ref={setNodeRef}
       className={cn(
-        "border-border hover:bg-muted/30 bg-card flex h-14 cursor-pointer items-center gap-4 rounded-lg border px-4 transition-colors duration-200 select-none",
+        "flex h-14 cursor-pointer items-center gap-4 rounded-lg border border-border bg-card px-4 transition-colors duration-200 select-none hover:bg-muted/30",
         isOver && overId !== activeId && "border-blue-500",
       )}
       role="button"
@@ -48,7 +48,7 @@ export function ParentFolder({ parentFolder }: ParentFolderProps) {
         }
       }}
     >
-      <CornerLeftUpIcon className="text-muted-foreground size-4" />
+      <CornerLeftUpIcon className="size-4 text-muted-foreground" />
       <h3 className="truncate text-sm font-medium">{parentFolder.name}</h3>
     </div>
   );

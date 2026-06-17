@@ -139,7 +139,7 @@ function SignupForm() {
             </Button>
           </div>
           {errorMessage && (
-            <span className="text-destructive text-center text-sm">{errorMessage}</span>
+            <span className="text-center text-sm text-destructive">{errorMessage}</span>
           )}
         </div>
       </form>

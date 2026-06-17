@@ -35,10 +35,10 @@ function ListViewSkeleton() {
       {Array.from({ length: 6 }).map((_, i) => (
         <div
           key={i}
-          className="bg-card flex h-full w-full flex-col rounded-lg border p-4"
+          className="flex h-full w-full flex-col rounded-lg border bg-card p-4"
         >
           <Skeleton className="mb-2 h-6 w-3/4" />
-          <div className="text-muted-foreground mt-auto space-y-1">
+          <div className="mt-auto space-y-1 text-muted-foreground">
             <Skeleton className="h-4 w-full" />
             <Skeleton className="h-4 w-2/3" />
             <Skeleton className="h-4 w-1/2" />
@@ -87,10 +87,10 @@ function ListView() {
         >
           <div
             key={list.id}
-            className="bg-card flex h-full w-full flex-col rounded-lg border p-4"
+            className="flex h-full w-full flex-col rounded-lg border bg-card p-4"
           >
             <h3 className="mb-2 text-lg font-semibold">{list.name}</h3>
-            <div className="text-muted-foreground mt-auto space-y-1 text-sm">
+            <div className="mt-auto space-y-1 text-sm text-muted-foreground">
               <p>ID: {list.id}</p>
               <p>Position: {list.pos}</p>
               <p>Status: {list.closed ? "Closed" : "Open"}</p>

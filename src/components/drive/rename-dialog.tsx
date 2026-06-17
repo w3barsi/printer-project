@@ -1,5 +1,3 @@
-// src/components/CreateFolderDialog.tsx
-import type { GetDriveType } from "@/types/convex";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRef } from "react";
 import { Controller, useForm } from "react-hook-form";
@@ -18,6 +16,8 @@ import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { useRenameFileOrFolder } from "@/lib/convex/optimistic-mutations";
 import { useGetParentFolder } from "@/lib/get-parent-folder";
+// src/components/CreateFolderDialog.tsx
+import type { GetDriveType } from "@/types/convex";
 
 type RenameDialogProps = {
   d: GetDriveType;

@@ -1,4 +1,3 @@
-import type { GetDriveType } from "@/types/convex";
 import { convexQuery } from "@convex-dev/react-query";
 import { api } from "@convex/_generated/api";
 import type { Id } from "@convex/_generated/dataModel";
@@ -17,11 +16,12 @@ import { useSelected } from "@/contexts/SelectedContext";
 import { useMoveFilesOrFolders } from "@/lib/convex/optimistic-mutations";
 import { extractId, isTrashTarget, TRASH_ID } from "@/lib/drive/drag-utils";
 import { useDeleteSelected } from "@/lib/drive/use-delete-selected";
+import type { GetDriveType } from "@/types/convex";
 import type { Parent } from "@/types/drive";
+
 import { CreateFolderDialog } from "../create-folder-dialog";
 import { DriveItem } from "../drive-item";
 import { TotalSpaceUsed } from "../total-space-used";
-
 import { MultiDragPreview } from "./multi-drag-preview";
 import { ParentFolder } from "./parent-folder";
 import { TrashButton } from "./trash-button";

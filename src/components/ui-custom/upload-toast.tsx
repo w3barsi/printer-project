@@ -11,16 +11,16 @@ type UploadToastProps = {
 
 export function UploadToast({ name, progress, status, errorMessage }: UploadToastProps) {
   return (
-    <div className="bg-popover text-popover-foreground w-89 overflow-hidden rounded-lg border shadow-lg">
+    <div className="w-89 overflow-hidden rounded-lg border bg-popover text-popover-foreground shadow-lg">
       <div className="flex items-start gap-3 p-4 pb-3">
         <div className="mt-0.5 shrink-0">
           {status === "uploading" && (
-            <Loader2Icon className="text-muted-foreground h-4 w-4 animate-spin" />
+            <Loader2Icon className="h-4 w-4 animate-spin text-muted-foreground" />
           )}
           {status === "success" && (
             <CheckCircle2Icon className="h-4 w-4 text-green-500" />
           )}
-          {status === "error" && <XCircleIcon className="text-destructive h-4 w-4" />}
+          {status === "error" && <XCircleIcon className="h-4 w-4 text-destructive" />}
         </div>
         <div className="min-w-0 flex-1">
           <p className="text-sm leading-none font-medium">
@@ -28,7 +28,7 @@ export function UploadToast({ name, progress, status, errorMessage }: UploadToas
             {status === "success" && `${name} uploaded`}
             {status === "error" && "Upload failed"}
           </p>
-          <p className="text-muted-foreground mt-1 text-sm">
+          <p className="mt-1 text-sm text-muted-foreground">
             {status === "uploading" && `${Math.round(progress)}%`}
             {status === "success" && "File uploaded successfully"}
             {status === "error" && (errorMessage || "Something went wrong")}

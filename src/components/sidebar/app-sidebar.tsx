@@ -13,6 +13,7 @@ import {
   SidebarMenuItem,
   SidebarSeparator,
 } from "@/components/ui/sidebar";
+
 import { PrinterButton } from "../printer/printer-button";
 import { AdminSidebarGroup } from "./group-admin-sidebar";
 import { RecentJobOrdersGroup } from "./group-jo-sidebar";
@@ -25,7 +26,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
               <Link to="/">
-                <div className="text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg bg-white p-1">
+                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-white p-1 text-sidebar-primary-foreground">
                   <img src="/logo-small.svg" alt="logo" />
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">

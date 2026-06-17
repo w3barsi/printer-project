@@ -1,8 +1,10 @@
 import { api } from "@convex/_generated/api";
 import type { Id } from "@convex/_generated/dataModel";
+import { useNavigate } from "@tanstack/react-router";
 import { useMutation } from "convex/react";
 import { Trash2Icon } from "lucide-react";
 import { useRef, useState } from "react";
+import { useHotkeys } from "react-hotkeys-hook";
 import { toast } from "sonner";
 
 import {
@@ -17,8 +19,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "@tanstack/react-router";
-import { useHotkeys } from "react-hotkeys-hook";
+
 import { Kbd } from "../ui/kbd";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
@@ -89,7 +90,7 @@ export function DeleteJoAlertDialog({
             <Button
               variant="outline"
               size="icon"
-              className="text-destructive hover:text-destructive hover:bg-destructive/10 hover:border-destructive/50"
+              className="text-destructive hover:border-destructive/50 hover:bg-destructive/10 hover:text-destructive"
               ref={deleteButtonRef}
             >
               <Trash2Icon />

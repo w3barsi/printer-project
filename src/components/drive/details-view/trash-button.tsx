@@ -1,12 +1,12 @@
 import { useDroppable } from "@dnd-kit/core";
 import { TrashIcon } from "lucide-react";
 
-import type { Parent } from "@/types/drive";
 import { Button } from "@/components/ui/button";
 import { useSelected } from "@/contexts/SelectedContext";
 import { TRASH_ID } from "@/lib/drive/drag-utils";
 import { useDeleteSelected } from "@/lib/drive/use-delete-selected";
 import { cn } from "@/lib/utils";
+import type { Parent } from "@/types/drive";
 
 export function TrashButton({ parent }: { parent: Parent }) {
   const { setNodeRef, isOver, active } = useDroppable({
@@ -17,7 +17,9 @@ export function TrashButton({ parent }: { parent: Parent }) {
 
   return (
     <Button
-      onClick={() => { deleteSelected(); }}
+      onClick={() => {
+        deleteSelected();
+      }}
       ref={setNodeRef}
       size="icon"
       variant="destructive"

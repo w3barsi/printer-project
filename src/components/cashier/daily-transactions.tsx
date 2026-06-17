@@ -34,7 +34,7 @@ export function DailyTransactions({
         <div className="flex flex-col rounded border-l-4 border-green-500 bg-green-200 p-2 dark:bg-green-500/20">
           <div className="flex items-baseline gap-2 text-lg font-semibold">
             <span>+₱{d.amount.toFixed(2)}</span>
-            <span className="text-muted-foreground text-sm">
+            <span className="text-sm text-muted-foreground">
               ({d.full ? "Full" : "Partial"})
             </span>
           </div>
@@ -46,7 +46,7 @@ export function DailyTransactions({
             <span>Jo Number #{d.joNumber}</span> -{" "}
             <span className="font-semibold">{d.joName}</span>
           </Link>
-          <p className="text-muted-foreground text-sm">Received by: {d.createdByName}</p>
+          <p className="text-sm text-muted-foreground">Received by: {d.createdByName}</p>
         </div>
       ),
     };
@@ -58,7 +58,7 @@ export function DailyTransactions({
       <div className="flex flex-col rounded border-l-4 border-red-500 bg-red-200 p-2 dark:bg-red-500/20">
         <p className="text-lg font-semibold">+₱{d.amount.toFixed(2)}</p>
         <p>{d.description}</p>
-        <p className="text-muted-foreground text-sm">Received by: {d.createdByName}</p>
+        <p className="text-sm text-muted-foreground">Received by: {d.createdByName}</p>
       </div>
     ),
   }));

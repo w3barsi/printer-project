@@ -3,6 +3,7 @@ import { api } from "@convex/_generated/api";
 import type { Id } from "@convex/_generated/dataModel";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { isMatch, Link, useMatches } from "@tanstack/react-router";
+import { Suspense } from "react";
 import z from "zod";
 
 import {
@@ -14,7 +15,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import type { Parent } from "@/types/drive";
-import { Suspense } from "react";
+
 import { Skeleton } from "./ui/skeleton";
 
 type CrumbType = {
@@ -67,8 +68,8 @@ function Crumb({ idx, crumb }: { idx: number; crumb: CrumbType }) {
       ) : null}
 
       {crumb.type === "jo" ? <JoCrumb crumb={crumb} /> : null}
-      <Suspense fallback={< Skeleton className="h-4 w-8" />}>
-      {crumb.type === "drive" ? <DriveCrumb crumb={crumb} /> : null}
+      <Suspense fallback={<Skeleton className="h-4 w-8" />}>
+        {crumb.type === "drive" ? <DriveCrumb crumb={crumb} /> : null}
       </Suspense>
     </>
   );

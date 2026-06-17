@@ -109,16 +109,16 @@ export function UploadDropzone({
   });
   return (
     <div
-      className={cn("border-input bg-card relative rounded-lg border transition-colors", {
+      className={cn("relative rounded-lg border border-input bg-card transition-colors", {
         "border-primary/80": isDragActive,
       })}
     >
       <label
         {...getRootProps()}
         className={cn(
-          "dark:bg-input/10 flex w-full min-w-72 cursor-pointer flex-col items-center justify-center rounded-lg bg-transparent px-2 py-6 transition-colors",
+          "flex w-full min-w-72 cursor-pointer flex-col items-center justify-center rounded-lg bg-transparent px-2 py-6 transition-colors dark:bg-input/10",
           {
-            "text-muted-foreground cursor-not-allowed": isPending,
+            "cursor-not-allowed text-muted-foreground": isPending,
             "hover:bg-accent dark:hover:bg-accent/30": !isPending,
           },
         )}
@@ -133,7 +133,7 @@ export function UploadDropzone({
         </div>
         <div className="mt-3 space-y-1 text-center">
           <p className="text-sm font-semibold">Drag and drop files here</p>
-          <p className="text-muted-foreground max-w-64 text-xs">
+          <p className="max-w-64 text-xs text-muted-foreground">
             {typeof description === "string" ? (
               description
             ) : (
@@ -157,8 +157,8 @@ export function UploadDropzone({
         />
       </label>
       {isDragActive && (
-        <div className="bg-background pointer-events-none absolute inset-0 rounded-lg">
-          <div className="dark:bg-accent/30 bg-accent flex size-full flex-col items-center justify-center rounded-lg">
+        <div className="pointer-events-none absolute inset-0 rounded-lg bg-background">
+          <div className="flex size-full flex-col items-center justify-center rounded-lg bg-accent dark:bg-accent/30">
             <div className="my-2">
               <Upload className="size-6" />
             </div>

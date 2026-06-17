@@ -110,7 +110,7 @@ function UserManagementTable() {
   return (
     <TableWrapper>
       <Table>
-        <TableHeader className="bg-muted sticky top-0 z-10">
+        <TableHeader className="sticky top-0 z-10 bg-muted">
           <TableRow>
             <TableHead className="md:pl-4">Name</TableHead>
             <TableHead>Email</TableHead>
@@ -293,7 +293,7 @@ function UserTableSkeleton() {
   return (
     <TableWrapper>
       <Table>
-        <TableHeader className="bg-muted sticky top-0 z-10">
+        <TableHeader className="sticky top-0 z-10 bg-muted">
           <TableRow>
             <TableHead>Name</TableHead>
             <TableHead>Email</TableHead>

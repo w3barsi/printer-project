@@ -1,10 +1,10 @@
-import type { JoWithItems } from "@/types/convex";
 import { convexQuery } from "@convex-dev/react-query";
 import { api } from "@convex/_generated/api";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, useNavigate, useRouter } from "@tanstack/react-router";
 import { ArrowLeftIcon, ArrowRightIcon, ChevronRightIcon, HashIcon } from "lucide-react";
 import { Suspense, useRef, useState } from "react";
+import { useHotkeys } from "react-hotkeys-hook";
 
 import { CreateDialog } from "@/components/jo/create-jo";
 import { Container } from "@/components/layouts/container";
@@ -19,7 +19,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useHotkeys } from "react-hotkeys-hook";
+import type { JoWithItems } from "@/types/convex";
 
 export const Route = createFileRoute("/(main)/jo/")({
   component: RouteComponent,
@@ -101,22 +101,22 @@ function JobOrderList() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="text-muted-foreground w-16 text-xs font-semibold uppercase md:pl-4">
+                <TableHead className="w-16 text-xs font-semibold text-muted-foreground uppercase md:pl-4">
                   <HashIcon className="h-4 w-4" />
                 </TableHead>
-                <TableHead className="text-muted-foreground text-xs font-semibold uppercase">
+                <TableHead className="text-xs font-semibold text-muted-foreground uppercase">
                   Name
                 </TableHead>
-                <TableHead className="text-muted-foreground hidden text-xs font-semibold uppercase sm:table-cell">
+                <TableHead className="hidden text-xs font-semibold text-muted-foreground uppercase sm:table-cell">
                   Pickup Date
                 </TableHead>
-                <TableHead className="text-muted-foreground hidden text-xs font-semibold uppercase sm:table-cell">
+                <TableHead className="hidden text-xs font-semibold text-muted-foreground uppercase sm:table-cell">
                   Pickup Time
                 </TableHead>
-                <TableHead className="text-muted-foreground text-xs font-semibold uppercase">
+                <TableHead className="text-xs font-semibold text-muted-foreground uppercase">
                   Contact Number
                 </TableHead>
-                <TableHead className="text-muted-foreground text-right text-xs font-semibold uppercase">
+                <TableHead className="text-right text-xs font-semibold text-muted-foreground uppercase">
                   Total Value
                 </TableHead>
               </TableRow>
@@ -222,25 +222,25 @@ function JobOrderListSkeleton() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="text-muted-foreground w-16 text-xs font-semibold uppercase md:pl-4">
+                <TableHead className="w-16 text-xs font-semibold text-muted-foreground uppercase md:pl-4">
                   <HashIcon className="h-4 w-4" />
                 </TableHead>
-                <TableHead className="text-muted-foreground text-xs font-semibold uppercase">
+                <TableHead className="text-xs font-semibold text-muted-foreground uppercase">
                   Name
                 </TableHead>
-                <TableHead className="text-muted-foreground hidden text-xs font-semibold uppercase sm:table-cell">
+                <TableHead className="hidden text-xs font-semibold text-muted-foreground uppercase sm:table-cell">
                   Pickup Date
                 </TableHead>
-                <TableHead className="text-muted-foreground hidden text-xs font-semibold uppercase sm:table-cell">
+                <TableHead className="hidden text-xs font-semibold text-muted-foreground uppercase sm:table-cell">
                   Pickup Time
                 </TableHead>
-                <TableHead className="text-muted-foreground text-xs font-semibold uppercase">
+                <TableHead className="text-xs font-semibold text-muted-foreground uppercase">
                   Contact Number
                 </TableHead>
-                <TableHead className="text-muted-foreground text-right text-xs font-semibold uppercase">
+                <TableHead className="text-right text-xs font-semibold text-muted-foreground uppercase">
                   Total Value
                 </TableHead>
-                <TableHead className="text-muted-foreground w-12 text-xs font-semibold uppercase"></TableHead>
+                <TableHead className="w-12 text-xs font-semibold text-muted-foreground uppercase"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

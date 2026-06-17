@@ -14,7 +14,7 @@ export function DetailsViewSkeleton() {
         {Array.from({ length: 5 }).map((_, i) => (
           <div
             key={i}
-            className="border-border hover:bg-muted/30 bg-card flex h-14 cursor-pointer items-center gap-4 rounded-lg border px-4 transition-colors duration-200 select-none"
+            className="flex h-14 cursor-pointer items-center gap-4 rounded-lg border border-border bg-card px-4 transition-colors duration-200 select-none hover:bg-muted/30"
           >
             <div className="flex min-w-0 flex-1 items-center gap-3">
               <div className="flex-shrink-0">
@@ -28,7 +28,7 @@ export function DetailsViewSkeleton() {
             </div>
 
             {/* File Details */}
-            <div className="text-muted-foreground flex items-center gap-6 text-sm">
+            <div className="flex items-center gap-6 text-sm text-muted-foreground">
               <div className="text-right">
                 <div className="font-mono">
                   <Skeleton className="size-4" />

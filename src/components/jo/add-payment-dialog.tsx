@@ -5,10 +5,11 @@ import { useMutation } from "convex/react";
 import { PlusIcon } from "lucide-react";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { useHotkeys } from "react-hotkeys-hook";
 import { z } from "zod";
 
 import { authClient } from "@/lib/auth-client";
-import { useHotkeys } from "react-hotkeys-hook";
+
 import { Button } from "../ui/button";
 import {
   Dialog,

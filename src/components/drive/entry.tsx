@@ -1,4 +1,3 @@
-import type { GetDriveType } from "@/types/convex";
 import type { Id } from "@convex/_generated/dataModel";
 import { useNavigate, useParams } from "@tanstack/react-router";
 import {
@@ -23,6 +22,8 @@ import { useSelected } from "@/contexts/SelectedContext";
 import { useDeleteFilesOrFolders } from "@/lib/convex/optimistic-mutations";
 import { useGetParentFolder } from "@/lib/get-parent-folder";
 import { cn } from "@/lib/utils";
+import type { GetDriveType } from "@/types/convex";
+
 import type { Parent } from "../ui-custom/upload-dropzone";
 import {
   ContextMenu,
@@ -98,7 +99,7 @@ export function EntryWrapper({
           onClick={handleClick}
           onDoubleClick={handleDoubleClick}
           className={cn(
-            "border-border hover:bg-muted/30 bg-card flex h-14 cursor-pointer items-center gap-4 rounded-lg border px-4 transition-colors duration-200 select-none",
+            "flex h-14 cursor-pointer items-center gap-4 rounded-lg border border-border bg-card px-4 transition-colors duration-200 select-none hover:bg-muted/30",
             isDragging && "hover:bg-muted",
             className,
           )}
@@ -149,14 +150,14 @@ function Entry({ d }: { d: GetDriveType }) {
         <div className="flex-shrink-0">{getFileIcon(d.type)}</div>
         <div className="min-w-0 flex-1">
           <h3 className="truncate text-sm font-medium">{d.name}</h3>
-          <p className="text-muted-foreground text-xs">
+          <p className="text-xs text-muted-foreground">
             {getFileTypeLabel(d.type.split("/")[0])}
           </p>
         </div>
       </div>
 
       {/* File Details */}
-      <div className="text-muted-foreground flex items-center gap-6 text-sm">
+      <div className="flex items-center gap-6 text-sm text-muted-foreground">
         <div className="text-right">
           <div className="font-mono">{bytesToMB(d.isFile ? d.size : undefined)}</div>
         </div>

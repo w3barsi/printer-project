@@ -1,6 +1,7 @@
-import type { Parent } from "@/types/drive";
 import type { Id } from "@convex/_generated/dataModel";
 import { useParams } from "@tanstack/react-router";
+
+import type { Parent } from "@/types/drive";
 
 export function useGetParentFolder() {
   const { drive } = useParams({ from: "/(main)/drive/{-$drive}" });

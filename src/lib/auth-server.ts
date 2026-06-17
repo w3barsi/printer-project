@@ -1,4 +1,5 @@
 import { convexBetterAuthReactStart } from "@convex-dev/better-auth/react-start";
+
 import { isAuthError } from "./utils";
 
 export const { handler, getToken, fetchAuthQuery, fetchAuthAction, fetchAuthMutation } =

@@ -1,4 +1,3 @@
-import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { convexQuery } from "@convex-dev/react-query";
 import { api } from "@convex/_generated/api";
 import type { Id } from "@convex/_generated/dataModel";
@@ -8,7 +7,9 @@ import { BanknoteIcon, CalendarIcon, UserIcon } from "lucide-react";
 
 import { AddPaymentDialog } from "@/components/jo/add-payment-dialog";
 import { DeleteConfirmButton } from "@/components/ui-custom/delete-confirm-button";
+import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { CardContent } from "@/components/ui/card";
+
 import { Item, ItemActions, ItemContent, ItemTitle } from "../ui/item";
 
 export function PaymentsCard({ joId }: { joId: Id<"jo"> }) {
@@ -59,13 +60,13 @@ export function PaymentsCard({ joId }: { joId: Id<"jo"> }) {
                   <div>
                     <div className="flex items-center gap-2">
                       <CalendarIcon className="size-4" />
-                      <p className="text-muted-foreground text-sm">
+                      <p className="text-sm text-muted-foreground">
                         {new Date(payment._creationTime).toLocaleDateString()}
                       </p>
                     </div>
                     <div className="flex items-center gap-2">
                       <UserIcon className="size-4" />
-                      <p className="text-muted-foreground text-sm">
+                      <p className="text-sm text-muted-foreground">
                         {payment.createdByName}
                       </p>
                     </div>
@@ -87,7 +88,7 @@ export function PaymentsCard({ joId }: { joId: Id<"jo"> }) {
             ))}
           </div>
         ) : (
-          <div className="text-muted-foreground text-center">No payments yet</div>
+          <div className="text-center text-muted-foreground">No payments yet</div>
         )}
       </CardContent>
     </Card>

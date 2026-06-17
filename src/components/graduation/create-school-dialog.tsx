@@ -1,3 +1,6 @@
+import { XIcon } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -8,8 +11,6 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { XIcon } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
 
 interface OrderItem {
   id: string;
@@ -99,7 +100,7 @@ export function CreateSchoolDialog({
           <div className="space-y-3">
             <div className="text-sm font-medium">Orders</div>
             {orders.length === 0 ? (
-              <p className="text-muted-foreground text-sm">No orders added yet</p>
+              <p className="text-sm text-muted-foreground">No orders added yet</p>
             ) : (
               <div className="space-y-3">
                 {orders.map((order) => (
@@ -156,7 +157,7 @@ export function CreateSchoolDialog({
           <button
             type="button"
             onClick={handleAddOrder}
-            className="border-primary bg-primary/5 hover:bg-primary/10 text-primary w-full border-2 border-dashed py-2 text-sm font-medium transition-colors"
+            className="w-full border-2 border-dashed border-primary bg-primary/5 py-2 text-sm font-medium text-primary transition-colors hover:bg-primary/10"
             style={{
               borderRadius: "8px",
             }}

@@ -33,7 +33,9 @@ export const createItem = authedMutation({
       price,
       createdBy: ctx.user.userId as Id<"users">,
     });
-    const patchPromise = ctx.db.patch("jo", args.joId, { updatedAt: new Date().getTime() });
+    const patchPromise = ctx.db.patch("jo", args.joId, {
+      updatedAt: new Date().getTime(),
+    });
 
     Promise.all([insertPromise, patchPromise]);
   },

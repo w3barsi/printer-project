@@ -1,13 +1,14 @@
-import type { GetOneComplete } from "@/types/convex";
+import { api } from "@convex/_generated/api";
+import { useMutation } from "convex/react";
 import { PrinterIcon } from "lucide-react";
+import { useHotkeys } from "react-hotkeys-hook";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { useDevice } from "@/contexts/DeviceContext";
 import { printReceipt } from "@/lib/printer";
-import { api } from "@convex/_generated/api";
-import { useMutation } from "convex/react";
-import { useHotkeys } from "react-hotkeys-hook";
+import type { GetOneComplete } from "@/types/convex";
+
 import { Kbd } from "../ui/kbd";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 

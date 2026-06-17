@@ -1,5 +1,5 @@
-import type { Item } from "@/types/convex";
 import { api } from "@convex/_generated/api";
+import type { Id } from "@convex/_generated/dataModel";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "convex/react";
 import { useEffect } from "react";
@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/dialog";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import type { Id } from "@convex/_generated/dataModel";
+import type { Item } from "@/types/convex";
 
 const formSchema = z.object({
   name: z.string().min(1, "Name is required"),

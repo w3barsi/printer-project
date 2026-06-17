@@ -1,4 +1,3 @@
-import type { GetCashflowQueryType } from "@/types/convex";
 import { api } from "@convex/_generated/api";
 import type { Id } from "@convex/_generated/dataModel";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -18,6 +17,7 @@ import {
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { authClient } from "@/lib/auth-client";
+import type { GetCashflowQueryType } from "@/types/convex";
 
 const formSchema = z.object({
   amount: z.number(),

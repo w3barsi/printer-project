@@ -84,7 +84,10 @@ export const getCashflow = authedQuery({
     const payments = await Promise.all(
       rawPayments.map(async (p) => {
         const user = (await ctx.db.get("users", p.createdBy)) ?? { name: "Unknown" };
-        const jo = (await ctx.db.get("jo", p.joId)) ?? { name: "Unknown", joNumber: "Unknown" };
+        const jo = (await ctx.db.get("jo", p.joId)) ?? {
+          name: "Unknown",
+          joNumber: "Unknown",
+        };
         return {
           type: "Payment" as const,
           ...p,
@@ -144,7 +147,10 @@ export const listDayData = authedQuery({
 
     const shapedPayments = payments.map(async (p) => {
       const user = (await ctx.db.get("users", p.createdBy)) ?? { name: "Unknown" };
-      const jo = (await ctx.db.get("jo", p.joId)) ?? { name: "Unknown", joNumber: "Unknown" };
+      const jo = (await ctx.db.get("jo", p.joId)) ?? {
+        name: "Unknown",
+        joNumber: "Unknown",
+      };
       return {
         ...p,
         createdByName: user.name,

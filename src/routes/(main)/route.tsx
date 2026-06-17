@@ -1,3 +1,5 @@
+import { convexQuery } from "@convex-dev/react-query";
+import { api } from "@convex/_generated/api";
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 
 import { MainBreadcrumbs } from "@/components/breadcrumbs";
@@ -7,8 +9,6 @@ import { AppSidebar } from "@/components/sidebar/app-sidebar";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Separator } from "@/components/ui/separator";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { convexQuery } from "@convex-dev/react-query";
-import { api } from "@convex/_generated/api";
 
 export const Route = createFileRoute("/(main)")({
   component: RouteComponent,
@@ -33,8 +33,8 @@ export const Route = createFileRoute("/(main)")({
 
 export function AnimatedLoading() {
   return (
-    <div className="bg-background flex min-h-screen items-center justify-center">
-      <div className="text-foreground font-mono text-2xl">
+    <div className="flex min-h-screen items-center justify-center bg-background">
+      <div className="font-mono text-2xl text-foreground">
         Loading
         <span className="inline-flex">
           <span className="animate-dot-appear delay-0">.</span>

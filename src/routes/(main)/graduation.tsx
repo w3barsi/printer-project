@@ -1,6 +1,7 @@
+import { createFileRoute } from "@tanstack/react-router";
+
 import { CreateSchoolDialog } from "@/components/graduation/create-school-dialog";
 import { Container } from "@/components/layouts/container";
-import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/(main)/graduation")({
   component: RouteComponent,

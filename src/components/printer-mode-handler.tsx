@@ -1,10 +1,11 @@
-import { useDevice } from "@/contexts/DeviceContext";
-import { printReceipt } from "@/lib/printer";
 import { convexQuery } from "@convex-dev/react-query";
 import { api } from "@convex/_generated/api";
 import { useQuery } from "@tanstack/react-query";
 import { useMutation as useConvexMutation } from "convex/react";
 import { useEffect, useRef } from "react";
+
+import { useDevice } from "@/contexts/DeviceContext";
+import { printReceipt } from "@/lib/printer";
 
 export function PrinterModeHandler() {
   const { device, isPrinterMode } = useDevice();
