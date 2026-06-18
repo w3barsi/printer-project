@@ -1,145 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import {
-  AwardIcon,
-  CarIcon,
-  FlagIcon,
-  GiftIcon,
-  ImageIcon,
-  LayersIcon,
-  LightbulbIcon,
-  MegaphoneIcon,
-  PartyPopperIcon,
-  PenToolIcon,
-  PrinterIcon,
-  StoreIcon,
-} from "lucide-react";
-import type { LucideIcon } from "lucide-react";
-import type { CSSProperties } from "react";
+
+import { MARQUEE_ITEMS, SERVICES, SHOP_THEME, type Service } from "@/lib/services";
 
 export const Route = createFileRoute("/")({
   component: ShopHome,
 });
-
-type Service = {
-  no: string;
-  name: string;
-  blurb: string;
-  icon: LucideIcon;
-};
-
-const SERVICES: Service[] = [
-  {
-    no: "01",
-    name: "Large-Format Digital Printing",
-    blurb:
-      "Billboards, backlit films, and oversized prints with color that stays clear from across the street.",
-    icon: PrinterIcon,
-  },
-  {
-    no: "02",
-    name: "Tarpaulins & Banners",
-    blurb:
-      "Weatherproof tarps and banners for openings, promos, schools, and events - hemmed, grommeted, ready to hang.",
-    icon: FlagIcon,
-  },
-  {
-    no: "03",
-    name: "Commercial & Business Signage",
-    blurb:
-      "Storefronts, wayfinding, and 3D letter signs that help people find you quickly.",
-    icon: StoreIcon,
-  },
-  {
-    no: "04",
-    name: "LED & Neon Signs",
-    blurb:
-      "Bright LED and neon-style signs for shops, counters, windows, and photo-ready walls.",
-    icon: LightbulbIcon,
-  },
-  {
-    no: "05",
-    name: "Acrylic Fabrication",
-    blurb:
-      "Cut, bent, and polished acrylic for light boxes, display stands, and custom ideas.",
-    icon: LayersIcon,
-  },
-  {
-    no: "06",
-    name: "Awards, Plaques & Medals",
-    blurb:
-      "Engraved plaques, cast medals, and trophies made carefully for meaningful moments.",
-    icon: AwardIcon,
-  },
-  {
-    no: "07",
-    name: "Vehicle Graphics & Wraps",
-    blurb:
-      "Full wraps, partial wraps, magnetic signs, and fleet branding that keeps your name moving.",
-    icon: CarIcon,
-  },
-  {
-    no: "08",
-    name: "Advertising Materials",
-    blurb: "Posters, flyers, standees, and promo kits produced fast and finished clean.",
-    icon: MegaphoneIcon,
-  },
-  {
-    no: "09",
-    name: "Graphic Design",
-    blurb:
-      "Layout, identity, and artwork help when you know what you need but not how it should look yet.",
-    icon: PenToolIcon,
-  },
-  {
-    no: "10",
-    name: "Custom Event Printing",
-    blurb:
-      "Backdrops, welcome boards, banners, and one-off pieces for launches, parties, and team events.",
-    icon: PartyPopperIcon,
-  },
-  {
-    no: "11",
-    name: "Promotional Materials",
-    blurb: "Branded merch, tags, and giveaways that keep a logo in customers' hands.",
-    icon: GiftIcon,
-  },
-  {
-    no: "12",
-    name: "Digital Printing Services",
-    blurb:
-      "Short-run digital prints with quick turnaround and friendly proofing before we produce.",
-    icon: ImageIcon,
-  },
-];
-
-const SHOP_THEME: CSSProperties & Record<`--${string}`, string> = {
-  "--shop-bg": "#fff5f1",
-  "--shop-bg-2": "#ffd9d1",
-  "--shop-panel": "#fffaf7",
-  "--shop-ink": "#321917",
-  "--shop-ink-dim": "#704541",
-  "--shop-ink-mute": "#a26862",
-  "--shop-line": "rgba(139, 39, 32, 0.16)",
-  "--shop-line-2": "rgba(139, 39, 32, 0.28)",
-  "--shop-red": "#e1261c",
-  "--shop-white": "#fff5f1",
-  "--shop-silver": "#d63c32",
-};
-
-const MARQUEE_ITEMS = [
-  "Tarpaulins",
-  "LED Signs",
-  "Neon",
-  "Vehicle Wraps",
-  "Acrylic",
-  "Awards & Plaques",
-  "Large-Format",
-  "Digital Print",
-  "Banners",
-  "Signage",
-  "Graphic Design",
-  "Promo Materials",
-];
 
 function ShopHome() {
   return (
@@ -390,7 +255,11 @@ function ShopServices() {
 function ServiceCard({ service }: { service: Service }) {
   const Icon = service.icon;
   return (
-    <div className="group relative flex min-h-64 flex-col gap-6 overflow-hidden rounded-[1.75rem] border border-(--shop-line) bg-(--shop-panel) p-7 shadow-[0_18px_50px_rgba(139,39,32,0.08)] transition-[transform,border-color,box-shadow,background-color] duration-300 hover:border-[rgba(225,38,28,0.38)] hover:bg-[#fff0ec] hover:shadow-[0_24px_60px_rgba(139,39,32,0.13)] md:p-8">
+    <Link
+      to="/showcase/$service"
+      params={{ service: service.slug }}
+      className="group relative flex min-h-64 flex-col gap-6 overflow-hidden rounded-[1.75rem] border border-(--shop-line) bg-(--shop-panel) p-7 shadow-[0_18px_50px_rgba(139,39,32,0.08)] transition-[transform,border-color,box-shadow,background-color] duration-300 hover:-translate-y-1 hover:border-[rgba(225,38,28,0.38)] hover:bg-[#fff0ec] hover:shadow-[0_24px_60px_rgba(139,39,32,0.13)] md:p-8"
+    >
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_0%,rgba(225,38,28,0.14),transparent_38%),radial-gradient(circle_at_90%_18%,rgba(214,60,50,0.1),transparent_34%)] opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
       <div className="flex items-start justify-between">
         <div className="relative flex size-12 items-center justify-center rounded-2xl border border-(--shop-line-2) bg-[#ffe5df] text-(--shop-red) transition-transform duration-300 group-hover:scale-105 group-hover:-rotate-3">
@@ -407,7 +276,7 @@ function ServiceCard({ service }: { service: Service }) {
           {service.blurb}
         </p>
       </div>
-    </div>
+    </Link>
   );
 }
 

@@ -15,6 +15,8 @@ import { Route as ConvexRouteImport } from './routes/convex'
 import { Route as AppRouteRouteImport } from './routes/app/route'
 import { Route as AuthRouteRouteImport } from './routes/_auth/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ShowcaseIndexRouteImport } from './routes/showcase.index'
+import { Route as ShowcaseServiceRouteImport } from './routes/showcase.$service'
 import { Route as AppTesttrelloRouteImport } from './routes/app/testtrello'
 import { Route as AuthSignupRouteImport } from './routes/_auth/signup'
 import { Route as AuthLoginRouteImport } from './routes/_auth/login'
@@ -57,6 +59,16 @@ const AuthRouteRoute = AuthRouteRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ShowcaseIndexRoute = ShowcaseIndexRouteImport.update({
+  id: '/showcase/',
+  path: '/showcase/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ShowcaseServiceRoute = ShowcaseServiceRouteImport.update({
+  id: '/showcase/$service',
+  path: '/showcase/$service',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AppTesttrelloRoute = AppTesttrelloRouteImport.update({
@@ -138,6 +150,8 @@ export interface FileRoutesByFullPath {
   '/login': typeof AuthLoginRoute
   '/signup': typeof AuthSignupRoute
   '/app/testtrello': typeof AppTesttrelloRoute
+  '/showcase/$service': typeof ShowcaseServiceRoute
+  '/showcase/': typeof ShowcaseIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/app/cashflow': typeof AppCashierCashflowRoute
   '/app/drive/{-$drive}': typeof AppDriveChar123DriveChar125Route
@@ -157,6 +171,8 @@ export interface FileRoutesByTo {
   '/login': typeof AuthLoginRoute
   '/signup': typeof AuthSignupRoute
   '/app/testtrello': typeof AppTesttrelloRoute
+  '/showcase/$service': typeof ShowcaseServiceRoute
+  '/showcase': typeof ShowcaseIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/app/cashflow': typeof AppCashierCashflowRoute
   '/app/drive/{-$drive}': typeof AppDriveChar123DriveChar125Route
@@ -180,6 +196,8 @@ export interface FileRoutesById {
   '/_auth/login': typeof AuthLoginRoute
   '/_auth/signup': typeof AuthSignupRoute
   '/app/testtrello': typeof AppTesttrelloRoute
+  '/showcase/$service': typeof ShowcaseServiceRoute
+  '/showcase/': typeof ShowcaseIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/app/_cashier/cashflow': typeof AppCashierCashflowRoute
   '/app/drive/{-$drive}': typeof AppDriveChar123DriveChar125Route
@@ -201,6 +219,8 @@ export interface FileRouteTypes {
     | '/login'
     | '/signup'
     | '/app/testtrello'
+    | '/showcase/$service'
+    | '/showcase/'
     | '/api/auth/$'
     | '/app/cashflow'
     | '/app/drive/{-$drive}'
@@ -220,6 +240,8 @@ export interface FileRouteTypes {
     | '/login'
     | '/signup'
     | '/app/testtrello'
+    | '/showcase/$service'
+    | '/showcase'
     | '/api/auth/$'
     | '/app/cashflow'
     | '/app/drive/{-$drive}'
@@ -242,6 +264,8 @@ export interface FileRouteTypes {
     | '/_auth/login'
     | '/_auth/signup'
     | '/app/testtrello'
+    | '/showcase/$service'
+    | '/showcase/'
     | '/api/auth/$'
     | '/app/_cashier/cashflow'
     | '/app/drive/{-$drive}'
@@ -260,6 +284,8 @@ export interface RootRouteChildren {
   ConvexRoute: typeof ConvexRoute
   TestdndRoute: typeof TestdndRoute
   TestfruitsRoute: typeof TestfruitsRoute
+  ShowcaseServiceRoute: typeof ShowcaseServiceRoute
+  ShowcaseIndexRoute: typeof ShowcaseIndexRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
 }
 
@@ -305,6 +331,20 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/showcase/': {
+      id: '/showcase/'
+      path: '/showcase'
+      fullPath: '/showcase/'
+      preLoaderRoute: typeof ShowcaseIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/showcase/$service': {
+      id: '/showcase/$service'
+      path: '/showcase/$service'
+      fullPath: '/showcase/$service'
+      preLoaderRoute: typeof ShowcaseServiceRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/app/testtrello': {
@@ -481,6 +521,8 @@ const rootRouteChildren: RootRouteChildren = {
   ConvexRoute: ConvexRoute,
   TestdndRoute: TestdndRoute,
   TestfruitsRoute: TestfruitsRoute,
+  ShowcaseServiceRoute: ShowcaseServiceRoute,
+  ShowcaseIndexRoute: ShowcaseIndexRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
 }
 export const routeTree = rootRouteImport
