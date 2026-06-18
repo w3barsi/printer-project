@@ -29,8 +29,8 @@ export function TrelloSidebar() {
     queryFn: getTrelloLists,
   });
   const { isMobile, setOpenMobile } = useSidebar();
-  const match = useMatch({ from: "/_main/trello/", shouldThrow: false });
-  const listMatch = useMatch({ from: "/_main/trello/$listId", shouldThrow: false });
+  const match = useMatch({ from: "/app/trello/", shouldThrow: false });
+  const listMatch = useMatch({ from: "/app/trello/$listId", shouldThrow: false });
 
   if (isLoading) {
     return (
@@ -78,7 +78,7 @@ export function TrelloSidebar() {
       <SidebarMenuItem>
         <SidebarMenuButton asChild tooltip="Trello" isActive={!!match}>
           <Link
-            to="/trello"
+            to="/app/trello"
             onClick={() => isMobile && setOpenMobile(false)}
             tabIndex={0}
           >
@@ -106,7 +106,7 @@ export function TrelloSidebar() {
                       isActive={listMatch?.params?.listId === list.id}
                     >
                       <Link
-                        to={`/trello/$listId`}
+                        to={`/app/trello/$listId`}
                         params={{ listId: list.id }}
                         onClick={() => isMobile && setOpenMobile(false)}
                         preload={false}

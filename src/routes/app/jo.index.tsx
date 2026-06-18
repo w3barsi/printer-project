@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/table";
 import type { JoWithItems } from "@/types/convex";
 
-export const Route = createFileRoute("/_main/jo/")({
+export const Route = createFileRoute("/app/jo/")({
   component: RouteComponent,
   loader: async ({ context }) => {
     await context.queryClient.ensureQueryData(
@@ -30,7 +30,7 @@ export const Route = createFileRoute("/_main/jo/")({
       }),
     );
     return {
-      crumb: [{ value: "Job Order", href: "/jo/", type: "static" }],
+      crumb: [{ value: "Job Order", href: "/app/jo/", type: "static" }],
     };
   },
 
@@ -84,9 +84,9 @@ function JobOrderList() {
   useHotkeys("1,2,3,4,5,6,7,8,9,0", (_, handler) => {
     const hotkey = Number(handler.hotkey);
     if (hotkey === 0) {
-      navigate({ to: "/jo/$joId", params: { joId: jos[9]._id } });
+      navigate({ to: "/app/jo/$joId", params: { joId: jos[9]._id } });
     } else {
-      navigate({ to: "/jo/$joId", params: { joId: jos[hotkey - 1]._id } });
+      navigate({ to: "/app/jo/$joId", params: { joId: jos[hotkey - 1]._id } });
     }
   });
 
@@ -160,13 +160,13 @@ function JobOrderListBody({ jos }: { jos: JoWithItems[] }) {
         <TableRow
           key={jo._id}
           className="cursor-pointer"
-          onClick={() => navigate({ to: "/jo/$joId", params: { joId: jo._id } })}
+          onClick={() => navigate({ to: "/app/jo/$joId", params: { joId: jo._id } })}
           onMouseEnter={() => {
             if (timeoutRef.current) {
               clearTimeout(timeoutRef.current);
             }
             timeoutRef.current = setTimeout(() => {
-              preloadRoute({ to: "/jo/$joId", params: { joId: jo._id } });
+              preloadRoute({ to: "/app/jo/$joId", params: { joId: jo._id } });
               console.log("preloading ", jo.name);
             }, 250);
           }}
@@ -179,7 +179,7 @@ function JobOrderListBody({ jos }: { jos: JoWithItems[] }) {
           onKeyDown={(e) => {
             if (e.key === "Enter" || e.key === " ") {
               e.preventDefault();
-              navigate({ to: "/jo/$joId", params: { joId: jo._id } });
+              navigate({ to: "/app/jo/$joId", params: { joId: jo._id } });
             }
           }}
           tabIndex={0}

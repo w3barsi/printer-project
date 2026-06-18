@@ -78,12 +78,12 @@ export function EntryWrapper({
     if (e.ctrlKey) return;
     if (d.isFile) return window.open(`https://drive.darcygraphix.com/${d.key}`);
 
-    navigate({ to: "/drive/{-$drive}", params: { drive: d._id } });
+    navigate({ to: "/app/drive/{-$drive}", params: { drive: d._id } });
   };
 
   const link = d.isFile
     ? `https://drive.darcygraphix.com/${d.key}`
-    : `https://system.darcygraphix.com/drive/${d._id}`;
+    : `${window.location.origin}/app/drive/${d._id}`;
 
   return (
     <ContextMenu>
@@ -140,7 +140,7 @@ export function EntryWrapper({
 }
 
 function Entry({ d }: { d: GetDriveType }) {
-  const { drive } = useParams({ from: "/_main/drive/{-$drive}" });
+  const { drive } = useParams({ from: "/app/drive/{-$drive}" });
   const parent: Parent = drive ? (drive as Id<"folder">) : "private";
   const { mutate: deleteSingleMutate } = useDeleteFilesOrFolders(parent);
 

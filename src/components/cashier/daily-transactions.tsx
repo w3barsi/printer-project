@@ -39,7 +39,7 @@ export function DailyTransactions({
             </span>
           </div>
           <Link
-            to="/jo/$joId"
+            to="/app/jo/$joId"
             params={{ joId: d.joId }}
             className="underline-offset-4 hover:underline"
           >

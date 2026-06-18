@@ -27,7 +27,7 @@ export default function CanvasPrinterComponent({ joId }: { joId: string | null }
   return (
     <div className="flex w-full items-center justify-center">
       <div className="container flex max-w-md flex-col items-center gap-2 p-2">
-        <Link to="/jo">
+        <Link to="/app/jo">
           <Button variant="link">JobOrder</Button>
         </Link>
         <Button onClick={reactToPrintFn} className="w-full">

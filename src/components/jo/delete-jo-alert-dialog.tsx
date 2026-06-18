@@ -74,7 +74,7 @@ export function DeleteJoAlertDialog({
           ? `"${joName}" has been deleted.`
           : `Job Order #${joNumber} has been deleted.`,
       );
-      navigate({ to: "/jo" });
+      navigate({ to: "/app/jo" });
     } catch (error) {
       toast.error("Failed to delete job order. Please try again.");
     } finally {

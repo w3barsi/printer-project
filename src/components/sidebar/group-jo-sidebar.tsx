@@ -20,7 +20,7 @@ import {
 
 export function RecentJobOrdersGroup() {
   const { isMobile, setOpenMobile } = useSidebar();
-  const match = useMatch({ from: "/_main/jo/", shouldThrow: false });
+  const match = useMatch({ from: "/app/jo/", shouldThrow: false });
 
   return (
     <SidebarGroup>
@@ -28,7 +28,7 @@ export function RecentJobOrdersGroup() {
         <SidebarMenuItem>
           <SidebarMenuButton asChild tooltip="Job Order" isActive={!!match}>
             <Link
-              to="/jo"
+              to="/app/jo"
               preload="render"
               onClick={() => isMobile && setOpenMobile(false)}
             >
@@ -49,7 +49,7 @@ function RecentSubMenu() {
   const { data: recent } = useSuspenseQuery(convexQuery(api.jo.getRecent, {}));
   const [parent] = useAutoAnimate(/* optional config */);
   const { isMobile, setOpenMobile } = useSidebar();
-  const match = useMatch({ from: "/_main/jo/$joId", shouldThrow: false });
+  const match = useMatch({ from: "/app/jo/$joId", shouldThrow: false });
 
   return (
     <div ref={parent}>
@@ -59,7 +59,7 @@ function RecentSubMenu() {
             <SidebarMenuSubItem className="truncate">
               <SidebarMenuSubButton asChild isActive={match?.params?.joId === item.id}>
                 <Link
-                  to={`/jo/$joId`}
+                  to={`/app/jo/$joId`}
                   params={{ joId: item.id }}
                   onClick={() => isMobile && setOpenMobile(false)}
                   tabIndex={0}

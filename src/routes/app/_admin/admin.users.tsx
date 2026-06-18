@@ -45,12 +45,12 @@ import {
 import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
 
-export const Route = createFileRoute("/_main/_admin/admin/users")({
+export const Route = createFileRoute("/app/_admin/admin/users")({
   component: RouteComponent,
   loader: ({ context }) => {
     context.queryClient.ensureQueryData(convexQuery(api.admin.users.listUsers, {}));
     return {
-      crumb: [{ value: "User Management", href: "/admin/", type: "static" }],
+      crumb: [{ value: "User Management", href: "/app/admin/", type: "static" }],
     };
   },
   head: () => ({

@@ -49,7 +49,7 @@ function LoginForm() {
       {
         email,
         password,
-        callbackURL: redirectUrl ?? "/jo",
+        callbackURL: redirectUrl ?? "/app/jo",
       },
       {
         onError: (ctx) => {

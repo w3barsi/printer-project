@@ -11,9 +11,9 @@ import {
 } from "@/components/ui/sidebar";
 
 export function AdminSidebarGroup() {
-  const { user } = useRouteContext({ from: "/_main" });
+  const { user } = useRouteContext({ from: "/app" });
   const { isMobile, setOpenMobile } = useSidebar();
-  const match = useMatch({ from: "/_main/_admin/admin/users", shouldThrow: false });
+  const match = useMatch({ from: "/app/_admin/admin/users", shouldThrow: false });
 
   return (
     <>
@@ -26,7 +26,7 @@ export function AdminSidebarGroup() {
             <SidebarMenuItem>
               <SidebarMenuButton asChild isActive={!!match}>
                 <Link
-                  to={`/admin/users`}
+                  to={`/app/admin/users`}
                   onClick={() => isMobile && setOpenMobile(false)}
                   tabIndex={0}
                 >

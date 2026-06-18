@@ -23,7 +23,7 @@ export function ParentFolder({ parentFolder }: ParentFolderProps) {
     <div
       onDoubleClick={async () => {
         navigate({
-          to: "/drive/{-$drive}",
+          to: "/app/drive/{-$drive}",
           params: {
             drive: parentFolder._id === "private" ? undefined : parentFolder._id,
           },
@@ -40,7 +40,7 @@ export function ParentFolder({ parentFolder }: ParentFolderProps) {
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") {
           navigate({
-            to: "/drive/{-$drive}",
+            to: "/app/drive/{-$drive}",
             params: {
               drive: parentFolder._id === "private" ? undefined : parentFolder._id,
             },

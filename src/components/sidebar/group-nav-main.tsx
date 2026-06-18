@@ -1,5 +1,5 @@
 import { Link, useMatch, useRouteContext } from "@tanstack/react-router";
-import { HardDriveIcon, PiggyBankIcon, Rotate3dIcon } from "lucide-react";
+import { HardDriveIcon, PiggyBankIcon } from "lucide-react";
 
 import {
   SidebarGroup,
@@ -18,37 +18,20 @@ export function MainNavGroup() {
         <CashflowSidebarItem />
         <DriveSidebarItem />
         <TrelloSidebar />
-        <ThreeDSidebarItem />
       </SidebarMenu>
     </SidebarGroup>
   );
 }
 
-function ThreeDSidebarItem() {
-  const { isMobile, setOpenMobile } = useSidebar();
-  const match = useMatch({ from: "/_main/three", shouldThrow: false });
-
-  return (
-    <SidebarMenuItem>
-      <SidebarMenuButton asChild tooltip="Drive" isActive={!!match}>
-        <Link to="/three" onClick={() => isMobile && setOpenMobile(false)} tabIndex={0}>
-          <Rotate3dIcon />
-          <span>3D</span>
-        </Link>
-      </SidebarMenuButton>
-    </SidebarMenuItem>
-  );
-}
-
 function DriveSidebarItem() {
   const { isMobile, setOpenMobile } = useSidebar();
-  const match = useMatch({ from: "/_main/drive/{-$drive}", shouldThrow: false });
+  const match = useMatch({ from: "/app/drive/{-$drive}", shouldThrow: false });
 
   return (
     <SidebarMenuItem>
       <SidebarMenuButton asChild tooltip="Drive" isActive={!!match}>
         <Link
-          to="/drive/{-$drive}"
+          to="/app/drive/{-$drive}"
           onClick={() => isMobile && setOpenMobile(false)}
           tabIndex={0}
         >
@@ -61,16 +44,16 @@ function DriveSidebarItem() {
 }
 
 function CashflowSidebarItem() {
-  const { user } = useRouteContext({ from: "/_main" });
+  const { user } = useRouteContext({ from: "/app" });
   const { isMobile, setOpenMobile } = useSidebar();
-  const match = useMatch({ from: "/_main/_cashier/cashflow", shouldThrow: false });
+  const match = useMatch({ from: "/app/_cashier/cashflow", shouldThrow: false });
 
   return (
     <SidebarMenuItem>
       {(user.role === "cashier" || user.role === "admin") && (
         <SidebarMenuButton asChild tooltip="Job Order" isActive={!!match}>
           <Link
-            to="/cashflow"
+            to="/app/cashflow"
             onClick={() => isMobile && setOpenMobile(false)}
             tabIndex={0}
           >

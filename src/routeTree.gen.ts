@@ -12,24 +12,23 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as TestfruitsRouteImport } from './routes/testfruits'
 import { Route as TestdndRouteImport } from './routes/testdnd'
 import { Route as ConvexRouteImport } from './routes/convex'
-import { Route as MainRouteRouteImport } from './routes/_main/route'
+import { Route as AppRouteRouteImport } from './routes/app/route'
 import { Route as AuthRouteRouteImport } from './routes/_auth/route'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as MainThreeRouteImport } from './routes/_main/three'
-import { Route as MainTesttrelloRouteImport } from './routes/_main/testtrello'
+import { Route as AppTesttrelloRouteImport } from './routes/app/testtrello'
 import { Route as AuthSignupRouteImport } from './routes/_auth/signup'
 import { Route as AuthLoginRouteImport } from './routes/_auth/login'
-import { Route as MainCashierRouteRouteImport } from './routes/_main/_cashier/route'
-import { Route as MainAdminRouteRouteImport } from './routes/_main/_admin/route'
-import { Route as MainTrelloIndexRouteImport } from './routes/_main/trello.index'
-import { Route as MainJoIndexRouteImport } from './routes/_main/jo.index'
+import { Route as AppCashierRouteRouteImport } from './routes/app/_cashier/route'
+import { Route as AppAdminRouteRouteImport } from './routes/app/_admin/route'
+import { Route as AppTrelloIndexRouteImport } from './routes/app/trello.index'
+import { Route as AppJoIndexRouteImport } from './routes/app/jo.index'
+import { Route as AppTrelloListIdRouteImport } from './routes/app/trello.$listId'
+import { Route as AppJoJoIdRouteImport } from './routes/app/jo.$joId'
+import { Route as AppDriveChar123DriveChar125RouteImport } from './routes/app/drive.{-$drive}'
+import { Route as AppCashierCashflowRouteImport } from './routes/app/_cashier/cashflow'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth.$'
-import { Route as MainTrelloListIdRouteImport } from './routes/_main/trello.$listId'
-import { Route as MainJoJoIdRouteImport } from './routes/_main/jo.$joId'
-import { Route as MainDriveChar123DriveChar125RouteImport } from './routes/_main/drive.{-$drive}'
-import { Route as MainCashierCashflowRouteImport } from './routes/_main/_cashier/cashflow'
-import { Route as MainAdminAdminIndexRouteImport } from './routes/_main/_admin/admin.index'
-import { Route as MainAdminAdminUsersRouteImport } from './routes/_main/_admin/admin.users'
+import { Route as AppAdminAdminIndexRouteImport } from './routes/app/_admin/admin.index'
+import { Route as AppAdminAdminUsersRouteImport } from './routes/app/_admin/admin.users'
 
 const TestfruitsRoute = TestfruitsRouteImport.update({
   id: '/testfruits',
@@ -46,8 +45,9 @@ const ConvexRoute = ConvexRouteImport.update({
   path: '/convex',
   getParentRoute: () => rootRouteImport,
 } as any)
-const MainRouteRoute = MainRouteRouteImport.update({
-  id: '/_main',
+const AppRouteRoute = AppRouteRouteImport.update({
+  id: '/app',
+  path: '/app',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRouteRoute = AuthRouteRouteImport.update({
@@ -59,15 +59,10 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const MainThreeRoute = MainThreeRouteImport.update({
-  id: '/three',
-  path: '/three',
-  getParentRoute: () => MainRouteRoute,
-} as any)
-const MainTesttrelloRoute = MainTesttrelloRouteImport.update({
+const AppTesttrelloRoute = AppTesttrelloRouteImport.update({
   id: '/testtrello',
   path: '/testtrello',
-  getParentRoute: () => MainRouteRoute,
+  getParentRoute: () => AppRouteRoute,
 } as any)
 const AuthSignupRoute = AuthSignupRouteImport.update({
   id: '/signup',
@@ -79,191 +74,189 @@ const AuthLoginRoute = AuthLoginRouteImport.update({
   path: '/login',
   getParentRoute: () => AuthRouteRoute,
 } as any)
-const MainCashierRouteRoute = MainCashierRouteRouteImport.update({
+const AppCashierRouteRoute = AppCashierRouteRouteImport.update({
   id: '/_cashier',
-  getParentRoute: () => MainRouteRoute,
+  getParentRoute: () => AppRouteRoute,
 } as any)
-const MainAdminRouteRoute = MainAdminRouteRouteImport.update({
+const AppAdminRouteRoute = AppAdminRouteRouteImport.update({
   id: '/_admin',
-  getParentRoute: () => MainRouteRoute,
+  getParentRoute: () => AppRouteRoute,
 } as any)
-const MainTrelloIndexRoute = MainTrelloIndexRouteImport.update({
+const AppTrelloIndexRoute = AppTrelloIndexRouteImport.update({
   id: '/trello/',
   path: '/trello/',
-  getParentRoute: () => MainRouteRoute,
+  getParentRoute: () => AppRouteRoute,
 } as any)
-const MainJoIndexRoute = MainJoIndexRouteImport.update({
+const AppJoIndexRoute = AppJoIndexRouteImport.update({
   id: '/jo/',
   path: '/jo/',
-  getParentRoute: () => MainRouteRoute,
+  getParentRoute: () => AppRouteRoute,
+} as any)
+const AppTrelloListIdRoute = AppTrelloListIdRouteImport.update({
+  id: '/trello/$listId',
+  path: '/trello/$listId',
+  getParentRoute: () => AppRouteRoute,
+} as any)
+const AppJoJoIdRoute = AppJoJoIdRouteImport.update({
+  id: '/jo/$joId',
+  path: '/jo/$joId',
+  getParentRoute: () => AppRouteRoute,
+} as any)
+const AppDriveChar123DriveChar125Route =
+  AppDriveChar123DriveChar125RouteImport.update({
+    id: '/drive/{-$drive}',
+    path: '/drive/{-$drive}',
+    getParentRoute: () => AppRouteRoute,
+  } as any)
+const AppCashierCashflowRoute = AppCashierCashflowRouteImport.update({
+  id: '/cashflow',
+  path: '/cashflow',
+  getParentRoute: () => AppCashierRouteRoute,
 } as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   id: '/api/auth/$',
   path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
 } as any)
-const MainTrelloListIdRoute = MainTrelloListIdRouteImport.update({
-  id: '/trello/$listId',
-  path: '/trello/$listId',
-  getParentRoute: () => MainRouteRoute,
-} as any)
-const MainJoJoIdRoute = MainJoJoIdRouteImport.update({
-  id: '/jo/$joId',
-  path: '/jo/$joId',
-  getParentRoute: () => MainRouteRoute,
-} as any)
-const MainDriveChar123DriveChar125Route =
-  MainDriveChar123DriveChar125RouteImport.update({
-    id: '/drive/{-$drive}',
-    path: '/drive/{-$drive}',
-    getParentRoute: () => MainRouteRoute,
-  } as any)
-const MainCashierCashflowRoute = MainCashierCashflowRouteImport.update({
-  id: '/cashflow',
-  path: '/cashflow',
-  getParentRoute: () => MainCashierRouteRoute,
-} as any)
-const MainAdminAdminIndexRoute = MainAdminAdminIndexRouteImport.update({
+const AppAdminAdminIndexRoute = AppAdminAdminIndexRouteImport.update({
   id: '/admin/',
   path: '/admin/',
-  getParentRoute: () => MainAdminRouteRoute,
+  getParentRoute: () => AppAdminRouteRoute,
 } as any)
-const MainAdminAdminUsersRoute = MainAdminAdminUsersRouteImport.update({
+const AppAdminAdminUsersRoute = AppAdminAdminUsersRouteImport.update({
   id: '/admin/users',
   path: '/admin/users',
-  getParentRoute: () => MainAdminRouteRoute,
+  getParentRoute: () => AppAdminRouteRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/app': typeof AppCashierRouteRouteWithChildren
   '/convex': typeof ConvexRoute
   '/testdnd': typeof TestdndRoute
   '/testfruits': typeof TestfruitsRoute
   '/login': typeof AuthLoginRoute
   '/signup': typeof AuthSignupRoute
-  '/testtrello': typeof MainTesttrelloRoute
-  '/three': typeof MainThreeRoute
-  '/cashflow': typeof MainCashierCashflowRoute
-  '/drive/{-$drive}': typeof MainDriveChar123DriveChar125Route
-  '/jo/$joId': typeof MainJoJoIdRoute
-  '/trello/$listId': typeof MainTrelloListIdRoute
+  '/app/testtrello': typeof AppTesttrelloRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
-  '/jo/': typeof MainJoIndexRoute
-  '/trello/': typeof MainTrelloIndexRoute
-  '/admin/users': typeof MainAdminAdminUsersRoute
-  '/admin/': typeof MainAdminAdminIndexRoute
+  '/app/cashflow': typeof AppCashierCashflowRoute
+  '/app/drive/{-$drive}': typeof AppDriveChar123DriveChar125Route
+  '/app/jo/$joId': typeof AppJoJoIdRoute
+  '/app/trello/$listId': typeof AppTrelloListIdRoute
+  '/app/jo/': typeof AppJoIndexRoute
+  '/app/trello/': typeof AppTrelloIndexRoute
+  '/app/admin/users': typeof AppAdminAdminUsersRoute
+  '/app/admin/': typeof AppAdminAdminIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/app': typeof AppCashierRouteRouteWithChildren
   '/convex': typeof ConvexRoute
   '/testdnd': typeof TestdndRoute
   '/testfruits': typeof TestfruitsRoute
   '/login': typeof AuthLoginRoute
   '/signup': typeof AuthSignupRoute
-  '/testtrello': typeof MainTesttrelloRoute
-  '/three': typeof MainThreeRoute
-  '/cashflow': typeof MainCashierCashflowRoute
-  '/drive/{-$drive}': typeof MainDriveChar123DriveChar125Route
-  '/jo/$joId': typeof MainJoJoIdRoute
-  '/trello/$listId': typeof MainTrelloListIdRoute
+  '/app/testtrello': typeof AppTesttrelloRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
-  '/jo': typeof MainJoIndexRoute
-  '/trello': typeof MainTrelloIndexRoute
-  '/admin/users': typeof MainAdminAdminUsersRoute
-  '/admin': typeof MainAdminAdminIndexRoute
+  '/app/cashflow': typeof AppCashierCashflowRoute
+  '/app/drive/{-$drive}': typeof AppDriveChar123DriveChar125Route
+  '/app/jo/$joId': typeof AppJoJoIdRoute
+  '/app/trello/$listId': typeof AppTrelloListIdRoute
+  '/app/jo': typeof AppJoIndexRoute
+  '/app/trello': typeof AppTrelloIndexRoute
+  '/app/admin/users': typeof AppAdminAdminUsersRoute
+  '/app/admin': typeof AppAdminAdminIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_auth': typeof AuthRouteRouteWithChildren
-  '/_main': typeof MainRouteRouteWithChildren
+  '/app': typeof AppRouteRouteWithChildren
   '/convex': typeof ConvexRoute
   '/testdnd': typeof TestdndRoute
   '/testfruits': typeof TestfruitsRoute
-  '/_main/_admin': typeof MainAdminRouteRouteWithChildren
-  '/_main/_cashier': typeof MainCashierRouteRouteWithChildren
+  '/app/_admin': typeof AppAdminRouteRouteWithChildren
+  '/app/_cashier': typeof AppCashierRouteRouteWithChildren
   '/_auth/login': typeof AuthLoginRoute
   '/_auth/signup': typeof AuthSignupRoute
-  '/_main/testtrello': typeof MainTesttrelloRoute
-  '/_main/three': typeof MainThreeRoute
-  '/_main/_cashier/cashflow': typeof MainCashierCashflowRoute
-  '/_main/drive/{-$drive}': typeof MainDriveChar123DriveChar125Route
-  '/_main/jo/$joId': typeof MainJoJoIdRoute
-  '/_main/trello/$listId': typeof MainTrelloListIdRoute
+  '/app/testtrello': typeof AppTesttrelloRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
-  '/_main/jo/': typeof MainJoIndexRoute
-  '/_main/trello/': typeof MainTrelloIndexRoute
-  '/_main/_admin/admin/users': typeof MainAdminAdminUsersRoute
-  '/_main/_admin/admin/': typeof MainAdminAdminIndexRoute
+  '/app/_cashier/cashflow': typeof AppCashierCashflowRoute
+  '/app/drive/{-$drive}': typeof AppDriveChar123DriveChar125Route
+  '/app/jo/$joId': typeof AppJoJoIdRoute
+  '/app/trello/$listId': typeof AppTrelloListIdRoute
+  '/app/jo/': typeof AppJoIndexRoute
+  '/app/trello/': typeof AppTrelloIndexRoute
+  '/app/_admin/admin/users': typeof AppAdminAdminUsersRoute
+  '/app/_admin/admin/': typeof AppAdminAdminIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/app'
     | '/convex'
     | '/testdnd'
     | '/testfruits'
     | '/login'
     | '/signup'
-    | '/testtrello'
-    | '/three'
-    | '/cashflow'
-    | '/drive/{-$drive}'
-    | '/jo/$joId'
-    | '/trello/$listId'
+    | '/app/testtrello'
     | '/api/auth/$'
-    | '/jo/'
-    | '/trello/'
-    | '/admin/users'
-    | '/admin/'
+    | '/app/cashflow'
+    | '/app/drive/{-$drive}'
+    | '/app/jo/$joId'
+    | '/app/trello/$listId'
+    | '/app/jo/'
+    | '/app/trello/'
+    | '/app/admin/users'
+    | '/app/admin/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/app'
     | '/convex'
     | '/testdnd'
     | '/testfruits'
     | '/login'
     | '/signup'
-    | '/testtrello'
-    | '/three'
-    | '/cashflow'
-    | '/drive/{-$drive}'
-    | '/jo/$joId'
-    | '/trello/$listId'
+    | '/app/testtrello'
     | '/api/auth/$'
-    | '/jo'
-    | '/trello'
-    | '/admin/users'
-    | '/admin'
+    | '/app/cashflow'
+    | '/app/drive/{-$drive}'
+    | '/app/jo/$joId'
+    | '/app/trello/$listId'
+    | '/app/jo'
+    | '/app/trello'
+    | '/app/admin/users'
+    | '/app/admin'
   id:
     | '__root__'
     | '/'
     | '/_auth'
-    | '/_main'
+    | '/app'
     | '/convex'
     | '/testdnd'
     | '/testfruits'
-    | '/_main/_admin'
-    | '/_main/_cashier'
+    | '/app/_admin'
+    | '/app/_cashier'
     | '/_auth/login'
     | '/_auth/signup'
-    | '/_main/testtrello'
-    | '/_main/three'
-    | '/_main/_cashier/cashflow'
-    | '/_main/drive/{-$drive}'
-    | '/_main/jo/$joId'
-    | '/_main/trello/$listId'
+    | '/app/testtrello'
     | '/api/auth/$'
-    | '/_main/jo/'
-    | '/_main/trello/'
-    | '/_main/_admin/admin/users'
-    | '/_main/_admin/admin/'
+    | '/app/_cashier/cashflow'
+    | '/app/drive/{-$drive}'
+    | '/app/jo/$joId'
+    | '/app/trello/$listId'
+    | '/app/jo/'
+    | '/app/trello/'
+    | '/app/_admin/admin/users'
+    | '/app/_admin/admin/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRouteRoute: typeof AuthRouteRouteWithChildren
-  MainRouteRoute: typeof MainRouteRouteWithChildren
+  AppRouteRoute: typeof AppRouteRouteWithChildren
   ConvexRoute: typeof ConvexRoute
   TestdndRoute: typeof TestdndRoute
   TestfruitsRoute: typeof TestfruitsRoute
@@ -293,11 +286,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ConvexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_main': {
-      id: '/_main'
-      path: ''
-      fullPath: '/'
-      preLoaderRoute: typeof MainRouteRouteImport
+    '/app': {
+      id: '/app'
+      path: '/app'
+      fullPath: '/app'
+      preLoaderRoute: typeof AppRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_auth': {
@@ -314,19 +307,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_main/three': {
-      id: '/_main/three'
-      path: '/three'
-      fullPath: '/three'
-      preLoaderRoute: typeof MainThreeRouteImport
-      parentRoute: typeof MainRouteRoute
-    }
-    '/_main/testtrello': {
-      id: '/_main/testtrello'
+    '/app/testtrello': {
+      id: '/app/testtrello'
       path: '/testtrello'
-      fullPath: '/testtrello'
-      preLoaderRoute: typeof MainTesttrelloRouteImport
-      parentRoute: typeof MainRouteRoute
+      fullPath: '/app/testtrello'
+      preLoaderRoute: typeof AppTesttrelloRouteImport
+      parentRoute: typeof AppRouteRoute
     }
     '/_auth/signup': {
       id: '/_auth/signup'
@@ -342,33 +328,61 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthLoginRouteImport
       parentRoute: typeof AuthRouteRoute
     }
-    '/_main/_cashier': {
-      id: '/_main/_cashier'
+    '/app/_cashier': {
+      id: '/app/_cashier'
       path: ''
-      fullPath: '/'
-      preLoaderRoute: typeof MainCashierRouteRouteImport
-      parentRoute: typeof MainRouteRoute
+      fullPath: '/app'
+      preLoaderRoute: typeof AppCashierRouteRouteImport
+      parentRoute: typeof AppRouteRoute
     }
-    '/_main/_admin': {
-      id: '/_main/_admin'
+    '/app/_admin': {
+      id: '/app/_admin'
       path: ''
-      fullPath: '/'
-      preLoaderRoute: typeof MainAdminRouteRouteImport
-      parentRoute: typeof MainRouteRoute
+      fullPath: '/app'
+      preLoaderRoute: typeof AppAdminRouteRouteImport
+      parentRoute: typeof AppRouteRoute
     }
-    '/_main/trello/': {
-      id: '/_main/trello/'
+    '/app/trello/': {
+      id: '/app/trello/'
       path: '/trello'
-      fullPath: '/trello/'
-      preLoaderRoute: typeof MainTrelloIndexRouteImport
-      parentRoute: typeof MainRouteRoute
+      fullPath: '/app/trello/'
+      preLoaderRoute: typeof AppTrelloIndexRouteImport
+      parentRoute: typeof AppRouteRoute
     }
-    '/_main/jo/': {
-      id: '/_main/jo/'
+    '/app/jo/': {
+      id: '/app/jo/'
       path: '/jo'
-      fullPath: '/jo/'
-      preLoaderRoute: typeof MainJoIndexRouteImport
-      parentRoute: typeof MainRouteRoute
+      fullPath: '/app/jo/'
+      preLoaderRoute: typeof AppJoIndexRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
+    '/app/trello/$listId': {
+      id: '/app/trello/$listId'
+      path: '/trello/$listId'
+      fullPath: '/app/trello/$listId'
+      preLoaderRoute: typeof AppTrelloListIdRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
+    '/app/jo/$joId': {
+      id: '/app/jo/$joId'
+      path: '/jo/$joId'
+      fullPath: '/app/jo/$joId'
+      preLoaderRoute: typeof AppJoJoIdRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
+    '/app/drive/{-$drive}': {
+      id: '/app/drive/{-$drive}'
+      path: '/drive/{-$drive}'
+      fullPath: '/app/drive/{-$drive}'
+      preLoaderRoute: typeof AppDriveChar123DriveChar125RouteImport
+      parentRoute: typeof AppRouteRoute
+    }
+    '/app/_cashier/cashflow': {
+      id: '/app/_cashier/cashflow'
+      path: '/cashflow'
+      fullPath: '/app/cashflow'
+      preLoaderRoute: typeof AppCashierCashflowRouteImport
+      parentRoute: typeof AppCashierRouteRoute
     }
     '/api/auth/$': {
       id: '/api/auth/$'
@@ -377,47 +391,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_main/trello/$listId': {
-      id: '/_main/trello/$listId'
-      path: '/trello/$listId'
-      fullPath: '/trello/$listId'
-      preLoaderRoute: typeof MainTrelloListIdRouteImport
-      parentRoute: typeof MainRouteRoute
-    }
-    '/_main/jo/$joId': {
-      id: '/_main/jo/$joId'
-      path: '/jo/$joId'
-      fullPath: '/jo/$joId'
-      preLoaderRoute: typeof MainJoJoIdRouteImport
-      parentRoute: typeof MainRouteRoute
-    }
-    '/_main/drive/{-$drive}': {
-      id: '/_main/drive/{-$drive}'
-      path: '/drive/{-$drive}'
-      fullPath: '/drive/{-$drive}'
-      preLoaderRoute: typeof MainDriveChar123DriveChar125RouteImport
-      parentRoute: typeof MainRouteRoute
-    }
-    '/_main/_cashier/cashflow': {
-      id: '/_main/_cashier/cashflow'
-      path: '/cashflow'
-      fullPath: '/cashflow'
-      preLoaderRoute: typeof MainCashierCashflowRouteImport
-      parentRoute: typeof MainCashierRouteRoute
-    }
-    '/_main/_admin/admin/': {
-      id: '/_main/_admin/admin/'
+    '/app/_admin/admin/': {
+      id: '/app/_admin/admin/'
       path: '/admin'
-      fullPath: '/admin/'
-      preLoaderRoute: typeof MainAdminAdminIndexRouteImport
-      parentRoute: typeof MainAdminRouteRoute
+      fullPath: '/app/admin/'
+      preLoaderRoute: typeof AppAdminAdminIndexRouteImport
+      parentRoute: typeof AppAdminRouteRoute
     }
-    '/_main/_admin/admin/users': {
-      id: '/_main/_admin/admin/users'
+    '/app/_admin/admin/users': {
+      id: '/app/_admin/admin/users'
       path: '/admin/users'
-      fullPath: '/admin/users'
-      preLoaderRoute: typeof MainAdminAdminUsersRouteImport
-      parentRoute: typeof MainAdminRouteRoute
+      fullPath: '/app/admin/users'
+      preLoaderRoute: typeof AppAdminAdminUsersRouteImport
+      parentRoute: typeof AppAdminRouteRoute
     }
   }
 }
@@ -436,63 +422,62 @@ const AuthRouteRouteWithChildren = AuthRouteRoute._addFileChildren(
   AuthRouteRouteChildren,
 )
 
-interface MainAdminRouteRouteChildren {
-  MainAdminAdminUsersRoute: typeof MainAdminAdminUsersRoute
-  MainAdminAdminIndexRoute: typeof MainAdminAdminIndexRoute
+interface AppAdminRouteRouteChildren {
+  AppAdminAdminUsersRoute: typeof AppAdminAdminUsersRoute
+  AppAdminAdminIndexRoute: typeof AppAdminAdminIndexRoute
 }
 
-const MainAdminRouteRouteChildren: MainAdminRouteRouteChildren = {
-  MainAdminAdminUsersRoute: MainAdminAdminUsersRoute,
-  MainAdminAdminIndexRoute: MainAdminAdminIndexRoute,
+const AppAdminRouteRouteChildren: AppAdminRouteRouteChildren = {
+  AppAdminAdminUsersRoute: AppAdminAdminUsersRoute,
+  AppAdminAdminIndexRoute: AppAdminAdminIndexRoute,
 }
 
-const MainAdminRouteRouteWithChildren = MainAdminRouteRoute._addFileChildren(
-  MainAdminRouteRouteChildren,
+const AppAdminRouteRouteWithChildren = AppAdminRouteRoute._addFileChildren(
+  AppAdminRouteRouteChildren,
 )
 
-interface MainCashierRouteRouteChildren {
-  MainCashierCashflowRoute: typeof MainCashierCashflowRoute
+interface AppCashierRouteRouteChildren {
+  AppCashierCashflowRoute: typeof AppCashierCashflowRoute
 }
 
-const MainCashierRouteRouteChildren: MainCashierRouteRouteChildren = {
-  MainCashierCashflowRoute: MainCashierCashflowRoute,
+const AppCashierRouteRouteChildren: AppCashierRouteRouteChildren = {
+  AppCashierCashflowRoute: AppCashierCashflowRoute,
 }
 
-const MainCashierRouteRouteWithChildren =
-  MainCashierRouteRoute._addFileChildren(MainCashierRouteRouteChildren)
+const AppCashierRouteRouteWithChildren = AppCashierRouteRoute._addFileChildren(
+  AppCashierRouteRouteChildren,
+)
 
-interface MainRouteRouteChildren {
-  MainAdminRouteRoute: typeof MainAdminRouteRouteWithChildren
-  MainCashierRouteRoute: typeof MainCashierRouteRouteWithChildren
-  MainTesttrelloRoute: typeof MainTesttrelloRoute
-  MainThreeRoute: typeof MainThreeRoute
-  MainDriveChar123DriveChar125Route: typeof MainDriveChar123DriveChar125Route
-  MainJoJoIdRoute: typeof MainJoJoIdRoute
-  MainTrelloListIdRoute: typeof MainTrelloListIdRoute
-  MainJoIndexRoute: typeof MainJoIndexRoute
-  MainTrelloIndexRoute: typeof MainTrelloIndexRoute
+interface AppRouteRouteChildren {
+  AppAdminRouteRoute: typeof AppAdminRouteRouteWithChildren
+  AppCashierRouteRoute: typeof AppCashierRouteRouteWithChildren
+  AppTesttrelloRoute: typeof AppTesttrelloRoute
+  AppDriveChar123DriveChar125Route: typeof AppDriveChar123DriveChar125Route
+  AppJoJoIdRoute: typeof AppJoJoIdRoute
+  AppTrelloListIdRoute: typeof AppTrelloListIdRoute
+  AppJoIndexRoute: typeof AppJoIndexRoute
+  AppTrelloIndexRoute: typeof AppTrelloIndexRoute
 }
 
-const MainRouteRouteChildren: MainRouteRouteChildren = {
-  MainAdminRouteRoute: MainAdminRouteRouteWithChildren,
-  MainCashierRouteRoute: MainCashierRouteRouteWithChildren,
-  MainTesttrelloRoute: MainTesttrelloRoute,
-  MainThreeRoute: MainThreeRoute,
-  MainDriveChar123DriveChar125Route: MainDriveChar123DriveChar125Route,
-  MainJoJoIdRoute: MainJoJoIdRoute,
-  MainTrelloListIdRoute: MainTrelloListIdRoute,
-  MainJoIndexRoute: MainJoIndexRoute,
-  MainTrelloIndexRoute: MainTrelloIndexRoute,
+const AppRouteRouteChildren: AppRouteRouteChildren = {
+  AppAdminRouteRoute: AppAdminRouteRouteWithChildren,
+  AppCashierRouteRoute: AppCashierRouteRouteWithChildren,
+  AppTesttrelloRoute: AppTesttrelloRoute,
+  AppDriveChar123DriveChar125Route: AppDriveChar123DriveChar125Route,
+  AppJoJoIdRoute: AppJoJoIdRoute,
+  AppTrelloListIdRoute: AppTrelloListIdRoute,
+  AppJoIndexRoute: AppJoIndexRoute,
+  AppTrelloIndexRoute: AppTrelloIndexRoute,
 }
 
-const MainRouteRouteWithChildren = MainRouteRoute._addFileChildren(
-  MainRouteRouteChildren,
+const AppRouteRouteWithChildren = AppRouteRoute._addFileChildren(
+  AppRouteRouteChildren,
 )
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRouteRoute: AuthRouteRouteWithChildren,
-  MainRouteRoute: MainRouteRouteWithChildren,
+  AppRouteRoute: AppRouteRouteWithChildren,
   ConvexRoute: ConvexRoute,
   TestdndRoute: TestdndRoute,
   TestfruitsRoute: TestfruitsRoute,

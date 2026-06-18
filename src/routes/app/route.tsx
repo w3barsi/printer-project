@@ -10,7 +10,7 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { Separator } from "@/components/ui/separator";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 
-export const Route = createFileRoute("/_main")({
+export const Route = createFileRoute("/app")({
   component: RouteComponent,
   beforeLoad: async ({ context, location }) => {
     if (!context.isAuthenticated) {

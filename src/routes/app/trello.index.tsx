@@ -5,10 +5,10 @@ import { Container } from "@/components/layouts/container";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getTrelloLists } from "@/server/trello";
 
-export const Route = createFileRoute("/_main/trello/")({
+export const Route = createFileRoute("/app/trello/")({
   component: TrelloPage,
   loader: () => ({
-    crumb: [{ value: "Trello", href: "/trello/", type: "static" }],
+    crumb: [{ value: "Trello", href: "/app/trello/", type: "static" }],
   }),
   head: () => ({
     meta: [
@@ -81,7 +81,7 @@ function ListView() {
       {lists.map((list: { id: string; name: string; closed: boolean; pos: number }) => (
         <Link
           key={list.id}
-          to="/trello/$listId"
+          to="/app/trello/$listId"
           params={{ listId: list.id }}
           className="flex"
         >

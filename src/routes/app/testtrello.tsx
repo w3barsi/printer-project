@@ -6,7 +6,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Container } from "@/components/layouts/container";
 import { Button } from "@/components/ui/button";
 
-export const Route = createFileRoute("/_main/testtrello")({
+export const Route = createFileRoute("/app/testtrello")({
   component: RouteComponent,
 });
 

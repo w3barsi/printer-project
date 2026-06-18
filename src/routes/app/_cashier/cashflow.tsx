@@ -38,7 +38,7 @@ import {
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 
-export const Route = createFileRoute("/_main/_cashier/cashflow")({
+export const Route = createFileRoute("/app/_cashier/cashflow")({
   validateSearch: z.object({
     start: z.number().optional(),
   }),
@@ -58,7 +58,7 @@ export const Route = createFileRoute("/_main/_cashier/cashflow")({
       convexQuery(api.cashier.getCashflow, { dayStart: context.search.start }),
     );
     return {
-      crumb: [{ value: "Cashflow", href: "/cashflow/", type: "static" }],
+      crumb: [{ value: "Cashflow", href: "/app/cashflow/", type: "static" }],
     };
   },
   component: RouteComponent,
@@ -197,7 +197,7 @@ function CashflowTable() {
               <TableCell>
                 {c.type === "Payment" ? (
                   <Link
-                    to="/jo/$joId"
+                    to="/app/jo/$joId"
                     params={{ joId: c.joId }}
                     className="underline underline-offset-2"
                   >
@@ -393,11 +393,11 @@ function CashflowHeader() {
                   if (!date) return;
                   if (todayZero().getTime() === date.getTime()) {
                     await navigate({
-                      to: "/cashflow",
+                      to: "/app/cashflow",
                     });
                   } else {
                     await navigate({
-                      to: "/cashflow",
+                      to: "/app/cashflow",
                       search: { start: date.getTime() },
                     });
                   }

@@ -42,7 +42,7 @@ import {
 import { cn } from "@/lib/utils";
 import type { Item } from "@/types/convex";
 
-export const Route = createFileRoute("/_main/jo/$joId")({
+export const Route = createFileRoute("/app/jo/$joId")({
   component: JoDetailComponent,
   loader: async ({ context, params }) => {
     const id = params.joId as Id<"jo">;
@@ -54,8 +54,8 @@ export const Route = createFileRoute("/_main/jo/$joId")({
       joId: id,
       joNumber: jo?.joNumber,
       crumb: [
-        { value: "Job Order", href: "/jo/", type: "static" },
-        { value: params.joId, href: `/jo/${params.joId}`, type: "jo" },
+        { value: "Job Order", href: "/app/jo/", type: "static" },
+        { value: params.joId, href: `/app/jo/${params.joId}`, type: "jo" },
       ],
     };
   },
@@ -75,7 +75,7 @@ export const Route = createFileRoute("/_main/jo/$joId")({
 function JoDetailComponent() {
   const { joId } = Route.useLoaderData();
   const navigate = Route.useNavigate();
-  useHotkeys("b", () => navigate({ to: "/jo" }));
+  useHotkeys("b", () => navigate({ to: "/app/jo" }));
 
   return (
     <Container className="pwa-padding flex flex-col">

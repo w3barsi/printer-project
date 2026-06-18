@@ -17,15 +17,15 @@ type BreadcrumbItem = {
   type: "static" | "drive";
 };
 
-export const Route = createFileRoute("/_main/drive/{-$drive}")({
+export const Route = createFileRoute("/app/drive/{-$drive}")({
   component: RouteComponent,
   loader: ({ params }): { crumb: BreadcrumbItem[] } => {
     const crumb: BreadcrumbItem[] =
       !params.drive || params.drive === "private"
-        ? [{ value: "Drive", href: "/drive/", type: "static" }]
+        ? [{ value: "Drive", href: "/app/drive/", type: "static" }]
         : [
-            { value: "Drive", href: "/drive/", type: "static" },
-            { value: params.drive, href: `/drive/${params.drive}`, type: "drive" },
+            { value: "Drive", href: "/app/drive/", type: "static" },
+            { value: params.drive, href: `/app/drive/${params.drive}`, type: "drive" },
           ];
     return {
       crumb,
