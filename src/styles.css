@@ -734,6 +734,18 @@ code {
   transform-origin: left;
 }
 
+/* Logo stroke / glow helpers ------------------------------------- */
+
+.shop-logo-stroke {
+  filter: drop-shadow(0 0 1px oklch(1 0 0 / 0.95))
+    drop-shadow(0 0 1px oklch(1 0 0 / 0.95)) drop-shadow(0 0 3px oklch(1 0 0 / 0.45));
+}
+.shop-logo-stroke-strong {
+  filter: drop-shadow(0 0 2px oklch(1 0 0 / 0.95))
+    drop-shadow(0 0 2px oklch(1 0 0 / 0.95)) drop-shadow(0 0 6px oklch(1 0 0 / 0.55))
+    drop-shadow(0 0 18px oklch(0.62 0.28 27 / 0.35));
+}
+
 /* Reduced motion ------------------------------------------------- */
 
 @media (prefers-reduced-motion: reduce) {
