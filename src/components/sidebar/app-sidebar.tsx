@@ -30,7 +30,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   <img src="/logo-small.svg" alt="logo" />
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">Darcy Graphix</span>
+                  <span className="truncate font-medium">DARCYGRAPHiX</span>
                   <span className="truncate text-xs">Advertising</span>
                 </div>
               </Link>
