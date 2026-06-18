@@ -35,7 +35,7 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>;
 
-export function CreateDialog() {
+export function CreateJoDialog() {
   const today = new Date();
   const [open, setOpen] = useState(false);
 
@@ -112,7 +112,7 @@ export function CreateDialog() {
       <Tooltip>
         <TooltipTrigger asChild>
           <DialogTrigger asChild>
-            <Button>
+            <Button size="lg">
               <PlusIcon className="h-4 w-4" />
               Create Job Order
             </Button>

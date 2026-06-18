@@ -87,7 +87,7 @@ function ListView() {
         >
           <div
             key={list.id}
-            className="flex h-full w-full flex-col rounded-lg border bg-card p-4"
+            className="flex h-full w-full flex-col rounded-lg border bg-card p-4 hover:bg-muted/50"
           >
             <h3 className="mb-2 text-lg font-semibold">{list.name}</h3>
             <div className="mt-auto space-y-1 text-sm text-muted-foreground">

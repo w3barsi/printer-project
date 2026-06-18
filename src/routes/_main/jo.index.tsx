@@ -6,7 +6,7 @@ import { ArrowLeftIcon, ArrowRightIcon, ChevronRightIcon, HashIcon } from "lucid
 import { Suspense, useRef, useState } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 
-import { CreateDialog } from "@/components/jo/create-jo";
+import { CreateJoDialog } from "@/components/jo/create-jo";
 import { Container } from "@/components/layouts/container";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -92,11 +92,12 @@ function JobOrderList() {
 
   return (
     <div className="flex flex-col gap-2 md:gap-4">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold"> Job Orders</h1>
-        <CreateDialog />
-      </div>
-      <Card className="pt-0 pb-0">
+      <div className="flex items-center justify-between"></div>
+      <Card className="pb-0">
+        <CardHeader className="flex items-center justify-between">
+          <h1 className="text-3xl font-bold"> Job Orders</h1>
+          <CreateJoDialog />
+        </CardHeader>
         <CardContent className="p-0">
           <Table>
             <TableHeader>
