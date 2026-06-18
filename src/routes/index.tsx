@@ -24,7 +24,6 @@ type Service = {
   name: string;
   blurb: string;
   icon: LucideIcon;
-  accent: "red" | "white" | "silver";
 };
 
 const SERVICES: Service[] = [
@@ -34,7 +33,6 @@ const SERVICES: Service[] = [
     blurb:
       "Billboards, backlit films, and oversized prints with saturated color that holds up at any scale.",
     icon: PrinterIcon,
-    accent: "red",
   },
   {
     no: "02",
@@ -42,7 +40,6 @@ const SERVICES: Service[] = [
     blurb:
       "Weatherproof tarps and banners built for the street — grommeted, hemmed, ready to hang.",
     icon: FlagIcon,
-    accent: "white",
   },
   {
     no: "03",
@@ -50,7 +47,6 @@ const SERVICES: Service[] = [
     blurb:
       "Storefronts, wayfinding, and 3D letter signs that make a business impossible to miss.",
     icon: StoreIcon,
-    accent: "silver",
   },
   {
     no: "04",
@@ -58,7 +54,6 @@ const SERVICES: Service[] = [
     blurb:
       "Hand-bent neon and LED channel letters wired to glow day and night, indoors and out.",
     icon: LightbulbIcon,
-    accent: "red",
   },
   {
     no: "05",
@@ -66,7 +61,6 @@ const SERVICES: Service[] = [
     blurb:
       "Cut, bent, and polished acrylic for light boxes, display stands, and one-off custom builds.",
     icon: LayersIcon,
-    accent: "white",
   },
   {
     no: "06",
@@ -74,7 +68,6 @@ const SERVICES: Service[] = [
     blurb:
       "Engraved plaques, cast medals, and trophies that make an achievement feel permanent.",
     icon: AwardIcon,
-    accent: "silver",
   },
   {
     no: "07",
@@ -82,14 +75,12 @@ const SERVICES: Service[] = [
     blurb:
       "Full and partial wraps, magnetic signage, and fleet branding that turns traffic into impressions.",
     icon: CarIcon,
-    accent: "red",
   },
   {
     no: "08",
     name: "Advertising Materials",
     blurb: "Posters, flyers, standees, and promo kits produced fast and finished clean.",
     icon: MegaphoneIcon,
-    accent: "white",
   },
   {
     no: "09",
@@ -97,7 +88,6 @@ const SERVICES: Service[] = [
     blurb:
       "Layout, identity, and artwork — the design work that makes the print worth printing.",
     icon: PenToolIcon,
-    accent: "silver",
   },
   {
     no: "10",
@@ -105,14 +95,12 @@ const SERVICES: Service[] = [
     blurb:
       "Backdrops, banners, and one-off pieces for launches, parties, and corporate events.",
     icon: PartyPopperIcon,
-    accent: "red",
   },
   {
     no: "11",
     name: "Promotional Materials",
     blurb: "Branded merch, tags, and giveaways that keep a logo in customers' hands.",
     icon: GiftIcon,
-    accent: "white",
   },
   {
     no: "12",
@@ -120,7 +108,6 @@ const SERVICES: Service[] = [
     blurb:
       "Short-run digital prints with quick turnaround — proofs the same day when possible.",
     icon: ImageIcon,
-    accent: "silver",
   },
 ];
 
@@ -138,12 +125,6 @@ const MARQUEE_ITEMS = [
   "Graphic Design",
   "Promo Materials",
 ];
-
-const ACCENT_SOLID: Record<Service["accent"], string> = {
-  red: "text-[var(--shop-red)]",
-  white: "text-[var(--shop-white)]",
-  silver: "text-[var(--shop-silver)]",
-};
 
 function ShopHome() {
   return (
@@ -407,9 +388,7 @@ function ServiceCard({ service }: { service: Service }) {
       className="shop-card group relative flex flex-col gap-6 bg-[var(--shop-panel)] p-7 md:p-8"
     >
       <div className="flex items-start justify-between">
-        <div
-          className={`flex size-12 items-center justify-center rounded-sm border border-[var(--shop-line-2)] ${ACCENT_SOLID[service.accent]}`}
-        >
+        <div className="flex size-12 items-center justify-center rounded-sm border border-[var(--shop-line-2)] text-[var(--shop-red)]">
           <Icon className="size-6" />
         </div>
         <span className="shop-eyebrow !text-[0.6rem] !tracking-[0.3em] text-[var(--shop-ink-mute)]">
@@ -422,17 +401,6 @@ function ServiceCard({ service }: { service: Service }) {
         <p className="mt-3 text-sm leading-relaxed text-[var(--shop-ink-dim)]">
           {service.blurb}
         </p>
-      </div>
-
-      <div className="flex items-center justify-between border-t border-[var(--shop-line)] pt-5">
-        <span className="shop-eyebrow !text-[0.6rem] text-[var(--shop-ink-mute)]">
-          In-house
-        </span>
-        <span
-          className={`translate-x-1 text-sm opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100 ${ACCENT_SOLID[service.accent]}`}
-        >
-          →
-        </span>
       </div>
     </div>
   );
