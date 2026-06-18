@@ -696,7 +696,7 @@ code {
 }
 .shop-btn-primary:hover {
   background: var(--shop-white);
-  color: var(--shop-bg);
+  color: var(--shop-ink);
   box-shadow:
     0 0 24px oklch(1 0 0 / 0.45),
     0 0 60px oklch(1 0 0 / 0.2);

@@ -14,6 +14,7 @@ import {
   StoreIcon,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import type { CSSProperties } from "react";
 
 export const Route = createFileRoute("/")({
   component: ShopHome,
@@ -31,49 +32,49 @@ const SERVICES: Service[] = [
     no: "01",
     name: "Large-Format Digital Printing",
     blurb:
-      "Billboards, backlit films, and oversized prints with saturated color that holds up at any scale.",
+      "Billboards, backlit films, and oversized prints with color that stays clear from across the street.",
     icon: PrinterIcon,
   },
   {
     no: "02",
     name: "Tarpaulins & Banners",
     blurb:
-      "Weatherproof tarps and banners built for the street — grommeted, hemmed, ready to hang.",
+      "Weatherproof tarps and banners for openings, promos, schools, and events - hemmed, grommeted, ready to hang.",
     icon: FlagIcon,
   },
   {
     no: "03",
     name: "Commercial & Business Signage",
     blurb:
-      "Storefronts, wayfinding, and 3D letter signs that make a business impossible to miss.",
+      "Storefronts, wayfinding, and 3D letter signs that help people find you quickly.",
     icon: StoreIcon,
   },
   {
     no: "04",
     name: "LED & Neon Signs",
     blurb:
-      "Hand-bent neon and LED channel letters wired to glow day and night, indoors and out.",
+      "Bright LED and neon-style signs for shops, counters, windows, and photo-ready walls.",
     icon: LightbulbIcon,
   },
   {
     no: "05",
     name: "Acrylic Fabrication",
     blurb:
-      "Cut, bent, and polished acrylic for light boxes, display stands, and one-off custom builds.",
+      "Cut, bent, and polished acrylic for light boxes, display stands, and custom ideas.",
     icon: LayersIcon,
   },
   {
     no: "06",
     name: "Awards, Plaques & Medals",
     blurb:
-      "Engraved plaques, cast medals, and trophies that make an achievement feel permanent.",
+      "Engraved plaques, cast medals, and trophies made carefully for meaningful moments.",
     icon: AwardIcon,
   },
   {
     no: "07",
     name: "Vehicle Graphics & Wraps",
     blurb:
-      "Full and partial wraps, magnetic signage, and fleet branding that turns traffic into impressions.",
+      "Full wraps, partial wraps, magnetic signs, and fleet branding that keeps your name moving.",
     icon: CarIcon,
   },
   {
@@ -86,14 +87,14 @@ const SERVICES: Service[] = [
     no: "09",
     name: "Graphic Design",
     blurb:
-      "Layout, identity, and artwork — the design work that makes the print worth printing.",
+      "Layout, identity, and artwork help when you know what you need but not how it should look yet.",
     icon: PenToolIcon,
   },
   {
     no: "10",
     name: "Custom Event Printing",
     blurb:
-      "Backdrops, banners, and one-off pieces for launches, parties, and corporate events.",
+      "Backdrops, welcome boards, banners, and one-off pieces for launches, parties, and team events.",
     icon: PartyPopperIcon,
   },
   {
@@ -106,10 +107,24 @@ const SERVICES: Service[] = [
     no: "12",
     name: "Digital Printing Services",
     blurb:
-      "Short-run digital prints with quick turnaround — proofs the same day when possible.",
+      "Short-run digital prints with quick turnaround and friendly proofing before we produce.",
     icon: ImageIcon,
   },
 ];
+
+const SHOP_THEME: CSSProperties & Record<`--${string}`, string> = {
+  "--shop-bg": "#fff5f1",
+  "--shop-bg-2": "#ffd9d1",
+  "--shop-panel": "#fffaf7",
+  "--shop-ink": "#321917",
+  "--shop-ink-dim": "#704541",
+  "--shop-ink-mute": "#a26862",
+  "--shop-line": "rgba(139, 39, 32, 0.16)",
+  "--shop-line-2": "rgba(139, 39, 32, 0.28)",
+  "--shop-red": "#e1261c",
+  "--shop-white": "#fff5f1",
+  "--shop-silver": "#d63c32",
+};
 
 const MARQUEE_ITEMS = [
   "Tarpaulins",
@@ -128,7 +143,7 @@ const MARQUEE_ITEMS = [
 
 function ShopHome() {
   return (
-    <div className="shop shop-grain">
+    <div className="shop shop-grain" style={SHOP_THEME}>
       <ShopHeader />
       <main>
         <ShopHero />
@@ -152,13 +167,9 @@ function ShopHeader() {
         <img
           src="/DG_SHORT_SVG.svg"
           alt=""
-          className="h-10 w-auto rounded-sm border border-white/80 bg-white p-1.5 md:h-11"
+          className="h-10 w-auto rounded-2xl border border-white/80 bg-white p-1.5 shadow-sm md:h-11"
         />
-        <img
-          src="/DG_Long.png"
-          alt="DARCYGRAPHiX"
-          className="shop-logo-stroke h-8 w-auto md:h-9"
-        />
+        <img src="/DG_Long.png" alt="DARCYGRAPHiX" className="h-8 w-auto md:h-9" />
       </a>
       <nav className="hidden items-center gap-9 md:flex">
         {[
@@ -179,11 +190,14 @@ function ShopHeader() {
       <div className="flex items-center gap-3">
         <Link
           to="/app/jo"
-          className="shop-eyebrow shop-link-underline hidden !tracking-[0.2em] sm:inline"
+          className="shop-eyebrow shop-link-underline hidden !tracking-[0.16em] sm:inline"
         >
           Staff login
         </Link>
-        <a href="#contact" className="shop-btn shop-btn-ghost !px-4 !py-2.5">
+        <a
+          href="#contact"
+          className="shop-btn shop-btn-primary !rounded-full !px-5 !py-2.5"
+        >
           Get a quote
         </a>
       </div>
@@ -199,17 +213,17 @@ function ShopHero() {
       id="top"
       className="relative z-10 mx-auto max-w-[1400px] px-6 pt-10 pb-20 md:px-10 md:pt-14"
     >
-      {/* ambient neon blobs */}
+      {/* warm ink-and-paper blobs */}
       <div
-        className="shop-blob shop-blob-red top-24 -left-20 h-[420px] w-[420px]"
+        className="shop-blob shop-blob-red top-24 -left-20 h-[420px] w-[420px] opacity-30"
         aria-hidden
       />
       <div
-        className="shop-blob shop-blob-white top-40 right-[-10%] h-[380px] w-[380px]"
+        className="shop-blob shop-blob-white top-40 right-[-10%] h-[380px] w-[380px] opacity-60"
         aria-hidden
       />
       <div
-        className="shop-blob shop-blob-silver top-[420px] left-1/3 h-[300px] w-[300px] opacity-30"
+        className="shop-blob shop-blob-silver top-[420px] left-1/3 h-[300px] w-[300px] opacity-40"
         aria-hidden
       />
 
@@ -217,61 +231,62 @@ function ShopHero() {
       <img
         src="/DG_SHORT_BORDERED.png"
         alt=""
-        className="shop-logo-stroke-strong pointer-events-none absolute top-[10%] right-[-8%] z-0 w-[55%] max-w-[520px] opacity-[0.16] md:top-[5%] md:right-[2%] md:w-[40%]"
+        className="pointer-events-none absolute top-[10%] right-[-8%] z-0 w-[55%] max-w-[520px] opacity-[0.08] md:top-[5%] md:right-[2%] md:w-[40%]"
       />
 
       <div className="relative grid gap-12 lg:grid-cols-[1.35fr_0.65fr] lg:items-end">
         <div>
           <div className="shop-rise shop-rise-1 mb-8 flex items-center gap-3">
-            <span className="h-px w-10 bg-[var(--shop-red)]" />
-            <span className="shop-eyebrow !text-[var(--shop-red)]">
-              Est. — Advertising &amp; Signage
+            <span className="h-px w-10 bg-(--shop-red)" />
+            <span className="shop-eyebrow !tracking-[0.18em] !text-(--shop-red)">
+              Friendly print, signage &amp; fabrication
             </span>
           </div>
 
-          <h1 className="shop-font-display shop-rise shop-rise-2 text-[clamp(3.4rem,12vw,11rem)]">
-            <span className="block">PRINT</span>
+          <h1 className="shop-font-display shop-rise shop-rise-2 text-[clamp(3.2rem,10vw,9rem)] leading-[0.88]">
+            <span className="block">MAKE YOUR</span>
             <span className="block">
-              <span className="shop-stroke">SOMETHING</span>
+              <span className="shop-stroke">BRAND</span>
             </span>
             <span className="block">
               <span
-                className="shop-neon-red shop-flicker shop-flicker-fast"
+                className="text-(--shop-red) drop-shadow-[0_12px_28px_rgba(242,92,61,0.22)]"
                 style={{ animationDelay: "0.6s" }}
               >
-                LOUD.
+                EASY TO SPOT.
               </span>
             </span>
           </h1>
 
-          <p className="shop-rise shop-rise-4 mt-8 max-w-xl text-base leading-relaxed text-pretty text-[var(--shop-ink-dim)] md:text-lg">
-            Big-format print, neon, signage, and custom fabrication for brands that refuse
-            to blend in. We design it, print it, build it, and hang it — under one roof.
+          <p className="shop-rise shop-rise-4 mt-8 max-w-xl text-base leading-relaxed text-pretty text-(--shop-ink-dim) md:text-lg">
+            Big-format print, signage, acrylic, awards, and event pieces made by a crew
+            that talks clearly, proofs carefully, and helps you get the job done without
+            the guesswork.
           </p>
 
           <div className="shop-rise shop-rise-5 mt-10 flex flex-wrap items-center gap-4">
-            <a href="#contact" className="shop-btn shop-btn-primary">
+            <a href="#contact" className="shop-btn shop-btn-primary !rounded-full">
               Request a quote
             </a>
-            <a href="#services" className="shop-btn shop-btn-ghost">
+            <a href="#services" className="shop-btn shop-btn-ghost !rounded-full">
               See services
             </a>
           </div>
 
           <div className="shop-rise shop-rise-6 mt-12 flex flex-wrap items-center gap-x-8 gap-y-3">
-            {["Same-day quotes", "In-house fabrication", "Any scale"].map((t) => (
+            {["Clear quotes", "Artwork help", "Built in-house"].map((t) => (
               <div
                 key={t}
-                className="flex items-center gap-2 text-sm text-[var(--shop-ink-dim)]"
+                className="flex items-center gap-2 text-sm text-(--shop-ink-dim)"
               >
-                <span className="shop-neon-red text-[0.7rem]">✦</span>
+                <span className="text-[0.7rem] text-(--shop-red)">✦</span>
                 {t}
               </div>
             ))}
           </div>
         </div>
 
-        {/* mock LED sign panel */}
+        {/* friendly shop-window panel */}
         <div className="shop-rise shop-rise-5 relative">
           <SignPanel />
         </div>
@@ -286,36 +301,38 @@ function ShopHero() {
 
 function SignPanel() {
   return (
-    <div className="relative mx-auto w-full max-w-sm rounded-md border border-[var(--shop-line-2)] bg-[var(--shop-bg-2)] p-8">
-      <div className="shop-halftone pointer-events-none absolute inset-0 rounded-md opacity-40" />
+    <div className="relative mx-auto w-full max-w-sm rotate-1 rounded-[2rem] border border-(--shop-line-2) bg-(--shop-panel) p-7 shadow-[0_28px_80px_rgba(139,39,32,0.14)]">
+      <div className="shop-halftone pointer-events-none absolute inset-0 rounded-[2rem] opacity-20" />
       <div className="relative">
         <div className="mb-5 flex items-center justify-between">
-          <span className="shop-eyebrow !text-[0.62rem]">Channel Letter · Live</span>
-          <span className="flex items-center gap-1.5 text-[0.62rem] text-[var(--shop-ink-mute)]">
-            <span className="size-1.5 animate-pulse rounded-full bg-[var(--shop-red)]" />
-            ON
+          <span className="shop-eyebrow !text-[0.62rem] !tracking-[0.18em]">
+            Shop window preview
+          </span>
+          <span className="flex items-center gap-1.5 text-[0.62rem] text-(--shop-ink-mute)">
+            <span className="size-1.5 animate-pulse rounded-full bg-(--shop-red)" />
+            READY
           </span>
         </div>
 
-        <div className="rounded-sm border border-[var(--shop-line)] bg-black/60 p-6 text-center">
+        <div className="rounded-[1.35rem] border border-(--shop-line) bg-[#ffe5df] p-6 text-center shadow-inner">
           <div
-            className="shop-font-display shop-neon-red shop-flicker text-5xl"
+            className="shop-font-display text-5xl text-(--shop-red)"
             style={{ animationDelay: "0.2s" }}
           >
-            OPEN
+            HELLO
           </div>
-          <div className="shop-font-serif mt-3 text-xl text-[var(--shop-ink-dim)] italic">
-            for business
+          <div className="shop-font-serif mt-3 text-xl text-(--shop-ink-dim) italic">
+            we made your sign
           </div>
         </div>
 
         <div className="mt-6 flex items-center justify-center gap-4">
-          <img src="/DG_SHORT_BORDERED.png" alt="" className="h-20 w-auto" />
+          <img src="/DG_SHORT_BORDERED.png" alt="" className="h-20 w-auto opacity-90" />
         </div>
 
-        <p className="mt-6 text-center text-xs leading-relaxed text-[var(--shop-ink-mute)]">
-          Hand-bent neon &amp; LED channel letters — wired, weatherproofed, and installed
-          by our crew.
+        <p className="mt-6 text-center text-xs leading-relaxed text-(--shop-ink-mute)">
+          We help choose materials, prepare artwork, print, fabricate, and install when
+          your project needs it.
         </p>
       </div>
     </div>
@@ -328,17 +345,17 @@ function ShopMarquee() {
   const row = [...MARQUEE_ITEMS, ...MARQUEE_ITEMS];
   return (
     <section
-      className="relative z-10 border-y border-[var(--shop-line)] bg-[var(--shop-bg-2)] py-5"
+      className="relative z-10 border-y border-(--shop-line) bg-(--shop-bg-2) py-5"
       aria-label="Services"
     >
       <div className="flex overflow-hidden">
         <div className="shop-marquee shop-marquee-fwd">
           {row.map((item, i) => (
             <span key={i} className="flex items-center">
-              <span className="shop-font-display px-6 text-2xl text-[var(--shop-ink)]">
+              <span className="shop-font-display px-6 text-2xl text-(--shop-ink)">
                 {item}
               </span>
-              <span className="shop-neon-red text-lg">✦</span>
+              <span className="text-lg text-(--shop-red)">✦</span>
             </span>
           ))}
         </div>
@@ -353,15 +370,15 @@ function ShopServices() {
   return (
     <section
       id="services"
-      className="relative z-10 mx-auto max-w-[1400px] px-6 py-24 md:px-10 md:py-32"
+      className="relative z-10 mx-auto max-w-350 px-6 py-24 md:px-10 md:py-32"
     >
       <SectionHead
         no="§ 01"
-        title="What comes off the shop floor"
-        sub="Twelve things we print, bend, cut, and fabricate — most of them under one roof, all of them built to be seen."
+        title="Start with what you need made"
+        sub="From one banner to a full storefront, we make the practical pieces that help customers notice, understand, and remember you."
       />
 
-      <div className="mt-14 grid gap-px overflow-hidden rounded-md border border-[var(--shop-line)] bg-[var(--shop-line)] sm:grid-cols-2 lg:grid-cols-3">
+      <div className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {SERVICES.map((s) => (
           <ServiceCard key={s.no} service={s} />
         ))}
@@ -373,32 +390,20 @@ function ShopServices() {
 function ServiceCard({ service }: { service: Service }) {
   const Icon = service.icon;
   return (
-    <div
-      onMouseMove={(e) => {
-        const r = e.currentTarget.getBoundingClientRect();
-        e.currentTarget.style.setProperty(
-          "--mx",
-          `${((e.clientX - r.left) / r.width) * 100}%`,
-        );
-        e.currentTarget.style.setProperty(
-          "--my",
-          `${((e.clientY - r.top) / r.height) * 100}%`,
-        );
-      }}
-      className="shop-card group relative flex flex-col gap-6 bg-[var(--shop-panel)] p-7 md:p-8"
-    >
+    <div className="group relative flex min-h-64 flex-col gap-6 overflow-hidden rounded-[1.75rem] border border-(--shop-line) bg-(--shop-panel) p-7 shadow-[0_18px_50px_rgba(139,39,32,0.08)] transition-[transform,border-color,box-shadow,background-color] duration-300 hover:border-[rgba(225,38,28,0.38)] hover:bg-[#fff0ec] hover:shadow-[0_24px_60px_rgba(139,39,32,0.13)] md:p-8">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_0%,rgba(225,38,28,0.14),transparent_38%),radial-gradient(circle_at_90%_18%,rgba(214,60,50,0.1),transparent_34%)] opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
       <div className="flex items-start justify-between">
-        <div className="flex size-12 items-center justify-center rounded-sm border border-[var(--shop-line-2)] text-[var(--shop-red)]">
+        <div className="relative flex size-12 items-center justify-center rounded-2xl border border-(--shop-line-2) bg-[#ffe5df] text-(--shop-red) transition-transform duration-300 group-hover:scale-105 group-hover:-rotate-3">
           <Icon className="size-6" />
         </div>
-        <span className="shop-eyebrow !text-[0.6rem] !tracking-[0.3em] text-[var(--shop-ink-mute)]">
+        <span className="shop-eyebrow !text-[0.6rem] !tracking-[0.3em] text-(--shop-ink-mute)">
           {service.no}
         </span>
       </div>
 
       <div className="mt-auto">
         <h3 className="shop-font-wide text-lg leading-snug font-bold">{service.name}</h3>
-        <p className="mt-3 text-sm leading-relaxed text-[var(--shop-ink-dim)]">
+        <p className="mt-3 text-sm leading-relaxed text-(--shop-ink-dim)">
           {service.blurb}
         </p>
       </div>
@@ -413,7 +418,7 @@ function ShopProcess() {
     {
       no: "01",
       title: "Brief",
-      body: "Tell us the what, where, and when. We quote it — most jobs same day.",
+      body: "Tell us the what, where, and when. We quote it - most jobs same day.",
     },
     {
       no: "02",
@@ -434,38 +439,34 @@ function ShopProcess() {
   return (
     <section
       id="process"
-      className="relative z-10 border-y border-[var(--shop-line)] bg-[var(--shop-bg-2)] py-24 md:py-32"
+      className="relative z-10 border-y border-(--shop-line) bg-(--shop-bg-2) py-24 md:py-32"
     >
       <div className="shop-halftone pointer-events-none absolute inset-0 opacity-30" />
-      <div className="relative mx-auto max-w-[1400px] px-6 md:px-10">
+      <div className="relative mx-auto max-w-350 px-6 md:px-10">
         <SectionHead
           no="§ 02"
-          title="How a job runs through the shop"
-          sub="Four steps, one crew, no handoffs to strangers."
+          title="An easy path from idea to installed"
+          sub="Four clear steps, one crew, and proofs before production so you always know what is happening."
         />
 
-        <ol className="mt-14 grid gap-px overflow-hidden rounded-md border border-[var(--shop-line)] bg-[var(--shop-line)] md:grid-cols-4">
+        <ol className="mt-14 grid gap-4 md:grid-cols-4">
           {steps.map((s, i) => (
             <li
               key={s.no}
-              className="relative flex flex-col gap-4 bg-[var(--shop-panel)] p-7 md:p-8"
+              className="relative flex flex-col gap-4 rounded-[1.75rem] border border-(--shop-line) bg-(--shop-panel) p-7 shadow-[0_18px_50px_rgba(139,39,32,0.07)] md:p-8"
             >
               <div className="flex items-center justify-between">
-                <span className="shop-font-display text-5xl text-[var(--shop-ink-mute)]">
+                <span className="shop-font-display text-5xl text-(--shop-ink-mute)">
                   {s.no}
                 </span>
                 <RegMark
-                  className={
-                    i % 2 === 0 ? "text-[var(--shop-red)]" : "text-[var(--shop-white)]"
-                  }
+                  className={i % 2 === 0 ? "text-(--shop-red)" : "text-(--shop-silver)"}
                 />
               </div>
               <h3 className="shop-font-wide text-xl font-extrabold tracking-wide uppercase">
                 {s.title}
               </h3>
-              <p className="text-sm leading-relaxed text-[var(--shop-ink-dim)]">
-                {s.body}
-              </p>
+              <p className="text-sm leading-relaxed text-(--shop-ink-dim)">{s.body}</p>
             </li>
           ))}
         </ol>
@@ -479,42 +480,42 @@ function ShopProcess() {
 function ShopCapabilities() {
   const caps = [
     {
-      k: "Fast",
-      v: "Most jobs quoted same-day. Short-run digital prints proofed quickly.",
+      k: "Clear",
+      v: "You get practical options, plain-language pricing, and proofs before we produce.",
     },
     {
-      k: "In-house",
-      v: "Print, fabricate, and finish under one roof — fewer handoffs, tighter quality.",
+      k: "Helpful",
+      v: "Bring a finished file or a rough idea. We can help shape it into something print-ready.",
     },
     {
-      k: "Any scale",
-      v: "From a single engraved plaque to a full building wrap.",
+      k: "Capable",
+      v: "From a single engraved plaque to a full building wrap, the work stays with our team.",
     },
   ];
   return (
     <section
       id="capabilities"
-      className="relative z-10 mx-auto max-w-[1400px] px-6 py-24 md:px-10 md:py-32"
+      className="relative z-10 mx-auto max-w-350 px-6 py-24 md:px-10 md:py-32"
     >
       <div className="grid gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
         <div>
           <SectionHead
             no="§ 03"
-            title="A print shop, not a middleman"
-            sub="We keep the machines, the materials, and the crew in one place — so a job doesn't get lost between vendors."
+            title="Serious production, easy conversation"
+            sub="We keep the machines, materials, and people close together so your project feels simpler from the first message to the final install."
             align="left"
           />
         </div>
 
-        <div className="grid gap-px overflow-hidden rounded-md border border-[var(--shop-line)] bg-[var(--shop-line)] sm:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-3">
           {caps.map((c, i) => (
             <div
               key={c.k}
-              className="relative flex flex-col gap-3 bg-[var(--shop-panel)] p-7"
+              className="relative flex flex-col gap-3 rounded-[1.75rem] border border-(--shop-line) bg-(--shop-panel) p-7 shadow-[0_18px_50px_rgba(139,39,32,0.07)]"
             >
               <span
                 className={`shop-font-display text-3xl ${
-                  ["shop-neon-red", "shop-neon-white", "shop-neon-silver"][i]
+                  ["text-(--shop-red)", "text-(--shop-silver)", "text-(--shop-ink)"][i]
                 }`}
               >
                 0{i + 1}
@@ -522,7 +523,7 @@ function ShopCapabilities() {
               <h3 className="shop-font-wide text-base font-extrabold tracking-wider uppercase">
                 {c.k}
               </h3>
-              <p className="text-sm leading-relaxed text-[var(--shop-ink-dim)]">{c.v}</p>
+              <p className="text-sm leading-relaxed text-(--shop-ink-dim)">{c.v}</p>
             </div>
           ))}
         </div>
@@ -537,40 +538,45 @@ function ShopContact() {
   return (
     <section
       id="contact"
-      className="relative z-10 overflow-hidden border-y border-[var(--shop-line)] bg-[var(--shop-bg-2)] py-24 md:py-36"
+      className="relative z-10 overflow-hidden border-y border-(--shop-line) bg-(--shop-bg-2) py-24 md:py-36"
     >
       <div
-        className="shop-blob shop-blob-red top-[-20%] left-[-10%] h-[460px] w-[460px] opacity-40"
+        className="shop-blob shop-blob-red top-[-20%] left-[-10%] h-115 w-115 opacity-40"
         aria-hidden
       />
       <div
-        className="shop-blob shop-blob-white right-[-15%] bottom-[-30%] h-[420px] w-[420px] opacity-40"
+        className="shop-blob shop-blob-white right-[-15%] bottom-[-30%] h-105 w-105 opacity-40"
         aria-hidden
       />
       <div className="shop-halftone-red pointer-events-none absolute inset-0 opacity-30" />
 
-      <div className="relative mx-auto max-w-[1100px] px-6 text-center md:px-10">
-        <span className="shop-eyebrow !text-[var(--shop-red)]">✦ Ready when you are</span>
+      <div className="relative mx-auto max-w-275 px-6 text-center md:px-10">
+        <span className="shop-eyebrow !tracking-[0.18em] !text-(--shop-red)">
+          ✦ Tell us what you are making
+        </span>
         <h2 className="shop-font-display mx-auto mt-6 max-w-4xl text-[clamp(2.6rem,9vw,7rem)] leading-[0.92]">
-          Let's print
+          Let's make
           <br />
-          <span className="shop-neon-red shop-flicker">something loud.</span>
+          <span className="text-(--shop-red)">this easy.</span>
         </h2>
-        <p className="mx-auto mt-8 max-w-xl text-base leading-relaxed text-[var(--shop-ink-dim)] md:text-lg">
-          Send us a brief — the what, the size, the deadline — and we'll quote it back,
-          usually within a day.
+        <p className="mx-auto mt-8 max-w-xl text-base leading-relaxed text-(--shop-ink-dim) md:text-lg">
+          Send the item, size, quantity, deadline, and any artwork you have. We'll reply
+          with the next practical step.
         </p>
 
         <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
-          <a href="mailto:hello@darcygraphix.com" className="shop-btn shop-btn-primary">
+          <a
+            href="mailto:hello@darcygraphix.com"
+            className="shop-btn shop-btn-primary !rounded-full"
+          >
             hello@darcygraphix.com
           </a>
-          <a href="#services" className="shop-btn shop-btn-ghost">
+          <a href="#services" className="shop-btn shop-btn-ghost !rounded-full">
             Browse services
           </a>
         </div>
 
-        <div className="mt-14 grid gap-px overflow-hidden rounded-md border border-[var(--shop-line)] bg-[var(--shop-line)] sm:grid-cols-3">
+        <div className="mt-14 grid gap-4 sm:grid-cols-3">
           {[
             ["Email", "hello@darcygraphix.com"],
             ["Web", "darcygraphix.com"],
@@ -578,12 +584,12 @@ function ShopContact() {
           ].map(([k, v]) => (
             <div
               key={k}
-              className="flex flex-col items-center gap-2 bg-[var(--shop-panel)] px-4 py-7"
+              className="flex flex-col items-center gap-2 rounded-[1.5rem] border border-(--shop-line) bg-(--shop-panel) px-4 py-7 shadow-[0_18px_50px_rgba(139,39,32,0.07)]"
             >
-              <span className="shop-eyebrow !text-[0.6rem] text-[var(--shop-ink-mute)]">
+              <span className="shop-eyebrow !text-[0.6rem] text-(--shop-ink-mute)">
                 {k}
               </span>
-              <span className="shop-font-wide text-sm font-semibold text-[var(--shop-ink)]">
+              <span className="shop-font-wide text-sm font-semibold text-(--shop-ink)">
                 {v}
               </span>
             </div>
@@ -598,18 +604,14 @@ function ShopContact() {
 
 function ShopFooter() {
   return (
-    <footer className="relative z-10 bg-[var(--shop-bg)] px-6 py-16 md:px-10">
+    <footer className="relative z-10 bg-(--shop-bg) px-6 py-16 md:px-10">
       <div className="mx-auto max-w-[1400px]">
         <div className="grid gap-10 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
           <div>
-            <img
-              src="/DG_Long.png"
-              alt="DARCYGRAPHiX"
-              className="shop-logo-stroke h-10 w-auto md:h-12"
-            />
-            <p className="mt-4 max-w-xs text-sm leading-relaxed text-[var(--shop-ink-dim)]">
-              Advertising, signage, and print — designed, produced, and installed by one
-              crew.
+            <img src="/DG_Long.png" alt="DARCYGRAPHiX" className="h-10 w-auto md:h-12" />
+            <p className="mt-4 max-w-xs text-sm leading-relaxed text-(--shop-ink-dim)">
+              Advertising, signage, and print made by a team that keeps the process clear
+              and approachable.
             </p>
           </div>
 
@@ -642,7 +644,7 @@ function ShopFooter() {
 
         <div className="shop-rule my-10" />
 
-        <div className="flex flex-col items-start justify-between gap-4 text-xs text-[var(--shop-ink-mute)] md:flex-row md:items-center">
+        <div className="flex flex-col items-start justify-between gap-4 text-xs text-(--shop-ink-mute) md:flex-row md:items-center">
           <span>
             © {new Date().getFullYear()} DARCYGRAPHiX Advertising. All rights reserved.
           </span>
@@ -669,14 +671,14 @@ function FooterCol({ title, links }: { title: string; links: [string, string][] 
             {href.startsWith("/") ? (
               <Link
                 to={href}
-                className="shop-link-underline text-sm text-[var(--shop-ink-dim)] transition-colors hover:text-[var(--shop-ink)]"
+                className="shop-link-underline text-sm text-(--shop-ink-dim) transition-colors hover:text-(--shop-ink)"
               >
                 {label}
               </Link>
             ) : (
               <a
                 href={href}
-                className="shop-link-underline text-sm text-[var(--shop-ink-dim)] transition-colors hover:text-[var(--shop-ink)]"
+                className="shop-link-underline text-sm text-(--shop-ink-dim) transition-colors hover:text-(--shop-ink)"
               >
                 {label}
               </a>
@@ -706,13 +708,13 @@ function SectionHead({
       <div
         className={`flex items-center gap-3 ${align === "center" ? "justify-center" : ""}`}
       >
-        <span className="shop-eyebrow !text-[var(--shop-red)]">{no}</span>
-        <span className="h-px w-10 bg-[var(--shop-red)]" />
+        <span className="shop-eyebrow !text-(--shop-red)">{no}</span>
+        <span className="h-px w-10 bg-(--shop-red)" />
       </div>
       <h2 className="shop-font-display mt-5 text-[clamp(2rem,5.5vw,4rem)] leading-[0.95]">
         {title}
       </h2>
-      <p className="mt-5 text-base leading-relaxed text-[var(--shop-ink-dim)] md:text-lg">
+      <p className="mt-5 text-base leading-relaxed text-(--shop-ink-dim) md:text-lg">
         {sub}
       </p>
     </div>
@@ -732,7 +734,7 @@ function RegMark({ className = "" }: { className?: string }) {
 function RegCorner({ className = "" }: { className?: string }) {
   return (
     <span
-      className={`pointer-events-none absolute ${className} z-20 hidden text-[var(--shop-line-2)] md:block`}
+      className={`pointer-events-none absolute ${className} z-20 hidden text-(--shop-line-2) md:block`}
       aria-hidden
     >
       <RegMark />
