@@ -1,5 +1,8 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Anton&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap");
 @import "tailwindcss";
 @import "tw-animate-css";
 
@@ -313,5 +316,446 @@ code {
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+/* ============================================================
+   DARCYGRAPHiX — print-shop / neon-signage marketing surface
+   Everything is scoped under .shop so it never leaks into the
+   app dashboard. The page is always dark, regardless of theme.
+   ============================================================ */
+
+.shop {
+  --shop-bg: oklch(0.13 0.008 264);
+  --shop-bg-2: oklch(0.1 0.006 264);
+  --shop-panel: oklch(0.16 0.009 264);
+  --shop-panel-2: oklch(0.2 0.011 264);
+  --shop-line: oklch(0.3 0.012 264);
+  --shop-line-2: oklch(0.4 0.014 264);
+  --shop-ink: oklch(0.97 0.004 95);
+  --shop-ink-dim: oklch(0.74 0.012 264);
+  --shop-ink-mute: oklch(0.52 0.014 264);
+  --shop-red: oklch(0.66 0.24 27);
+  --shop-coral: oklch(0.8 0.16 12);
+  --shop-magenta: oklch(0.74 0.32 350);
+  --shop-cyan: oklch(0.84 0.16 200);
+  --shop-yellow: oklch(0.93 0.19 100);
+
+  --shop-font-display: "Anton", "Archivo", system-ui, sans-serif;
+  --shop-font-wide: "Archivo", system-ui, sans-serif;
+  --shop-font-body: "Inter", system-ui, sans-serif;
+  --shop-font-serif: "Instrument Serif", Georgia, serif;
+
+  position: relative;
+  isolation: isolate;
+  min-height: 100vh;
+  background: var(--shop-bg);
+  color: var(--shop-ink);
+  font-family: var(--shop-font-body);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: clip;
+}
+
+.shop * {
+  border-color: var(--shop-line);
+}
+
+.shop a {
+  color: inherit;
+}
+
+/* Type primitives ------------------------------------------------ */
+
+.shop-font-display {
+  font-family: var(--shop-font-display);
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  line-height: 0.9;
+}
+.shop-font-wide {
+  font-family: var(--shop-font-wide);
+}
+.shop-font-serif {
+  font-family: var(--shop-font-serif);
+}
+
+.shop-eyebrow {
+  font-family: var(--shop-font-wide);
+  font-weight: 600;
+  font-size: 0.72rem;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  color: var(--shop-ink-dim);
+}
+
+.shop-stroke {
+  color: transparent;
+  -webkit-text-stroke: 1.5px var(--shop-ink);
+}
+.shop-stroke-magenta {
+  -webkit-text-stroke-color: var(--shop-magenta);
+}
+.shop-stroke-cyan {
+  -webkit-text-stroke-color: var(--shop-cyan);
+}
+
+/* Neon glow text ------------------------------------------------- */
+
+.shop-neon {
+  text-shadow:
+    0 0 4px currentColor,
+    0 0 12px currentColor,
+    0 0 32px currentColor;
+}
+.shop-neon-magenta {
+  color: var(--shop-magenta);
+  text-shadow:
+    0 0 4px oklch(0.74 0.32 350),
+    0 0 14px oklch(0.74 0.32 350 / 0.85),
+    0 0 38px oklch(0.74 0.32 350 / 0.55),
+    0 0 70px oklch(0.74 0.32 350 / 0.35);
+}
+.shop-neon-cyan {
+  color: var(--shop-cyan);
+  text-shadow:
+    0 0 4px oklch(0.84 0.16 200),
+    0 0 14px oklch(0.84 0.16 200 / 0.85),
+    0 0 38px oklch(0.84 0.16 200 / 0.5),
+    0 0 70px oklch(0.84 0.16 200 / 0.3);
+}
+.shop-neon-yellow {
+  color: var(--shop-yellow);
+  text-shadow:
+    0 0 4px oklch(0.93 0.19 100),
+    0 0 14px oklch(0.93 0.19 100 / 0.85),
+    0 0 36px oklch(0.93 0.19 100 / 0.5),
+    0 0 64px oklch(0.93 0.19 100 / 0.3);
+}
+.shop-neon-red {
+  color: var(--shop-red);
+  text-shadow:
+    0 0 4px oklch(0.66 0.24 27),
+    0 0 14px oklch(0.66 0.24 27 / 0.85),
+    0 0 34px oklch(0.66 0.24 27 / 0.5);
+}
+
+/* Neon flicker on load ------------------------------------------- */
+
+@keyframes shop-flicker {
+  0%,
+  18%,
+  22%,
+  25%,
+  53%,
+  57%,
+  100% {
+    opacity: 1;
+    filter: none;
+  }
+  20% {
+    opacity: 0.4;
+    filter: brightness(0.6);
+  }
+  24% {
+    opacity: 0.85;
+  }
+  55% {
+    opacity: 0.55;
+    filter: brightness(0.7);
+  }
+  56% {
+    opacity: 1;
+  }
+}
+.shop-flicker {
+  animation: shop-flicker 4.5s linear infinite;
+}
+.shop-flicker-fast {
+  animation: shop-flicker 2.8s linear infinite;
+}
+
+/* Ambient blobs + halftone + grain -------------------------------- */
+
+@keyframes shop-float {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0, -28px, 0);
+  }
+}
+@keyframes shop-float-2 {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(22px, 18px, 0);
+  }
+}
+.shop-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.55;
+  pointer-events: none;
+  z-index: 0;
+}
+.shop-blob-magenta {
+  background: radial-gradient(circle, oklch(0.74 0.32 350 / 0.7), transparent 70%);
+  animation: shop-float 14s ease-in-out infinite;
+}
+.shop-blob-cyan {
+  background: radial-gradient(circle, oklch(0.84 0.16 200 / 0.55), transparent 70%);
+  animation: shop-float-2 18s ease-in-out infinite;
+}
+.shop-blob-yellow {
+  background: radial-gradient(circle, oklch(0.93 0.19 100 / 0.4), transparent 70%);
+  animation: shop-float 22s ease-in-out infinite;
+}
+
+.shop-halftone {
+  background-image: radial-gradient(oklch(1 0 0 / 0.12) 1px, transparent 1.4px);
+  background-size: 14px 14px;
+  background-position: 0 0;
+}
+.shop-halftone-dense {
+  background-image: radial-gradient(oklch(1 0 0 / 0.18) 1.1px, transparent 1.5px);
+  background-size: 9px 9px;
+}
+.shop-halftone-magenta {
+  background-image: radial-gradient(oklch(0.74 0.32 350 / 0.5) 1.2px, transparent 1.6px);
+  background-size: 12px 12px;
+}
+
+.shop-grain::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.06;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Registration mark ---------------------------------------------- */
+
+@keyframes shop-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.shop-reg {
+  position: relative;
+  width: 1em;
+  height: 1em;
+  border-radius: 50%;
+  border: 1.5px solid currentColor;
+  display: inline-block;
+}
+.shop-reg::before,
+.shop-reg::after {
+  content: "";
+  position: absolute;
+  background: currentColor;
+}
+.shop-reg::before {
+  left: 50%;
+  top: -2px;
+  bottom: -2px;
+  width: 1.5px;
+  transform: translateX(-50%);
+}
+.shop-reg::after {
+  top: 50%;
+  left: -2px;
+  right: -2px;
+  height: 1.5px;
+  transform: translateY(-50%);
+}
+.shop-reg-spin {
+  animation: shop-spin 26s linear infinite;
+}
+
+/* Marquee -------------------------------------------------------- */
+
+@keyframes shop-marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+@keyframes shop-marquee-rev {
+  from {
+    transform: translateX(-50%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+.shop-marquee {
+  display: flex;
+  width: max-content;
+  will-change: transform;
+}
+.shop-marquee-fwd {
+  animation: shop-marquee 38s linear infinite;
+}
+.shop-marquee-rev {
+  animation: shop-marquee-rev 38s linear infinite;
+}
+
+/* Entrance ------------------------------------------------------- */
+
+@keyframes shop-rise {
+  from {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.shop-rise {
+  animation: shop-rise 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+.shop-rise-1 {
+  animation-delay: 0.05s;
+}
+.shop-rise-2 {
+  animation-delay: 0.15s;
+}
+.shop-rise-3 {
+  animation-delay: 0.28s;
+}
+.shop-rise-4 {
+  animation-delay: 0.42s;
+}
+.shop-rise-5 {
+  animation-delay: 0.58s;
+}
+.shop-rise-6 {
+  animation-delay: 0.74s;
+}
+
+/* Card ink-press hover ------------------------------------------- */
+
+.shop-card {
+  position: relative;
+  transition:
+    transform 0.4s cubic-bezier(0.2, 0.7, 0.2, 1),
+    border-color 0.3s ease,
+    background 0.3s ease;
+}
+.shop-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(
+    220px circle at var(--mx, 50%) var(--my, 0%),
+    oklch(1 0 0 / 0.06),
+    transparent 60%
+  );
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+.shop-card:hover {
+  transform: translateY(-6px);
+  border-color: var(--shop-line-2);
+  background: var(--shop-panel-2);
+}
+.shop-card:hover::before {
+  opacity: 1;
+}
+
+/* Section divider rule ------------------------------------------- */
+
+.shop-rule {
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--shop-line-2), transparent);
+}
+
+/* Buttons -------------------------------------------------------- */
+
+.shop-btn {
+  font-family: var(--shop-font-wide);
+  font-weight: 700;
+  font-size: 0.78rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.95rem 1.4rem;
+  border-radius: 2px;
+  transition: all 0.25s ease;
+  position: relative;
+  white-space: nowrap;
+}
+.shop-btn-primary {
+  background: var(--shop-ink);
+  color: var(--shop-bg);
+  box-shadow: 0 0 0 0 oklch(0.74 0.32 350 / 0);
+}
+.shop-btn-primary:hover {
+  background: var(--shop-yellow);
+  color: var(--shop-bg);
+  box-shadow:
+    0 0 24px oklch(0.93 0.19 100 / 0.5),
+    0 0 60px oklch(0.93 0.19 100 / 0.25);
+  transform: translateY(-2px);
+}
+.shop-btn-ghost {
+  border: 1px solid var(--shop-line-2);
+  color: var(--shop-ink);
+}
+.shop-btn-ghost:hover {
+  border-color: var(--shop-magenta);
+  color: var(--shop-magenta);
+  box-shadow: 0 0 20px oklch(0.74 0.32 350 / 0.25);
+}
+
+/* Underline link ------------------------------------------------- */
+
+.shop-link-underline {
+  position: relative;
+}
+.shop-link-underline::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  width: 100%;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.3s ease;
+}
+.shop-link-underline:hover::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+/* Reduced motion ------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .shop-flicker,
+  .shop-flicker-fast,
+  .shop-blob,
+  .shop-reg-spin,
+  .shop-marquee-fwd,
+  .shop-marquee-rev,
+  .shop-rise {
+    animation: none !important;
+  }
+  .shop-rise {
+    opacity: 1 !important;
+    transform: none !important;
   }
 }
