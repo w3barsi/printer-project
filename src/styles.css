@@ -1,6 +1,6 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=Anton&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap");
 @import "tailwindcss";
@@ -326,22 +326,21 @@ code {
    ============================================================ */
 
 .shop {
-  --shop-bg: oklch(0.13 0.008 264);
-  --shop-bg-2: oklch(0.1 0.006 264);
-  --shop-panel: oklch(0.16 0.009 264);
-  --shop-panel-2: oklch(0.2 0.011 264);
-  --shop-line: oklch(0.3 0.012 264);
-  --shop-line-2: oklch(0.4 0.014 264);
-  --shop-ink: oklch(0.97 0.004 95);
-  --shop-ink-dim: oklch(0.74 0.012 264);
-  --shop-ink-mute: oklch(0.52 0.014 264);
-  --shop-red: oklch(0.66 0.24 27);
-  --shop-coral: oklch(0.8 0.16 12);
-  --shop-magenta: oklch(0.74 0.32 350);
-  --shop-cyan: oklch(0.84 0.16 200);
-  --shop-yellow: oklch(0.93 0.19 100);
+  --shop-bg: oklch(0.1 0.004 30);
+  --shop-bg-2: oklch(0.07 0.002 30);
+  --shop-panel: oklch(0.14 0.006 30);
+  --shop-panel-2: oklch(0.18 0.008 30);
+  --shop-line: oklch(0.25 0.006 30);
+  --shop-line-2: oklch(0.4 0.008 30);
+  --shop-ink: oklch(1 0 0);
+  --shop-ink-dim: oklch(0.72 0.01 30);
+  --shop-ink-mute: oklch(0.5 0.01 30);
+  --shop-red: oklch(0.62 0.28 27);
+  --shop-red-glow: oklch(0.62 0.28 27);
+  --shop-white: oklch(1 0 0);
+  --shop-silver: oklch(0.78 0 0);
 
-  --shop-font-display: "Anton", "Archivo", system-ui, sans-serif;
+  --shop-font-display: "Chakra Petch", "Archivo", system-ui, sans-serif;
   --shop-font-wide: "Archivo", system-ui, sans-serif;
   --shop-font-body: "Inter", system-ui, sans-serif;
   --shop-font-serif: "Instrument Serif", Georgia, serif;
@@ -369,7 +368,8 @@ code {
 
 .shop-font-display {
   font-family: var(--shop-font-display);
-  font-weight: 400;
+  font-weight: 700;
+  font-style: italic;
   letter-spacing: -0.01em;
   line-height: 0.9;
 }
@@ -393,11 +393,11 @@ code {
   color: transparent;
   -webkit-text-stroke: 1.5px var(--shop-ink);
 }
-.shop-stroke-magenta {
-  -webkit-text-stroke-color: var(--shop-magenta);
+.shop-stroke-red {
+  -webkit-text-stroke-color: var(--shop-red);
 }
-.shop-stroke-cyan {
-  -webkit-text-stroke-color: var(--shop-cyan);
+.shop-stroke-white {
+  -webkit-text-stroke-color: var(--shop-white);
 }
 
 /* Neon glow text ------------------------------------------------- */
@@ -408,36 +408,28 @@ code {
     0 0 12px currentColor,
     0 0 32px currentColor;
 }
-.shop-neon-magenta {
-  color: var(--shop-magenta);
-  text-shadow:
-    0 0 4px oklch(0.74 0.32 350),
-    0 0 14px oklch(0.74 0.32 350 / 0.85),
-    0 0 38px oklch(0.74 0.32 350 / 0.55),
-    0 0 70px oklch(0.74 0.32 350 / 0.35);
-}
-.shop-neon-cyan {
-  color: var(--shop-cyan);
-  text-shadow:
-    0 0 4px oklch(0.84 0.16 200),
-    0 0 14px oklch(0.84 0.16 200 / 0.85),
-    0 0 38px oklch(0.84 0.16 200 / 0.5),
-    0 0 70px oklch(0.84 0.16 200 / 0.3);
-}
-.shop-neon-yellow {
-  color: var(--shop-yellow);
-  text-shadow:
-    0 0 4px oklch(0.93 0.19 100),
-    0 0 14px oklch(0.93 0.19 100 / 0.85),
-    0 0 36px oklch(0.93 0.19 100 / 0.5),
-    0 0 64px oklch(0.93 0.19 100 / 0.3);
-}
 .shop-neon-red {
   color: var(--shop-red);
   text-shadow:
-    0 0 4px oklch(0.66 0.24 27),
-    0 0 14px oklch(0.66 0.24 27 / 0.85),
-    0 0 34px oklch(0.66 0.24 27 / 0.5);
+    0 0 4px oklch(0.62 0.28 27),
+    0 0 14px oklch(0.62 0.28 27 / 0.9),
+    0 0 38px oklch(0.62 0.28 27 / 0.6),
+    0 0 70px oklch(0.62 0.28 27 / 0.35);
+}
+.shop-neon-white {
+  color: var(--shop-white);
+  text-shadow:
+    0 0 4px oklch(1 0 0),
+    0 0 14px oklch(1 0 0 / 0.85),
+    0 0 36px oklch(1 0 0 / 0.45),
+    0 0 64px oklch(1 0 0 / 0.25);
+}
+.shop-neon-silver {
+  color: var(--shop-silver);
+  text-shadow:
+    0 0 4px oklch(0.78 0 0),
+    0 0 14px oklch(0.78 0 0 / 0.7),
+    0 0 32px oklch(0.78 0 0 / 0.35);
 }
 
 /* Neon flicker on load ------------------------------------------- */
@@ -503,16 +495,16 @@ code {
   pointer-events: none;
   z-index: 0;
 }
-.shop-blob-magenta {
-  background: radial-gradient(circle, oklch(0.74 0.32 350 / 0.7), transparent 70%);
+.shop-blob-red {
+  background: radial-gradient(circle, oklch(0.62 0.28 27 / 0.65), transparent 70%);
   animation: shop-float 14s ease-in-out infinite;
 }
-.shop-blob-cyan {
-  background: radial-gradient(circle, oklch(0.84 0.16 200 / 0.55), transparent 70%);
+.shop-blob-white {
+  background: radial-gradient(circle, oklch(1 0 0 / 0.18), transparent 70%);
   animation: shop-float-2 18s ease-in-out infinite;
 }
-.shop-blob-yellow {
-  background: radial-gradient(circle, oklch(0.93 0.19 100 / 0.4), transparent 70%);
+.shop-blob-silver {
+  background: radial-gradient(circle, oklch(0.78 0 0 / 0.3), transparent 70%);
   animation: shop-float 22s ease-in-out infinite;
 }
 
@@ -525,8 +517,8 @@ code {
   background-image: radial-gradient(oklch(1 0 0 / 0.18) 1.1px, transparent 1.5px);
   background-size: 9px 9px;
 }
-.shop-halftone-magenta {
-  background-image: radial-gradient(oklch(0.74 0.32 350 / 0.5) 1.2px, transparent 1.6px);
+.shop-halftone-red {
+  background-image: radial-gradient(oklch(0.62 0.28 27 / 0.45) 1.2px, transparent 1.6px);
   background-size: 12px 12px;
 }
 
@@ -698,16 +690,16 @@ code {
   white-space: nowrap;
 }
 .shop-btn-primary {
-  background: var(--shop-ink);
-  color: var(--shop-bg);
-  box-shadow: 0 0 0 0 oklch(0.74 0.32 350 / 0);
+  background: var(--shop-red);
+  color: var(--shop-white);
+  box-shadow: 0 0 0 0 oklch(0.62 0.28 27 / 0);
 }
 .shop-btn-primary:hover {
-  background: var(--shop-yellow);
+  background: var(--shop-white);
   color: var(--shop-bg);
   box-shadow:
-    0 0 24px oklch(0.93 0.19 100 / 0.5),
-    0 0 60px oklch(0.93 0.19 100 / 0.25);
+    0 0 24px oklch(1 0 0 / 0.45),
+    0 0 60px oklch(1 0 0 / 0.2);
   transform: translateY(-2px);
 }
 .shop-btn-ghost {
@@ -715,9 +707,9 @@ code {
   color: var(--shop-ink);
 }
 .shop-btn-ghost:hover {
-  border-color: var(--shop-magenta);
-  color: var(--shop-magenta);
-  box-shadow: 0 0 20px oklch(0.74 0.32 350 / 0.25);
+  border-color: var(--shop-red);
+  color: var(--shop-red);
+  box-shadow: 0 0 20px oklch(0.62 0.28 27 / 0.35);
 }
 
 /* Underline link ------------------------------------------------- */

@@ -24,8 +24,7 @@ type Service = {
   name: string;
   blurb: string;
   icon: LucideIcon;
-  accent: "magenta" | "cyan" | "yellow" | "red";
-  plate: string;
+  accent: "red" | "white" | "silver";
 };
 
 const SERVICES: Service[] = [
@@ -35,8 +34,7 @@ const SERVICES: Service[] = [
     blurb:
       "Billboards, backlit films, and oversized prints with saturated color that holds up at any scale.",
     icon: PrinterIcon,
-    accent: "cyan",
-    plate: "K",
+    accent: "red",
   },
   {
     no: "02",
@@ -44,8 +42,7 @@ const SERVICES: Service[] = [
     blurb:
       "Weatherproof tarps and banners built for the street — grommeted, hemmed, ready to hang.",
     icon: FlagIcon,
-    accent: "magenta",
-    plate: "M",
+    accent: "white",
   },
   {
     no: "03",
@@ -53,8 +50,7 @@ const SERVICES: Service[] = [
     blurb:
       "Storefronts, wayfinding, and 3D letter signs that make a business impossible to miss.",
     icon: StoreIcon,
-    accent: "cyan",
-    plate: "C",
+    accent: "silver",
   },
   {
     no: "04",
@@ -62,8 +58,7 @@ const SERVICES: Service[] = [
     blurb:
       "Hand-bent neon and LED channel letters wired to glow day and night, indoors and out.",
     icon: LightbulbIcon,
-    accent: "yellow",
-    plate: "Y",
+    accent: "red",
   },
   {
     no: "05",
@@ -71,8 +66,7 @@ const SERVICES: Service[] = [
     blurb:
       "Cut, bent, and polished acrylic for light boxes, display stands, and one-off custom builds.",
     icon: LayersIcon,
-    accent: "cyan",
-    plate: "C",
+    accent: "white",
   },
   {
     no: "06",
@@ -80,8 +74,7 @@ const SERVICES: Service[] = [
     blurb:
       "Engraved plaques, cast medals, and trophies that make an achievement feel permanent.",
     icon: AwardIcon,
-    accent: "yellow",
-    plate: "Y",
+    accent: "silver",
   },
   {
     no: "07",
@@ -89,16 +82,14 @@ const SERVICES: Service[] = [
     blurb:
       "Full and partial wraps, magnetic signage, and fleet branding that turns traffic into impressions.",
     icon: CarIcon,
-    accent: "magenta",
-    plate: "M",
+    accent: "red",
   },
   {
     no: "08",
     name: "Advertising Materials",
     blurb: "Posters, flyers, standees, and promo kits produced fast and finished clean.",
     icon: MegaphoneIcon,
-    accent: "cyan",
-    plate: "K",
+    accent: "white",
   },
   {
     no: "09",
@@ -106,8 +97,7 @@ const SERVICES: Service[] = [
     blurb:
       "Layout, identity, and artwork — the design work that makes the print worth printing.",
     icon: PenToolIcon,
-    accent: "cyan",
-    plate: "C",
+    accent: "silver",
   },
   {
     no: "10",
@@ -115,16 +105,14 @@ const SERVICES: Service[] = [
     blurb:
       "Backdrops, banners, and one-off pieces for launches, parties, and corporate events.",
     icon: PartyPopperIcon,
-    accent: "yellow",
-    plate: "Y",
+    accent: "red",
   },
   {
     no: "11",
     name: "Promotional Materials",
     blurb: "Branded merch, tags, and giveaways that keep a logo in customers' hands.",
     icon: GiftIcon,
-    accent: "magenta",
-    plate: "M",
+    accent: "white",
   },
   {
     no: "12",
@@ -132,8 +120,7 @@ const SERVICES: Service[] = [
     blurb:
       "Short-run digital prints with quick turnaround — proofs the same day when possible.",
     icon: ImageIcon,
-    accent: "cyan",
-    plate: "C",
+    accent: "silver",
   },
 ];
 
@@ -152,17 +139,10 @@ const MARQUEE_ITEMS = [
   "Promo Materials",
 ];
 
-const ACCENT_TEXT: Record<Service["accent"], string> = {
-  magenta: "shop-neon-magenta",
-  cyan: "shop-neon-cyan",
-  yellow: "shop-neon-yellow",
-  red: "shop-neon-red",
-};
 const ACCENT_SOLID: Record<Service["accent"], string> = {
-  magenta: "text-[var(--shop-magenta)]",
-  cyan: "text-[var(--shop-cyan)]",
-  yellow: "text-[var(--shop-yellow)]",
   red: "text-[var(--shop-red)]",
+  white: "text-[var(--shop-white)]",
+  silver: "text-[var(--shop-silver)]",
 };
 
 function ShopHome() {
@@ -188,10 +168,12 @@ function ShopHeader() {
   return (
     <header className="relative z-20 mx-auto flex max-w-[1400px] items-center justify-between px-6 py-5 md:px-10">
       <a href="#top" className="group flex items-center gap-3">
-        <RegMark className="shop-reg-spin text-[var(--shop-coral)]" />
-        <span className="shop-font-display text-xl tracking-tight">
-          DARCY<span className="text-[var(--shop-coral)]">GRAPH</span>iX
-        </span>
+        <img
+          src="/DG_SHORT_SVG.svg"
+          alt=""
+          className="h-10 w-auto rounded-sm bg-white p-1.5 md:h-11"
+        />
+        <img src="/DG_Long.png" alt="DARCYGRAPHiX" className="h-8 w-auto md:h-9" />
       </a>
       <nav className="hidden items-center gap-9 md:flex">
         {[
@@ -230,27 +212,35 @@ function ShopHero() {
   return (
     <section
       id="top"
-      className="relative z-10 mx-auto max-w-[1400px] px-6 pt-14 pb-20 md:px-10 md:pt-20"
+      className="relative z-10 mx-auto max-w-[1400px] px-6 pt-10 pb-20 md:px-10 md:pt-14"
     >
       {/* ambient neon blobs */}
       <div
-        className="shop-blob shop-blob-magenta top-24 -left-20 h-[420px] w-[420px]"
+        className="shop-blob shop-blob-red top-24 -left-20 h-[420px] w-[420px]"
         aria-hidden
       />
       <div
-        className="shop-blob shop-blob-cyan top-40 right-[-10%] h-[380px] w-[380px]"
+        className="shop-blob shop-blob-white top-40 right-[-10%] h-[380px] w-[380px]"
         aria-hidden
       />
       <div
-        className="shop-blob shop-blob-yellow top-[420px] left-1/3 h-[300px] w-[300px] opacity-30"
+        className="shop-blob shop-blob-silver top-[420px] left-1/3 h-[300px] w-[300px] opacity-30"
         aria-hidden
+      />
+
+      {/* DG watermark */}
+      <img
+        src="/DG_SHORT_BORDERED.png"
+        alt=""
+        className="pointer-events-none absolute top-[10%] right-[-8%] z-0 w-[55%] max-w-[520px] opacity-[0.08] md:top-[5%] md:right-[2%] md:w-[40%]"
+        style={{ filter: "drop-shadow(0 0 60px rgba(254,0,0,0.35))" }}
       />
 
       <div className="relative grid gap-12 lg:grid-cols-[1.35fr_0.65fr] lg:items-end">
         <div>
           <div className="shop-rise shop-rise-1 mb-8 flex items-center gap-3">
-            <span className="h-px w-10 bg-[var(--shop-coral)]" />
-            <span className="shop-eyebrow !text-[var(--shop-coral)]">
+            <span className="h-px w-10 bg-[var(--shop-red)]" />
+            <span className="shop-eyebrow !text-[var(--shop-red)]">
               Est. — Advertising &amp; Signage
             </span>
           </div>
@@ -262,7 +252,7 @@ function ShopHero() {
             </span>
             <span className="block">
               <span
-                className="shop-neon-magenta shop-flicker shop-flicker-fast"
+                className="shop-neon-red shop-flicker shop-flicker-fast"
                 style={{ animationDelay: "0.6s" }}
               >
                 LOUD.
@@ -290,7 +280,7 @@ function ShopHero() {
                 key={t}
                 className="flex items-center gap-2 text-sm text-[var(--shop-ink-dim)]"
               >
-                <span className="shop-neon-cyan text-[0.7rem]">✦</span>
+                <span className="shop-neon-red text-[0.7rem]">✦</span>
                 {t}
               </div>
             ))}
@@ -318,14 +308,14 @@ function SignPanel() {
         <div className="mb-5 flex items-center justify-between">
           <span className="shop-eyebrow !text-[0.62rem]">Channel Letter · Live</span>
           <span className="flex items-center gap-1.5 text-[0.62rem] text-[var(--shop-ink-mute)]">
-            <span className="size-1.5 animate-pulse rounded-full bg-[var(--shop-yellow)]" />
+            <span className="size-1.5 animate-pulse rounded-full bg-[var(--shop-red)]" />
             ON
           </span>
         </div>
 
-        <div className="rounded-sm border border-[var(--shop-line)] bg-black/60 p-7 text-center">
+        <div className="rounded-sm border border-[var(--shop-line)] bg-black/60 p-6 text-center">
           <div
-            className="shop-font-display shop-neon-yellow shop-flicker text-5xl"
+            className="shop-font-display shop-neon-red shop-flicker text-5xl"
             style={{ animationDelay: "0.2s" }}
           >
             OPEN
@@ -335,20 +325,12 @@ function SignPanel() {
           </div>
         </div>
 
-        <div className="mt-6 grid grid-cols-3 gap-2 text-center">
-          {["C", "M", "Y"].map((c, i) => (
-            <div
-              key={c}
-              className="shop-font-display rounded-sm border border-[var(--shop-line)] py-3 text-2xl"
-              style={{
-                color: ["var(--shop-cyan)", "var(--shop-magenta)", "var(--shop-yellow)"][
-                  i
-                ],
-              }}
-            >
-              {c}
-            </div>
-          ))}
+        <div className="mt-6 flex items-center justify-center gap-4">
+          <LogoShortSvg
+            className="h-20 w-auto"
+            fg="var(--shop-bg-2)"
+            accent="var(--shop-red)"
+          />
         </div>
 
         <p className="mt-6 text-center text-xs leading-relaxed text-[var(--shop-ink-mute)]">
@@ -357,6 +339,40 @@ function SignPanel() {
         </p>
       </div>
     </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+
+function LogoShortSvg({
+  className,
+  fg = "currentColor",
+  accent = "#fe0000",
+}: {
+  className?: string;
+  fg?: string;
+  accent?: string;
+}) {
+  return (
+    <svg
+      className={className}
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 473.62 300.32"
+      aria-hidden
+    >
+      <path
+        fill={fg}
+        d="M.01,86.19V.15C1.64.1,3.22,0,4.81,0c36.39.03,72.78.07,109.17.13,9.08.02,18.16-.07,27.23.27,36.08,1.36,67.32,14.53,93.87,38.92,1.65,1.52,3.12,3.22,4.72,4.79,2.91,2.87,5.98,5.6,8.76,8.59,6.46,6.96,11.46,14.95,15.85,23.32,8.07,15.39,14,31.55,17.36,48.62,1.27,6.45,1.76,12.98,1.88,19.53.12,6.33.14,12.67.08,19.01-.08,8.15,2.42,15.44,7.01,22.1,4.7,6.82,9.82,13.28,16.15,18.68,9.84,8.41,20.77,14.65,33.77,16.7,5.23.82,10.49.89,15.76.89,8.69,0,17.38,0,26.06,0,.52,0,1.04-.04,1.64-.07v-54.83h89.5v133.53c-.23.02-.5.07-.77.07-38.1,0-76.2.01-114.3-.03-11.51-.01-22.98-.64-34.36-2.52-20.21-3.34-39.23-9.91-56.58-20.94-18.59-11.82-34.49-26.53-47.12-44.62-8.82-12.63-14.54-26.66-18.09-41.61-2.64-11.15-4.21-22.45-4.51-33.9-.16-6.15-.33-12.3-1.04-18.42-.9-7.74-3.52-14.77-7.99-21.22-4.47-6.46-9.52-12.31-15.7-17.19-10.58-8.36-22.62-12.84-36.07-13.39-6.75-.28-13.53-.21-20.29-.21-38.56-.02-77.12,0-115.69,0-.35,0-.7,0-1.12,0Z"
+      />
+      <path
+        fill={accent}
+        d="M0,118.11h89.48v95.98c.34.03.62.06.89.06,14.67,0,29.34.11,44.01-.03,16.34-.16,30.69-5.66,42.82-16.7.95-.86,1.81-1.82,2.7-2.73.89-.91,1.78-1.83,2.8-2.88,3.25,14.88,8.37,28.8,15.83,41.83,7.47,13.03,16.86,24.53,27.72,35.04-1.81,1.36-3.53,2.67-5.28,3.94-14.02,10.19-29.27,17.85-46.05,22.38-10,2.7-20.17,4.47-30.51,4.82-10.74.36-21.49.42-32.24.45-25.99.07-51.98.07-77.98.07-11.07,0-22.14-.07-33.22-.11-.31,0-.62-.04-.98-.07V118.11Z"
+      />
+      <path
+        fill={accent}
+        d="M257.22,33.75c7.89-5.99,16.02-11.53,24.77-16.1,15.95-8.33,32.94-13.4,50.73-15.87,11.07-1.54,22.18-2,33.34-1.44,18.91.96,37.25,4.58,54.69,12.14,12.31,5.33,23.58,12.39,33.86,21.01.89.75,1.71,1.58,2.67,2.47-19.56,19.82-39.01,39.54-58.51,59.3-2.04-1.39-4-2.79-6.02-4.11-13.11-8.49-27.43-12.9-43.09-12.34-16.95.61-31.75,6.64-44.1,18.34-2.68,2.54-5.01,5.43-7.5,8.16-.21.23-.39.49-.69.86-.5-1.64-.94-3.15-1.41-4.66-5.35-16.97-12.52-33.1-22.33-47.99-4.67-7.1-9.92-13.73-16.24-19.45-.05-.04-.07-.12-.18-.32Z"
+      />
+    </svg>
   );
 }
 
@@ -376,7 +392,7 @@ function ShopMarquee() {
               <span className="shop-font-display px-6 text-2xl text-[var(--shop-ink)]">
                 {item}
               </span>
-              <span className="shop-neon-magenta text-lg">✦</span>
+              <span className="shop-neon-red text-lg">✦</span>
             </span>
           ))}
         </div>
@@ -431,14 +447,9 @@ function ServiceCard({ service }: { service: Service }) {
         >
           <Icon className="size-6" />
         </div>
-        <div className="flex flex-col items-end gap-1">
-          <span className="shop-eyebrow !text-[0.6rem] !tracking-[0.3em] text-[var(--shop-ink-mute)]">
-            {service.no}
-          </span>
-          <span className={`shop-font-display text-xl ${ACCENT_TEXT[service.accent]}`}>
-            {service.plate}
-          </span>
-        </div>
+        <span className="shop-eyebrow !text-[0.6rem] !tracking-[0.3em] text-[var(--shop-ink-mute)]">
+          {service.no}
+        </span>
       </div>
 
       <div className="mt-auto">
@@ -512,7 +523,7 @@ function ShopProcess() {
                 </span>
                 <RegMark
                   className={
-                    i % 2 === 0 ? "text-[var(--shop-coral)]" : "text-[var(--shop-cyan)]"
+                    i % 2 === 0 ? "text-[var(--shop-red)]" : "text-[var(--shop-white)]"
                   }
                 />
               </div>
@@ -570,7 +581,7 @@ function ShopCapabilities() {
             >
               <span
                 className={`shop-font-display text-3xl ${
-                  ["shop-neon-magenta", "shop-neon-cyan", "shop-neon-yellow"][i]
+                  ["shop-neon-red", "shop-neon-white", "shop-neon-silver"][i]
                 }`}
               >
                 0{i + 1}
@@ -596,23 +607,21 @@ function ShopContact() {
       className="relative z-10 overflow-hidden border-y border-[var(--shop-line)] bg-[var(--shop-bg-2)] py-24 md:py-36"
     >
       <div
-        className="shop-blob shop-blob-magenta top-[-20%] left-[-10%] h-[460px] w-[460px] opacity-40"
+        className="shop-blob shop-blob-red top-[-20%] left-[-10%] h-[460px] w-[460px] opacity-40"
         aria-hidden
       />
       <div
-        className="shop-blob shop-blob-cyan right-[-15%] bottom-[-30%] h-[420px] w-[420px] opacity-40"
+        className="shop-blob shop-blob-white right-[-15%] bottom-[-30%] h-[420px] w-[420px] opacity-40"
         aria-hidden
       />
-      <div className="shop-halftone-magenta pointer-events-none absolute inset-0 opacity-30" />
+      <div className="shop-halftone-red pointer-events-none absolute inset-0 opacity-30" />
 
       <div className="relative mx-auto max-w-[1100px] px-6 text-center md:px-10">
-        <span className="shop-eyebrow !text-[var(--shop-coral)]">
-          ✦ Ready when you are
-        </span>
+        <span className="shop-eyebrow !text-[var(--shop-red)]">✦ Ready when you are</span>
         <h2 className="shop-font-display mx-auto mt-6 max-w-4xl text-[clamp(2.6rem,9vw,7rem)] leading-[0.92]">
           Let's print
           <br />
-          <span className="shop-neon-cyan shop-flicker">something loud.</span>
+          <span className="shop-neon-red shop-flicker">something loud.</span>
         </h2>
         <p className="mx-auto mt-8 max-w-xl text-base leading-relaxed text-[var(--shop-ink-dim)] md:text-lg">
           Send us a brief — the what, the size, the deadline — and we'll quote it back,
@@ -660,12 +669,7 @@ function ShopFooter() {
       <div className="mx-auto max-w-[1400px]">
         <div className="grid gap-10 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
           <div>
-            <div className="flex items-center gap-3">
-              <RegMark className="shop-reg-spin text-[var(--shop-coral)]" />
-              <span className="shop-font-display text-2xl">
-                DARCY<span className="text-[var(--shop-coral)]">GRAPH</span>iX
-              </span>
-            </div>
+            <img src="/DG_Long.png" alt="DARCYGRAPHiX" className="h-10 w-auto md:h-12" />
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-[var(--shop-ink-dim)]">
               Advertising, signage, and print — designed, produced, and installed by one
               crew.
@@ -706,8 +710,11 @@ function ShopFooter() {
             © {new Date().getFullYear()} DARCYGRAPHiX Advertising. All rights reserved.
           </span>
           <div className="flex items-center gap-2">
-            <span className="shop-eyebrow !text-[0.58rem]">C · M · Y · K</span>
-            <span className="shop-neon-magenta">✦</span>
+            <img
+              src="/DG_SHORT_SVG.svg"
+              alt=""
+              className="h-5 w-auto rounded-sm bg-white p-0.5"
+            />
           </div>
         </div>
       </div>
@@ -762,8 +769,8 @@ function SectionHead({
       <div
         className={`flex items-center gap-3 ${align === "center" ? "justify-center" : ""}`}
       >
-        <span className="shop-eyebrow !text-[var(--shop-coral)]">{no}</span>
-        <span className="h-px w-10 bg-[var(--shop-coral)]" />
+        <span className="shop-eyebrow !text-[var(--shop-red)]">{no}</span>
+        <span className="h-px w-10 bg-[var(--shop-red)]" />
       </div>
       <h2 className="shop-font-display mt-5 text-[clamp(2rem,5.5vw,4rem)] leading-[0.95]">
         {title}
