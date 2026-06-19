@@ -168,6 +168,16 @@ function PublicOrderRoute() {
     setFormError(null);
   }
 
+  function markOrderReceived() {
+    const params = new URLSearchParams({
+      service: PUBLIC_ORDER_SUPPORTED_SERVICE_SLUG,
+      step: "received",
+    });
+
+    window.history.replaceState(null, "", `/order?${params.toString()}`);
+    window.dispatchEvent(new PopStateEvent("popstate"));
+  }
+
   function updateItemDraft(patch: Partial<ItemDraft>) {
     setItemDraft((draft) => ({ ...draft, ...patch }));
     setFormError(null);
@@ -347,6 +357,7 @@ function PublicOrderRoute() {
       });
 
       if (created.honeypot || !created.joId || !created.joNumber) {
+        markOrderReceived();
         setSubmittedOrder({
           joNumber: null,
           estimatedTotal: 0,
@@ -438,6 +449,7 @@ function PublicOrderRoute() {
         telegramStatus: telegramResult.status,
         honeypot: false,
       });
+      markOrderReceived();
       setCart([]);
       setContactDraft(emptyContactDraft);
       setArtworkFiles({});
@@ -1310,6 +1322,7 @@ function normalizeStep(
   if (service !== PUBLIC_ORDER_SUPPORTED_SERVICE_SLUG) return 1;
 
   const parsed = Number(step);
+  if (step === "received") return 5;
   if (parsed === 3) return 3;
   if (parsed === 4) return 4;
   if (parsed === 5) return cartCount > 0 ? 5 : 4;
