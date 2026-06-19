@@ -2,6 +2,7 @@ import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { useHotkeys } from "react-hotkeys-hook";
 
 import { ShowcaseSamples } from "@/components/public/showcase-samples";
+import { getPublicOrderHref } from "@/lib/public-order";
 import { SERVICES, SHOP_THEME, getServiceBySlug } from "@/lib/services";
 
 export const Route = createFileRoute("/showcase/$service")({
@@ -40,6 +41,7 @@ function Showcase() {
   const idx = SERVICES.findIndex((s) => s.slug === slug);
   const prev = idx > 0 ? SERVICES[idx - 1] : undefined;
   const next = idx < SERVICES.length - 1 ? SERVICES[idx + 1] : undefined;
+  const orderHref = getPublicOrderHref(slug);
 
   useHotkeys(
     "left",
@@ -69,10 +71,10 @@ function Showcase() {
           <img src="/DG_Long.png" alt="DARCYGRAPHiX" className="h-8 w-auto md:h-9" />
         </Link>
         <a
-          href="/#contact"
+          href={orderHref}
           className="shop-btn shop-btn-primary !rounded-full !px-5 !py-2.5"
         >
-          Get a quote
+          Order Now
         </a>
       </header>
 
@@ -115,11 +117,8 @@ function Showcase() {
             </div>
 
             <div className="mt-2 flex flex-wrap items-center gap-4">
-              <a
-                href="mailto:hello@darcygraphix.com"
-                className="shop-btn shop-btn-primary !rounded-full"
-              >
-                Request a quote
+              <a href={orderHref} className="shop-btn shop-btn-primary !rounded-full">
+                Order Now
               </a>
               <Link
                 to="/"

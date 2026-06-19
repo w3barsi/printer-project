@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TestfruitsRouteImport } from './routes/testfruits'
 import { Route as TestdndRouteImport } from './routes/testdnd'
+import { Route as OrderRouteImport } from './routes/order'
 import { Route as ConvexRouteImport } from './routes/convex'
 import { Route as AppRouteRouteImport } from './routes/app/route'
 import { Route as AuthRouteRouteImport } from './routes/_auth/route'
@@ -40,6 +41,11 @@ const TestfruitsRoute = TestfruitsRouteImport.update({
 const TestdndRoute = TestdndRouteImport.update({
   id: '/testdnd',
   path: '/testdnd',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OrderRoute = OrderRouteImport.update({
+  id: '/order',
+  path: '/order',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ConvexRoute = ConvexRouteImport.update({
@@ -145,6 +151,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/app': typeof AppCashierRouteRouteWithChildren
   '/convex': typeof ConvexRoute
+  '/order': typeof OrderRoute
   '/testdnd': typeof TestdndRoute
   '/testfruits': typeof TestfruitsRoute
   '/login': typeof AuthLoginRoute
@@ -166,6 +173,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/app': typeof AppCashierRouteRouteWithChildren
   '/convex': typeof ConvexRoute
+  '/order': typeof OrderRoute
   '/testdnd': typeof TestdndRoute
   '/testfruits': typeof TestfruitsRoute
   '/login': typeof AuthLoginRoute
@@ -189,6 +197,7 @@ export interface FileRoutesById {
   '/_auth': typeof AuthRouteRouteWithChildren
   '/app': typeof AppRouteRouteWithChildren
   '/convex': typeof ConvexRoute
+  '/order': typeof OrderRoute
   '/testdnd': typeof TestdndRoute
   '/testfruits': typeof TestfruitsRoute
   '/app/_admin': typeof AppAdminRouteRouteWithChildren
@@ -214,6 +223,7 @@ export interface FileRouteTypes {
     | '/'
     | '/app'
     | '/convex'
+    | '/order'
     | '/testdnd'
     | '/testfruits'
     | '/login'
@@ -235,6 +245,7 @@ export interface FileRouteTypes {
     | '/'
     | '/app'
     | '/convex'
+    | '/order'
     | '/testdnd'
     | '/testfruits'
     | '/login'
@@ -257,6 +268,7 @@ export interface FileRouteTypes {
     | '/_auth'
     | '/app'
     | '/convex'
+    | '/order'
     | '/testdnd'
     | '/testfruits'
     | '/app/_admin'
@@ -282,6 +294,7 @@ export interface RootRouteChildren {
   AuthRouteRoute: typeof AuthRouteRouteWithChildren
   AppRouteRoute: typeof AppRouteRouteWithChildren
   ConvexRoute: typeof ConvexRoute
+  OrderRoute: typeof OrderRoute
   TestdndRoute: typeof TestdndRoute
   TestfruitsRoute: typeof TestfruitsRoute
   ShowcaseServiceRoute: typeof ShowcaseServiceRoute
@@ -303,6 +316,13 @@ declare module '@tanstack/react-router' {
       path: '/testdnd'
       fullPath: '/testdnd'
       preLoaderRoute: typeof TestdndRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/order': {
+      id: '/order'
+      path: '/order'
+      fullPath: '/order'
+      preLoaderRoute: typeof OrderRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/convex': {
@@ -519,6 +539,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRouteRoute: AuthRouteRouteWithChildren,
   AppRouteRoute: AppRouteRouteWithChildren,
   ConvexRoute: ConvexRoute,
+  OrderRoute: OrderRoute,
   TestdndRoute: TestdndRoute,
   TestfruitsRoute: TestfruitsRoute,
   ShowcaseServiceRoute: ShowcaseServiceRoute,

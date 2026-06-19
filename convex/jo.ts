@@ -9,6 +9,15 @@ import { authedMutation, authedQuery } from "./auth";
 export const markForPrinting = authedMutation({
   args: v.object({ joId: v.id("jo") }),
   handler: async (ctx, args) => {
+    const jo = await ctx.db.get(args.joId);
+    if (!jo) {
+      throw new Error("JO not found");
+    }
+
+    if (jo.status === "unconfirmed") {
+      throw new Error("Confirm online orders before marking them for printing");
+    }
+
     await ctx.db.patch("jo", args.joId, { forPrinting: true });
   },
 });

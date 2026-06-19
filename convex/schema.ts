@@ -51,6 +51,8 @@ export default defineSchema({
     updatedAt: v.optional(v.number()),
     createdBy: v.optional(v.id("users")),
     orderedOn: v.optional(v.number()),
+    source: v.optional(v.literal("online-order")),
+    submittedAt: v.optional(v.number()),
 
     trelloId: v.optional(v.string()),
 
@@ -62,6 +64,7 @@ export default defineSchema({
     pickupTime: v.optional(v.string()),
     contactNumber: v.optional(v.string()),
     status: v.union(
+      v.literal("unconfirmed"),
       v.literal("pending"),
       v.literal("in-progress"),
       v.literal("completed"),
@@ -114,6 +117,67 @@ export default defineSchema({
     price: v.number(),
     createdBy: v.optional(v.id("users")),
   }).index("by_joId", ["joId"]),
+
+  onlineOrderDetails: defineTable({
+    joId: v.id("jo"),
+    customerName: v.string(),
+    mobile: v.string(),
+    email: v.optional(v.string()),
+    notes: v.optional(v.string()),
+    paymentMethod: v.union(
+      v.literal("gcash"),
+      v.literal("bank-transfer"),
+      v.literal("pay-later"),
+    ),
+    paymentProofStatus: v.union(
+      v.literal("not-required"),
+      v.literal("pending-upload"),
+      v.literal("uploaded"),
+      v.literal("missing"),
+    ),
+    attachmentUploadStatus: v.union(
+      v.literal("none"),
+      v.literal("complete"),
+      v.literal("partial-failure"),
+    ),
+    acceptedTerms: v.boolean(),
+    termsAcceptedAt: v.number(),
+    submittedAt: v.number(),
+  }).index("by_joId", ["joId"]),
+
+  onlineOrderItems: defineTable({
+    joId: v.id("jo"),
+    itemId: v.id("items"),
+    serviceSlug: v.string(),
+    productType: v.literal("tarpaulin"),
+    width: v.number(),
+    height: v.number(),
+    areaSqft: v.number(),
+    unitPricePerSqft: v.number(),
+    artworkOption: v.union(
+      v.literal("upload-now"),
+      v.literal("send-later"),
+      v.literal("design-requested"),
+    ),
+    designInstructions: v.optional(v.string()),
+  })
+    .index("by_joId", ["joId"])
+    .index("by_itemId", ["itemId"]),
+
+  orderAttachments: defineTable({
+    joId: v.id("jo"),
+    itemId: v.optional(v.id("items")),
+    onlineOrderItemId: v.optional(v.id("onlineOrderItems")),
+    kind: v.union(v.literal("artwork"), v.literal("payment-proof")),
+    key: v.string(),
+    filename: v.string(),
+    mimeType: v.string(),
+    size: v.number(),
+    createdAt: v.number(),
+  })
+    .index("by_joId", ["joId"])
+    .index("by_itemId", ["itemId"])
+    .index("by_onlineOrderItemId", ["onlineOrderItemId"]),
 
   users: defineTable({
     name: v.string(),
