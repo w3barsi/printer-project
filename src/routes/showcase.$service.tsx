@@ -1,42 +1,8 @@
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { useHotkeys } from "react-hotkeys-hook";
 
+import { ShowcaseSamples } from "@/components/public/showcase-samples";
 import { SERVICES, SHOP_THEME, getServiceBySlug } from "@/lib/services";
-
-type Sample = { tag: string; title: string; desc: string };
-
-const SAMPLES: Sample[] = [
-  {
-    tag: "SAMPLE 01",
-    title: "Placeholder piece",
-    desc: "Sample description coming soon.",
-  },
-  {
-    tag: "SAMPLE 02",
-    title: "Placeholder piece",
-    desc: "Sample description coming soon.",
-  },
-  {
-    tag: "SAMPLE 03",
-    title: "Placeholder piece",
-    desc: "Sample description coming soon.",
-  },
-  {
-    tag: "SAMPLE 04",
-    title: "Placeholder piece",
-    desc: "Sample description coming soon.",
-  },
-  {
-    tag: "SAMPLE 05",
-    title: "Placeholder piece",
-    desc: "Sample description coming soon.",
-  },
-  {
-    tag: "SAMPLE 06",
-    title: "Placeholder piece",
-    desc: "Sample description coming soon.",
-  },
-];
 
 export const Route = createFileRoute("/showcase/$service")({
   loader: ({ params }) => {
@@ -193,56 +159,7 @@ function Showcase() {
           ))}
         </section>
 
-        <section className="mt-10">
-          <div className="flex items-center gap-3">
-            <span className="shop-eyebrow !text-(--shop-red)">§ Sample output</span>
-            <span className="h-px w-10 bg-(--shop-red)" />
-          </div>
-          <h2 className="shop-font-display mt-5 text-[clamp(1.6rem,4vw,2.6rem)] leading-[0.95]">
-            Work from the shop floor
-          </h2>
-          <p className="mt-4 max-w-2xl text-sm leading-relaxed text-(--shop-ink-dim) md:text-base">
-            A few pieces from past {name.toLowerCase()} jobs. Final colors, materials, and
-            finish vary by spec - we proof everything before production.
-          </p>
-
-          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {SAMPLES.map((s, i) => (
-              <figure
-                key={i}
-                className="group relative overflow-hidden rounded-[1.5rem] border border-(--shop-line) bg-(--shop-panel) shadow-[0_18px_50px_rgba(139,39,32,0.07)] transition-[transform,box-shadow] duration-300 hover:-translate-y-1 hover:shadow-[0_24px_60px_rgba(139,39,32,0.13)]"
-              >
-                <div
-                  className="relative flex aspect-[4/3] items-center justify-center bg-[#ffe5df]"
-                  aria-hidden
-                >
-                  <div className="shop-halftone pointer-events-none absolute inset-0 opacity-25" />
-                  <div className="relative flex flex-col items-center gap-2 text-(--shop-ink-mute)">
-                    <Icon className="size-10 opacity-50" />
-                    <span className="shop-eyebrow !text-[0.55rem] !tracking-[0.22em]">
-                      {s.tag}
-                    </span>
-                  </div>
-                  <span className="shop-eyebrow absolute top-3 left-3 !text-[0.55rem] text-(--shop-ink-mute)">
-                    {String(i + 1).padStart(2, "0")} /{" "}
-                    {String(SAMPLES.length).padStart(2, "0")}
-                  </span>
-                </div>
-                <figcaption className="flex flex-col gap-1 p-5">
-                  <span className="shop-font-wide text-sm font-bold">{s.title}</span>
-                  <span className="text-xs leading-relaxed text-(--shop-ink-mute)">
-                    {s.desc}
-                  </span>
-                </figcaption>
-              </figure>
-            ))}
-          </div>
-
-          <p className="mt-6 text-xs text-(--shop-ink-mute)">
-            Sample images coming soon - ask us for photos of recent {name.toLowerCase()}{" "}
-            projects.
-          </p>
-        </section>
+        <ShowcaseSamples serviceSlug={slug} serviceName={name} Icon={Icon} />
 
         <div className="mt-10 flex gap-4">
           {prev ? (
