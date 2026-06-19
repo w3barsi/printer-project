@@ -307,7 +307,7 @@ export const getOnlineOrderDetails = authedQuery({
   },
 });
 
-export const getOrderAttachmentUrl = authedQuery({
+export const getOrderAttachmentUrl = authedMutation({
   args: { attachmentId: v.id("orderAttachments") },
   returns: v.union(v.string(), v.null()),
   handler: async (ctx, args) => {

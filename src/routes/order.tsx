@@ -1,4 +1,7 @@
+import { api } from "@convex/_generated/api";
+import type { Id } from "@convex/_generated/dataModel";
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useAction, useMutation } from "convex/react";
 import {
   ArrowRightIcon,
   CheckCircle2Icon,
@@ -80,6 +83,16 @@ type ItemDraft = {
   designInstructions: string;
 };
 
+type SubmittedOrder = {
+  joNumber: number | null;
+  estimatedTotal: number;
+  attachmentStatus: "none" | "complete" | "partial-failure";
+  telegramStatus: "sent" | "skipped";
+  honeypot: boolean;
+};
+
+type AttachmentKind = "artwork" | "payment-proof";
+
 const emptyContactDraft: ContactDraft = {
   name: "",
   mobile: "",
@@ -123,6 +136,18 @@ function PublicOrderRoute() {
   const [draftArtworkFiles, setDraftArtworkFiles] = useState<File[]>([]);
   const [paymentProofFile, setPaymentProofFile] = useState<File | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submittedOrder, setSubmittedOrder] = useState<SubmittedOrder | null>(null);
+  const createUnconfirmedOrder = useMutation(api.public.orders.createUnconfirmedOrder);
+  const generateOrderUploadUrl = useMutation(api.public.uploads.generateOrderUploadUrl);
+  const saveOrderAttachment = useMutation(api.public.orders.saveOrderAttachment);
+  const markAttachmentUploadStatus = useMutation(
+    api.public.orders.markAttachmentUploadStatus,
+  );
+  const syncOrderUploadMetadata = useAction(api.public.uploads.syncOrderUploadMetadata);
+  const sendOrderTelegramNotification = useAction(
+    api.public.telegram.sendOrderTelegramNotification,
+  );
 
   const requestedService = search.service;
   const selectedService = requestedService
@@ -269,7 +294,7 @@ function PublicOrderRoute() {
     setFormError(null);
   }
 
-  function validateFinalStep() {
+  async function submitOrderRequest() {
     if (cart.length === 0) {
       setFormError("Add at least one item before submitting.");
       return;
@@ -295,7 +320,176 @@ function PublicOrderRoute() {
       return;
     }
 
-    setFormError("Submit integration starts in Batch G.");
+    setIsSubmitting(true);
+    setFormError(null);
+
+    try {
+      const created = await createUnconfirmedOrder({
+        items: cart.map((item) => ({
+          serviceSlug: item.serviceSlug,
+          width: item.width,
+          height: item.height,
+          quantity: item.quantity,
+          artworkOption: item.artworkOption,
+          designInstructions: item.designInstructions,
+        })),
+        contact: {
+          name: contactDraft.name,
+          mobile: contactDraft.mobile,
+          email: contactDraft.email.trim() || undefined,
+          notes: contactDraft.notes.trim() || undefined,
+        },
+        paymentMethod: contactDraft.paymentMethod,
+        paymentProofStatus:
+          contactDraft.paymentMethod === "pay-later" ? "not-required" : "pending-upload",
+        acceptedTerms: contactDraft.acceptedTerms,
+        honeypot: contactDraft.honeypot,
+      });
+
+      if (created.honeypot || !created.joId || !created.joNumber) {
+        setSubmittedOrder({
+          joNumber: null,
+          estimatedTotal: 0,
+          attachmentStatus: "none",
+          telegramStatus: "skipped",
+          honeypot: true,
+        });
+        setCart([]);
+        setContactDraft(emptyContactDraft);
+        setArtworkFiles({});
+        setPaymentProofFile(null);
+        return;
+      }
+
+      const uploadResults: boolean[] = [];
+      for (const mapping of created.itemMappings) {
+        const cartItem = cart[mapping.clientIndex];
+        const files = cartItem ? (artworkFiles[cartItem.id] ?? []) : [];
+
+        for (const file of files) {
+          uploadResults.push(
+            await uploadOrderFile({
+              file,
+              kind: "artwork",
+              joId: created.joId,
+              itemId: mapping.itemId,
+              onlineOrderItemId: mapping.onlineOrderItemId,
+            }),
+          );
+        }
+      }
+
+      if (paymentProofFile) {
+        uploadResults.push(
+          await uploadOrderFile({
+            file: paymentProofFile,
+            kind: "payment-proof",
+            joId: created.joId,
+          }),
+        );
+      }
+
+      const expectedUploads = uploadResults.length;
+      const failedUploads = uploadResults.filter((result) => !result).length;
+      const attachmentStatus =
+        expectedUploads === 0
+          ? "none"
+          : failedUploads === 0
+            ? "complete"
+            : "partial-failure";
+      const paymentProofStatus =
+        contactDraft.paymentMethod === "pay-later"
+          ? "not-required"
+          : paymentProofFile && failedUploads === 0
+            ? "uploaded"
+            : "missing";
+
+      await markAttachmentUploadStatus({
+        joId: created.joId,
+        status: attachmentStatus,
+        paymentProofStatus,
+      });
+
+      const telegramResult = await sendOrderTelegramNotification({
+        joNumber: created.joNumber,
+        joUrl: `${window.location.origin}/app/jo/${created.joId}`,
+        customerName: contactDraft.name.trim(),
+        mobile: contactDraft.mobile.trim(),
+        email: contactDraft.email.trim() || undefined,
+        itemSummary: cart
+          .map(
+            (item) =>
+              `${formatTarpaulinItemName(item.width, item.height)} x ${item.quantity}`,
+          )
+          .join(", "),
+        estimatedTotal: created.estimatedTotal,
+        artworkSummary: buildArtworkSummary(cart, artworkFiles),
+        paymentSummary: `${paymentLabel(contactDraft.paymentMethod)} / ${paymentProofStatus}`,
+        attachmentWarning:
+          attachmentStatus === "partial-failure"
+            ? "Some files failed to upload and may need to be resent."
+            : undefined,
+      });
+
+      setSubmittedOrder({
+        joNumber: created.joNumber,
+        estimatedTotal: created.estimatedTotal,
+        attachmentStatus,
+        telegramStatus: telegramResult.status,
+        honeypot: false,
+      });
+      setCart([]);
+      setContactDraft(emptyContactDraft);
+      setArtworkFiles({});
+      setDraftArtworkFiles([]);
+      setPaymentProofFile(null);
+    } catch (error) {
+      setFormError(
+        error instanceof Error ? error.message : "Could not submit order request.",
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+  async function uploadOrderFile({
+    file,
+    kind,
+    joId,
+    itemId,
+    onlineOrderItemId,
+  }: {
+    file: File;
+    kind: AttachmentKind;
+    joId: Id<"jo">;
+    itemId?: Id<"items">;
+    onlineOrderItemId?: Id<"onlineOrderItems">;
+  }) {
+    try {
+      const { key, url } = await generateOrderUploadUrl({
+        joId,
+        kind,
+        filename: file.name,
+        mimeType: file.type,
+        size: file.size,
+      });
+
+      await putFile(url, file);
+      await syncOrderUploadMetadata({ key });
+      await saveOrderAttachment({
+        joId,
+        itemId,
+        onlineOrderItemId,
+        kind,
+        key,
+        filename: file.name,
+        mimeType: file.type,
+        size: file.size,
+      });
+      return true;
+    } catch {
+      return false;
+    }
   }
 
   return (
@@ -347,7 +541,9 @@ function PublicOrderRoute() {
         ) : null}
 
         <div className="mt-8">
-          {!requestedService ? (
+          {submittedOrder ? (
+            <OrderConfirmation order={submittedOrder} />
+          ) : !requestedService ? (
             <ServiceSelection />
           ) : !isSupportedService ? (
             <ComingSoon serviceName={selectedService?.name ?? "This service"} />
@@ -389,12 +585,13 @@ function PublicOrderRoute() {
               draft={contactDraft}
               cartTotal={cartTotal}
               paymentProofFile={paymentProofFile}
+              isSubmitting={isSubmitting}
               updateDraft={updateContactDraft}
               onPaymentProof={handlePaymentProof}
               onBack={() =>
                 navigateOrder({ service: PUBLIC_ORDER_SUPPORTED_SERVICE_SLUG, step: 4 })
               }
-              onSubmit={validateFinalStep}
+              onSubmit={submitOrderRequest}
             />
           )}
         </div>
@@ -509,6 +706,66 @@ function ComingSoon({ serviceName }: { serviceName: string }) {
         </a>
       </div>
     </section>
+  );
+}
+
+function OrderConfirmation({ order }: { order: SubmittedOrder }) {
+  return (
+    <section className="rounded-[2rem] border border-(--shop-line) bg-(--shop-panel) p-8 text-center shadow-[0_18px_50px_rgba(139,39,32,0.07)] md:p-10">
+      <CheckCircle2Icon className="mx-auto size-12 text-(--shop-red)" />
+      <h2 className="shop-font-display mt-4 text-5xl">Order request received</h2>
+      {order.honeypot ? (
+        <p className="mx-auto mt-4 max-w-xl text-(--shop-ink-dim)">
+          Thanks. Your request has been received and will be reviewed by staff.
+        </p>
+      ) : (
+        <div className="mx-auto mt-6 max-w-2xl space-y-4">
+          <p className="text-lg text-(--shop-ink-dim)">
+            Staff will confirm details, payment, artwork, and production schedule before
+            printing.
+          </p>
+          <div className="grid gap-3 rounded-[1.5rem] border border-(--shop-line) bg-white/55 p-5 text-left sm:grid-cols-3">
+            <SummaryPill label="Job Order" value={`#${order.joNumber}`} />
+            <SummaryPill
+              label="Print Estimate"
+              value={formatCurrency(order.estimatedTotal)}
+            />
+            <SummaryPill
+              label="Files"
+              value={attachmentStatusLabel(order.attachmentStatus)}
+            />
+          </div>
+          {order.attachmentStatus === "partial-failure" ? (
+            <p className="rounded-2xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm font-semibold text-amber-700">
+              Some files did not upload. Your order was still created; staff may ask you
+              to resend files.
+            </p>
+          ) : null}
+        </div>
+      )}
+      <div className="mt-7 flex flex-wrap justify-center gap-3">
+        <a
+          href={getPublicOrderHref(PUBLIC_ORDER_SUPPORTED_SERVICE_SLUG)}
+          className="shop-btn shop-btn-primary !rounded-full"
+        >
+          Start another order
+        </a>
+        <Link to="/" className="shop-btn shop-btn-ghost !rounded-full">
+          Back to home
+        </Link>
+      </div>
+    </section>
+  );
+}
+
+function SummaryPill({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <p className="text-xs font-black tracking-[0.18em] text-(--shop-ink-mute) uppercase">
+        {label}
+      </p>
+      <p className="mt-1 font-mono text-lg font-black text-(--shop-ink)">{value}</p>
+    </div>
   );
 }
 
@@ -847,6 +1104,7 @@ function ContactPaymentStep({
   draft,
   cartTotal,
   paymentProofFile,
+  isSubmitting,
   updateDraft,
   onPaymentProof,
   onBack,
@@ -855,6 +1113,7 @@ function ContactPaymentStep({
   draft: ContactDraft;
   cartTotal: number;
   paymentProofFile: File | null;
+  isSubmitting: boolean;
   updateDraft: (patch: Partial<ContactDraft>) => void;
   onPaymentProof: (file: File | null) => void;
   onBack: () => void;
@@ -970,8 +1229,9 @@ function ContactPaymentStep({
             type="button"
             className="shop-btn shop-btn-primary !rounded-full"
             onClick={onSubmit}
+            disabled={isSubmitting}
           >
-            Submit Order Request
+            {isSubmitting ? "Submitting..." : "Submit Order Request"}
           </button>
         </div>
       </div>
@@ -1072,6 +1332,45 @@ function paymentLabel(method: PaymentMethod) {
   if (method === "gcash") return "GCash";
   if (method === "bank-transfer") return "Bank Transfer";
   return "Pay Later / Confirm with staff";
+}
+
+function attachmentStatusLabel(status: SubmittedOrder["attachmentStatus"]) {
+  if (status === "complete") return "Uploaded";
+  if (status === "partial-failure") return "Needs follow-up";
+  return "No uploads";
+}
+
+function buildArtworkSummary(
+  cart: PublicOrderCartItem[],
+  artworkFiles: Record<string, File[]>,
+) {
+  const uploadCount = cart.reduce(
+    (sum, item) => sum + (artworkFiles[item.id]?.length ?? 0),
+    0,
+  );
+  const designRequests = cart.filter(
+    (item) => item.artworkOption === "design-requested",
+  ).length;
+  const sendLater = cart.filter((item) => item.artworkOption === "send-later").length;
+
+  return `${uploadCount} upload file(s), ${designRequests} design request(s), ${sendLater} send later item(s)`;
+}
+
+async function putFile(url: string, file: File) {
+  await new Promise<void>((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.onload = () => {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        resolve();
+      } else {
+        reject(new Error(`Upload failed: ${xhr.statusText}`));
+      }
+    };
+    xhr.onerror = () => reject(new Error("Upload failed"));
+    xhr.open("PUT", url);
+    xhr.setRequestHeader("Content-Type", file.type);
+    xhr.send(file);
+  });
 }
 
 function formatCurrency(value: number) {

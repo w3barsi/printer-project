@@ -8,6 +8,7 @@ import { useHotkeys } from "react-hotkeys-hook";
 
 import { CreateJoDialog } from "@/components/jo/create-jo";
 import { Container } from "@/components/layouts/container";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -187,7 +188,19 @@ function JobOrderListBody({ jos }: { jos: JoWithItems[] }) {
           aria-label={`View job order details for ${jo.name}`}
         >
           <TableCell className="w-16 md:pl-4">{jo.joNumber}</TableCell>
-          <TableCell>{jo.name}</TableCell>
+          <TableCell>
+            <div className="flex flex-wrap items-center gap-2">
+              <span>{jo.name}</span>
+              {jo.status === "unconfirmed" ? (
+                <Badge variant="destructive" className="bg-amber-500/10 text-amber-600">
+                  Unconfirmed
+                </Badge>
+              ) : null}
+              {jo.source === "online-order" ? (
+                <Badge variant="outline">Online</Badge>
+              ) : null}
+            </div>
+          </TableCell>
           <TableCell className="hidden sm:table-cell">
             {jo.pickupDate ? new Date(jo.pickupDate).toLocaleDateString() : "N/A"}
           </TableCell>
