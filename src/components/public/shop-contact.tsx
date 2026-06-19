@@ -30,10 +30,10 @@ export function ShopContact() {
 
         <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
           <a
-            href="mailto:hello@darcygraphix.com"
+            href="mailto:darcygraphix@yahoo.com"
             className="shop-btn shop-btn-primary !rounded-full"
           >
-            hello@darcygraphix.com
+            darcygraphix@yahoo.com
           </a>
           <a href="#services" className="shop-btn shop-btn-ghost !rounded-full">
             Browse services
@@ -42,9 +42,9 @@ export function ShopContact() {
 
         <div className="mt-14 grid gap-4 sm:grid-cols-3">
           {[
-            ["Email", "hello@darcygraphix.com"],
+            ["Email", "darcygraphix@yahoo.com"],
             ["Web", "darcygraphix.com"],
-            ["Based in", "the Philippines"],
+            ["Contact Number", "+639692751600"],
           ].map(([k, v]) => (
             <div
               key={k}
