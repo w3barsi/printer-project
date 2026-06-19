@@ -140,13 +140,15 @@ export const MARQUEE_ITEMS = [
   "Neon",
   "Vehicle Wraps",
   "Acrylic",
+  "Medals",
   "Awards & Plaques",
-  "Large-Format",
+  "Large Format Printing",
   "Digital Print",
   "Banners",
-  "Signage",
+  "Store Signage",
   "Graphic Design",
   "Promo Materials",
+  "Corporate Giveaways",
 ];
 
 export function getServiceBySlug(slug: string): Service | undefined {
