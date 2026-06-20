@@ -101,5 +101,12 @@
   },
   "lint-staged": {
     "*": "oxfmt --no-error-on-unmatched-pattern"
+  },
+  "intent": {
+    "skills": [
+      "@tanstack/react-query",
+      "@tanstack/react-router",
+      "@tanstack/react-start"
+    ]
   }
 }

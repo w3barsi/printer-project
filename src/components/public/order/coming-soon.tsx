@@ -30,7 +30,7 @@ export function ComingSoon({
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-3">
           <a href="/#contact" className="shop-btn shop-btn-primary !rounded-full">
-            Contact staff
+            Contact Us
           </a>
           <a
             href={getPublicOrderHref(PUBLIC_ORDER_SUPPORTED_SERVICE_SLUG)}
