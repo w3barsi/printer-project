@@ -18,6 +18,7 @@
 - **Naming**: PascalCase components, camelCase vars
 - **Error**: try/catch with error boundaries
 - **Styling**: Tailwind + shadcn/ui
+- **Hover**: Do not use translate/lift motion on hover; prefer color, border, or shadow changes.
 - **Convex**: Use `v` validator from convex/values
 - **Testing**: Vitest + React Testing Library
 - **Components**: Use `function ComponentName()` instead of `React.FC<>`
