@@ -22,7 +22,7 @@ export function ComingSoon({
           Not yet available online
         </p>
         <h2 className="shop-font-display mt-3 text-4xl">
-          {serviceName} orders are coming soon
+          {serviceName} online orders are coming soon
         </h2>
         <p className="mx-auto mt-4 max-w-xl text-(--shop-ink-dim)">
           Online ordering starts with tarpaulins first. For this service, contact the shop

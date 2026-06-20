@@ -35,31 +35,6 @@ export const maxFileSize = 25 * 1024 * 1024;
 export const inputClassName =
   "w-full rounded-2xl border border-(--shop-line-2) bg-white/80 px-4 py-3 text-base font-semibold text-(--shop-ink) outline-none transition focus:border-(--shop-red)";
 
-export function getOrderSearch(locationSearch: string) {
-  if (typeof window === "undefined") {
-    return { service: undefined, step: undefined };
-  }
-
-  const params = new URLSearchParams(locationSearch);
-  return {
-    service: params.get("service") ?? undefined,
-    step: params.get("step") ?? undefined,
-  };
-}
-
-export function getLocationSearchSnapshot() {
-  return typeof window === "undefined" ? "" : window.location.search;
-}
-
-export function getServerLocationSearchSnapshot() {
-  return "";
-}
-
-export function subscribeToLocationSearch(onStoreChange: () => void) {
-  window.addEventListener("popstate", onStoreChange);
-  return () => window.removeEventListener("popstate", onStoreChange);
-}
-
 export function normalizeStep(
   step: string | undefined,
   service: string | undefined,

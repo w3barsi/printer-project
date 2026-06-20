@@ -2,7 +2,8 @@ import { api } from "@convex/_generated/api";
 import type { Id } from "@convex/_generated/dataModel";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useAction, useMutation } from "convex/react";
-import { useState, useSyncExternalStore } from "react";
+import { useState } from "react";
+import z from "zod";
 
 import { ArtworkStep } from "@/components/public/order/artwork-step";
 import { CartReviewStep } from "@/components/public/order/cart-review-step";
@@ -24,15 +25,11 @@ import {
   buildArtworkSummary,
   emptyContactDraft,
   emptyItemDraft,
-  getLocationSearchSnapshot,
-  getOrderSearch,
-  getServerLocationSearchSnapshot,
   maxArtworkFilesPerItem,
   maxFileSize,
   normalizeStep,
   paymentLabel,
   putFile,
-  subscribeToLocationSearch,
 } from "@/components/public/order/utils";
 import { useLocalStorage } from "@/hooks/use-local-storage";
 import {
@@ -49,6 +46,10 @@ import {
 import { SHOP_THEME, getServiceBySlug } from "@/lib/services";
 
 export const Route = createFileRoute("/order")({
+  validateSearch: z.object({
+    service: z.string().optional(),
+    step: z.union([z.string(), z.number()]).transform(String).optional(),
+  }),
   component: PublicOrderRoute,
   head: () => ({
     meta: [
@@ -62,12 +63,8 @@ export const Route = createFileRoute("/order")({
 });
 
 function PublicOrderRoute() {
-  const locationSearch = useSyncExternalStore(
-    subscribeToLocationSearch,
-    getLocationSearchSnapshot,
-    getServerLocationSearchSnapshot,
-  );
-  const search = getOrderSearch(locationSearch);
+  const search = Route.useSearch();
+  const navigate = Route.useNavigate();
   const [cart, setCart] = useLocalStorage<PublicOrderCartItem[]>(
     "dg-public-order-cart",
     [],
@@ -105,24 +102,25 @@ function PublicOrderRoute() {
   const progressTotal = submittedOrder ? submittedOrder.estimatedTotal : cartTotal;
 
   function navigateOrder(next: { service?: string; step?: OrderStep }) {
-    const params = new URLSearchParams();
-    if (next.service) params.set("service", next.service);
-    if (next.step) params.set("step", String(next.step));
-
-    const nextSearch = `?${params.toString()}`;
-    window.history.pushState(null, "", `/order${nextSearch}`);
-    window.dispatchEvent(new PopStateEvent("popstate"));
+    navigate({
+      to: "/order",
+      search: {
+        service: next.service,
+        step: next.step ? String(next.step) : undefined,
+      },
+    });
     setFormError(null);
   }
 
   function markOrderReceived() {
-    const params = new URLSearchParams({
-      service: PUBLIC_ORDER_SUPPORTED_SERVICE_SLUG,
-      step: "received",
+    navigate({
+      to: "/order",
+      search: {
+        service: PUBLIC_ORDER_SUPPORTED_SERVICE_SLUG,
+        step: "received",
+      },
+      replace: true,
     });
-
-    window.history.replaceState(null, "", `/order?${params.toString()}`);
-    window.dispatchEvent(new PopStateEvent("popstate"));
   }
 
   function updateItemDraft(patch: Partial<ItemDraft>) {
