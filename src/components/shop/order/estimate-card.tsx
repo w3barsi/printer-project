@@ -1,9 +1,9 @@
 import {
   TARPAULIN_PRICE_PER_SQFT,
-  calculatePublicOrderLineTotal,
+  calculateShopOrderLineTotal,
   calculateTarpaulinAreaSqft,
   calculateTarpaulinPiecePrice,
-} from "@/lib/public-order";
+} from "@/lib/shop-order";
 
 import { SummaryRow } from "./summary-row";
 import { formatCurrency } from "./utils";
@@ -24,7 +24,7 @@ export function EstimateCard({
       <p className="shop-eyebrow !tracking-[0.2em] !text-(--shop-red)">Live estimate</p>
       <h3 className="shop-font-display mt-3 text-4xl">
         {active
-          ? formatCurrency(calculatePublicOrderLineTotal(width, height, quantity))
+          ? formatCurrency(calculateShopOrderLineTotal(width, height, quantity))
           : "--"}
       </h3>
       <div className="mt-6 space-y-3 text-sm text-(--shop-ink-dim)">

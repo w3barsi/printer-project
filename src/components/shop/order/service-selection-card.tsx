@@ -1,11 +1,8 @@
 import { ArrowRightIcon } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
-import {
-  PUBLIC_ORDER_SUPPORTED_SERVICE_SLUG,
-  getPublicOrderHref,
-} from "@/lib/public-order";
 import { SERVICES } from "@/lib/services";
+import { SHOP_ORDER_SUPPORTED_SERVICE_SLUG, getShopOrderHref } from "@/lib/shop-order";
 
 export function ServiceSelectionCard({
   service,
@@ -14,7 +11,7 @@ export function ServiceSelectionCard({
   service: (typeof SERVICES)[number];
   selected: boolean;
 }) {
-  const supported = service.slug === PUBLIC_ORDER_SUPPORTED_SERVICE_SLUG;
+  const supported = service.slug === SHOP_ORDER_SUPPORTED_SERVICE_SLUG;
   const Icon = service.icon;
   const cardClassName = `group relative flex min-h-64 flex-col gap-6 overflow-hidden rounded-[1.75rem] border p-7 shadow-[0_18px_50px_rgba(139,39,32,0.08)] transition-[border-color,box-shadow,background-color] duration-300 md:p-8 ${
     selected
@@ -76,7 +73,7 @@ export function ServiceSelectionCard({
   }
 
   return (
-    <a href={getPublicOrderHref(service.slug)} className={cardClassName}>
+    <a href={getShopOrderHref(service.slug)} className={cardClassName}>
       {content}
     </a>
   );

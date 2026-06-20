@@ -1,11 +1,11 @@
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { useHotkeys } from "react-hotkeys-hook";
 
-import { ShowcaseSamples } from "@/components/public/showcase-samples";
-import { getPublicOrderHref } from "@/lib/public-order";
-import { SERVICES, SHOP_THEME, getServiceBySlug } from "@/lib/services";
+import { ShowcaseSamples } from "@/components/shop/showcase-samples";
+import { SERVICES, getServiceBySlug } from "@/lib/services";
+import { getShopOrderHref } from "@/lib/shop-order";
 
-export const Route = createFileRoute("/showcase/$service")({
+export const Route = createFileRoute("/_shop/showcase/$service")({
   loader: ({ params }) => {
     const service = getServiceBySlug(params.service);
     if (!service) {
@@ -41,7 +41,7 @@ function Showcase() {
   const idx = SERVICES.findIndex((s) => s.slug === slug);
   const prev = idx > 0 ? SERVICES[idx - 1] : undefined;
   const next = idx < SERVICES.length - 1 ? SERVICES[idx + 1] : undefined;
-  const orderHref = getPublicOrderHref(slug);
+  const orderHref = getShopOrderHref(slug);
 
   useHotkeys(
     "left",
@@ -60,7 +60,7 @@ function Showcase() {
   );
 
   return (
-    <div className="shop shop-grain" style={SHOP_THEME}>
+    <>
       <header className="relative z-20 mx-auto flex max-w-[1400px] items-center justify-between px-6 py-5 md:px-10">
         <Link to="/" className="group flex items-center gap-3">
           <img
@@ -219,6 +219,6 @@ function Showcase() {
           </div>
         </div>
       </footer>
-    </div>
+    </>
   );
 }

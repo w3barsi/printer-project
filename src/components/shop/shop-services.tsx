@@ -1,5 +1,5 @@
-import { SectionHead } from "@/components/public/section-head";
-import { ServiceCard } from "@/components/public/service-card";
+import { SectionHead } from "@/components/shop/section-head";
+import { ServiceCard } from "@/components/shop/service-card";
 import { SERVICES } from "@/lib/services";
 
 export function ShopServices() {

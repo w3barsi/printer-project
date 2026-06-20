@@ -1,5 +1,5 @@
-import { RegMark } from "@/components/public/reg-mark";
-import { SectionHead } from "@/components/public/section-head";
+import { RegMark } from "@/components/shop/reg-mark";
+import { SectionHead } from "@/components/shop/section-head";
 
 export function ShopProcess() {
   const steps = [

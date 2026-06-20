@@ -1,4 +1,4 @@
-import { RegCorner } from "@/components/public/reg-mark";
+import { RegCorner } from "@/components/shop/reg-mark";
 
 export function ShopHero() {
   return (

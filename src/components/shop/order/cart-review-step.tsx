@@ -1,8 +1,8 @@
 import { ArrowRightIcon, PencilIcon, PlusIcon, Trash2Icon } from "lucide-react";
 
-import { formatTarpaulinItemName } from "@/lib/public-order";
+import { formatTarpaulinItemName } from "@/lib/shop-order";
 
-import type { PublicOrderCartItem } from "./types";
+import type { ShopOrderCartItem } from "./types";
 import { artworkLabel, formatCurrency } from "./utils";
 
 export function CartReviewStep({
@@ -14,10 +14,10 @@ export function CartReviewStep({
   onAddItem,
   onContinue,
 }: {
-  cart: PublicOrderCartItem[];
+  cart: ShopOrderCartItem[];
   artworkFiles: Record<string, File[]>;
   total: number;
-  onEdit: (item: PublicOrderCartItem) => void;
+  onEdit: (item: ShopOrderCartItem) => void;
   onRemove: (id: string) => void;
   onAddItem: () => void;
   onContinue: () => void;

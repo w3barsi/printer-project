@@ -1,5 +1,5 @@
-export const PUBLIC_ORDER_SUPPORTED_SERVICE_SLUG = "tarpaulins-banners";
-export const PUBLIC_ORDER_PRODUCT_TYPE = "tarpaulin";
+export const SHOP_ORDER_SUPPORTED_SERVICE_SLUG = "tarpaulins-banners";
+export const SHOP_ORDER_PRODUCT_TYPE = "tarpaulin";
 export const TARPAULIN_PRICE_PER_SQFT = 20;
 
 export const TARPAULIN_SIZE_PRESETS = [
@@ -19,10 +19,10 @@ export type PaymentMethod = (typeof PAYMENT_METHODS)[number];
 export const ORDER_ATTACHMENT_KINDS = ["artwork", "payment-proof"] as const;
 export type OrderAttachmentKind = (typeof ORDER_ATTACHMENT_KINDS)[number];
 
-export function getPublicOrderHref(serviceSlug: string) {
+export function getShopOrderHref(serviceSlug: string) {
   const search = new URLSearchParams({ service: serviceSlug });
 
-  if (serviceSlug === PUBLIC_ORDER_SUPPORTED_SERVICE_SLUG) {
+  if (serviceSlug === SHOP_ORDER_SUPPORTED_SERVICE_SLUG) {
     search.set("step", "2");
   }
 
@@ -37,7 +37,7 @@ export function calculateTarpaulinPiecePrice(width: number, height: number) {
   return calculateTarpaulinAreaSqft(width, height) * TARPAULIN_PRICE_PER_SQFT;
 }
 
-export function calculatePublicOrderLineTotal(
+export function calculateShopOrderLineTotal(
   width: number,
   height: number,
   quantity: number,

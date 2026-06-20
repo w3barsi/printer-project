@@ -1,6 +1,6 @@
 import { CheckCircle2Icon, FileUpIcon, ShoppingBagIcon } from "lucide-react";
 
-import { ARTWORK_OPTIONS } from "@/lib/public-order";
+import { ARTWORK_OPTIONS } from "@/lib/shop-order";
 
 import { Field } from "./field";
 import type { ItemDraft } from "./types";

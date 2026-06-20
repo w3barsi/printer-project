@@ -4,7 +4,7 @@ import {
   TARPAULIN_SIZE_PRESETS,
   isPositiveDimension,
   isPositiveIntegerQuantity,
-} from "@/lib/public-order";
+} from "@/lib/shop-order";
 
 import { EstimateCard } from "./estimate-card";
 import { Field } from "./field";

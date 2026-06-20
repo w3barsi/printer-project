@@ -1,11 +1,11 @@
-import { PUBLIC_ORDER_SUPPORTED_SERVICE_SLUG } from "@/lib/public-order";
-import type { ArtworkOption } from "@/lib/public-order";
+import { SHOP_ORDER_SUPPORTED_SERVICE_SLUG } from "@/lib/shop-order";
+import type { ArtworkOption } from "@/lib/shop-order";
 
 import type {
   ContactDraft,
   ItemDraft,
   OrderStep,
-  PublicOrderCartItem,
+  ShopOrderCartItem,
   SubmittedOrder,
 } from "./types";
 
@@ -41,7 +41,7 @@ export function normalizeStep(
   cartCount: number,
 ): OrderStep {
   if (!service) return 1;
-  if (service !== PUBLIC_ORDER_SUPPORTED_SERVICE_SLUG) return 1;
+  if (service !== SHOP_ORDER_SUPPORTED_SERVICE_SLUG) return 1;
 
   const parsed = Number(step);
   if (step === "received") return 5;
@@ -76,7 +76,7 @@ export function attachmentStatusLabel(status: SubmittedOrder["attachmentStatus"]
 }
 
 export function buildArtworkSummary(
-  cart: PublicOrderCartItem[],
+  cart: ShopOrderCartItem[],
   artworkFiles: Record<string, File[]>,
 ) {
   const uploadCount = cart.reduce(

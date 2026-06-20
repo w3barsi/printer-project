@@ -1,9 +1,6 @@
 import { SparklesIcon } from "lucide-react";
 
-import {
-  PUBLIC_ORDER_SUPPORTED_SERVICE_SLUG,
-  getPublicOrderHref,
-} from "@/lib/public-order";
+import { SHOP_ORDER_SUPPORTED_SERVICE_SLUG, getShopOrderHref } from "@/lib/shop-order";
 
 import { ServiceSelection } from "./service-selection";
 
@@ -33,7 +30,7 @@ export function ComingSoon({
             Contact Us
           </a>
           <a
-            href={getPublicOrderHref(PUBLIC_ORDER_SUPPORTED_SERVICE_SLUG)}
+            href={getShopOrderHref(SHOP_ORDER_SUPPORTED_SERVICE_SLUG)}
             className="shop-btn shop-btn-ghost !rounded-full"
           >
             Order tarpaulin

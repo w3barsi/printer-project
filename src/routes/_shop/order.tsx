@@ -5,22 +5,22 @@ import { useAction, useMutation } from "convex/react";
 import { useState } from "react";
 import z from "zod";
 
-import { ArtworkStep } from "@/components/public/order/artwork-step";
-import { CartReviewStep } from "@/components/public/order/cart-review-step";
-import { ComingSoon } from "@/components/public/order/coming-soon";
-import { ContactPaymentStep } from "@/components/public/order/contact-payment-step";
-import { OrderConfirmation } from "@/components/public/order/order-confirmation";
-import { ServiceSelection } from "@/components/public/order/service-selection";
-import { StepRail } from "@/components/public/order/step-rail";
-import { TarpaulinDetailsStep } from "@/components/public/order/tarpaulin-details-step";
+import { ArtworkStep } from "@/components/shop/order/artwork-step";
+import { CartReviewStep } from "@/components/shop/order/cart-review-step";
+import { ComingSoon } from "@/components/shop/order/coming-soon";
+import { ContactPaymentStep } from "@/components/shop/order/contact-payment-step";
+import { OrderConfirmation } from "@/components/shop/order/order-confirmation";
+import { ServiceSelection } from "@/components/shop/order/service-selection";
+import { StepRail } from "@/components/shop/order/step-rail";
+import { TarpaulinDetailsStep } from "@/components/shop/order/tarpaulin-details-step";
 import type {
   AttachmentKind,
   ContactDraft,
   ItemDraft,
   OrderStep,
-  PublicOrderCartItem,
+  ShopOrderCartItem,
   SubmittedOrder,
-} from "@/components/public/order/types";
+} from "@/components/shop/order/types";
 import {
   buildArtworkSummary,
   emptyContactDraft,
@@ -30,27 +30,27 @@ import {
   normalizeStep,
   paymentLabel,
   putFile,
-} from "@/components/public/order/utils";
+} from "@/components/shop/order/utils";
 import { useLocalStorage } from "@/hooks/use-local-storage";
+import { getServiceBySlug } from "@/lib/services";
 import {
-  PUBLIC_ORDER_PRODUCT_TYPE,
-  PUBLIC_ORDER_SUPPORTED_SERVICE_SLUG,
-  calculatePublicOrderLineTotal,
+  SHOP_ORDER_PRODUCT_TYPE,
+  SHOP_ORDER_SUPPORTED_SERVICE_SLUG,
+  calculateShopOrderLineTotal,
   calculateTarpaulinAreaSqft,
   calculateTarpaulinPiecePrice,
   formatTarpaulinItemName,
   isPositiveDimension,
   isPositiveIntegerQuantity,
   isValidPhilippineMobile,
-} from "@/lib/public-order";
-import { SHOP_THEME, getServiceBySlug } from "@/lib/services";
+} from "@/lib/shop-order";
 
-export const Route = createFileRoute("/order")({
+export const Route = createFileRoute("/_shop/order")({
   validateSearch: z.object({
     service: z.string().optional(),
     step: z.union([z.string(), z.number()]).transform(String).optional(),
   }),
-  component: PublicOrderRoute,
+  component: ShopOrderRoute,
   head: () => ({
     meta: [
       { title: "Order Online | DARCYGRAPHiX" },
@@ -62,15 +62,12 @@ export const Route = createFileRoute("/order")({
   }),
 });
 
-function PublicOrderRoute() {
+function ShopOrderRoute() {
   const search = Route.useSearch();
   const navigate = Route.useNavigate();
-  const [cart, setCart] = useLocalStorage<PublicOrderCartItem[]>(
-    "dg-public-order-cart",
-    [],
-  );
+  const [cart, setCart] = useLocalStorage<ShopOrderCartItem[]>("dg-shop-order-cart", []);
   const [contactDraft, setContactDraft] = useLocalStorage<ContactDraft>(
-    "dg-public-order-contact",
+    "dg-shop-order-contact",
     emptyContactDraft,
   );
   const [itemDraft, setItemDraft] = useState<ItemDraft>(emptyItemDraft);
@@ -80,22 +77,22 @@ function PublicOrderRoute() {
   const [formError, setFormError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submittedOrder, setSubmittedOrder] = useState<SubmittedOrder | null>(null);
-  const createUnconfirmedOrder = useMutation(api.public.orders.createUnconfirmedOrder);
-  const generateOrderUploadUrl = useMutation(api.public.uploads.generateOrderUploadUrl);
-  const saveOrderAttachment = useMutation(api.public.orders.saveOrderAttachment);
+  const createUnconfirmedOrder = useMutation(api.shop.orders.createUnconfirmedOrder);
+  const generateOrderUploadUrl = useMutation(api.shop.uploads.generateOrderUploadUrl);
+  const saveOrderAttachment = useMutation(api.shop.orders.saveOrderAttachment);
   const markAttachmentUploadStatus = useMutation(
-    api.public.orders.markAttachmentUploadStatus,
+    api.shop.orders.markAttachmentUploadStatus,
   );
-  const syncOrderUploadMetadata = useAction(api.public.uploads.syncOrderUploadMetadata);
+  const syncOrderUploadMetadata = useAction(api.shop.uploads.syncOrderUploadMetadata);
   const sendOrderTelegramNotification = useAction(
-    api.public.telegram.sendOrderTelegramNotification,
+    api.shop.telegram.sendOrderTelegramNotification,
   );
 
   const requestedService = search.service;
   const selectedService = requestedService
     ? getServiceBySlug(requestedService)
     : undefined;
-  const isSupportedService = requestedService === PUBLIC_ORDER_SUPPORTED_SERVICE_SLUG;
+  const isSupportedService = requestedService === SHOP_ORDER_SUPPORTED_SERVICE_SLUG;
   const currentStep = normalizeStep(search.step, requestedService, cart.length);
   const cartTotal = cart.reduce((sum, item) => sum + item.lineTotal, 0);
   const progressCartCount = submittedOrder ? submittedOrder.itemCount : cart.length;
@@ -116,7 +113,7 @@ function PublicOrderRoute() {
     navigate({
       to: "/order",
       search: {
-        service: PUBLIC_ORDER_SUPPORTED_SERVICE_SLUG,
+        service: SHOP_ORDER_SUPPORTED_SERVICE_SLUG,
         step: "received",
       },
       replace: true,
@@ -143,7 +140,7 @@ function PublicOrderRoute() {
       return;
     }
 
-    navigateOrder({ service: PUBLIC_ORDER_SUPPORTED_SERVICE_SLUG, step: 3 });
+    navigateOrder({ service: SHOP_ORDER_SUPPORTED_SERVICE_SLUG, step: 3 });
   }
 
   function handleArtworkFiles(files: FileList | null) {
@@ -188,16 +185,16 @@ function PublicOrderRoute() {
     }
 
     const id = itemDraft.editingId ?? crypto.randomUUID();
-    const nextItem: PublicOrderCartItem = {
+    const nextItem: ShopOrderCartItem = {
       id,
-      serviceSlug: PUBLIC_ORDER_SUPPORTED_SERVICE_SLUG,
-      productType: PUBLIC_ORDER_PRODUCT_TYPE,
+      serviceSlug: SHOP_ORDER_SUPPORTED_SERVICE_SLUG,
+      productType: SHOP_ORDER_PRODUCT_TYPE,
       width,
       height,
       quantity,
       areaSqft: calculateTarpaulinAreaSqft(width, height),
       piecePrice: calculateTarpaulinPiecePrice(width, height),
-      lineTotal: calculatePublicOrderLineTotal(width, height, quantity),
+      lineTotal: calculateShopOrderLineTotal(width, height, quantity),
       artworkOption: itemDraft.artworkOption,
       designInstructions: itemDraft.designInstructions.trim() || undefined,
     };
@@ -209,10 +206,10 @@ function PublicOrderRoute() {
     setArtworkFiles((current) => ({ ...current, [id]: draftArtworkFiles }));
     setDraftArtworkFiles([]);
     setItemDraft(emptyItemDraft);
-    navigateOrder({ service: PUBLIC_ORDER_SUPPORTED_SERVICE_SLUG, step: 4 });
+    navigateOrder({ service: SHOP_ORDER_SUPPORTED_SERVICE_SLUG, step: 4 });
   }
 
-  function editCartItem(item: PublicOrderCartItem) {
+  function editCartItem(item: ShopOrderCartItem) {
     setItemDraft({
       editingId: item.id,
       width: String(item.width),
@@ -222,7 +219,7 @@ function PublicOrderRoute() {
       designInstructions: item.designInstructions ?? "",
     });
     setDraftArtworkFiles(artworkFiles[item.id] ?? []);
-    navigateOrder({ service: PUBLIC_ORDER_SUPPORTED_SERVICE_SLUG, step: 2 });
+    navigateOrder({ service: SHOP_ORDER_SUPPORTED_SERVICE_SLUG, step: 2 });
   }
 
   function removeCartItem(id: string) {
@@ -452,7 +449,7 @@ function PublicOrderRoute() {
   }
 
   return (
-    <div className="shop shop-grain min-h-screen" style={SHOP_THEME}>
+    <div className="min-h-screen">
       <header className="relative z-20 mx-auto flex max-w-[1400px] items-center justify-between px-6 py-5 md:px-10">
         <Link to="/" className="group flex items-center gap-3">
           <img
@@ -526,7 +523,7 @@ function PublicOrderRoute() {
               updateDraft={updateItemDraft}
               onFilesChange={handleArtworkFiles}
               onBack={() =>
-                navigateOrder({ service: PUBLIC_ORDER_SUPPORTED_SERVICE_SLUG, step: 2 })
+                navigateOrder({ service: SHOP_ORDER_SUPPORTED_SERVICE_SLUG, step: 2 })
               }
               onAdd={addDraftToCart}
             />
@@ -540,10 +537,10 @@ function PublicOrderRoute() {
               onAddItem={() => {
                 setItemDraft(emptyItemDraft);
                 setDraftArtworkFiles([]);
-                navigateOrder({ service: PUBLIC_ORDER_SUPPORTED_SERVICE_SLUG, step: 2 });
+                navigateOrder({ service: SHOP_ORDER_SUPPORTED_SERVICE_SLUG, step: 2 });
               }}
               onContinue={() =>
-                navigateOrder({ service: PUBLIC_ORDER_SUPPORTED_SERVICE_SLUG, step: 5 })
+                navigateOrder({ service: SHOP_ORDER_SUPPORTED_SERVICE_SLUG, step: 5 })
               }
             />
           ) : (
@@ -555,7 +552,7 @@ function PublicOrderRoute() {
               updateDraft={updateContactDraft}
               onPaymentProof={handlePaymentProof}
               onBack={() =>
-                navigateOrder({ service: PUBLIC_ORDER_SUPPORTED_SERVICE_SLUG, step: 4 })
+                navigateOrder({ service: SHOP_ORDER_SUPPORTED_SERVICE_SLUG, step: 4 })
               }
               onSubmit={submitOrderRequest}
             />

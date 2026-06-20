@@ -64,7 +64,7 @@ export const Route = createFileRoute("/app/jo/$joId")({
     const [jo] = await Promise.all([
       context.queryClient.ensureQueryData(convexQuery(api.jo.getOneComplete, { id })),
       context.queryClient.ensureQueryData(
-        convexQuery(api.public.orders.getOnlineOrderDetails, { joId: id }),
+        convexQuery(api.shop.orders.getOnlineOrderDetails, { joId: id }),
       ),
     ]);
 
@@ -228,7 +228,7 @@ function JoDetails() {
 function JobOrderHeader() {
   const { joId } = Route.useLoaderData();
   const { data: jo } = useSuspenseQuery(convexQuery(api.jo.getOneComplete, { id: joId }));
-  const confirmOnlineOrder = useMutation(api.public.orders.confirmOnlineOrder);
+  const confirmOnlineOrder = useMutation(api.shop.orders.confirmOnlineOrder);
   const queryClient = useQueryClient();
   const [isConfirming, setIsConfirming] = useState(false);
 
@@ -315,9 +315,9 @@ function OnlineOrderDetailsCard() {
   const { data: jo } = useSuspenseQuery(convexQuery(api.jo.getOneComplete, { id: joId }));
   const [isOpen, setIsOpen] = useState(() => jo?.status === "unconfirmed");
   const { data } = useSuspenseQuery(
-    convexQuery(api.public.orders.getOnlineOrderDetails, { joId }),
+    convexQuery(api.shop.orders.getOnlineOrderDetails, { joId }),
   );
-  const getAttachmentUrl = useMutation(api.public.orders.getOrderAttachmentUrl);
+  const getAttachmentUrl = useMutation(api.shop.orders.getOrderAttachmentUrl);
 
   if (!data) {
     return null;

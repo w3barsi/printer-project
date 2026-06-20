@@ -3,15 +3,15 @@ import type { Id } from "@convex/_generated/dataModel";
 import type {
   ArtworkOption,
   PaymentMethod,
-  PUBLIC_ORDER_PRODUCT_TYPE,
-} from "@/lib/public-order";
+  SHOP_ORDER_PRODUCT_TYPE,
+} from "@/lib/shop-order";
 
 export type OrderStep = 1 | 2 | 3 | 4 | 5;
 
-export type PublicOrderCartItem = {
+export type ShopOrderCartItem = {
   id: string;
   serviceSlug: string;
-  productType: typeof PUBLIC_ORDER_PRODUCT_TYPE;
+  productType: typeof SHOP_ORDER_PRODUCT_TYPE;
   width: number;
   height: number;
   quantity: number;

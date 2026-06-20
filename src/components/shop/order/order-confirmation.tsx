@@ -1,10 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { CheckCircle2Icon } from "lucide-react";
 
-import {
-  PUBLIC_ORDER_SUPPORTED_SERVICE_SLUG,
-  getPublicOrderHref,
-} from "@/lib/public-order";
+import { SHOP_ORDER_SUPPORTED_SERVICE_SLUG, getShopOrderHref } from "@/lib/shop-order";
 
 import { SummaryPill } from "./summary-pill";
 import type { SubmittedOrder } from "./types";
@@ -46,7 +43,7 @@ export function OrderConfirmation({ order }: { order: SubmittedOrder }) {
       )}
       <div className="mt-7 flex flex-wrap justify-center gap-3">
         <a
-          href={getPublicOrderHref(PUBLIC_ORDER_SUPPORTED_SERVICE_SLUG)}
+          href={getShopOrderHref(SHOP_ORDER_SUPPORTED_SERVICE_SLUG)}
           className="shop-btn shop-btn-primary !rounded-full"
         >
           Start another order

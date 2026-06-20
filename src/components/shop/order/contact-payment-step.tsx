@@ -1,4 +1,4 @@
-import { PAYMENT_METHODS } from "@/lib/public-order";
+import { PAYMENT_METHODS } from "@/lib/shop-order";
 
 import { Field } from "./field";
 import type { ContactDraft } from "./types";

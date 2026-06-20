@@ -18,11 +18,11 @@ import type * as jo from "../jo.js";
 import type * as migrations from "../migrations.js";
 import type * as payment from "../payment.js";
 import type * as products from "../products.js";
-import type * as public_orderHelpers from "../public/orderHelpers.js";
-import type * as public_orders from "../public/orders.js";
-import type * as public_telegram from "../public/telegram.js";
-import type * as public_uploads from "../public/uploads.js";
 import type * as r2 from "../r2.js";
+import type * as shop_orderHelpers from "../shop/orderHelpers.js";
+import type * as shop_orders from "../shop/orders.js";
+import type * as shop_telegram from "../shop/telegram.js";
+import type * as shop_uploads from "../shop/uploads.js";
 import type * as trello from "../trello.js";
 
 import type {
@@ -42,11 +42,11 @@ declare const fullApi: ApiFromModules<{
   migrations: typeof migrations;
   payment: typeof payment;
   products: typeof products;
-  "public/orderHelpers": typeof public_orderHelpers;
-  "public/orders": typeof public_orders;
-  "public/telegram": typeof public_telegram;
-  "public/uploads": typeof public_uploads;
   r2: typeof r2;
+  "shop/orderHelpers": typeof shop_orderHelpers;
+  "shop/orders": typeof shop_orders;
+  "shop/telegram": typeof shop_telegram;
+  "shop/uploads": typeof shop_uploads;
   trello: typeof trello;
 }>;
 

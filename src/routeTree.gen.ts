@@ -11,25 +11,26 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TestfruitsRouteImport } from './routes/testfruits'
 import { Route as TestdndRouteImport } from './routes/testdnd'
-import { Route as OrderRouteImport } from './routes/order'
 import { Route as ConvexRouteImport } from './routes/convex'
 import { Route as AppRouteRouteImport } from './routes/app/route'
+import { Route as ShopRouteRouteImport } from './routes/_shop/route'
 import { Route as AuthRouteRouteImport } from './routes/_auth/route'
-import { Route as IndexRouteImport } from './routes/index'
-import { Route as ShowcaseIndexRouteImport } from './routes/showcase.index'
-import { Route as ShowcaseServiceRouteImport } from './routes/showcase.$service'
+import { Route as ShopIndexRouteImport } from './routes/_shop/index'
 import { Route as AppTesttrelloRouteImport } from './routes/app/testtrello'
+import { Route as ShopOrderRouteImport } from './routes/_shop/order'
 import { Route as AuthSignupRouteImport } from './routes/_auth/signup'
 import { Route as AuthLoginRouteImport } from './routes/_auth/login'
 import { Route as AppCashierRouteRouteImport } from './routes/app/_cashier/route'
 import { Route as AppAdminRouteRouteImport } from './routes/app/_admin/route'
 import { Route as AppTrelloIndexRouteImport } from './routes/app/trello.index'
 import { Route as AppJoIndexRouteImport } from './routes/app/jo.index'
+import { Route as ShopShowcaseIndexRouteImport } from './routes/_shop/showcase.index'
 import { Route as AppTrelloListIdRouteImport } from './routes/app/trello.$listId'
 import { Route as AppJoJoIdRouteImport } from './routes/app/jo.$joId'
 import { Route as AppDriveChar123DriveChar125RouteImport } from './routes/app/drive.{-$drive}'
 import { Route as AppCashierCashflowRouteImport } from './routes/app/_cashier/cashflow'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth.$'
+import { Route as ShopShowcaseServiceRouteImport } from './routes/_shop/showcase.$service'
 import { Route as AppAdminAdminIndexRouteImport } from './routes/app/_admin/admin.index'
 import { Route as AppAdminAdminUsersRouteImport } from './routes/app/_admin/admin.users'
 
@@ -43,11 +44,6 @@ const TestdndRoute = TestdndRouteImport.update({
   path: '/testdnd',
   getParentRoute: () => rootRouteImport,
 } as any)
-const OrderRoute = OrderRouteImport.update({
-  id: '/order',
-  path: '/order',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ConvexRoute = ConvexRouteImport.update({
   id: '/convex',
   path: '/convex',
@@ -58,29 +54,28 @@ const AppRouteRoute = AppRouteRouteImport.update({
   path: '/app',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ShopRouteRoute = ShopRouteRouteImport.update({
+  id: '/_shop',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthRouteRoute = AuthRouteRouteImport.update({
   id: '/_auth',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
+const ShopIndexRoute = ShopIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ShowcaseIndexRoute = ShowcaseIndexRouteImport.update({
-  id: '/showcase/',
-  path: '/showcase/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ShowcaseServiceRoute = ShowcaseServiceRouteImport.update({
-  id: '/showcase/$service',
-  path: '/showcase/$service',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => ShopRouteRoute,
 } as any)
 const AppTesttrelloRoute = AppTesttrelloRouteImport.update({
   id: '/testtrello',
   path: '/testtrello',
   getParentRoute: () => AppRouteRoute,
+} as any)
+const ShopOrderRoute = ShopOrderRouteImport.update({
+  id: '/order',
+  path: '/order',
+  getParentRoute: () => ShopRouteRoute,
 } as any)
 const AuthSignupRoute = AuthSignupRouteImport.update({
   id: '/signup',
@@ -110,6 +105,11 @@ const AppJoIndexRoute = AppJoIndexRouteImport.update({
   path: '/jo/',
   getParentRoute: () => AppRouteRoute,
 } as any)
+const ShopShowcaseIndexRoute = ShopShowcaseIndexRouteImport.update({
+  id: '/showcase/',
+  path: '/showcase/',
+  getParentRoute: () => ShopRouteRoute,
+} as any)
 const AppTrelloListIdRoute = AppTrelloListIdRouteImport.update({
   id: '/trello/$listId',
   path: '/trello/$listId',
@@ -136,6 +136,11 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ShopShowcaseServiceRoute = ShopShowcaseServiceRouteImport.update({
+  id: '/showcase/$service',
+  path: '/showcase/$service',
+  getParentRoute: () => ShopRouteRoute,
+} as any)
 const AppAdminAdminIndexRoute = AppAdminAdminIndexRouteImport.update({
   id: '/admin/',
   path: '/admin/',
@@ -148,44 +153,44 @@ const AppAdminAdminUsersRoute = AppAdminAdminUsersRouteImport.update({
 } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
+  '/': typeof ShopIndexRoute
   '/app': typeof AppCashierRouteRouteWithChildren
   '/convex': typeof ConvexRoute
-  '/order': typeof OrderRoute
   '/testdnd': typeof TestdndRoute
   '/testfruits': typeof TestfruitsRoute
   '/login': typeof AuthLoginRoute
   '/signup': typeof AuthSignupRoute
+  '/order': typeof ShopOrderRoute
   '/app/testtrello': typeof AppTesttrelloRoute
-  '/showcase/$service': typeof ShowcaseServiceRoute
-  '/showcase/': typeof ShowcaseIndexRoute
+  '/showcase/$service': typeof ShopShowcaseServiceRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/app/cashflow': typeof AppCashierCashflowRoute
   '/app/drive/{-$drive}': typeof AppDriveChar123DriveChar125Route
   '/app/jo/$joId': typeof AppJoJoIdRoute
   '/app/trello/$listId': typeof AppTrelloListIdRoute
+  '/showcase/': typeof ShopShowcaseIndexRoute
   '/app/jo/': typeof AppJoIndexRoute
   '/app/trello/': typeof AppTrelloIndexRoute
   '/app/admin/users': typeof AppAdminAdminUsersRoute
   '/app/admin/': typeof AppAdminAdminIndexRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
+  '/': typeof ShopIndexRoute
   '/app': typeof AppCashierRouteRouteWithChildren
   '/convex': typeof ConvexRoute
-  '/order': typeof OrderRoute
   '/testdnd': typeof TestdndRoute
   '/testfruits': typeof TestfruitsRoute
   '/login': typeof AuthLoginRoute
   '/signup': typeof AuthSignupRoute
+  '/order': typeof ShopOrderRoute
   '/app/testtrello': typeof AppTesttrelloRoute
-  '/showcase/$service': typeof ShowcaseServiceRoute
-  '/showcase': typeof ShowcaseIndexRoute
+  '/showcase/$service': typeof ShopShowcaseServiceRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/app/cashflow': typeof AppCashierCashflowRoute
   '/app/drive/{-$drive}': typeof AppDriveChar123DriveChar125Route
   '/app/jo/$joId': typeof AppJoJoIdRoute
   '/app/trello/$listId': typeof AppTrelloListIdRoute
+  '/showcase': typeof ShopShowcaseIndexRoute
   '/app/jo': typeof AppJoIndexRoute
   '/app/trello': typeof AppTrelloIndexRoute
   '/app/admin/users': typeof AppAdminAdminUsersRoute
@@ -193,25 +198,26 @@ export interface FileRoutesByTo {
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
   '/_auth': typeof AuthRouteRouteWithChildren
+  '/_shop': typeof ShopRouteRouteWithChildren
   '/app': typeof AppRouteRouteWithChildren
   '/convex': typeof ConvexRoute
-  '/order': typeof OrderRoute
   '/testdnd': typeof TestdndRoute
   '/testfruits': typeof TestfruitsRoute
   '/app/_admin': typeof AppAdminRouteRouteWithChildren
   '/app/_cashier': typeof AppCashierRouteRouteWithChildren
   '/_auth/login': typeof AuthLoginRoute
   '/_auth/signup': typeof AuthSignupRoute
+  '/_shop/order': typeof ShopOrderRoute
   '/app/testtrello': typeof AppTesttrelloRoute
-  '/showcase/$service': typeof ShowcaseServiceRoute
-  '/showcase/': typeof ShowcaseIndexRoute
+  '/_shop/': typeof ShopIndexRoute
+  '/_shop/showcase/$service': typeof ShopShowcaseServiceRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/app/_cashier/cashflow': typeof AppCashierCashflowRoute
   '/app/drive/{-$drive}': typeof AppDriveChar123DriveChar125Route
   '/app/jo/$joId': typeof AppJoJoIdRoute
   '/app/trello/$listId': typeof AppTrelloListIdRoute
+  '/_shop/showcase/': typeof ShopShowcaseIndexRoute
   '/app/jo/': typeof AppJoIndexRoute
   '/app/trello/': typeof AppTrelloIndexRoute
   '/app/_admin/admin/users': typeof AppAdminAdminUsersRoute
@@ -223,19 +229,19 @@ export interface FileRouteTypes {
     | '/'
     | '/app'
     | '/convex'
-    | '/order'
     | '/testdnd'
     | '/testfruits'
     | '/login'
     | '/signup'
+    | '/order'
     | '/app/testtrello'
     | '/showcase/$service'
-    | '/showcase/'
     | '/api/auth/$'
     | '/app/cashflow'
     | '/app/drive/{-$drive}'
     | '/app/jo/$joId'
     | '/app/trello/$listId'
+    | '/showcase/'
     | '/app/jo/'
     | '/app/trello/'
     | '/app/admin/users'
@@ -245,44 +251,45 @@ export interface FileRouteTypes {
     | '/'
     | '/app'
     | '/convex'
-    | '/order'
     | '/testdnd'
     | '/testfruits'
     | '/login'
     | '/signup'
+    | '/order'
     | '/app/testtrello'
     | '/showcase/$service'
-    | '/showcase'
     | '/api/auth/$'
     | '/app/cashflow'
     | '/app/drive/{-$drive}'
     | '/app/jo/$joId'
     | '/app/trello/$listId'
+    | '/showcase'
     | '/app/jo'
     | '/app/trello'
     | '/app/admin/users'
     | '/app/admin'
   id:
     | '__root__'
-    | '/'
     | '/_auth'
+    | '/_shop'
     | '/app'
     | '/convex'
-    | '/order'
     | '/testdnd'
     | '/testfruits'
     | '/app/_admin'
     | '/app/_cashier'
     | '/_auth/login'
     | '/_auth/signup'
+    | '/_shop/order'
     | '/app/testtrello'
-    | '/showcase/$service'
-    | '/showcase/'
+    | '/_shop/'
+    | '/_shop/showcase/$service'
     | '/api/auth/$'
     | '/app/_cashier/cashflow'
     | '/app/drive/{-$drive}'
     | '/app/jo/$joId'
     | '/app/trello/$listId'
+    | '/_shop/showcase/'
     | '/app/jo/'
     | '/app/trello/'
     | '/app/_admin/admin/users'
@@ -290,15 +297,12 @@ export interface FileRouteTypes {
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
   AuthRouteRoute: typeof AuthRouteRouteWithChildren
+  ShopRouteRoute: typeof ShopRouteRouteWithChildren
   AppRouteRoute: typeof AppRouteRouteWithChildren
   ConvexRoute: typeof ConvexRoute
-  OrderRoute: typeof OrderRoute
   TestdndRoute: typeof TestdndRoute
   TestfruitsRoute: typeof TestfruitsRoute
-  ShowcaseServiceRoute: typeof ShowcaseServiceRoute
-  ShowcaseIndexRoute: typeof ShowcaseIndexRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
 }
 
@@ -318,13 +322,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TestdndRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/order': {
-      id: '/order'
-      path: '/order'
-      fullPath: '/order'
-      preLoaderRoute: typeof OrderRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/convex': {
       id: '/convex'
       path: '/convex'
@@ -339,6 +336,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_shop': {
+      id: '/_shop'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof ShopRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_auth': {
       id: '/_auth'
       path: ''
@@ -346,26 +350,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
+    '/_shop/': {
+      id: '/_shop/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/showcase/': {
-      id: '/showcase/'
-      path: '/showcase'
-      fullPath: '/showcase/'
-      preLoaderRoute: typeof ShowcaseIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/showcase/$service': {
-      id: '/showcase/$service'
-      path: '/showcase/$service'
-      fullPath: '/showcase/$service'
-      preLoaderRoute: typeof ShowcaseServiceRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof ShopIndexRouteImport
+      parentRoute: typeof ShopRouteRoute
     }
     '/app/testtrello': {
       id: '/app/testtrello'
@@ -373,6 +363,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/app/testtrello'
       preLoaderRoute: typeof AppTesttrelloRouteImport
       parentRoute: typeof AppRouteRoute
+    }
+    '/_shop/order': {
+      id: '/_shop/order'
+      path: '/order'
+      fullPath: '/order'
+      preLoaderRoute: typeof ShopOrderRouteImport
+      parentRoute: typeof ShopRouteRoute
     }
     '/_auth/signup': {
       id: '/_auth/signup'
@@ -416,6 +413,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppJoIndexRouteImport
       parentRoute: typeof AppRouteRoute
     }
+    '/_shop/showcase/': {
+      id: '/_shop/showcase/'
+      path: '/showcase'
+      fullPath: '/showcase/'
+      preLoaderRoute: typeof ShopShowcaseIndexRouteImport
+      parentRoute: typeof ShopRouteRoute
+    }
     '/app/trello/$listId': {
       id: '/app/trello/$listId'
       path: '/trello/$listId'
@@ -451,6 +455,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_shop/showcase/$service': {
+      id: '/_shop/showcase/$service'
+      path: '/showcase/$service'
+      fullPath: '/showcase/$service'
+      preLoaderRoute: typeof ShopShowcaseServiceRouteImport
+      parentRoute: typeof ShopRouteRoute
+    }
     '/app/_admin/admin/': {
       id: '/app/_admin/admin/'
       path: '/admin'
@@ -480,6 +491,24 @@ const AuthRouteRouteChildren: AuthRouteRouteChildren = {
 
 const AuthRouteRouteWithChildren = AuthRouteRoute._addFileChildren(
   AuthRouteRouteChildren,
+)
+
+interface ShopRouteRouteChildren {
+  ShopOrderRoute: typeof ShopOrderRoute
+  ShopIndexRoute: typeof ShopIndexRoute
+  ShopShowcaseServiceRoute: typeof ShopShowcaseServiceRoute
+  ShopShowcaseIndexRoute: typeof ShopShowcaseIndexRoute
+}
+
+const ShopRouteRouteChildren: ShopRouteRouteChildren = {
+  ShopOrderRoute: ShopOrderRoute,
+  ShopIndexRoute: ShopIndexRoute,
+  ShopShowcaseServiceRoute: ShopShowcaseServiceRoute,
+  ShopShowcaseIndexRoute: ShopShowcaseIndexRoute,
+}
+
+const ShopRouteRouteWithChildren = ShopRouteRoute._addFileChildren(
+  ShopRouteRouteChildren,
 )
 
 interface AppAdminRouteRouteChildren {
@@ -535,15 +564,12 @@ const AppRouteRouteWithChildren = AppRouteRoute._addFileChildren(
 )
 
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
   AuthRouteRoute: AuthRouteRouteWithChildren,
+  ShopRouteRoute: ShopRouteRouteWithChildren,
   AppRouteRoute: AppRouteRouteWithChildren,
   ConvexRoute: ConvexRoute,
-  OrderRoute: OrderRoute,
   TestdndRoute: TestdndRoute,
   TestfruitsRoute: TestfruitsRoute,
-  ShowcaseServiceRoute: ShowcaseServiceRoute,
-  ShowcaseIndexRoute: ShowcaseIndexRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
 }
 export const routeTree = rootRouteImport

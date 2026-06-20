@@ -1,4 +1,4 @@
-import { SectionHead } from "@/components/public/section-head";
+import { SectionHead } from "@/components/shop/section-head";
 
 export function ShopCapabilities() {
   const caps = [
