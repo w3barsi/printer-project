@@ -44,14 +44,14 @@ export function ShopProcess() {
               className="relative flex flex-col gap-4 rounded-[1.75rem] border border-(--shop-line) bg-(--shop-panel) p-7 shadow-[0_18px_50px_rgba(139,39,32,0.07)] md:p-8"
             >
               <div className="flex items-center justify-between">
-                <span className="shop-font-display text-5xl text-(--shop-ink-mute)">
+                <span className="font-shop-display text-5xl leading-[0.9] font-bold tracking-[-0.01em] text-(--shop-ink-mute) italic">
                   {s.no}
                 </span>
                 <RegMark
                   className={i % 2 === 0 ? "text-(--shop-red)" : "text-(--shop-silver)"}
                 />
               </div>
-              <h3 className="shop-font-wide text-xl font-extrabold tracking-wide uppercase">
+              <h3 className="font-shop-wide text-xl font-extrabold tracking-wide uppercase">
                 {s.title}
               </h3>
               <p className="text-sm leading-relaxed text-(--shop-ink-dim)">{s.body}</p>

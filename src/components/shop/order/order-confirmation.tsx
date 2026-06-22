@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { CheckCircle2Icon } from "lucide-react";
 
+import { ShopButton } from "@/components/shop/ui/button";
 import { SHOP_ORDER_SUPPORTED_SERVICE_SLUG, getShopOrderHref } from "@/lib/shop-order";
 
 import { SummaryPill } from "./summary-pill";
@@ -11,7 +12,9 @@ export function OrderConfirmation({ order }: { order: SubmittedOrder }) {
   return (
     <section className="rounded-[2rem] border border-(--shop-line) bg-(--shop-panel) p-8 text-center shadow-[0_18px_50px_rgba(139,39,32,0.07)] md:p-10">
       <CheckCircle2Icon className="mx-auto size-12 text-(--shop-red)" />
-      <h2 className="shop-font-display mt-4 text-5xl">Order request received</h2>
+      <h2 className="mt-4 font-shop-display text-5xl leading-[0.9] font-bold tracking-[-0.01em] italic">
+        Order request received
+      </h2>
       {order.honeypot ? (
         <p className="mx-auto mt-4 max-w-xl text-(--shop-ink-dim)">
           Thanks. Your request has been received and will be reviewed by staff.
@@ -42,15 +45,14 @@ export function OrderConfirmation({ order }: { order: SubmittedOrder }) {
         </div>
       )}
       <div className="mt-7 flex flex-wrap justify-center gap-3">
-        <a
-          href={getShopOrderHref(SHOP_ORDER_SUPPORTED_SERVICE_SLUG)}
-          className="shop-btn shop-btn-primary !rounded-full"
-        >
-          Start another order
-        </a>
-        <Link to="/" className="shop-btn shop-btn-ghost !rounded-full">
-          Back to home
-        </Link>
+        <ShopButton asChild variant="primary">
+          <a href={getShopOrderHref(SHOP_ORDER_SUPPORTED_SERVICE_SLUG)}>
+            Start another order
+          </a>
+        </ShopButton>
+        <ShopButton asChild variant="ghost">
+          <Link to="/">Back to home</Link>
+        </ShopButton>
       </div>
     </section>
   );

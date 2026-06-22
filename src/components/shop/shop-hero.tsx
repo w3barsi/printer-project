@@ -1,22 +1,23 @@
 import { RegCorner } from "@/components/shop/reg-mark";
+import { ShopButton } from "@/components/shop/ui/button";
 
 export function ShopHero() {
   return (
     <section
       id="top"
-      className="relative z-10 mx-auto max-w-[1400px] px-6 pt-10 pb-20 md:px-10 md:pt-14"
+      className="relative z-10 mx-auto max-w-350 px-6 pt-10 pb-20 md:px-10 md:pt-14"
     >
       {/* warm ink-and-paper blobs */}
       <div
-        className="shop-blob shop-blob-red top-24 -left-20 h-[420px] w-[420px] opacity-30"
+        className="shop-blob shop-blob-red top-24 -left-20 h-105 w-105 opacity-30"
         aria-hidden
       />
       <div
-        className="shop-blob shop-blob-white top-40 right-[-10%] h-[380px] w-[380px] opacity-60"
+        className="shop-blob shop-blob-white top-40 right-[-10%] h-95 w-95 opacity-60"
         aria-hidden
       />
       <div
-        className="shop-blob shop-blob-silver top-[420px] left-1/3 h-[300px] w-[300px] opacity-40"
+        className="shop-blob shop-blob-silver top-105 left-1/3 h-75 w-75 opacity-40"
         aria-hidden
       />
 
@@ -24,22 +25,24 @@ export function ShopHero() {
       <img
         src="/DG_SHORT_BORDERED.png"
         alt=""
-        className="pointer-events-none absolute top-[10%] right-[-8%] z-0 w-[55%] max-w-[520px] opacity-[0.08] md:top-[5%] md:right-[2%] md:w-[40%]"
+        className="pointer-events-none absolute top-[10%] right-[-8%] z-0 w-[55%] max-w-130 opacity-[0.08] md:top-[5%] md:right-[2%] md:w-[40%]"
       />
 
       <div className="relative grid gap-12 lg:grid-cols-[1.35fr_0.65fr] lg:items-end">
         <div>
           <div className="shop-rise shop-rise-1 mb-8 flex items-center gap-3">
             <span className="h-px w-10 bg-(--shop-red)" />
-            <span className="shop-eyebrow !tracking-[0.18em] !text-(--shop-red)">
+            <span className="font-shop-wide text-[0.72rem] font-semibold tracking-[0.18em] text-(--shop-red) uppercase">
               Friendly print, signage &amp; fabrication
             </span>
           </div>
 
-          <h1 className="shop-font-display shop-rise shop-rise-2 text-[clamp(3.2rem,10vw,9rem)] leading-[0.88]">
+          <h1 className="shop-rise shop-rise-2 font-shop-display text-[clamp(3.2rem,10vw,9rem)] leading-[0.88] font-bold tracking-[-0.01em] italic">
             <span className="block">MAKE YOUR</span>
             <span className="block">
-              <span className="shop-stroke">BRAND</span>
+              <span className="text-transparent [-webkit-text-stroke:1.5px_var(--shop-ink)]">
+                BRAND
+              </span>
             </span>
             <span className="block">
               <span
@@ -58,12 +61,12 @@ export function ShopHero() {
           </p>
 
           <div className="shop-rise shop-rise-5 mt-10 flex flex-wrap items-center gap-4">
-            <a href="#contact" className="shop-btn shop-btn-primary !rounded-full">
-              Request a quote
-            </a>
-            <a href="#services" className="shop-btn shop-btn-ghost !rounded-full">
-              See services
-            </a>
+            <ShopButton asChild variant="primary">
+              <a href="#contact">Request a quote</a>
+            </ShopButton>
+            <ShopButton asChild variant="ghost">
+              <a href="#services">See services</a>
+            </ShopButton>
           </div>
 
           <div className="shop-rise shop-rise-6 mt-12 flex flex-wrap items-center gap-x-8 gap-y-3">
@@ -98,7 +101,7 @@ function SignPanel() {
       <div className="shop-halftone pointer-events-none absolute inset-0 rounded-[2rem] opacity-20" />
       <div className="relative">
         <div className="mb-5 flex items-center justify-between">
-          <span className="shop-eyebrow !text-[0.62rem] !tracking-[0.18em]">
+          <span className="font-shop-wide text-[0.62rem] font-semibold tracking-[0.18em] text-(--shop-ink-dim) uppercase">
             Shop window preview
           </span>
           <span className="flex items-center gap-1.5 text-[0.62rem] text-(--shop-ink-mute)">
@@ -109,12 +112,12 @@ function SignPanel() {
 
         <div className="rounded-[1.35rem] border border-(--shop-line) bg-[#ffe5df] p-6 text-center shadow-inner">
           <div
-            className="shop-font-display text-5xl text-(--shop-red)"
+            className="font-shop-display text-5xl leading-[0.9] font-bold tracking-[-0.01em] text-(--shop-red) italic"
             style={{ animationDelay: "0.2s" }}
           >
             HELLO
           </div>
-          <div className="shop-font-serif mt-3 text-xl text-(--shop-ink-dim) italic">
+          <div className="mt-3 font-shop-serif text-xl text-(--shop-ink-dim) italic">
             we made your sign
           </div>
         </div>

@@ -70,6 +70,12 @@ code {
   /* SHOP STYLES */
 }
 
+@theme {
+  --font-shop-display: "Chakra Petch", "Archivo", system-ui, sans-serif;
+  --font-shop-wide: "Archivo", system-ui, sans-serif;
+  --font-shop-serif: "Instrument Serif", Georgia, serif;
+}
+
 :root {
   --background: oklch(0.99 0 0);
   --foreground: oklch(0 0 0);
@@ -366,42 +372,6 @@ code {
   color: inherit;
 }
 
-/* Type primitives ------------------------------------------------ */
-
-.shop-font-display {
-  font-family: var(--shop-font-display);
-  font-weight: 700;
-  font-style: italic;
-  letter-spacing: -0.01em;
-  line-height: 0.9;
-}
-.shop-font-wide {
-  font-family: var(--shop-font-wide);
-}
-.shop-font-serif {
-  font-family: var(--shop-font-serif);
-}
-
-.shop-eyebrow {
-  font-family: var(--shop-font-wide);
-  font-weight: 600;
-  font-size: 0.72rem;
-  letter-spacing: 0.34em;
-  text-transform: uppercase;
-  color: var(--shop-ink-dim);
-}
-
-.shop-stroke {
-  color: transparent;
-  -webkit-text-stroke: 1.5px var(--shop-ink);
-}
-.shop-stroke-red {
-  -webkit-text-stroke-color: var(--shop-red);
-}
-.shop-stroke-white {
-  -webkit-text-stroke-color: var(--shop-white);
-}
-
 /* Neon glow text ------------------------------------------------- */
 
 .shop-neon {
@@ -672,46 +642,6 @@ code {
 .shop-rule {
   height: 1px;
   background: linear-gradient(to right, transparent, var(--shop-line-2), transparent);
-}
-
-/* Buttons -------------------------------------------------------- */
-
-.shop-btn {
-  font-family: var(--shop-font-wide);
-  font-weight: 700;
-  font-size: 0.78rem;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.6rem;
-  padding: 0.95rem 1.4rem;
-  border-radius: 2px;
-  transition: all 0.25s ease;
-  position: relative;
-  white-space: nowrap;
-}
-.shop-btn-primary {
-  background: var(--shop-red);
-  color: var(--shop-white);
-  box-shadow: 0 0 0 0 oklch(0.62 0.28 27 / 0);
-}
-.shop-btn-primary:hover {
-  background: var(--shop-white);
-  color: var(--shop-ink);
-  box-shadow:
-    0 0 24px oklch(1 0 0 / 0.45),
-    0 0 60px oklch(1 0 0 / 0.2);
-  transform: translateY(-2px);
-}
-.shop-btn-ghost {
-  border: 1px solid var(--shop-line-2);
-  color: var(--shop-ink);
-}
-.shop-btn-ghost:hover {
-  border-color: var(--shop-red);
-  color: var(--shop-red);
-  box-shadow: 0 0 20px oklch(0.62 0.28 27 / 0.35);
 }
 
 /* Underline link ------------------------------------------------- */

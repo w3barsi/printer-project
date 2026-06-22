@@ -473,10 +473,10 @@ function ShopOrderRoute() {
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_12%_0%,rgba(225,38,28,0.16),transparent_38%),radial-gradient(circle_at_88%_18%,rgba(214,60,50,0.12),transparent_34%)]" />
           <div className="relative grid gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-end">
             <div>
-              <span className="shop-eyebrow !tracking-[0.2em] !text-(--shop-red)">
+              <span className="font-shop-wide text-[0.72rem] font-semibold tracking-[0.2em] text-(--shop-red) uppercase">
                 Online order desk
               </span>
-              <h1 className="shop-font-display mt-4 max-w-3xl text-[clamp(2.4rem,7vw,5.4rem)] leading-[0.92]">
+              <h1 className="mt-4 max-w-3xl font-shop-display text-[clamp(2.4rem,7vw,5.4rem)] leading-[0.92] font-bold tracking-[-0.01em] italic">
                 Start your print request
               </h1>
               <p className="mt-5 max-w-2xl text-base leading-relaxed text-(--shop-ink-dim) md:text-lg">

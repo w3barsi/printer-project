@@ -1,5 +1,6 @@
 import { ArrowRightIcon } from "lucide-react";
 
+import { ShopButton } from "@/components/shop/ui/button";
 import {
   TARPAULIN_SIZE_PRESETS,
   isPositiveDimension,
@@ -31,7 +32,9 @@ export function TarpaulinDetailsStep({
   return (
     <section className="grid gap-5 lg:grid-cols-[1fr_0.75fr]">
       <div className="rounded-[2rem] border border-(--shop-line) bg-(--shop-panel) p-6 shadow-[0_18px_50px_rgba(139,39,32,0.07)] md:p-8">
-        <h2 className="shop-font-display text-4xl">Tarpaulin size</h2>
+        <h2 className="font-shop-display text-4xl leading-[0.9] font-bold tracking-[-0.01em] italic">
+          Tarpaulin size
+        </h2>
         <p className="mt-3 text-sm leading-relaxed text-(--shop-ink-dim)">
           Use feet for width and height. Decimals are allowed for custom sizes.
         </p>
@@ -81,13 +84,9 @@ export function TarpaulinDetailsStep({
           </Field>
         </div>
 
-        <button
-          type="button"
-          className="shop-btn shop-btn-primary mt-7 !rounded-full"
-          onClick={onNext}
-        >
+        <ShopButton type="button" variant="primary" className="mt-7" onClick={onNext}>
           Continue to artwork <ArrowRightIcon className="size-4" />
-        </button>
+        </ShopButton>
       </div>
 
       <EstimateCard

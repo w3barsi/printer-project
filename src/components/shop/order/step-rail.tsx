@@ -15,7 +15,7 @@ export function StepRail({
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between gap-3">
-        <p className="shop-eyebrow !text-[0.65rem] !tracking-[0.22em] text-(--shop-ink-mute)">
+        <p className="font-shop-wide text-[0.65rem] font-semibold tracking-[0.22em] text-(--shop-ink-mute) uppercase">
           Step {step} of 5
         </p>
         <p className="rounded-full bg-(--shop-red) px-3 py-1 text-xs font-black text-white">

@@ -2,6 +2,7 @@ import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { useHotkeys } from "react-hotkeys-hook";
 
 import { ShowcaseSamples } from "@/components/shop/showcase-samples";
+import { ShopButton } from "@/components/shop/ui/button";
 import { SERVICES, getServiceBySlug } from "@/lib/services";
 import { getShopOrderHref } from "@/lib/shop-order";
 
@@ -70,19 +71,16 @@ function Showcase() {
           />
           <img src="/DG_Long.png" alt="DARCYGRAPHiX" className="h-8 w-auto md:h-9" />
         </Link>
-        <a
-          href={orderHref}
-          className="shop-btn shop-btn-primary !rounded-full !px-5 !py-2.5"
-        >
-          Order Now
-        </a>
+        <ShopButton asChild variant="primary" size="sm">
+          <a href={orderHref}>Order Now</a>
+        </ShopButton>
       </header>
 
       <main className="relative z-10 mx-auto max-w-[1400px] px-6 pt-10 pb-24 md:px-10 md:pt-14">
         <Link
           to="/"
           hash="services"
-          className="shop-eyebrow shop-link-underline inline-flex items-center gap-2 !tracking-[0.18em] !text-(--shop-red)"
+          className="shop-link-underline inline-flex items-center gap-2 font-shop-wide text-[0.72rem] font-semibold tracking-[0.18em] text-(--shop-red) uppercase"
         >
           ← Back to services
         </Link>
@@ -99,16 +97,16 @@ function Showcase() {
               <div className="relative flex size-16 items-center justify-center rounded-2xl border border-(--shop-line-2) bg-[#ffe5df] text-(--shop-red)">
                 <Icon className="size-8" />
               </div>
-              <span className="shop-eyebrow !text-[0.7rem] !tracking-[0.3em] text-(--shop-ink-mute)">
+              <span className="font-shop-wide text-[0.7rem] font-semibold tracking-[0.3em] text-(--shop-ink-mute) uppercase">
                 {no}
               </span>
             </div>
 
             <div>
-              <span className="shop-eyebrow !tracking-[0.18em] !text-(--shop-red)">
+              <span className="font-shop-wide text-[0.72rem] font-semibold tracking-[0.18em] text-(--shop-red) uppercase">
                 ✦ Service showcase
               </span>
-              <h1 className="shop-font-display mt-4 text-[clamp(2.4rem,7vw,5.5rem)] leading-[0.92]">
+              <h1 className="mt-4 font-shop-display text-[clamp(2.4rem,7vw,5.5rem)] leading-[0.92] font-bold tracking-[-0.01em] italic">
                 {name}
               </h1>
               <p className="mt-6 max-w-2xl text-base leading-relaxed text-pretty text-(--shop-ink-dim) md:text-lg">
@@ -117,16 +115,14 @@ function Showcase() {
             </div>
 
             <div className="mt-2 flex flex-wrap items-center gap-4">
-              <a href={orderHref} className="shop-btn shop-btn-primary !rounded-full">
-                Order Now
-              </a>
-              <Link
-                to="/"
-                hash="services"
-                className="shop-btn shop-btn-ghost !rounded-full"
-              >
-                Browse all services
-              </Link>
+              <ShopButton asChild variant="primary">
+                <a href={orderHref}>Order Now</a>
+              </ShopButton>
+              <ShopButton asChild variant="ghost">
+                <Link to="/" hash="services">
+                  Browse all services
+                </Link>
+              </ShopButton>
             </div>
           </div>
         </section>
@@ -150,7 +146,7 @@ function Showcase() {
               key={k}
               className="relative flex flex-col gap-3 rounded-[1.75rem] border border-(--shop-line) bg-(--shop-panel) p-7 shadow-[0_18px_50px_rgba(139,39,32,0.07)]"
             >
-              <h2 className="shop-font-wide text-base font-extrabold tracking-wider uppercase">
+              <h2 className="font-shop-wide text-base font-extrabold tracking-wider uppercase">
                 {k}
               </h2>
               <p className="text-sm leading-relaxed text-(--shop-ink-dim)">{v}</p>
@@ -167,15 +163,15 @@ function Showcase() {
               params={{ service: prev.slug }}
               className={`group flex min-w-0 ${next ? "flex-[1_1_0%] items-center justify-between p-5 md:p-6" : "flex-1 items-center justify-between p-7 md:p-8"} rounded-[1.5rem] border border-(--shop-line) bg-(--shop-bg-2) transition-[border-color,background-color] duration-300 hover:border-[rgba(225,38,28,0.38)] hover:bg-[#fff0ec]`}
             >
-              <span className="shop-eyebrow !tracking-[0.18em] !text-(--shop-red) transition-transform duration-300 group-hover:-translate-x-1">
+              <span className="font-shop-wide text-[0.72rem] font-semibold tracking-[0.18em] text-(--shop-red) uppercase transition-transform duration-300 group-hover:-translate-x-1">
                 ←
               </span>
               <div className="flex min-w-0 flex-col items-end gap-1">
-                <span className="shop-eyebrow !text-[0.6rem] !tracking-[0.3em] text-(--shop-ink-mute)">
+                <span className="font-shop-wide text-[0.6rem] font-semibold tracking-[0.3em] text-(--shop-ink-mute) uppercase">
                   Previous · {prev.no}
                 </span>
                 <span
-                  className={`shop-font-wide truncate font-bold ${next ? "text-sm md:text-base" : "text-lg"}`}
+                  className={`truncate font-shop-wide font-bold ${next ? "text-sm md:text-base" : "text-lg"}`}
                 >
                   {prev.name}
                 </span>
@@ -190,14 +186,14 @@ function Showcase() {
               className={`group flex min-w-0 ${prev ? "flex-[4_4_0%] p-7 md:p-8" : "flex-1 p-7 md:p-8"} items-center justify-between rounded-[1.5rem] border border-(--shop-line) bg-(--shop-bg-2) transition-[border-color,background-color] duration-300 hover:border-[rgba(225,38,28,0.38)] hover:bg-[#fff0ec]`}
             >
               <div className="flex min-w-0 flex-col gap-1">
-                <span className="shop-eyebrow !text-[0.6rem] !tracking-[0.3em] text-(--shop-ink-mute)">
+                <span className="font-shop-wide text-[0.6rem] font-semibold tracking-[0.3em] text-(--shop-ink-mute) uppercase">
                   Next service · {next.no}
                 </span>
-                <span className="shop-font-wide truncate text-lg font-bold">
+                <span className="truncate font-shop-wide text-lg font-bold">
                   {next.name}
                 </span>
               </div>
-              <span className="shop-eyebrow shrink-0 !tracking-[0.18em] !text-(--shop-red) transition-transform duration-300 group-hover:translate-x-1">
+              <span className="shrink-0 font-shop-wide text-[0.72rem] font-semibold tracking-[0.18em] text-(--shop-red) uppercase transition-transform duration-300 group-hover:translate-x-1">
                 View →
               </span>
             </Link>

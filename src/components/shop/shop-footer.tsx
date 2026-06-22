@@ -62,7 +62,9 @@ export function ShopFooter() {
 function FooterCol({ title, links }: { title: string; links: [string, string][] }) {
   return (
     <div>
-      <h4 className="shop-eyebrow !text-[0.62rem]">{title}</h4>
+      <h4 className="font-shop-wide text-[0.62rem] font-semibold tracking-[0.34em] text-(--shop-ink-dim) uppercase">
+        {title}
+      </h4>
       <ul className="mt-5 space-y-3">
         {links.map(([label, href]) => (
           <li key={label}>

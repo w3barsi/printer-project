@@ -14,10 +14,12 @@ export function SectionHead({
       <div
         className={`flex items-center gap-3 ${align === "center" ? "justify-center" : ""}`}
       >
-        <span className="shop-eyebrow !text-(--shop-red)">{no}</span>
+        <span className="font-shop-wide text-[0.72rem] font-semibold tracking-[0.34em] text-(--shop-red) uppercase">
+          {no}
+        </span>
         <span className="h-px w-10 bg-(--shop-red)" />
       </div>
-      <h2 className="shop-font-display mt-5 text-[clamp(2rem,5.5vw,4rem)] leading-[0.95]">
+      <h2 className="mt-5 font-shop-display text-[clamp(2rem,5.5vw,4rem)] leading-[0.95] font-bold tracking-[-0.01em] italic">
         {title}
       </h2>
       <p className="mt-5 text-base leading-relaxed text-(--shop-ink-dim) md:text-lg">

@@ -21,8 +21,10 @@ export function EstimateCard({
 }) {
   return (
     <aside className="rounded-[2rem] border border-(--shop-line) bg-(--shop-bg-2) p-6 shadow-[0_18px_50px_rgba(139,39,32,0.07)] md:p-8">
-      <p className="shop-eyebrow !tracking-[0.2em] !text-(--shop-red)">Live estimate</p>
-      <h3 className="shop-font-display mt-3 text-4xl">
+      <p className="font-shop-wide text-[0.72rem] font-semibold tracking-[0.2em] text-(--shop-red) uppercase">
+        Live estimate
+      </p>
+      <h3 className="mt-3 font-shop-display text-4xl leading-[0.9] font-bold tracking-[-0.01em] italic">
         {active
           ? formatCurrency(calculateShopOrderLineTotal(width, height, quantity))
           : "--"}

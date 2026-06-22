@@ -1,5 +1,6 @@
 import { SparklesIcon } from "lucide-react";
 
+import { ShopButton } from "@/components/shop/ui/button";
 import { SHOP_ORDER_SUPPORTED_SERVICE_SLUG, getShopOrderHref } from "@/lib/shop-order";
 
 import { ServiceSelection } from "./service-selection";
@@ -18,7 +19,7 @@ export function ComingSoon({
         <p className="mt-4 text-xs font-black tracking-[0.24em] text-amber-700 uppercase">
           Not yet available online
         </p>
-        <h2 className="shop-font-display mt-3 text-4xl">
+        <h2 className="mt-3 font-shop-display text-4xl leading-[0.9] font-bold tracking-[-0.01em] italic">
           {serviceName} online orders are coming soon
         </h2>
         <p className="mx-auto mt-4 max-w-xl text-(--shop-ink-dim)">
@@ -26,15 +27,14 @@ export function ComingSoon({
           and staff will help you quote it manually.
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-3">
-          <a href="/#contact" className="shop-btn shop-btn-primary !rounded-full">
-            Contact Us
-          </a>
-          <a
-            href={getShopOrderHref(SHOP_ORDER_SUPPORTED_SERVICE_SLUG)}
-            className="shop-btn shop-btn-ghost !rounded-full"
-          >
-            Order tarpaulin
-          </a>
+          <ShopButton asChild variant="primary">
+            <a href="/#contact">Contact Us</a>
+          </ShopButton>
+          <ShopButton asChild variant="ghost">
+            <a href={getShopOrderHref(SHOP_ORDER_SUPPORTED_SERVICE_SLUG)}>
+              Order tarpaulin
+            </a>
+          </ShopButton>
         </div>
       </section>
 

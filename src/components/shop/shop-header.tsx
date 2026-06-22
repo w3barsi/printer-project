@@ -1,8 +1,10 @@
 import { Link } from "@tanstack/react-router";
 
+import { ShopButton } from "@/components/shop/ui/button";
+
 export function ShopHeader() {
   return (
-    <header className="relative z-20 mx-auto flex max-w-[1400px] items-center justify-between px-6 py-5 md:px-10">
+    <header className="relative z-20 mx-auto flex max-w-350 items-center justify-between px-6 py-5 md:px-10">
       <a href="#top" className="group flex items-center gap-3">
         <img
           src="/DG_SHORT_SVG.svg"
@@ -21,7 +23,7 @@ export function ShopHeader() {
           <a
             key={href}
             href={href}
-            className="shop-link-underline shop-eyebrow !tracking-[0.2em]"
+            className="shop-link-underline font-shop-wide text-[0.72rem] font-semibold tracking-[0.2em] text-(--shop-ink-dim) uppercase"
           >
             {label}
           </a>
@@ -30,16 +32,13 @@ export function ShopHeader() {
       <div className="flex items-center gap-3">
         <Link
           to="/app/jo"
-          className="shop-eyebrow shop-link-underline hidden !tracking-[0.16em] sm:inline"
+          className="shop-link-underline hidden font-shop-wide text-[0.72rem] font-semibold tracking-[0.16em] text-(--shop-ink-dim) uppercase sm:inline"
         >
           Staff login
         </Link>
-        <a
-          href="#contact"
-          className="shop-btn shop-btn-primary !rounded-full !px-5 !py-2.5"
-        >
-          Get a quote
-        </a>
+        <ShopButton asChild variant="primary" size="sm">
+          <a href="#contact">Get a quote</a>
+        </ShopButton>
       </div>
     </header>
   );

@@ -39,10 +39,12 @@ export function ShowcaseSamples({
   return (
     <section className="mt-10">
       <div className="flex items-center gap-3">
-        <span className="shop-eyebrow !text-(--shop-red)">§ Sample output</span>
+        <span className="font-shop-wide text-[0.72rem] font-semibold tracking-[0.34em] text-(--shop-red) uppercase">
+          § Sample output
+        </span>
         <span className="h-px w-10 bg-(--shop-red)" />
       </div>
-      <h2 className="shop-font-display mt-5 text-[clamp(1.6rem,4vw,2.6rem)] leading-[0.95]">
+      <h2 className="mt-5 font-shop-display text-[clamp(1.6rem,4vw,2.6rem)] leading-[0.95] font-bold tracking-[-0.01em] italic">
         Work from the shop floor
       </h2>
       <p className="mt-4 max-w-2xl text-sm leading-relaxed text-(--shop-ink-dim) md:text-base">
@@ -72,7 +74,7 @@ export function ShowcaseSamples({
               />
             )}
             <figcaption className="flex flex-col gap-1 p-5">
-              <span className="shop-font-wide text-sm font-bold">{s.title}</span>
+              <span className="font-shop-wide text-sm font-bold">{s.title}</span>
               <span className="text-xs leading-relaxed text-(--shop-ink-mute)">
                 {s.desc}
               </span>
@@ -149,10 +151,10 @@ function SamplePhotoSwitcher({
           </button>
         ))}
       </div>
-      <span className="shop-eyebrow absolute top-3 left-3 rounded-full bg-[#fff5f1]/90 px-2.5 py-1 !text-[0.55rem] text-(--shop-ink-mute) shadow-sm backdrop-blur">
+      <span className="absolute top-3 left-3 rounded-full bg-[#fff5f1]/90 px-2.5 py-1 font-shop-wide text-[0.55rem] font-semibold tracking-[0.34em] text-(--shop-ink-mute) uppercase shadow-sm backdrop-blur">
         {String(index + 1).padStart(2, "0")} / {String(total).padStart(2, "0")}
       </span>
-      <span className="shop-eyebrow absolute right-3 bottom-3 rounded-full bg-[#321917]/70 px-2.5 py-1 !text-[0.5rem] !tracking-[0.18em] text-white backdrop-blur">
+      <span className="absolute right-3 bottom-3 rounded-full bg-[#321917]/70 px-2.5 py-1 font-shop-wide text-[0.5rem] font-semibold tracking-[0.18em] text-white uppercase backdrop-blur">
         View {activePhoto + 1} of 3
       </span>
     </div>
@@ -178,9 +180,11 @@ function SamplePlaceholder({
       <div className="shop-halftone pointer-events-none absolute inset-0 opacity-25" />
       <div className="relative flex flex-col items-center gap-2 text-(--shop-ink-mute)">
         <Icon className="size-10 opacity-50" />
-        <span className="shop-eyebrow !text-[0.55rem] !tracking-[0.22em]">{tag}</span>
+        <span className="font-shop-wide text-[0.55rem] font-semibold tracking-[0.22em] text-(--shop-ink-dim) uppercase">
+          {tag}
+        </span>
       </div>
-      <span className="shop-eyebrow absolute top-3 left-3 !text-[0.55rem] text-(--shop-ink-mute)">
+      <span className="absolute top-3 left-3 font-shop-wide text-[0.55rem] font-semibold tracking-[0.34em] text-(--shop-ink-mute) uppercase">
         {String(index + 1).padStart(2, "0")} / {String(total).padStart(2, "0")}
       </span>
     </div>

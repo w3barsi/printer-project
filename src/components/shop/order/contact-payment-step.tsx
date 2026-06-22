@@ -1,3 +1,4 @@
+import { ShopButton } from "@/components/shop/ui/button";
 import { PAYMENT_METHODS } from "@/lib/shop-order";
 
 import { Field } from "./field";
@@ -33,7 +34,9 @@ export function ContactPaymentStep({
   return (
     <section className="grid gap-5 lg:grid-cols-[1fr_0.72fr]">
       <div className="rounded-[2rem] border border-(--shop-line) bg-(--shop-panel) p-6 shadow-[0_18px_50px_rgba(139,39,32,0.07)] md:p-8">
-        <h2 className="shop-font-display text-4xl">Contact and payment</h2>
+        <h2 className="font-shop-display text-4xl leading-[0.9] font-bold tracking-[-0.01em] italic">
+          Contact and payment
+        </h2>
         <div className="mt-6 grid gap-4 md:grid-cols-2">
           <Field label="Full name">
             <input
@@ -129,27 +132,27 @@ export function ContactPaymentStep({
         />
 
         <div className="mt-7 flex flex-wrap gap-3">
-          <button
-            type="button"
-            className="shop-btn shop-btn-ghost !rounded-full"
-            onClick={onBack}
-          >
+          <ShopButton type="button" variant="ghost" onClick={onBack}>
             Back
-          </button>
-          <button
+          </ShopButton>
+          <ShopButton
             type="button"
-            className="shop-btn shop-btn-primary !rounded-full"
+            variant="primary"
             onClick={onSubmit}
             disabled={isSubmitting}
           >
             {isSubmitting ? "Submitting..." : "Submit Order Request"}
-          </button>
+          </ShopButton>
         </div>
       </div>
 
       <aside className="rounded-[2rem] border border-(--shop-line) bg-(--shop-bg-2) p-6 shadow-[0_18px_50px_rgba(139,39,32,0.07)] md:p-8">
-        <p className="shop-eyebrow !tracking-[0.2em] !text-(--shop-red)">Request total</p>
-        <p className="shop-font-display mt-3 text-4xl">{formatCurrency(cartTotal)}</p>
+        <p className="font-shop-wide text-[0.72rem] font-semibold tracking-[0.2em] text-(--shop-red) uppercase">
+          Request total
+        </p>
+        <p className="mt-3 font-shop-display text-4xl leading-[0.9] font-bold tracking-[-0.01em] italic">
+          {formatCurrency(cartTotal)}
+        </p>
         <p className="mt-4 text-sm leading-relaxed text-(--shop-ink-dim)">
           This is the print estimate only. Design fees, delivery, and special finishing
           are confirmed by staff.

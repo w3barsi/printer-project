@@ -11,7 +11,7 @@ export function ShopMarquee() {
         <div className="shop-marquee shop-marquee-fwd">
           {row.map((item, i) => (
             <span key={i} className="flex items-center">
-              <span className="shop-font-display px-6 text-2xl text-(--shop-ink)">
+              <span className="px-6 font-shop-display text-2xl leading-[0.9] font-bold tracking-[-0.01em] text-(--shop-ink) italic">
                 {item}
               </span>
               <span className="text-lg text-(--shop-red)">✦</span>

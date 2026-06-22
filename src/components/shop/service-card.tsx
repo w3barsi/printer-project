@@ -15,17 +15,17 @@ export function ServiceCard({ service }: { service: Service }) {
         <div className="relative flex size-12 items-center justify-center rounded-2xl border border-(--shop-line-2) bg-[#ffe5df] text-(--shop-red) transition-colors duration-300 group-hover:border-[rgba(225,38,28,0.45)] group-hover:bg-[#ffd9cc]">
           <Icon className="size-6" />
         </div>
-        <span className="shop-eyebrow !text-[0.6rem] !tracking-[0.3em] text-(--shop-ink-mute)">
+        <span className="font-shop-wide text-[0.6rem] font-semibold tracking-[0.3em] text-(--shop-ink-mute) uppercase">
           {service.no}
         </span>
       </div>
 
       <div className="mt-auto">
-        <h3 className="shop-font-wide text-lg leading-snug font-bold">{service.name}</h3>
+        <h3 className="font-shop-wide text-lg leading-snug font-bold">{service.name}</h3>
         <p className="mt-3 text-sm leading-relaxed text-(--shop-ink-dim)">
           {service.blurb}
         </p>
-        <span className="shop-eyebrow mt-5 flex items-center gap-1.5 !text-[0.6rem] !tracking-[0.2em] !text-(--shop-red) opacity-0 transition-[opacity,transform] duration-300 group-hover:translate-y-0 group-hover:opacity-100">
+        <span className="mt-5 flex items-center gap-1.5 font-shop-wide text-[0.6rem] font-semibold tracking-[0.2em] text-(--shop-red) uppercase opacity-0 transition-[opacity,transform] duration-300 group-hover:translate-y-0 group-hover:opacity-100">
           View showcase
           <span className="transition-transform duration-300 group-hover:translate-x-0.5">
             →

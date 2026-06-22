@@ -46,11 +46,11 @@ export function ServiceSelectionCard({
       </div>
 
       <div className="mt-auto">
-        <h3 className="shop-font-wide text-lg leading-snug font-bold">{service.name}</h3>
+        <h3 className="font-shop-wide text-lg leading-snug font-bold">{service.name}</h3>
         <p className="mt-3 text-sm leading-relaxed text-(--shop-ink-dim)">
           {service.blurb}
         </p>
-        <span className="shop-eyebrow mt-5 flex items-center gap-1.5 !text-[0.6rem] !tracking-[0.2em] !text-(--shop-red) transition-[opacity,transform] duration-300 group-hover:translate-y-0 group-hover:opacity-100">
+        <span className="mt-5 flex items-center gap-1.5 font-shop-wide text-[0.6rem] font-semibold tracking-[0.2em] text-(--shop-red) uppercase transition-[opacity,transform] duration-300 group-hover:translate-y-0 group-hover:opacity-100">
           {selected
             ? "Currently selected"
             : supported

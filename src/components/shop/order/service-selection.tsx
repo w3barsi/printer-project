@@ -16,7 +16,11 @@ export function ServiceSelection({
       {title || description ? (
         <div className="mb-5 flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
           <div>
-            {title ? <h2 className="shop-font-display text-4xl">{title}</h2> : null}
+            {title ? (
+              <h2 className="font-shop-display text-4xl leading-[0.9] font-bold tracking-[-0.01em] italic">
+                {title}
+              </h2>
+            ) : null}
             {description ? (
               <p className="mt-2 max-w-2xl text-sm leading-relaxed text-(--shop-ink-dim)">
                 {description}

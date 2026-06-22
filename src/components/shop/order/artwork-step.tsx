@@ -1,5 +1,6 @@
 import { CheckCircle2Icon, FileUpIcon, ShoppingBagIcon } from "lucide-react";
 
+import { ShopButton } from "@/components/shop/ui/button";
 import { ARTWORK_OPTIONS } from "@/lib/shop-order";
 
 import { Field } from "./field";
@@ -28,7 +29,9 @@ export function ArtworkStep({
 }) {
   return (
     <section className="rounded-[2rem] border border-(--shop-line) bg-(--shop-panel) p-6 shadow-[0_18px_50px_rgba(139,39,32,0.07)] md:p-8">
-      <h2 className="shop-font-display text-4xl">Artwork handling</h2>
+      <h2 className="font-shop-display text-4xl leading-[0.9] font-bold tracking-[-0.01em] italic">
+        Artwork handling
+      </h2>
       <p className="mt-3 text-sm leading-relaxed text-(--shop-ink-dim)">
         Tell us whether you have print-ready files or need layout help. Design fees are
         quoted separately by staff.
@@ -43,7 +46,7 @@ export function ArtworkStep({
             onClick={() => updateDraft({ artworkOption: option })}
           >
             <CheckCircle2Icon className="size-5 text-(--shop-red)" />
-            <h3 className="shop-font-wide mt-4 text-sm font-black uppercase">
+            <h3 className="mt-4 font-shop-wide text-sm font-black uppercase">
               {artworkLabel(option)}
             </h3>
             <p className="mt-2 text-sm text-(--shop-ink-dim)">
@@ -91,21 +94,13 @@ export function ArtworkStep({
       ) : null}
 
       <div className="mt-7 flex flex-wrap gap-3">
-        <button
-          type="button"
-          className="shop-btn shop-btn-ghost !rounded-full"
-          onClick={onBack}
-        >
+        <ShopButton type="button" variant="ghost" onClick={onBack}>
           Back
-        </button>
-        <button
-          type="button"
-          className="shop-btn shop-btn-primary !rounded-full"
-          onClick={onAdd}
-        >
+        </ShopButton>
+        <ShopButton type="button" variant="primary" onClick={onAdd}>
           {draft.editingId ? "Update cart item" : "Add to cart"}{" "}
           <ShoppingBagIcon className="size-4" />
-        </button>
+        </ShopButton>
       </div>
     </section>
   );

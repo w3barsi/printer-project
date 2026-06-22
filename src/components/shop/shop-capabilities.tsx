@@ -37,13 +37,13 @@ export function ShopCapabilities() {
               className="relative flex flex-col gap-3 rounded-[1.75rem] border border-(--shop-line) bg-(--shop-panel) p-7 shadow-[0_18px_50px_rgba(139,39,32,0.07)]"
             >
               <span
-                className={`shop-font-display text-3xl ${
+                className={`font-shop-display text-3xl leading-[0.9] font-bold tracking-[-0.01em] italic ${
                   ["text-(--shop-red)", "text-(--shop-silver)", "text-(--shop-ink)"][i]
                 }`}
               >
                 0{i + 1}
               </span>
-              <h3 className="shop-font-wide text-base font-extrabold tracking-wider uppercase">
+              <h3 className="font-shop-wide text-base font-extrabold tracking-wider uppercase">
                 {c.k}
               </h3>
               <p className="text-sm leading-relaxed text-(--shop-ink-dim)">{c.v}</p>
