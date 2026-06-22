@@ -154,7 +154,7 @@ const AppAdminAdminUsersRoute = AppAdminAdminUsersRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof ShopIndexRoute
-  '/app': typeof AppCashierRouteRouteWithChildren
+  '/app': typeof AppRouteRouteWithChildren
   '/convex': typeof ConvexRoute
   '/testdnd': typeof TestdndRoute
   '/testfruits': typeof TestfruitsRoute
@@ -176,7 +176,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof ShopIndexRoute
-  '/app': typeof AppCashierRouteRouteWithChildren
+  '/app': typeof AppRouteRouteWithChildren
   '/convex': typeof ConvexRoute
   '/testdnd': typeof TestdndRoute
   '/testfruits': typeof TestfruitsRoute

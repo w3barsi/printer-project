@@ -37,6 +37,7 @@ export function getRouter() {
     // https://tanstack.com/router/latest/docs/framework/react/guide/data-loading#passing-all-loader-events-to-an-external-cache
     defaultPreloadStaleTime: 0,
     scrollRestoration: true,
+    defaultStructuralSharing: true,
     defaultErrorComponent: DefaultCatchBoundary,
     defaultNotFoundComponent: DefaultNotFound,
   });
@@ -44,6 +45,8 @@ export function getRouter() {
   setupRouterSsrQueryIntegration({
     router,
     queryClient,
+    handleRedirects: true,
+    wrapQueryClient: true,
   });
 
   return router;
