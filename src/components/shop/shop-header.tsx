@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 
-import { ShopButton } from "@/components/shop/ui/button";
+import { ShopButton } from "@/components/shop/ui/shop-button";
 
 export function ShopHeader() {
   return (

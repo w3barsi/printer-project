@@ -1,4 +1,4 @@
-import { ShopButton } from "@/components/shop/ui/button";
+import { ShopButton } from "@/components/shop/ui/shop-button";
 
 export function ShopContact() {
   return (

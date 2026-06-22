@@ -1,4 +1,4 @@
-import { ShopButton } from "@/components/shop/ui/button";
+import { ShopButton } from "@/components/shop/ui/shop-button";
 import { PAYMENT_METHODS } from "@/lib/shop-order";
 
 import { Field } from "./field";

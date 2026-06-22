@@ -1,5 +1,5 @@
 import { RegCorner } from "@/components/shop/reg-mark";
-import { ShopButton } from "@/components/shop/ui/button";
+import { ShopButton } from "@/components/shop/ui/shop-button";
 
 export function ShopHero() {
   return (

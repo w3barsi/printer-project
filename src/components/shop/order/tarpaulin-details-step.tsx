@@ -1,6 +1,6 @@
 import { ArrowRightIcon } from "lucide-react";
 
-import { ShopButton } from "@/components/shop/ui/button";
+import { ShopButton } from "@/components/shop/ui/shop-button";
 import {
   TARPAULIN_SIZE_PRESETS,
   isPositiveDimension,

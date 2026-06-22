@@ -10,7 +10,7 @@ const shopButtonVariants = cva(
     variants: {
       variant: {
         primary:
-          "bg-(--shop-red) text-(--shop-white) shadow-[0_0_0_0_oklch(0.62_0.28_27/0)] hover:-translate-y-0.5 hover:bg-(--shop-white) hover:text-(--shop-ink) hover:shadow-[0_0_24px_oklch(1_0_0/0.45),0_0_60px_oklch(1_0_0/0.2)]",
+          "bg-(--shop-red) text-(--shop-white) shadow-[0_0_0_0_oklch(0.62_0.28_27/0)] hover:bg-(--shop-bg) hover:text-(--shop-white) hover:shadow-[0_0_24px_oklch(0.62_0.28_27/0.55),0_0_60px_oklch(0.62_0.28_27/0.3)]",
         ghost:
           "border border-(--shop-line-2) text-(--shop-ink) hover:border-(--shop-red) hover:text-(--shop-red) hover:shadow-[0_0_20px_oklch(0.62_0.28_27/0.35)]",
       },

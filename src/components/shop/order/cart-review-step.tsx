@@ -1,6 +1,6 @@
 import { ArrowRightIcon, PencilIcon, PlusIcon, Trash2Icon } from "lucide-react";
 
-import { ShopButton } from "@/components/shop/ui/button";
+import { ShopButton } from "@/components/shop/ui/shop-button";
 import { formatTarpaulinItemName } from "@/lib/shop-order";
 
 import type { ShopOrderCartItem } from "./types";

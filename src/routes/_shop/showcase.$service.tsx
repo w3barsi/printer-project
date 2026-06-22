@@ -2,7 +2,7 @@ import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { useHotkeys } from "react-hotkeys-hook";
 
 import { ShowcaseSamples } from "@/components/shop/showcase-samples";
-import { ShopButton } from "@/components/shop/ui/button";
+import { ShopButton } from "@/components/shop/ui/shop-button";
 import { SERVICES, getServiceBySlug } from "@/lib/services";
 import { getShopOrderHref } from "@/lib/shop-order";
 

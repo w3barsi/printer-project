@@ -1,6 +1,6 @@
 import { CheckCircle2Icon, FileUpIcon, ShoppingBagIcon } from "lucide-react";
 
-import { ShopButton } from "@/components/shop/ui/button";
+import { ShopButton } from "@/components/shop/ui/shop-button";
 import { ARTWORK_OPTIONS } from "@/lib/shop-order";
 
 import { Field } from "./field";

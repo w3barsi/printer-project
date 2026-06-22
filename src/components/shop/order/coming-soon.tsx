@@ -1,6 +1,6 @@
 import { SparklesIcon } from "lucide-react";
 
-import { ShopButton } from "@/components/shop/ui/button";
+import { ShopButton } from "@/components/shop/ui/shop-button";
 import { SHOP_ORDER_SUPPORTED_SERVICE_SLUG, getShopOrderHref } from "@/lib/shop-order";
 
 import { ServiceSelection } from "./service-selection";

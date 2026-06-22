@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { CheckCircle2Icon } from "lucide-react";
 
-import { ShopButton } from "@/components/shop/ui/button";
+import { ShopButton } from "@/components/shop/ui/shop-button";
 import { SHOP_ORDER_SUPPORTED_SERVICE_SLUG, getShopOrderHref } from "@/lib/shop-order";
 
 import { SummaryPill } from "./summary-pill";
