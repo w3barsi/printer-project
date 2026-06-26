@@ -8,7 +8,7 @@ export function ServiceCard({ service }: { service: Service }) {
     <Link
       to="/showcase/$service"
       params={{ service: service.slug }}
-      className="group relative flex min-h-64 flex-col gap-6 overflow-hidden rounded-[1.75rem] border border-(--shop-line) bg-(--shop-panel) p-7 shadow-[0_18px_50px_rgba(139,39,32,0.08)] transition-[border-color,box-shadow,background-color] duration-300 hover:border-[rgba(225,38,28,0.38)] hover:bg-[#fff0ec] hover:shadow-[0_24px_60px_rgba(139,39,32,0.13)] md:p-8"
+      className="group relative flex min-h-64 flex-col gap-6 overflow-hidden rounded-4xl border border-(--shop-line) bg-(--shop-panel) p-7 shadow-[0_18px_50px_rgba(139,39,32,0.08)] transition-[border-color,box-shadow,background-color] duration-300 hover:border-[rgba(225,38,28,0.38)] hover:bg-[#fff0ec] hover:shadow-[0_24px_60px_rgba(139,39,32,0.13)] md:p-8"
     >
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_0%,rgba(225,38,28,0.14),transparent_38%),radial-gradient(circle_at_90%_18%,rgba(214,60,50,0.1),transparent_34%)] opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
       <div className="flex items-start justify-between">
