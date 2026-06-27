@@ -75,9 +75,11 @@ export const authComponent = createClient<DataModel, typeof authSchema>(
 
 export const { onCreate, onUpdate, onDelete } = authComponent.triggersApi();
 
-const URL = process.env.VERCEL_URL
-  ? `https://${process.env.VERCEL_URL}`
-  : "http://localhost:3000";
+const URL =
+  process.env.SERVER_URL ??
+  (process.env.VERCEL_URL
+    ? `https://${process.env.VERCEL_URL}`
+    : "http://localhost:3000");
 
 export const createAuthOptions = (ctx: GenericCtx<DataModel>) => {
   return {

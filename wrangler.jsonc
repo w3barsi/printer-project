@@ -1,0 +1,24 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "printer-project",
+  "compatibility_date": "2026-06-17",
+  "compatibility_flags": ["nodejs_compat"],
+  "main": "@tanstack/react-start/server-entry",
+  "observability": {
+    "enabled": true,
+  },
+  "routes": [
+    {
+      "pattern": "darcygraphix.com",
+      "custom_domain": true,
+    },
+  ],
+  "vars": {
+    "VITE_FLAG_SIGNUP": "true",
+    "VITE_CONVEX_URL": "https://cool-wombat-664.convex.cloud",
+    "VITE_CONVEX_SITE_URL": "https://cool-wombat-664.convex.site",
+  },
+  "secrets": {
+    "required": ["TRELLO_KEY", "TRELLO_TOKEN"],
+  },
+}
