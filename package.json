@@ -27,7 +27,7 @@
     "env": "node sync-env.js",
     "env:prod": "node sync-env.js --prod",
     "dryrun": "pnpx convex deploy --dry-run",
-    "deploy": "convex deploy --cmd 'pnpm build:cf && wrangler deploy'",
+    "deploy": "convex deploy --check-build-environment disable --cmd 'pnpm build:cf'",
     "deploy:cf": "pnpm build:cf && wrangler deploy",
     "deploy:cf:dry": "pnpm build:cf && wrangler deploy --dry-run",
     "cf:typegen": "wrangler types",
