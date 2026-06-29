@@ -1,3 +1,5 @@
+import { useEffect, useRef } from "react";
+
 import { ShopButton } from "@/components/shop/ui/shop-button";
 import { PAYMENT_METHODS } from "@/lib/shop-order";
 
@@ -15,7 +17,11 @@ export function ContactPaymentStep({
   cartTotal,
   paymentProofFile,
   isSubmitting,
+  turnstileSiteKey,
+  turnstileToken,
+  turnstileResetKey,
   updateDraft,
+  onTurnstileTokenChange,
   onPaymentProof,
   onBack,
   onSubmit,
@@ -24,7 +30,11 @@ export function ContactPaymentStep({
   cartTotal: number;
   paymentProofFile: File | null;
   isSubmitting: boolean;
+  turnstileSiteKey: string | undefined;
+  turnstileToken: string | null;
+  turnstileResetKey: number;
   updateDraft: (patch: Partial<ContactDraft>) => void;
+  onTurnstileTokenChange: (token: string | null) => void;
   onPaymentProof: (file: File | null) => void;
   onBack: () => void;
   onSubmit: () => void;
@@ -131,6 +141,12 @@ export function ContactPaymentStep({
           aria-hidden="true"
         />
 
+        <TurnstileBox
+          siteKey={turnstileSiteKey}
+          resetKey={turnstileResetKey}
+          onTokenChange={onTurnstileTokenChange}
+        />
+
         <div className="mt-7 flex flex-wrap gap-3">
           <ShopButton type="button" variant="ghost" onClick={onBack}>
             Back
@@ -139,7 +155,7 @@ export function ContactPaymentStep({
             type="button"
             variant="primary"
             onClick={onSubmit}
-            disabled={isSubmitting}
+            disabled={isSubmitting || !turnstileSiteKey || !turnstileToken}
           >
             {isSubmitting ? "Submitting..." : "Submit Order Request"}
           </ShopButton>
@@ -159,5 +175,98 @@ export function ContactPaymentStep({
         </p>
       </aside>
     </section>
+  );
+}
+
+type TurnstileRenderOptions = {
+  sitekey: string;
+  callback: (token: string) => void;
+  "expired-callback": () => void;
+  "error-callback": () => void;
+  action: string;
+  theme: "light";
+};
+
+declare global {
+  interface Window {
+    turnstile?: {
+      render: (container: HTMLElement, options: TurnstileRenderOptions) => string;
+      remove: (widgetId: string) => void;
+    };
+  }
+}
+
+let turnstileScriptPromise: Promise<void> | null = null;
+
+function loadTurnstileScript() {
+  if (window.turnstile) return Promise.resolve();
+  if (turnstileScriptPromise) return turnstileScriptPromise;
+
+  turnstileScriptPromise = new Promise((resolve, reject) => {
+    const script = document.createElement("script");
+    script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+    script.async = true;
+    script.defer = true;
+    script.onload = () => resolve();
+    script.onerror = () => reject(new Error("Could not load order verification"));
+    document.head.appendChild(script);
+  });
+
+  return turnstileScriptPromise;
+}
+
+function TurnstileBox({
+  siteKey,
+  resetKey,
+  onTokenChange,
+}: {
+  siteKey: string | undefined;
+  resetKey: number;
+  onTokenChange: (token: string | null) => void;
+}) {
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const widgetIdRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (!siteKey || !containerRef.current) return;
+
+    let isMounted = true;
+    onTokenChange(null);
+
+    loadTurnstileScript()
+      .then(() => {
+        if (!isMounted || !containerRef.current || !window.turnstile) return;
+
+        widgetIdRef.current = window.turnstile.render(containerRef.current, {
+          sitekey: siteKey,
+          callback: onTokenChange,
+          "expired-callback": () => onTokenChange(null),
+          "error-callback": () => onTokenChange(null),
+          action: "submit_order_request",
+          theme: "light",
+        });
+      })
+      .catch(() => onTokenChange(null));
+
+    return () => {
+      isMounted = false;
+      if (widgetIdRef.current && window.turnstile) {
+        window.turnstile.remove(widgetIdRef.current);
+      }
+      widgetIdRef.current = null;
+    };
+  }, [siteKey, resetKey, onTokenChange]);
+
+  return (
+    <div className="mt-5 rounded-[1.5rem] border border-(--shop-line) bg-white/55 p-4">
+      <p className="mb-3 text-sm font-black text-(--shop-ink)">Order verification</p>
+      {siteKey ? (
+        <div ref={containerRef} />
+      ) : (
+        <p className="text-sm font-semibold text-red-700">
+          Order verification is not configured.
+        </p>
+      )}
+    </div>
   );
 }

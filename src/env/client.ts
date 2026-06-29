@@ -8,6 +8,7 @@ export const env = createEnv({
       .string()
       .refine((v) => v === "true" || v === "false")
       .transform((v) => v === "true"),
+    VITE_TURNSTILE_SITE_KEY: z.string().min(1).optional(),
   },
 
   /**

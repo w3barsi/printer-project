@@ -13,6 +13,7 @@ const app = defineApp({
     TRELLO_TOKEN: v.optional(v.string()),
     TELEGRAM_BOT_TOKEN: v.optional(v.string()),
     TELEGRAM_CHAT_ID: v.optional(v.string()),
+    TURNSTILE_SECRET_KEY: v.optional(v.string()),
   },
 });
 app.use(betterAuth);

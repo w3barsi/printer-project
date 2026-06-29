@@ -2,7 +2,13 @@ import { v } from "convex/values";
 
 import { internal } from "../_generated/api";
 import type { Id } from "../_generated/dataModel";
-import { mutation, type MutationCtx } from "../_generated/server";
+import {
+  action,
+  env,
+  internalMutation,
+  mutation,
+  type MutationCtx,
+} from "../_generated/server";
 import { authedMutation, authedQuery } from "../auth";
 import { r2 } from "../r2";
 import {
@@ -44,49 +50,90 @@ const attachmentUploadStatusValidator = v.union(
   v.literal("partial-failure"),
 );
 
-export const createUnconfirmedOrder = mutation({
-  args: {
-    items: v.array(
-      v.object({
-        serviceSlug: v.string(),
-        width: v.number(),
-        height: v.number(),
-        quantity: v.number(),
-        artworkOption: artworkOptionValidator,
-        designInstructions: v.optional(v.string()),
-      }),
-    ),
-    contact: v.object({
-      name: v.string(),
-      mobile: v.string(),
-      email: v.optional(v.string()),
-      notes: v.optional(v.string()),
+const createUnconfirmedOrderArgs = {
+  items: v.array(
+    v.object({
+      serviceSlug: v.string(),
+      width: v.number(),
+      height: v.number(),
+      quantity: v.number(),
+      artworkOption: artworkOptionValidator,
+      designInstructions: v.optional(v.string()),
     }),
-    paymentMethod: paymentMethodValidator,
-    paymentProofStatus: v.optional(
-      v.union(
-        v.literal("not-required"),
-        v.literal("pending-upload"),
-        v.literal("uploaded"),
-        v.literal("missing"),
-      ),
-    ),
-    acceptedTerms: v.boolean(),
-    honeypot: v.optional(v.string()),
-  },
-  returns: v.object({
-    joId: v.union(v.id("jo"), v.null()),
-    joNumber: v.union(v.number(), v.null()),
-    itemMappings: v.array(
-      v.object({
-        clientIndex: v.number(),
-        itemId: v.id("items"),
-        onlineOrderItemId: v.id("onlineOrderItems"),
-      }),
-    ),
-    estimatedTotal: v.number(),
-    honeypot: v.boolean(),
+  ),
+  contact: v.object({
+    name: v.string(),
+    mobile: v.string(),
+    email: v.optional(v.string()),
+    notes: v.optional(v.string()),
   }),
+  paymentMethod: paymentMethodValidator,
+  paymentProofStatus: v.optional(
+    v.union(
+      v.literal("not-required"),
+      v.literal("pending-upload"),
+      v.literal("uploaded"),
+      v.literal("missing"),
+    ),
+  ),
+  acceptedTerms: v.boolean(),
+  honeypot: v.optional(v.string()),
+};
+
+const createUnconfirmedOrderReturns = v.object({
+  joId: v.union(v.id("jo"), v.null()),
+  joNumber: v.union(v.number(), v.null()),
+  itemMappings: v.array(
+    v.object({
+      clientIndex: v.number(),
+      itemId: v.id("items"),
+      onlineOrderItemId: v.id("onlineOrderItems"),
+    }),
+  ),
+  estimatedTotal: v.number(),
+  honeypot: v.boolean(),
+});
+
+type CreatedOrderResponse = {
+  joId: Id<"jo"> | null;
+  joNumber: number | null;
+  itemMappings: {
+    clientIndex: number;
+    itemId: Id<"items">;
+    onlineOrderItemId: Id<"onlineOrderItems">;
+  }[];
+  estimatedTotal: number;
+  honeypot: boolean;
+};
+
+export const createUnconfirmedOrder = action({
+  args: {
+    ...createUnconfirmedOrderArgs,
+    turnstileToken: v.string(),
+  },
+  returns: createUnconfirmedOrderReturns,
+  handler: async (ctx, args) => {
+    await verifyTurnstileToken(args.turnstileToken);
+
+    const created: CreatedOrderResponse = await ctx.runMutation(
+      internal.shop.orders.createUnconfirmedOrderAfterTurnstile,
+      {
+        items: args.items,
+        contact: args.contact,
+        paymentMethod: args.paymentMethod,
+        paymentProofStatus: args.paymentProofStatus,
+        acceptedTerms: args.acceptedTerms,
+        honeypot: args.honeypot,
+      },
+    );
+
+    return created;
+  },
+});
+
+export const createUnconfirmedOrderAfterTurnstile = internalMutation({
+  args: createUnconfirmedOrderArgs,
+  returns: createUnconfirmedOrderReturns,
   handler: async (ctx, args) => {
     if (args.honeypot?.trim()) {
       return {
@@ -194,6 +241,44 @@ export const createUnconfirmedOrder = mutation({
     return { joId, joNumber, itemMappings, estimatedTotal, honeypot: false };
   },
 });
+
+async function verifyTurnstileToken(token: string) {
+  const { TURNSTILE_SECRET_KEY: secret } = env as {
+    TURNSTILE_SECRET_KEY?: string;
+  };
+  if (!secret) {
+    throw new Error("Order verification is not configured");
+  }
+
+  const response = await fetch(
+    "https://challenges.cloudflare.com/turnstile/v0/siteverify",
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({ secret, response: token }),
+    },
+  );
+
+  if (!response.ok) {
+    throw new Error("Could not verify order request");
+  }
+
+  const result: {
+    success?: boolean;
+    "error-codes"?: string[];
+    hostname?: string;
+    action?: string;
+    cdata?: string;
+  } = await response.json();
+  if (!result.success) {
+    console.warn("[turnstile-order-verification-failed]", {
+      errorCodes: result["error-codes"] ?? [],
+      hostname: result.hostname,
+      action: result.action,
+    });
+    throw new Error("Complete the order verification before submitting");
+  }
+}
 
 export const saveOrderAttachment = mutation({
   args: {

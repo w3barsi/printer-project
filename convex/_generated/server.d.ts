@@ -30,6 +30,7 @@ type Env = {
   readonly TELEGRAM_CHAT_ID: string | undefined;
   readonly TRELLO_KEY: string | undefined;
   readonly TRELLO_TOKEN: string | undefined;
+  readonly TURNSTILE_SECRET_KEY: string | undefined;
   readonly VERCEL_URL: string | undefined;
 };
 

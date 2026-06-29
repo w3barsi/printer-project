@@ -31,6 +31,7 @@ import {
   paymentLabel,
   putFile,
 } from "@/components/shop/order/utils";
+import { env } from "@/env/client";
 import { useLocalStorage } from "@/hooks/use-local-storage";
 import { getServiceBySlug } from "@/lib/services";
 import {
@@ -74,10 +75,12 @@ function ShopOrderRoute() {
   const [artworkFiles, setArtworkFiles] = useState<Record<string, File[]>>({});
   const [draftArtworkFiles, setDraftArtworkFiles] = useState<File[]>([]);
   const [paymentProofFile, setPaymentProofFile] = useState<File | null>(null);
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const [turnstileResetKey, setTurnstileResetKey] = useState(0);
   const [formError, setFormError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submittedOrder, setSubmittedOrder] = useState<SubmittedOrder | null>(null);
-  const createUnconfirmedOrder = useMutation(api.shop.orders.createUnconfirmedOrder);
+  const createUnconfirmedOrder = useAction(api.shop.orders.createUnconfirmedOrder);
   const generateOrderUploadUrl = useMutation(api.shop.uploads.generateOrderUploadUrl);
   const saveOrderAttachment = useMutation(api.shop.orders.saveOrderAttachment);
   const markAttachmentUploadStatus = useMutation(
@@ -97,6 +100,7 @@ function ShopOrderRoute() {
   const cartTotal = cart.reduce((sum, item) => sum + item.lineTotal, 0);
   const progressCartCount = submittedOrder ? submittedOrder.itemCount : cart.length;
   const progressTotal = submittedOrder ? submittedOrder.estimatedTotal : cartTotal;
+  const turnstileSiteKey = env.VITE_TURNSTILE_SITE_KEY;
 
   function navigateOrder(next: { service?: string; step?: OrderStep }) {
     navigate({
@@ -272,6 +276,16 @@ function ShopOrderRoute() {
       return;
     }
 
+    if (!turnstileSiteKey) {
+      setFormError("Order verification is not configured.");
+      return;
+    }
+
+    if (!turnstileToken) {
+      setFormError("Complete the order verification before submitting.");
+      return;
+    }
+
     setIsSubmitting(true);
     setFormError(null);
 
@@ -296,6 +310,7 @@ function ShopOrderRoute() {
           contactDraft.paymentMethod === "pay-later" ? "not-required" : "pending-upload",
         acceptedTerms: contactDraft.acceptedTerms,
         honeypot: contactDraft.honeypot,
+        turnstileToken,
       });
 
       if (created.honeypot || !created.joId || !created.joNumber) {
@@ -403,6 +418,8 @@ function ShopOrderRoute() {
       setFormError(
         error instanceof Error ? error.message : "Could not submit order request.",
       );
+      setTurnstileToken(null);
+      setTurnstileResetKey((key) => key + 1);
     } finally {
       setIsSubmitting(false);
     }
@@ -549,7 +566,11 @@ function ShopOrderRoute() {
               cartTotal={cartTotal}
               paymentProofFile={paymentProofFile}
               isSubmitting={isSubmitting}
+              turnstileSiteKey={turnstileSiteKey}
+              turnstileToken={turnstileToken}
+              turnstileResetKey={turnstileResetKey}
               updateDraft={updateContactDraft}
+              onTurnstileTokenChange={setTurnstileToken}
               onPaymentProof={handlePaymentProof}
               onBack={() =>
                 navigateOrder({ service: SHOP_ORDER_SUPPORTED_SERVICE_SLUG, step: 4 })
