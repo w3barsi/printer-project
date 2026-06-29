@@ -1,6 +1,7 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "printer-project",
+  "main": "@tanstack/react-start/server-entry",
   "compatibility_date": "2026-06-17",
   "compatibility_flags": ["nodejs_compat"],
   "observability": {
@@ -14,8 +15,8 @@
   ],
   "vars": {
     "VITE_FLAG_SIGNUP": "false",
-    "VITE_CONVEX_URL": "https://rosy-rabbit-645.convex.cloud",
-    "VITE_CONVEX_SITE_URL": "https://rosy-rabbit-645.convex.site",
+    "VITE_CONVEX_URL": "https://cool-wombat-664.convex.cloud",
+    "VITE_CONVEX_SITE_URL": "https://cool-wombat-664.convex.site",
   },
   "secrets": {
     "required": ["TRELLO_KEY", "TRELLO_TOKEN"],
