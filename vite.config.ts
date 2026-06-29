@@ -1,3 +1,4 @@
+import { cloudflare } from "@cloudflare/vite-plugin";
 import babel from "@rolldown/plugin-babel";
 import tailwindcss from "@tailwindcss/vite";
 import { devtools } from "@tanstack/devtools-vite";
@@ -6,6 +7,8 @@ import viteReact, { reactCompilerPreset } from "@vitejs/plugin-react";
 import { nitro } from "nitro/vite";
 import { defineConfig } from "vite";
 import tsConfigPaths from "vite-tsconfig-paths";
+
+const isCloudflare = process.env.CLOUDFLARE_DEPLOY === "true";
 
 export default defineConfig({
   server: {
@@ -19,9 +22,11 @@ export default defineConfig({
     tsConfigPaths({
       projects: ["./tsconfig.json"],
     }),
-    tanstackStart(),
+    // Cloudflare Workers runtime and Nitro/Vercel runtime are mutually exclusive.
+    // Switch via CLOUDFLARE_DEPLOY=true to build for Cloudflare.
     // https://tanstack.com/start/latest/docs/framework/react/guide/hosting
-    nitro(),
+    ...(isCloudflare ? [cloudflare({ viteEnvironment: { name: "ssr" } })] : [nitro()]),
+    tanstackStart(),
     viteReact(),
     // https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md#react-compiler
     babel({

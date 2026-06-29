@@ -7,6 +7,7 @@ import betterAuth from "./betterAuth/convex.config";
 
 const app = defineApp({
   env: {
+    SERVER_URL: v.optional(v.string()),
     VERCEL_URL: v.optional(v.string()),
     TRELLO_KEY: v.optional(v.string()),
     TRELLO_TOKEN: v.optional(v.string()),

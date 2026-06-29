@@ -1,0 +1,23 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "printer-project",
+  "compatibility_date": "2026-06-17",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": {
+    "enabled": true,
+  },
+  "routes": [
+    {
+      "pattern": "cfsystem.darcygraphix.com",
+      "custom_domain": true,
+    },
+  ],
+  "vars": {
+    "VITE_FLAG_SIGNUP": "false",
+    "VITE_CONVEX_URL": "https://rosy-rabbit-645.convex.cloud",
+    "VITE_CONVEX_SITE_URL": "https://rosy-rabbit-645.convex.site",
+  },
+  "secrets": {
+    "required": ["TRELLO_KEY", "TRELLO_TOKEN"],
+  },
+}

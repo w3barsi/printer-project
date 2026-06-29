@@ -25,6 +25,7 @@ import type { DataModel } from "./dataModel.js";
  * Typesafe environment variables declared in `convex.config.ts`.
  */
 type Env = {
+  readonly SERVER_URL: string | undefined;
   readonly TELEGRAM_BOT_TOKEN: string | undefined;
   readonly TELEGRAM_CHAT_ID: string | undefined;
   readonly TRELLO_KEY: string | undefined;

@@ -13,3 +13,5 @@ count.txt
 count.txt
 .vercel
 ref
+.wrangler
+worker-configuration.d.ts
