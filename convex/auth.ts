@@ -13,7 +13,7 @@ import {
 import { ac, adminRole, basicRole } from "../src/lib/auth-utils";
 import { components, internal } from "./_generated/api";
 import type { DataModel, Id } from "./_generated/dataModel";
-import { mutation, query } from "./_generated/server";
+import { mutation, query, env } from "./_generated/server";
 import authConfig from "./auth.config";
 import authSchema from "./betterAuth/schema";
 
@@ -75,11 +75,8 @@ export const authComponent = createClient<DataModel, typeof authSchema>(
 
 export const { onCreate, onUpdate, onDelete } = authComponent.triggersApi();
 
-const URL = process.env.VERCEL_URL
-  ? `https://${process.env.VERCEL_URL}`
-  : "http://localhost:3000";
-
 export const createAuthOptions = (ctx: GenericCtx<DataModel>) => {
+  const baseURL = env.VERCEL_URL ? `https://${env.VERCEL_URL}` : "http://localhost:3000";
   return {
     database: authComponent.adapter(ctx),
     user: {
@@ -97,7 +94,7 @@ export const createAuthOptions = (ctx: GenericCtx<DataModel>) => {
       },
     },
     // All auth requests will be proxied through your TanStack Start server
-    baseURL: URL,
+    baseURL,
     session: {
       cookieCache: {
         enabled: true,

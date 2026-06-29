@@ -1,13 +1,6 @@
 import { v } from "convex/values";
 
-import { action } from "../_generated/server";
-
-declare const process: {
-  env: {
-    TELEGRAM_BOT_TOKEN?: string;
-    TELEGRAM_CHAT_ID?: string;
-  };
-};
+import { action, env } from "../_generated/server";
 
 export const sendOrderTelegramNotification = action({
   args: {
@@ -24,8 +17,8 @@ export const sendOrderTelegramNotification = action({
   },
   returns: v.object({ status: v.union(v.literal("sent"), v.literal("skipped")) }),
   handler: async (_ctx, args) => {
-    const token = process.env.TELEGRAM_BOT_TOKEN;
-    const chatId = process.env.TELEGRAM_CHAT_ID;
+    const token = env.TELEGRAM_BOT_TOKEN;
+    const chatId = env.TELEGRAM_CHAT_ID;
 
     if (!token || !chatId) {
       return { status: "skipped" as const };

@@ -1,14 +1,14 @@
 import { v } from "convex/values";
 
 import { internal } from "./_generated/api";
-import { internalAction, internalMutation } from "./_generated/server";
+import { internalAction, internalMutation, env } from "./_generated/server";
 import { authedQuery } from "./auth";
 
 export const createTrelloCard = internalAction({
   args: { joId: v.id("jo") },
   handler: async (ctx, args) => {
-    const TRELLO_KEY = process.env.TRELLO_KEY;
-    const TRELLO_TOKEN = process.env.TRELLO_TOKEN;
+    const TRELLO_KEY = env.TRELLO_KEY;
+    const TRELLO_TOKEN = env.TRELLO_TOKEN;
     const LIST_ID = "63d49870f3b7593a548ff9cf";
 
     if (!TRELLO_KEY || !TRELLO_TOKEN) {
@@ -55,8 +55,8 @@ export const createTrelloCard = internalAction({
 export const archiveTrelloCard = internalAction({
   args: { cardId: v.string() },
   handler: async (ctx, args) => {
-    const TRELLO_KEY = process.env.TRELLO_KEY;
-    const TRELLO_TOKEN = process.env.TRELLO_TOKEN;
+    const TRELLO_KEY = env.TRELLO_KEY;
+    const TRELLO_TOKEN = env.TRELLO_TOKEN;
 
     if (!TRELLO_KEY || !TRELLO_TOKEN) {
       throw new Error("Missing Trello credentials");

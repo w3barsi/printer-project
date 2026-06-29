@@ -10,16 +10,16 @@ importers:
     dependencies:
       '@convex-dev/better-auth':
         specifier: ^0.12.4
-        version: 0.12.4(@standard-schema/spec@1.1.0)(better-auth@1.6.19(@tanstack/react-start@1.168.26(crossws@0.4.6(srvx@0.11.16))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(vite@8.0.16(@types/node@24.10.13)(esbuild@0.27.0)(jiti@2.7.0)(terser@5.43.1)(tsx@4.20.3)(yaml@2.9.0)))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(solid-js@1.9.13)(svelte@5.38.10))(convex@1.41.0(react@19.2.0))(react@19.2.0)(typescript@5.9.3)
+        version: 0.12.4(@standard-schema/spec@1.1.0)(better-auth@1.6.19(@tanstack/react-start@1.168.26(crossws@0.4.6(srvx@0.11.16))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(vite@8.0.16(@types/node@24.10.13)(esbuild@0.27.0)(jiti@2.7.0)(terser@5.43.1)(tsx@4.20.3)(yaml@2.9.0)))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(solid-js@1.9.13)(svelte@5.38.10))(convex@1.42.0(react@19.2.0))(react@19.2.0)(typescript@5.9.3)
       '@convex-dev/migrations':
         specifier: ^0.3.5
-        version: 0.3.5(convex-helpers@0.1.119(@standard-schema/spec@1.1.0)(convex@1.41.0(react@19.2.0))(react@19.2.0)(typescript@5.9.3)(zod@4.1.12))(convex@1.41.0(react@19.2.0))
+        version: 0.3.5(convex-helpers@0.1.119(@standard-schema/spec@1.1.0)(convex@1.42.0(react@19.2.0))(react@19.2.0)(typescript@5.9.3)(zod@4.1.12))(convex@1.42.0(react@19.2.0))
       '@convex-dev/r2':
         specifier: ^0.10.2
-        version: 0.10.2(@standard-schema/spec@1.1.0)(convex-svelte@0.0.11(convex@1.41.0(react@19.2.0))(svelte@5.38.10))(convex@1.41.0(react@19.2.0))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(svelte@5.38.10)(typescript@5.9.3)(zod@4.1.12)
+        version: 0.10.2(@standard-schema/spec@1.1.0)(convex-svelte@0.0.11(convex@1.42.0(react@19.2.0))(svelte@5.38.10))(convex@1.42.0(react@19.2.0))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(svelte@5.38.10)(typescript@5.9.3)(zod@4.1.12)
       '@convex-dev/react-query':
         specifier: 0.1.0
-        version: 0.1.0(@tanstack/react-query@5.101.0(react@19.2.0))(convex@1.41.0(react@19.2.0))
+        version: 0.1.0(@tanstack/react-query@5.101.0(react@19.2.0))(convex@1.42.0(react@19.2.0))
       '@dnd-kit/core':
         specifier: ^6.3.1
         version: 6.3.1(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
@@ -66,11 +66,11 @@ importers:
         specifier: ^9.2.0
         version: 9.2.0
       convex:
-        specifier: ^1.41.0
-        version: 1.41.0(react@19.2.0)
+        specifier: ^1.42.0
+        version: 1.42.0(react@19.2.0)
       convex-helpers:
         specifier: ^0.1.119
-        version: 0.1.119(@standard-schema/spec@1.1.0)(convex@1.41.0(react@19.2.0))(react@19.2.0)(typescript@5.9.3)(zod@4.1.12)
+        version: 0.1.119(@standard-schema/spec@1.1.0)(convex@1.42.0(react@19.2.0))(react@19.2.0)(typescript@5.9.3)(zod@4.1.12)
       date-fns:
         specifier: ^4.1.0
         version: 4.1.0
@@ -3374,8 +3374,8 @@ packages:
       convex: ^1.10.0
       svelte: ^5.0.0
 
-  convex@1.41.0:
-    resolution: {integrity: sha512-euxVf6yfpB7/VGKOobkLgjpbJidsUgW+b0ezonEyCUPqlpHFwR4/yIiI1hjjErzraiw91GxrtxpXQClMLNqU+w==}
+  convex@1.42.0:
+    resolution: {integrity: sha512-KS1U+YkE7N7jDfucPW28iNehnb9/N5n9RJmdAFNdPIHTeNpbLKNqk1pJHp4ajHyMBAhGmri8Z4S1lc1LjliZWQ==}
     engines: {node: '>=18.0.0', npm: '>=7.0.0'}
     hasBin: true
     peerDependencies:
@@ -4879,6 +4879,18 @@ packages:
       utf-8-validate:
         optional: true
 
+  ws@8.21.0:
+    resolution: {integrity: sha512-Vsp28b7DRcimFQvrqu2Wek3z1iYxDCWqHYB8Qsnk/S4RfaCQzPGPyBNuVjJV3cd6UiKtUtp6sNM77gWvzcCH+g==}
+    engines: {node: '>=10.0.0'}
+    peerDependencies:
+      bufferutil: ^4.0.1
+      utf-8-validate: '>=5.0.2'
+    peerDependenciesMeta:
+      bufferutil:
+        optional: true
+      utf-8-validate:
+        optional: true
+
   xml-naming@0.1.0:
     resolution: {integrity: sha512-k8KO9hrMyNk6tUWqUfkTEZbezRRpONVOzUTnc97VnCvyj6Tf9lyUR9EDAIeiVLv56jsMcoXEwjW8Kv5yPY52lw==}
     engines: {node: '>=16.0.0'}
@@ -5464,17 +5476,17 @@ snapshots:
 
   '@canvas/image-data@1.0.0': {}
 
-  '@convex-dev/action-retrier@0.3.0(convex@1.41.0(react@19.2.0))':
+  '@convex-dev/action-retrier@0.3.0(convex@1.42.0(react@19.2.0))':
     dependencies:
-      convex: 1.41.0(react@19.2.0)
+      convex: 1.42.0(react@19.2.0)
 
-  '@convex-dev/better-auth@0.12.4(@standard-schema/spec@1.1.0)(better-auth@1.6.19(@tanstack/react-start@1.168.26(crossws@0.4.6(srvx@0.11.16))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(vite@8.0.16(@types/node@24.10.13)(esbuild@0.27.0)(jiti@2.7.0)(terser@5.43.1)(tsx@4.20.3)(yaml@2.9.0)))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(solid-js@1.9.13)(svelte@5.38.10))(convex@1.41.0(react@19.2.0))(react@19.2.0)(typescript@5.9.3)':
+  '@convex-dev/better-auth@0.12.4(@standard-schema/spec@1.1.0)(better-auth@1.6.19(@tanstack/react-start@1.168.26(crossws@0.4.6(srvx@0.11.16))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(vite@8.0.16(@types/node@24.10.13)(esbuild@0.27.0)(jiti@2.7.0)(terser@5.43.1)(tsx@4.20.3)(yaml@2.9.0)))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(solid-js@1.9.13)(svelte@5.38.10))(convex@1.42.0(react@19.2.0))(react@19.2.0)(typescript@5.9.3)':
     dependencies:
       '@better-fetch/fetch': 1.1.21
       better-auth: 1.6.19(@tanstack/react-start@1.168.26(crossws@0.4.6(srvx@0.11.16))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(vite@8.0.16(@types/node@24.10.13)(esbuild@0.27.0)(jiti@2.7.0)(terser@5.43.1)(tsx@4.20.3)(yaml@2.9.0)))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(solid-js@1.9.13)(svelte@5.38.10)
       common-tags: 1.8.2
-      convex: 1.41.0(react@19.2.0)
-      convex-helpers: 0.1.119(@standard-schema/spec@1.1.0)(convex@1.41.0(react@19.2.0))(react@19.2.0)(typescript@5.9.3)(zod@4.1.12)
+      convex: 1.42.0(react@19.2.0)
+      convex-helpers: 0.1.119(@standard-schema/spec@1.1.0)(convex@1.42.0(react@19.2.0))(react@19.2.0)(typescript@5.9.3)(zod@4.1.12)
       jose: 6.1.0
       react: 19.2.0
       remeda: 2.32.0
@@ -5486,22 +5498,22 @@ snapshots:
       - hono
       - typescript
 
-  '@convex-dev/migrations@0.3.5(convex-helpers@0.1.119(@standard-schema/spec@1.1.0)(convex@1.41.0(react@19.2.0))(react@19.2.0)(typescript@5.9.3)(zod@4.1.12))(convex@1.41.0(react@19.2.0))':
+  '@convex-dev/migrations@0.3.5(convex-helpers@0.1.119(@standard-schema/spec@1.1.0)(convex@1.42.0(react@19.2.0))(react@19.2.0)(typescript@5.9.3)(zod@4.1.12))(convex@1.42.0(react@19.2.0))':
     dependencies:
-      convex: 1.41.0(react@19.2.0)
-      convex-helpers: 0.1.119(@standard-schema/spec@1.1.0)(convex@1.41.0(react@19.2.0))(react@19.2.0)(typescript@5.9.3)(zod@4.1.12)
+      convex: 1.42.0(react@19.2.0)
+      convex-helpers: 0.1.119(@standard-schema/spec@1.1.0)(convex@1.42.0(react@19.2.0))(react@19.2.0)(typescript@5.9.3)(zod@4.1.12)
 
-  '@convex-dev/r2@0.10.2(@standard-schema/spec@1.1.0)(convex-svelte@0.0.11(convex@1.41.0(react@19.2.0))(svelte@5.38.10))(convex@1.41.0(react@19.2.0))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(svelte@5.38.10)(typescript@5.9.3)(zod@4.1.12)':
+  '@convex-dev/r2@0.10.2(@standard-schema/spec@1.1.0)(convex-svelte@0.0.11(convex@1.42.0(react@19.2.0))(svelte@5.38.10))(convex@1.42.0(react@19.2.0))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(svelte@5.38.10)(typescript@5.9.3)(zod@4.1.12)':
     dependencies:
       '@aws-sdk/client-s3': 3.1070.0
       '@aws-sdk/s3-request-presigner': 3.1070.0
-      '@convex-dev/action-retrier': 0.3.0(convex@1.41.0(react@19.2.0))
-      convex: 1.41.0(react@19.2.0)
-      convex-helpers: 0.1.119(@standard-schema/spec@1.1.0)(convex@1.41.0(react@19.2.0))(react@19.2.0)(typescript@5.9.3)(zod@4.1.12)
+      '@convex-dev/action-retrier': 0.3.0(convex@1.42.0(react@19.2.0))
+      convex: 1.42.0(react@19.2.0)
+      convex-helpers: 0.1.119(@standard-schema/spec@1.1.0)(convex@1.42.0(react@19.2.0))(react@19.2.0)(typescript@5.9.3)(zod@4.1.12)
       file-type: 21.3.4
       uuid: 14.0.0
     optionalDependencies:
-      convex-svelte: 0.0.11(convex@1.41.0(react@19.2.0))(svelte@5.38.10)
+      convex-svelte: 0.0.11(convex@1.42.0(react@19.2.0))(svelte@5.38.10)
       react: 19.2.0
       react-dom: 19.2.0(react@19.2.0)
       svelte: 5.38.10
@@ -5512,10 +5524,10 @@ snapshots:
       - typescript
       - zod
 
-  '@convex-dev/react-query@0.1.0(@tanstack/react-query@5.101.0(react@19.2.0))(convex@1.41.0(react@19.2.0))':
+  '@convex-dev/react-query@0.1.0(@tanstack/react-query@5.101.0(react@19.2.0))(convex@1.42.0(react@19.2.0))':
     dependencies:
       '@tanstack/react-query': 5.101.0(react@19.2.0)
-      convex: 1.41.0(react@19.2.0)
+      convex: 1.42.0(react@19.2.0)
 
   '@date-fns/tz@1.2.0': {}
 
@@ -8000,26 +8012,26 @@ snapshots:
 
   convert-source-map@2.0.0: {}
 
-  convex-helpers@0.1.119(@standard-schema/spec@1.1.0)(convex@1.41.0(react@19.2.0))(react@19.2.0)(typescript@5.9.3)(zod@4.1.12):
+  convex-helpers@0.1.119(@standard-schema/spec@1.1.0)(convex@1.42.0(react@19.2.0))(react@19.2.0)(typescript@5.9.3)(zod@4.1.12):
     dependencies:
-      convex: 1.41.0(react@19.2.0)
+      convex: 1.42.0(react@19.2.0)
     optionalDependencies:
       '@standard-schema/spec': 1.1.0
       react: 19.2.0
       typescript: 5.9.3
       zod: 4.1.12
 
-  convex-svelte@0.0.11(convex@1.41.0(react@19.2.0))(svelte@5.38.10):
+  convex-svelte@0.0.11(convex@1.42.0(react@19.2.0))(svelte@5.38.10):
     dependencies:
-      convex: 1.41.0(react@19.2.0)
+      convex: 1.42.0(react@19.2.0)
       svelte: 5.38.10
     optional: true
 
-  convex@1.41.0(react@19.2.0):
+  convex@1.42.0(react@19.2.0):
     dependencies:
       esbuild: 0.27.0
       prettier: 3.8.1
-      ws: 8.20.1
+      ws: 8.21.0
     optionalDependencies:
       react: 19.2.0
     transitivePeerDependencies:
@@ -9461,6 +9473,8 @@ snapshots:
       strip-ansi: 7.2.0
 
   ws@8.20.1: {}
+
+  ws@8.21.0: {}
 
   xml-naming@0.1.0: {}
 
