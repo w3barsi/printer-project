@@ -3,15 +3,34 @@ import z from "zod";
 
 import { env } from "@/env/server";
 
-const trelloListsSchema = z.array(
-  z.object({
-    id: z.string(),
-    name: z.string(),
-    closed: z.boolean(),
-    pos: z.number(),
-    idBoard: z.string(),
-  }),
-);
+const LIST_ID = "63d49870f3b7593a548ff9cf";
+const BOARD_ID = "1ELaQNZb";
+
+async function trelloFetch<T>(
+  path: string,
+  schema: z.ZodType<T>,
+  init?: RequestInit,
+): Promise<T> {
+  const url = `https://api.trello.com/1${path}${path.includes("?") ? "&" : "?"}key=${env.TRELLO_KEY}&token=${env.TRELLO_TOKEN}`;
+  const response = await fetch(url, {
+    headers: { Accept: "application/json" },
+    ...init,
+  });
+  if (!response.ok) {
+    const body = await response.text();
+    let message: string | undefined;
+    try {
+      const json = JSON.parse(body);
+      message = typeof json === "string" ? json : (json?.message ?? json?.error);
+    } catch {
+      message = body || undefined;
+    }
+    throw new Error(
+      `Trello API error: ${response.status}${message ? ` - ${message}` : ""}`,
+    );
+  }
+  return schema.parse(await response.json());
+}
 
 const trelloListSchema = z.object({
   id: z.string(),
@@ -31,24 +50,7 @@ const cardAttachmentSchema = z.array(
 );
 
 export const getList = createServerFn({ method: "GET" }).handler(async () => {
-  const TRELLO_KEY = process.env.TRELLO_KEY;
-  const TRELLO_TOKEN = process.env.TRELLO_TOKEN;
-  const LIST_ID = "63d49870f3b7593a548ff9cf";
-
-  if (!TRELLO_KEY || !TRELLO_TOKEN) {
-    throw new Error("Missing Trello credentials");
-  }
-
-  const url = `https://api.trello.com/1/lists/${LIST_ID}?key=${TRELLO_KEY}&token=${TRELLO_TOKEN}`;
-
-  const response = await fetch(url);
-
-  if (!response.ok) {
-    throw new Error(`Trello API error: ${response.status}`);
-  }
-
-  const data = await response.json();
-  return trelloListSchema.parse(data);
+  return trelloFetch(`/lists/${LIST_ID}`, trelloListSchema);
 });
 
 const trelloCardsSchema = z.array(
@@ -70,63 +72,23 @@ const trelloCardsSchema = z.array(
 const getTrelloCardValidator = z.object({ listId: z.string() });
 
 export const getListCards = createServerFn({ method: "GET" })
-  .inputValidator(getTrelloCardValidator)
-  .handler(async (ctx) => {
-    const TRELLO_KEY = process.env.TRELLO_KEY;
-    const TRELLO_TOKEN = process.env.TRELLO_TOKEN;
-
-    if (!TRELLO_KEY || !TRELLO_TOKEN) {
-      throw new Error("Missing Trello credentials");
-    }
-
-    const url = `https://api.trello.com/1/lists/${ctx.data.listId}/cards?key=${TRELLO_KEY}&token=${TRELLO_TOKEN}`;
-
-    const response = await fetch(url);
-
-    const data = await response.json();
-
-    const { data: parsedData, success, error } = trelloCardsSchema.safeParse(data);
-
-    if (success) {
-      return parsedData;
-    } else {
-      throw new Error(error.message);
-    }
+  .validator(getTrelloCardValidator)
+  .handler(async ({ data }) => {
+    return trelloFetch(`/lists/${data.listId}/cards`, trelloCardsSchema);
   });
 
 export const getTrelloLists = createServerFn({ method: "GET" }).handler(async () => {
-  const BOARD_ID = "1ELaQNZb";
-
-  const url = `https://api.trello.com/1/boards/${BOARD_ID}/lists?key=${env.TRELLO_KEY}&token=${env.TRELLO_TOKEN}`;
-
-  const response = await fetch(url);
-
-  if (!response.ok) {
-    throw new Error(`Trello API error: ${response.status}`);
-  }
-
-  const data = await response.json();
-  return trelloListsSchema.parse(data);
+  return trelloFetch(`/boards/${BOARD_ID}/lists`, z.array(trelloListSchema));
 });
 
 export const getCardAttachmentsServerFn = createServerFn({ method: "POST" })
-  .inputValidator(z.object({ id: z.string() }))
+  .validator(z.object({ id: z.string() }))
   .handler(async ({ data }) => {
-    const res = await fetch(
-      `https://api.trello.com/1/cards/${data.id}/attachments?key=${env.TRELLO_KEY}&token=${env.TRELLO_TOKEN}`,
-      {
-        method: "GET",
-        headers: {
-          Accept: "application/json",
-        },
-      },
-    );
-    const atts = cardAttachmentSchema.parse(await res.json());
-    return atts;
+    return trelloFetch(`/cards/${data.id}/attachments`, cardAttachmentSchema);
   });
 
 export const downloadCardAttachmentsServerFn = createServerFn({ method: "POST" })
-  .inputValidator(z.array(z.object({ url: z.string(), name: z.string() })))
+  .validator(z.array(z.object({ url: z.string(), name: z.string() })))
   .handler(async ({ data }) => {
     const fetchImage = async ({ url, name }: { url: string; name: string }) => {
       try {
