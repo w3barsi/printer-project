@@ -62,7 +62,7 @@ function Showcase() {
 
   return (
     <>
-      <header className="relative z-20 mx-auto flex max-w-[1400px] items-center justify-between px-6 py-5 md:px-10">
+      <header className="relative z-20 mx-auto flex max-w-350 items-center justify-between px-6 py-5 md:px-10">
         <Link to="/" className="group flex items-center gap-3">
           <img
             src="/DG_SHORT_SVG.svg"
@@ -76,7 +76,7 @@ function Showcase() {
         </ShopButton>
       </header>
 
-      <main className="relative z-10 mx-auto max-w-[1400px] px-6 pt-10 pb-24 md:px-10 md:pt-14">
+      <main className="relative z-10 mx-auto max-w-350 px-6 pt-10 pb-24 md:px-10 md:pt-14">
         <Link
           to="/"
           hash="services"
@@ -202,7 +202,7 @@ function Showcase() {
       </main>
 
       <footer className="relative z-10 bg-(--shop-bg) px-6 py-10 md:px-10">
-        <div className="mx-auto flex max-w-[1400px] flex-col items-start justify-between gap-4 text-xs text-(--shop-ink-mute) md:flex-row md:items-center">
+        <div className="mx-auto flex max-w-350 flex-col items-start justify-between gap-4 text-xs text-(--shop-ink-mute) md:flex-row md:items-center">
           <span>
             © {new Date().getFullYear()} DARCYGRAPHiX Advertising. All rights reserved.
           </span>

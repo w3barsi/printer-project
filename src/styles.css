@@ -129,6 +129,20 @@ code {
   --shadow-2xl: 0px 1px 2px 0px hsl(0 0% 0% / 0.45);
   --tracking-normal: 0em;
   --spacing: 0.25rem;
+
+  --shop-bg: #fff5f1;
+  --shop-bg-2: #ffd9d1;
+  --shop-panel: #fffaf7;
+  --shop-panel-2: #fff0ec;
+  --shop-ink: #321917;
+  --shop-ink-dim: #704541;
+  --shop-ink-mute: #a26862;
+  --shop-line: rgba(139, 39, 32, 0.16);
+  --shop-line-2: rgba(139, 39, 32, 0.28);
+  --shop-red: #e1261c;
+  --shop-red-glow: #e1261c;
+  --shop-white: #fff5f1;
+  --shop-silver: #d63c32;
 }
 
 .dark {
@@ -327,50 +341,7 @@ code {
   }
 }
 
-/* ============================================================
-   DARCYGRAPHiX — print-shop / neon-signage marketing surface
-   Everything is scoped under .shop so it never leaks into the
-   app dashboard. The page is always dark, regardless of theme.
-   ============================================================ */
-
-.shop {
-  --shop-bg: oklch(0.1 0.004 30);
-  --shop-bg-2: oklch(0.07 0.002 30);
-  --shop-panel: oklch(0.14 0.006 30);
-  --shop-panel-2: oklch(0.18 0.008 30);
-  --shop-line: oklch(0.25 0.006 30);
-  --shop-line-2: oklch(0.4 0.008 30);
-  --shop-ink: oklch(1 0 0);
-  --shop-ink-dim: oklch(0.72 0.01 30);
-  --shop-ink-mute: oklch(0.5 0.01 30);
-  --shop-red: oklch(0.62 0.28 27);
-  --shop-red-glow: oklch(0.62 0.28 27);
-  --shop-white: oklch(1 0 0);
-  --shop-silver: oklch(0.78 0 0);
-
-  --shop-font-display: "Chakra Petch", "Archivo", system-ui, sans-serif;
-  --shop-font-wide: "Archivo", system-ui, sans-serif;
-  --shop-font-body: "Inter", system-ui, sans-serif;
-  --shop-font-serif: "Instrument Serif", Georgia, serif;
-
-  position: relative;
-  isolation: isolate;
-  min-height: 100vh;
-  background: var(--shop-bg);
-  color: var(--shop-ink);
-  font-family: var(--shop-font-body);
-  -webkit-font-smoothing: antialiased;
-  text-rendering: optimizeLegibility;
-  overflow-x: clip;
-}
-
-.shop * {
-  border-color: var(--shop-line);
-}
-
-.shop a {
-  color: inherit;
-}
+/* DARCYGRAPHiX print-shop / neon-signage marketing surface */
 
 /* Neon glow text ------------------------------------------------- */
 

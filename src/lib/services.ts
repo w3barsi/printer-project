@@ -13,7 +13,6 @@ import {
   StoreIcon,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import type { CSSProperties } from "react";
 
 export type Service = {
   no: string;
@@ -119,20 +118,6 @@ export const SERVICES: Service[] = [
     icon: ImageIcon,
   },
 ];
-
-export const SHOP_THEME: CSSProperties & Record<`--${string}`, string> = {
-  "--shop-bg": "#fff5f1",
-  "--shop-bg-2": "#ffd9d1",
-  "--shop-panel": "#fffaf7",
-  "--shop-ink": "#321917",
-  "--shop-ink-dim": "#704541",
-  "--shop-ink-mute": "#a26862",
-  "--shop-line": "rgba(139, 39, 32, 0.16)",
-  "--shop-line-2": "rgba(139, 39, 32, 0.28)",
-  "--shop-red": "#e1261c",
-  "--shop-white": "#fff5f1",
-  "--shop-silver": "#d63c32",
-};
 
 export const MARQUEE_ITEMS = [
   "Tarpaulins",
