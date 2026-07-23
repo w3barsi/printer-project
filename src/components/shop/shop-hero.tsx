@@ -37,11 +37,11 @@ export function ShopHero() {
             </span>
           </div>
 
-          <h1 className="shop-rise shop-rise-2 font-shop-display text-[clamp(3.2rem,10vw,9rem)] leading-[0.88] font-bold tracking-[-0.01em] italic">
-            <span className="block">MAKE YOUR</span>
+          <h1 className="font-shop-display text-[clamp(3.2rem,10vw,9rem)] leading-[0.88] font-bold tracking-[-0.01em] italic">
+            <span className="block">WE CREATE</span>
             <span className="block">
               <span className="text-transparent [-webkit-text-stroke:1.5px_var(--shop-ink)]">
-                BRAND
+                ANYTHING
               </span>
             </span>
             <span className="block">
@@ -49,7 +49,7 @@ export function ShopHero() {
                 className="text-(--shop-red) drop-shadow-[0_12px_28px_rgba(242,92,61,0.22)]"
                 style={{ animationDelay: "0.6s" }}
               >
-                EASY TO SPOT.
+                POSSIBLE
               </span>
             </span>
           </h1>
@@ -68,18 +68,6 @@ export function ShopHero() {
               <a href="#services">See services</a>
             </ShopButton>
           </div>
-
-          <div className="shop-rise shop-rise-6 mt-12 flex flex-wrap items-center gap-x-8 gap-y-3">
-            {["Clear quotes", "Artwork help", "Built in-house"].map((t) => (
-              <div
-                key={t}
-                className="flex items-center gap-2 text-sm text-(--shop-ink-dim)"
-              >
-                <span className="text-[0.7rem] text-(--shop-red)">✦</span>
-                {t}
-              </div>
-            ))}
-          </div>
         </div>
 
         {/* friendly shop-window panel */}
@@ -87,10 +75,6 @@ export function ShopHero() {
           <SignPanel />
         </div>
       </div>
-
-      {/* corner registration marks */}
-      <RegCorner className="top-3 left-3" />
-      <RegCorner className="top-3 right-3" />
     </section>
   );
 }
@@ -111,10 +95,7 @@ function SignPanel() {
         </div>
 
         <div className="rounded-[1.35rem] border border-(--shop-line) bg-[#ffe5df] p-6 text-center shadow-inner">
-          <div
-            className="font-shop-display text-5xl leading-[0.9] font-bold tracking-[-0.01em] text-(--shop-red) italic"
-            style={{ animationDelay: "0.2s" }}
-          >
+          <div className="font-shop-display text-5xl leading-[0.9] font-bold tracking-[-0.01em] text-(--shop-red) italic">
             HELLO
           </div>
           <div className="mt-3 font-shop-serif text-xl text-(--shop-ink-dim) italic">

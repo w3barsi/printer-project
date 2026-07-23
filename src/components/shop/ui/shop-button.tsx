@@ -13,10 +13,13 @@ const shopButtonVariants = cva(
           "bg-(--shop-red) text-(--shop-white) shadow-[0_0_0_0_oklch(0.62_0.28_27/0)] hover:bg-(--shop-bg) hover:text-(--shop-ink) hover:shadow-[0_0_24px_oklch(0.62_0.28_27/0.5),0_0_60px_oklch(0.62_0.28_27/0.25)]",
         ghost:
           "border border-(--shop-line-2) text-(--shop-ink) hover:border-(--shop-red) hover:text-(--shop-red) hover:shadow-[0_0_20px_oklch(0.62_0.28_27/0.35)]",
+        preset:
+          "rounded-2xl border border-(--shop-line-2) bg-[#ffe5df] text-sm font-black tracking-normal text-(--shop-red) normal-case hover:bg-white",
       },
       size: {
         default: "px-[1.4rem] py-[0.95rem]",
         sm: "px-5 py-2.5",
+        preset: "px-4 py-3",
       },
     },
     defaultVariants: {

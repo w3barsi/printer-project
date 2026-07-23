@@ -41,10 +41,11 @@ export function TarpaulinDetailsStep({
 
         <div className="mt-6 grid gap-3 sm:grid-cols-5">
           {TARPAULIN_SIZE_PRESETS.map((preset) => (
-            <button
+            <ShopButton
               key={preset.label}
               type="button"
-              className="rounded-2xl border border-(--shop-line-2) bg-[#ffe5df] px-4 py-3 text-sm font-black text-(--shop-red) transition hover:bg-white"
+              variant="preset"
+              size="preset"
               onClick={() =>
                 updateDraft({
                   width: String(preset.width),
@@ -53,7 +54,7 @@ export function TarpaulinDetailsStep({
               }
             >
               {preset.label} ft
-            </button>
+            </ShopButton>
           ))}
         </div>
 

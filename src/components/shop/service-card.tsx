@@ -2,7 +2,7 @@ import { Link } from "@tanstack/react-router";
 
 import { type Service } from "@/lib/services";
 
-export function ServiceCard({ service }: { service: Service }) {
+export function LinkServiceCard({ service }: { service: Service }) {
   const Icon = service.icon;
   return (
     <Link
