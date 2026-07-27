@@ -9,13 +9,35 @@ import {
   customMutation,
   customQuery,
 } from "convex-helpers/server/customFunctions";
+import type { UserIdentity } from "convex/server";
 
 import { ac, adminRole, basicRole } from "../src/lib/auth-utils";
 import { components, internal } from "./_generated/api";
-import type { DataModel, Id } from "./_generated/dataModel";
+import type { DataModel, Doc, Id } from "./_generated/dataModel";
 import { mutation, query, env } from "./_generated/server";
 import authConfig from "./auth.config";
 import authSchema from "./betterAuth/schema";
+
+type LocalUserContext = {
+  user: UserIdentity;
+  db: {
+    get: (tableName: "users", userId: Id<"users">) => Promise<Doc<"users"> | null>;
+  };
+};
+
+export async function requireLocalUser(ctx: LocalUserContext) {
+  if (typeof ctx.user.userId !== "string") {
+    throw new Error("Authenticated user is not linked to a local user");
+  }
+
+  const user = await ctx.db.get("users", ctx.user.userId as Id<"users">);
+
+  if (!user) {
+    throw new Error("Authenticated user was not found");
+  }
+
+  return user;
+}
 
 // Typesafe way to pass Convex functions defined in this file
 const authFunctions: AuthFunctions = internal.auth;
