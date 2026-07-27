@@ -11,8 +11,9 @@ import {
   PlusIcon,
   RefreshCwIcon,
 } from "lucide-react";
-import { useId, useState } from "react";
+import { useId, useRef, useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
+import { useHotkeys } from "react-hotkeys-hook";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -65,6 +66,7 @@ type AddItemFormData = z.infer<typeof addItemSchema>;
 
 export function AddInventoryItemDialog() {
   const [open, setOpen] = useState(false);
+  const createButtonRef = useRef<HTMLButtonElement>(null);
   const form = useForm<AddItemFormData>({
     resolver: zodResolver(addItemSchema),
     defaultValues: {
@@ -85,6 +87,18 @@ export function AddInventoryItemDialog() {
       toast.error(error.message || "Could not create inventory item");
     },
   });
+  useHotkeys(
+    "ctrl+enter",
+    () => createButtonRef.current?.click(),
+    {
+      enabled: open && !mutation.isPending,
+      enableOnFormTags: true,
+      enableOnContentEditable: true,
+      ignoreEventWhen: (event) => event.repeat,
+      preventDefault: true,
+    },
+    [open, mutation.isPending],
+  );
 
   return (
     <Dialog
@@ -140,8 +154,9 @@ export function AddInventoryItemDialog() {
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel>Supplier</FieldLabel>
+                  <FieldLabel htmlFor="inventory-item-supplier">Supplier</FieldLabel>
                   <SupplierCombobox
+                    id="inventory-item-supplier"
                     value={field.value ? (field.value as Id<"inventorySuppliers">) : null}
                     onValueChange={field.onChange}
                     disabled={mutation.isPending}
@@ -195,9 +210,9 @@ export function AddInventoryItemDialog() {
             />
           </FieldGroup>
           <DialogFooter>
-            <Button type="submit" disabled={mutation.isPending}>
+            <Button ref={createButtonRef} type="submit" disabled={mutation.isPending}>
               {mutation.isPending && <Spinner data-icon="inline-start" />}
-              Create item
+              Create Item
             </Button>
           </DialogFooter>
         </form>
@@ -579,8 +594,9 @@ function EditItemDetailsDialog({
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel>Supplier</FieldLabel>
+                  <FieldLabel htmlFor={`${fieldId}-supplier`}>Supplier</FieldLabel>
                   <SupplierCombobox
+                    id={`${fieldId}-supplier`}
                     value={field.value as Id<"inventorySuppliers">}
                     initialLabel={item.supplierName}
                     onValueChange={field.onChange}

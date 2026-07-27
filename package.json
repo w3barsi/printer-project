@@ -33,6 +33,7 @@
     "dryrun": "pnpx convex deploy --dry-run"
   },
   "dependencies": {
+    "@base-ui/react": "^1.6.0",
     "@convex-dev/better-auth": "^0.12.4",
     "@convex-dev/migrations": "^0.3.5",
     "@convex-dev/r2": "^0.10.2",
