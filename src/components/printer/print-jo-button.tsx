@@ -36,10 +36,8 @@ export function PrintJoButton({ jo }: { jo: GetOneComplete }) {
 
   return (
     <Tooltip>
-      <TooltipTrigger asChild>
-        <Button onClick={handlePrint} variant="outline">
-          <PrinterIcon /> Print JO
-        </Button>
+      <TooltipTrigger render={<Button onClick={handlePrint} variant="outline" />}>
+        <PrinterIcon /> Print JO
       </TooltipTrigger>
       <TooltipContent>
         <div className="flex items-center gap-2">

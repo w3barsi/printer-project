@@ -108,11 +108,9 @@ export function AddInventoryItemDialog() {
         if (!nextOpen && !mutation.isPending) form.reset();
       }}
     >
-      <DialogTrigger asChild>
-        <Button type="button">
-          <PlusIcon data-icon="inline-start" />
-          Add item
-        </Button>
+      <DialogTrigger render={<Button type="button" />}>
+        <PlusIcon data-icon="inline-start" />
+        Add item
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
@@ -229,27 +227,27 @@ export function InventoryItemActions({ item }: { item: InventoryListItem }) {
   return (
     <>
       <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button type="button" variant="ghost" size="icon-sm">
-            <MoreHorizontalIcon />
-            <span className="sr-only">Actions for {item.name}</span>
-          </Button>
+        <DropdownMenuTrigger
+          render={<Button type="button" variant="ghost" size="icon-sm" />}
+        >
+          <MoreHorizontalIcon />
+          <span className="sr-only">Actions for {item.name}</span>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-44">
           <DropdownMenuGroup>
-            <DropdownMenuItem onSelect={() => setAction("add")}>
+            <DropdownMenuItem onClick={() => setAction("add")}>
               <PackagePlusIcon />
               Add stock
             </DropdownMenuItem>
-            <DropdownMenuItem onSelect={() => setAction("remove")}>
+            <DropdownMenuItem onClick={() => setAction("remove")}>
               <MinusIcon />
               Remove stock
             </DropdownMenuItem>
-            <DropdownMenuItem onSelect={() => setAction("correct")}>
+            <DropdownMenuItem onClick={() => setAction("correct")}>
               <RefreshCwIcon />
               Correct count
             </DropdownMenuItem>
-            <DropdownMenuItem onSelect={() => setAction("edit")}>
+            <DropdownMenuItem onClick={() => setAction("edit")}>
               <PencilIcon />
               Edit details
             </DropdownMenuItem>

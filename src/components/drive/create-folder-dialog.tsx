@@ -98,9 +98,7 @@ export function CreateFolderDialog({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button>Create Folder</Button>
-      </DialogTrigger>
+      <DialogTrigger render={<Button />}>Create Folder</DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Create New Folder</DialogTitle>

@@ -62,11 +62,9 @@ export function CreateUserDialog() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button>
-          <PlusIcon className="h-4 w-4" />
-          Create User
-        </Button>
+      <DialogTrigger render={<Button />}>
+        <PlusIcon className="h-4 w-4" />
+        Create User
       </DialogTrigger>
       <DialogContent className="">
         <DialogHeader>

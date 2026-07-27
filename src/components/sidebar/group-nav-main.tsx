@@ -30,15 +30,19 @@ function InventorySidebarItem() {
 
   return (
     <SidebarMenuItem>
-      <SidebarMenuButton asChild tooltip="Inventory" isActive={!!match}>
-        <Link
-          to="/app/inventory"
-          onClick={() => isMobile && setOpenMobile(false)}
-          tabIndex={0}
-        >
-          <BoxesIcon />
-          <span>Inventory</span>
-        </Link>
+      <SidebarMenuButton
+        tooltip="Inventory"
+        isActive={!!match}
+        render={
+          <Link
+            to="/app/inventory"
+            onClick={() => isMobile && setOpenMobile(false)}
+            tabIndex={0}
+          />
+        }
+      >
+        <BoxesIcon />
+        <span>Inventory</span>
       </SidebarMenuButton>
     </SidebarMenuItem>
   );
@@ -50,15 +54,19 @@ function DriveSidebarItem() {
 
   return (
     <SidebarMenuItem>
-      <SidebarMenuButton asChild tooltip="Drive" isActive={!!match}>
-        <Link
-          to="/app/drive/{-$drive}"
-          onClick={() => isMobile && setOpenMobile(false)}
-          tabIndex={0}
-        >
-          <HardDriveIcon />
-          <span>Drive</span>
-        </Link>
+      <SidebarMenuButton
+        tooltip="Drive"
+        isActive={!!match}
+        render={
+          <Link
+            to="/app/drive/{-$drive}"
+            onClick={() => isMobile && setOpenMobile(false)}
+            tabIndex={0}
+          />
+        }
+      >
+        <HardDriveIcon />
+        <span>Drive</span>
       </SidebarMenuButton>
     </SidebarMenuItem>
   );
@@ -72,15 +80,19 @@ function CashflowSidebarItem() {
   return (
     <SidebarMenuItem>
       {(user.role === "cashier" || user.role === "admin") && (
-        <SidebarMenuButton asChild tooltip="Job Order" isActive={!!match}>
-          <Link
-            to="/app/cashflow"
-            onClick={() => isMobile && setOpenMobile(false)}
-            tabIndex={0}
-          >
-            <PiggyBankIcon />
-            <span>Cash Flow</span>
-          </Link>
+        <SidebarMenuButton
+          tooltip="Job Order"
+          isActive={!!match}
+          render={
+            <Link
+              to="/app/cashflow"
+              onClick={() => isMobile && setOpenMobile(false)}
+              tabIndex={0}
+            />
+          }
+        >
+          <PiggyBankIcon />
+          <span>Cash Flow</span>
         </SidebarMenuButton>
       )}
     </SidebarMenuItem>

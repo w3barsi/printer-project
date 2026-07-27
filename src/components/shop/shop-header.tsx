@@ -36,8 +36,12 @@ export function ShopHeader() {
         >
           Staff login
         </Link>
-        <ShopButton asChild variant="primary" size="sm">
-          <a href="#contact">Get a quote</a>
+        <ShopButton
+          render={<a href="#contact" aria-label="Get a quote" />}
+          variant="primary"
+          size="sm"
+        >
+          Get a quote
         </ShopButton>
       </div>
     </header>

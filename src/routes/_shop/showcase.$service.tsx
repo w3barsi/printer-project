@@ -71,8 +71,12 @@ function Showcase() {
           />
           <img src="/DG_Long.png" alt="DARCYGRAPHiX" className="h-8 w-auto md:h-9" />
         </Link>
-        <ShopButton asChild variant="primary" size="sm">
-          <a href={orderHref}>Order Now</a>
+        <ShopButton
+          render={<a href={orderHref} aria-label="Order now" />}
+          variant="primary"
+          size="sm"
+        >
+          Order Now
         </ShopButton>
       </header>
 
@@ -115,13 +119,14 @@ function Showcase() {
             </div>
 
             <div className="mt-2 flex flex-wrap items-center gap-4">
-              <ShopButton asChild variant="primary">
-                <a href={orderHref}>Order Now</a>
+              <ShopButton
+                render={<a href={orderHref} aria-label="Order now" />}
+                variant="primary"
+              >
+                Order Now
               </ShopButton>
-              <ShopButton asChild variant="ghost">
-                <Link to="/" hash="services">
-                  Browse all services
-                </Link>
+              <ShopButton render={<Link to="/" hash="services" />} variant="ghost">
+                Browse all services
               </ShopButton>
             </div>
           </div>

@@ -26,15 +26,19 @@ export function RecentJobOrdersGroup() {
     <SidebarGroup>
       <SidebarMenu>
         <SidebarMenuItem>
-          <SidebarMenuButton asChild tooltip="Job Order" isActive={!!match}>
-            <Link
-              to="/app/jo"
-              preload="render"
-              onClick={() => isMobile && setOpenMobile(false)}
-            >
-              <FileTextIcon />
-              <span>Job Orders</span>
-            </Link>
+          <SidebarMenuButton
+            tooltip="Job Order"
+            isActive={!!match}
+            render={
+              <Link
+                to="/app/jo"
+                preload="render"
+                onClick={() => isMobile && setOpenMobile(false)}
+              />
+            }
+          >
+            <FileTextIcon />
+            <span>Job Orders</span>
           </SidebarMenuButton>
         </SidebarMenuItem>
         <Suspense fallback={<RecentSubMenuSkeleton />}>
@@ -57,15 +61,18 @@ function RecentSubMenu() {
         <SidebarMenuItem key={item.id}>
           <SidebarMenuSub>
             <SidebarMenuSubItem className="truncate">
-              <SidebarMenuSubButton asChild isActive={match?.params?.joId === item.id}>
-                <Link
-                  to={`/app/jo/$joId`}
-                  params={{ joId: item.id }}
-                  onClick={() => isMobile && setOpenMobile(false)}
-                  tabIndex={0}
-                >
-                  {item.name}
-                </Link>
+              <SidebarMenuSubButton
+                isActive={match?.params?.joId === item.id}
+                render={
+                  <Link
+                    to={`/app/jo/$joId`}
+                    params={{ joId: item.id }}
+                    onClick={() => isMobile && setOpenMobile(false)}
+                    tabIndex={0}
+                  />
+                }
+              >
+                {item.name}
               </SidebarMenuSubButton>
             </SidebarMenuSubItem>
           </SidebarMenuSub>
@@ -82,9 +89,7 @@ function RecentSubMenuSkeleton() {
         <SidebarMenuItem key={idx}>
           <SidebarMenuSub>
             <SidebarMenuSubItem>
-              <SidebarMenuSubButton asChild>
-                <SidebarMenuSkeleton />
-              </SidebarMenuSubButton>
+              <SidebarMenuSubButton render={<SidebarMenuSkeleton />} />
             </SidebarMenuSubItem>
           </SidebarMenuSub>
         </SidebarMenuItem>

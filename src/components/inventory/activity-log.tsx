@@ -2,13 +2,8 @@ import { convexQuery } from "@convex-dev/react-query";
 import { api } from "@convex/_generated/api";
 import type { Doc, Id } from "@convex/_generated/dataModel";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
-import {
-  ArrowLeftIcon,
-  ArrowRightIcon,
-  ChevronsUpDownIcon,
-  HistoryIcon,
-} from "lucide-react";
-import { useId, useState } from "react";
+import { ArrowLeftIcon, ArrowRightIcon, HistoryIcon } from "lucide-react";
+import { useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -20,13 +15,14 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
+  Combobox,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxInput,
+  ComboboxItem,
+  ComboboxList,
+  ComboboxTrigger,
+} from "@/components/ui/combobox";
 import {
   Empty,
   EmptyDescription,
@@ -34,7 +30,6 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
   Select,
   SelectContent,
@@ -60,6 +55,24 @@ const PAGE_SIZE = 25;
 type InventoryAction = "add" | "remove" | "update";
 type ActionFilter = InventoryAction | "all";
 type InventoryActivity = Doc<"inventoryActivities">;
+
+type InventoryItemOption = {
+  id: Id<"inventoryItems"> | null;
+  label: string;
+  supplierName?: string;
+};
+
+const allItemsOption: InventoryItemOption = {
+  id: null,
+  label: "All items",
+};
+
+const actionFilterItems: Array<{ label: string; value: ActionFilter }> = [
+  { label: "All actions", value: "all" },
+  { label: "Added", value: "add" },
+  { label: "Removed", value: "remove" },
+  { label: "Updated", value: "update" },
+];
 
 const operationLabels: Record<InventoryActivity["operation"], string> = {
   item_created: "Item created",
@@ -148,18 +161,22 @@ export function InventoryActivityLog() {
                 onValueChange={handleItemChange}
               />
               <Select
+                items={actionFilterItems}
                 value={action}
-                onValueChange={(value) => handleActionChange(value as ActionFilter)}
+                onValueChange={(value) => {
+                  if (value) handleActionChange(value);
+                }}
               >
                 <SelectTrigger className="w-full sm:w-40">
                   <SelectValue placeholder="All actions" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
-                    <SelectItem value="all">All actions</SelectItem>
-                    <SelectItem value="add">Added</SelectItem>
-                    <SelectItem value="remove">Removed</SelectItem>
-                    <SelectItem value="update">Updated</SelectItem>
+                    {actionFilterItems.map((item) => (
+                      <SelectItem key={item.value} value={item.value}>
+                        {item.label}
+                      </SelectItem>
+                    ))}
                   </SelectGroup>
                 </SelectContent>
               </Select>
@@ -346,91 +363,89 @@ function InventoryItemFilter({
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [selectedName, setSelectedName] = useState<string>();
-  const listId = useId();
   const { data: items, isPending } = useQuery(
     convexQuery(api.inventory.searchItemOptions, {
       query: search,
     }),
   );
-  const selectedItem = items?.find((item) => item._id === value);
-  const selectedLabel = selectedItem?.name ?? selectedName;
+  const itemOptions: InventoryItemOption[] =
+    items?.map((item) => ({
+      id: item._id,
+      label: item.name,
+      supplierName: item.supplierName,
+    })) ?? [];
+  const selectedOption = value
+    ? (itemOptions.find((option) => option.id === value) ??
+      (selectedName ? { id: value, label: selectedName } : null))
+    : allItemsOption;
+  const options = search ? itemOptions : [allItemsOption, ...itemOptions];
+
+  if (selectedOption?.id && !options.some((option) => option.id === selectedOption.id)) {
+    options.push(selectedOption);
+  }
 
   return (
-    <Popover
+    <Combobox<InventoryItemOption>
+      items={options}
+      value={selectedOption}
+      inputValue={search}
       open={open}
+      filter={null}
+      autoHighlight
+      itemToStringLabel={(option) => option.label}
+      itemToStringValue={(option) => option.id ?? "all-items"}
+      isItemEqualToValue={(option, selectedValue) => option.id === selectedValue.id}
       onOpenChange={(nextOpen) => {
         setOpen(nextOpen);
         if (!nextOpen) setSearch("");
       }}
+      onInputValueChange={setSearch}
+      onValueChange={(option) => {
+        if (!option) return;
+
+        onValueChange(option.id);
+        setSelectedName(option.id ? option.label : undefined);
+        setOpen(false);
+        setSearch("");
+      }}
     >
-      <PopoverTrigger asChild>
-        <Button
-          type="button"
-          variant="outline"
-          role="combobox"
-          aria-expanded={open}
-          aria-controls={listId}
-          className="w-full justify-between font-normal sm:w-56"
-        >
-          <span className={cn("truncate", !value && "text-muted-foreground")}>
-            {value ? selectedLabel : "All items"}
-          </span>
-          <ChevronsUpDownIcon data-icon="inline-end" className="opacity-50" />
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent
-        className="w-[var(--radix-popover-trigger-width)] p-0"
-        align="start"
-      >
-        <Command shouldFilter={false}>
-          <CommandInput
-            value={search}
-            onValueChange={setSearch}
-            placeholder="Search inventory..."
+      <ComboboxTrigger
+        render={
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full justify-between font-normal sm:w-56"
           />
-          <CommandList id={listId}>
-            <CommandEmpty>
-              {isPending ? "Loading items..." : "No item found."}
-            </CommandEmpty>
-            <CommandGroup>
-              {!search && (
-                <CommandItem
-                  value="all-items"
-                  data-checked={!value}
-                  onSelect={() => {
-                    onValueChange(null);
-                    setSelectedName(undefined);
-                    setOpen(false);
-                  }}
-                >
-                  All items
-                </CommandItem>
-              )}
-              {items?.map((item) => (
-                <CommandItem
-                  key={item._id}
-                  value={item._id}
-                  data-checked={value === item._id}
-                  onSelect={() => {
-                    onValueChange(item._id);
-                    setSelectedName(item.name);
-                    setOpen(false);
-                    setSearch("");
-                  }}
-                >
-                  <span className="flex min-w-0 flex-col">
-                    <span className="truncate">{item.name}</span>
-                    <span className="truncate text-xs text-muted-foreground">
-                      {item.supplierName}
-                    </span>
+        }
+      >
+        <span className={cn("truncate", !value && "text-muted-foreground")}>
+          {selectedOption?.label ?? "All items"}
+        </span>
+      </ComboboxTrigger>
+      <ComboboxContent className="w-(--anchor-width) min-w-(--anchor-width) p-0">
+        <ComboboxInput
+          showTrigger={false}
+          placeholder="Search inventory..."
+          aria-label="Search inventory items"
+          className="w-full"
+        />
+        <ComboboxEmpty>{isPending ? "Loading items..." : "No item found."}</ComboboxEmpty>
+        <ComboboxList>
+          {(option: InventoryItemOption) => (
+            <ComboboxItem key={option.id ?? "all-items"} value={option}>
+              <span className="flex min-w-0 flex-col">
+                <span className="truncate">{option.label}</span>
+                {option.supplierName && (
+                  <span className="truncate text-xs text-muted-foreground">
+                    {option.supplierName}
                   </span>
-                </CommandItem>
-              ))}
-            </CommandGroup>
-          </CommandList>
-        </Command>
-      </PopoverContent>
-    </Popover>
+                )}
+              </span>
+            </ComboboxItem>
+          )}
+        </ComboboxList>
+      </ComboboxContent>
+    </Combobox>
   );
 }
 

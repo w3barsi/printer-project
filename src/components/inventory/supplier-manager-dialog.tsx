@@ -78,11 +78,9 @@ export function SupplierManagerDialog() {
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogTrigger asChild>
-        <Button type="button" variant="outline">
-          <Building2Icon data-icon="inline-start" />
-          Manage suppliers
-        </Button>
+      <DialogTrigger render={<Button type="button" variant="outline" />}>
+        <Building2Icon data-icon="inline-start" />
+        Manage suppliers
       </DialogTrigger>
       <DialogContent className="sm:max-w-xl">
         <DialogHeader>
@@ -229,11 +227,9 @@ function RenameSupplierDialog({
         if (nextOpen) form.reset({ name: currentName });
       }}
     >
-      <DialogTrigger asChild>
-        <Button type="button" variant="ghost" size="icon-sm">
-          <PencilIcon />
-          <span className="sr-only">Rename {currentName}</span>
-        </Button>
+      <DialogTrigger render={<Button type="button" variant="ghost" size="icon-sm" />}>
+        <PencilIcon />
+        <span className="sr-only">Rename {currentName}</span>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>

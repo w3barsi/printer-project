@@ -85,17 +85,21 @@ export function DeleteJoAlertDialog({
   return (
     <AlertDialog>
       <Tooltip>
-        <TooltipTrigger asChild>
-          <AlertDialogTrigger asChild>
-            <Button
-              variant="outline"
-              size="icon"
-              className="text-destructive hover:border-destructive/50 hover:bg-destructive/10 hover:text-destructive"
-              ref={deleteButtonRef}
-            >
-              <Trash2Icon />
-            </Button>
-          </AlertDialogTrigger>
+        <TooltipTrigger
+          render={
+            <AlertDialogTrigger
+              render={
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="text-destructive hover:border-destructive/50 hover:bg-destructive/10 hover:text-destructive"
+                  ref={deleteButtonRef}
+                />
+              }
+            />
+          }
+        >
+          <Trash2Icon />
         </TooltipTrigger>
         <TooltipContent>
           <div className="flex items-center gap-2">

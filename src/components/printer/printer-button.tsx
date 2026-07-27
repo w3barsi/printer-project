@@ -12,17 +12,20 @@ export function PrinterButton() {
           Connect Printer
         </Button>
       ) : (
-        <Tooltip delayDuration={300}>
-          <TooltipTrigger asChild>
-            <Button
-              className="w-full"
-              variant="destructive-outline"
-              onClick={async () => {
-                await disconnectDevice();
-              }}
-            >
-              {device.productName}
-            </Button>
+        <Tooltip>
+          <TooltipTrigger
+            delay={300}
+            render={
+              <Button
+                className="w-full"
+                variant="destructive"
+                onClick={async () => {
+                  await disconnectDevice();
+                }}
+              />
+            }
+          >
+            {device.productName}
           </TooltipTrigger>
           <TooltipContent>Disconnect Printer</TooltipContent>
         </Tooltip>

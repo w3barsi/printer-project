@@ -1,5 +1,6 @@
+import { mergeProps } from "@base-ui/react/merge-props";
+import { useRender } from "@base-ui/react/use-render";
 import { cva, type VariantProps } from "class-variance-authority";
-import { Slot } from "radix-ui";
 import * as React from "react";
 
 import { cn } from "@/lib/utils";
@@ -33,23 +34,28 @@ function ShopButton({
   className,
   variant,
   size,
-  asChild = false,
+  render,
   ...props
-}: React.ComponentProps<"button"> &
+}: useRender.ComponentProps<"button"> &
+  React.ComponentProps<"button"> &
   VariantProps<typeof shopButtonVariants> & {
-    asChild?: boolean;
+    render?: useRender.ComponentProps<"button">["render"];
   }) {
-  const Comp = asChild ? Slot.Root : "button";
-
-  return (
-    <Comp
-      data-slot="shop-button"
-      data-variant={variant}
-      data-size={size}
-      className={cn(shopButtonVariants({ variant, size, className }))}
-      {...props}
-    />
-  );
+  return useRender({
+    defaultTagName: "button",
+    props: mergeProps<"button">(
+      {
+        className: cn(shopButtonVariants({ variant, size, className })),
+      },
+      props,
+    ),
+    render,
+    state: {
+      slot: "shop-button",
+      variant,
+      size,
+    },
+  });
 }
 
 export { ShopButton, shopButtonVariants };

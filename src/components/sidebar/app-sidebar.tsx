@@ -24,16 +24,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton size="lg" asChild>
-              <Link to="/">
-                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-white p-1 text-sidebar-primary-foreground">
-                  <img src="/logo-small.svg" alt="logo" />
-                </div>
-                <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">DARCYGRAPHiX</span>
-                  <span className="truncate text-xs">Advertising</span>
-                </div>
-              </Link>
+            <SidebarMenuButton size="lg" render={<Link to="/" />}>
+              <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-white p-1 text-sidebar-primary-foreground">
+                <img src="/logo-small.svg" alt="logo" />
+              </div>
+              <div className="grid flex-1 text-left text-sm leading-tight">
+                <span className="truncate font-medium">DARCYGRAPHiX</span>
+                <span className="truncate text-xs">Advertising</span>
+              </div>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

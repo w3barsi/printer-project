@@ -114,11 +114,11 @@ export function EntryWrapper({
           <DownloadIcon />
           Download
         </ContextMenuItem>
-        <ContextMenuItem onSelect={() => setOpenRename(true)}>
+        <ContextMenuItem onClick={() => setOpenRename(true)}>
           <PenLineIcon />
           Rename
         </ContextMenuItem>
-        <ContextMenuItem onSelect={async () => await navigator.clipboard.writeText(link)}>
+        <ContextMenuItem onClick={async () => await navigator.clipboard.writeText(link)}>
           <CopyIcon />
           Copy Link
         </ContextMenuItem>
@@ -169,10 +169,10 @@ function Entry({ d }: { d: GetDriveType }) {
       {/* Actions */}
       <div className="flex items-center gap-1">
         <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button size="sm" variant="ghost" className="h-8 w-8 p-0">
-              <MoreHorizontalIcon className="h-4 w-4" />
-            </Button>
+          <DropdownMenuTrigger
+            render={<Button size="sm" variant="ghost" className="h-8 w-8 p-0" />}
+          >
+            <MoreHorizontalIcon className="h-4 w-4" />
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem

@@ -49,13 +49,11 @@ export function TrelloSidebar() {
   if (isError) {
     return (
       <Tooltip>
-        <TooltipTrigger asChild>
-          <SidebarMenuItem>
-            <SidebarMenuButton tooltip="Trello API Error" disabled>
-              <TrelloIcon className="text-red-500" />
-              <span className="text-red-500">Trello</span>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
+        <TooltipTrigger render={<SidebarMenuItem />}>
+          <SidebarMenuButton tooltip="Trello API Error" disabled>
+            <TrelloIcon className="text-red-500" />
+            <span className="text-red-500">Trello</span>
+          </SidebarMenuButton>
         </TooltipTrigger>
         <TooltipContent side="right" align="start">
           Trello API Error
@@ -74,54 +72,58 @@ export function TrelloSidebar() {
   }
 
   return (
-    <Collapsible asChild defaultOpen={isOpen}>
-      <SidebarMenuItem>
-        <SidebarMenuButton asChild tooltip="Trello" isActive={!!match}>
+    <Collapsible defaultOpen={isOpen} render={<SidebarMenuItem />}>
+      <SidebarMenuButton
+        tooltip="Trello"
+        isActive={!!match}
+        render={
           <Link
             to="/app/trello"
             onClick={() => isMobile && setOpenMobile(false)}
             tabIndex={0}
-          >
-            <TrelloIcon />
-            <span>Trello</span>
-          </Link>
-        </SidebarMenuButton>
-        {lists?.length ? (
-          <>
-            <CollapsibleTrigger asChild>
+          />
+        }
+      >
+        <TrelloIcon />
+        <span>Trello</span>
+      </SidebarMenuButton>
+      {lists?.length ? (
+        <>
+          <CollapsibleTrigger
+            render={
               <SidebarMenuAction
-                className="border border-neutral-500/20 hover:bg-neutral-500/10 data-[state=open]:rotate-90 dark:hover:bg-neutral-500/70"
+                className="border border-neutral-500/20 hover:bg-neutral-500/10 data-open:rotate-90 dark:hover:bg-neutral-500/70"
                 onClick={() => setIsOpen(!isOpen)}
-              >
-                <ChevronRight />
-                <span className="sr-only">Toggle</span>
-              </SidebarMenuAction>
-            </CollapsibleTrigger>
-            <CollapsibleContent>
-              <SidebarMenuSub>
-                {lists.map((list) => (
-                  <SidebarMenuSubItem key={list.id}>
-                    <SidebarMenuSubButton
-                      asChild
-                      isActive={listMatch?.params?.listId === list.id}
-                    >
+              />
+            }
+          >
+            <ChevronRight />
+            <span className="sr-only">Toggle</span>
+          </CollapsibleTrigger>
+          <CollapsibleContent>
+            <SidebarMenuSub>
+              {lists.map((list) => (
+                <SidebarMenuSubItem key={list.id}>
+                  <SidebarMenuSubButton
+                    isActive={listMatch?.params?.listId === list.id}
+                    render={
                       <Link
                         to={`/app/trello/$listId`}
                         params={{ listId: list.id }}
                         onClick={() => isMobile && setOpenMobile(false)}
                         preload={false}
                         tabIndex={0}
-                      >
-                        <span>{list.name}</span>
-                      </Link>
-                    </SidebarMenuSubButton>
-                  </SidebarMenuSubItem>
-                ))}
-              </SidebarMenuSub>
-            </CollapsibleContent>
-          </>
-        ) : null}
-      </SidebarMenuItem>
+                      />
+                    }
+                  >
+                    <span>{list.name}</span>
+                  </SidebarMenuSubButton>
+                </SidebarMenuSubItem>
+              ))}
+            </SidebarMenuSub>
+          </CollapsibleContent>
+        </>
+      ) : null}
     </Collapsible>
   );
 }

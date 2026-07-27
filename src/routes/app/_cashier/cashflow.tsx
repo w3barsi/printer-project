@@ -374,15 +374,17 @@ function CashflowHeader() {
             <CalendarIcon className="size-4" />
           </Label>
           <Popover open={open} onOpenChange={setOpen}>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                id="date"
-                className="w-48 justify-between font-normal"
-              >
-                {selected.toLocaleDateString()}
-                <ChevronDownIcon />
-              </Button>
+            <PopoverTrigger
+              render={
+                <Button
+                  variant="outline"
+                  id="date"
+                  className="w-48 justify-between font-normal"
+                />
+              }
+            >
+              {selected.toLocaleDateString()}
+              <ChevronDownIcon />
             </PopoverTrigger>
             <PopoverContent className="w-auto overflow-hidden p-0" align="start">
               <Calendar

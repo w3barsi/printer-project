@@ -45,13 +45,19 @@ export function OrderConfirmation({ order }: { order: SubmittedOrder }) {
         </div>
       )}
       <div className="mt-7 flex flex-wrap justify-center gap-3">
-        <ShopButton asChild variant="primary">
-          <a href={getShopOrderHref(SHOP_ORDER_SUPPORTED_SERVICE_SLUG)}>
-            Start another order
-          </a>
+        <ShopButton
+          render={
+            <a
+              href={getShopOrderHref(SHOP_ORDER_SUPPORTED_SERVICE_SLUG)}
+              aria-label="Start another order"
+            />
+          }
+          variant="primary"
+        >
+          Start another order
         </ShopButton>
-        <ShopButton asChild variant="ghost">
-          <Link to="/">Back to home</Link>
+        <ShopButton render={<Link to="/" />} variant="ghost">
+          Back to home
         </ShopButton>
       </div>
     </section>

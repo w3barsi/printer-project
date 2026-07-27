@@ -1,11 +1,9 @@
-"use client";
-
 import {
   CircleCheckIcon,
   InfoIcon,
-  Loader2Icon,
-  OctagonXIcon,
   TriangleAlertIcon,
+  OctagonXIcon,
+  Loader2Icon,
 } from "lucide-react";
 import { Toaster as Sonner, type ToasterProps } from "sonner";
 

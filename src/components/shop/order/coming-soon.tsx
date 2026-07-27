@@ -27,13 +27,22 @@ export function ComingSoon({
           and staff will help you quote it manually.
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-3">
-          <ShopButton asChild variant="primary">
-            <a href="/#contact">Contact Us</a>
+          <ShopButton
+            render={<a href="/#contact" aria-label="Contact us" />}
+            variant="primary"
+          >
+            Contact Us
           </ShopButton>
-          <ShopButton asChild variant="ghost">
-            <a href={getShopOrderHref(SHOP_ORDER_SUPPORTED_SERVICE_SLUG)}>
-              Order tarpaulin
-            </a>
+          <ShopButton
+            render={
+              <a
+                href={getShopOrderHref(SHOP_ORDER_SUPPORTED_SERVICE_SLUG)}
+                aria-label="Order tarpaulin"
+              />
+            }
+            variant="ghost"
+          >
+            Order tarpaulin
           </ShopButton>
         </div>
       </section>

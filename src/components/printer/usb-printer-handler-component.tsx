@@ -12,15 +12,18 @@ export function UsbPrinterHandlerComponent() {
           Connect Printer
         </Button>
       ) : (
-        <Tooltip delayDuration={300}>
-          <TooltipTrigger asChild>
-            <Button
-              className="w-full"
-              variant="destructive-outline"
-              onClick={disconnectDevice}
-            >
-              {device.productName}
-            </Button>
+        <Tooltip>
+          <TooltipTrigger
+            delay={300}
+            render={
+              <Button
+                className="w-full"
+                variant="destructive"
+                onClick={disconnectDevice}
+              />
+            }
+          >
+            {device.productName}
           </TooltipTrigger>
           <TooltipContent>Disconnect Printer</TooltipContent>
         </Tooltip>

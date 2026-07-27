@@ -1,7 +1,7 @@
 import type { ErrorComponentProps } from "@tanstack/react-router";
 import { ErrorComponent, Link, rootRouteId, useMatch } from "@tanstack/react-router";
 
-import { Button } from "./ui/button";
+import { Button, buttonVariants } from "./ui/button";
 
 export function DefaultCatchBoundary({ error }: Readonly<ErrorComponentProps>) {
   const isRoot = useMatch({
@@ -24,21 +24,20 @@ export function DefaultCatchBoundary({ error }: Readonly<ErrorComponentProps>) {
           Try Again
         </Button>
         {isRoot ? (
-          <Button asChild variant="secondary">
-            <Link to="/">Home</Link>
-          </Button>
+          <Link to="/" className={buttonVariants({ variant: "secondary" })}>
+            Home
+          </Link>
         ) : (
-          <Button asChild variant="secondary">
-            <Link
-              to="/"
-              onClick={(e) => {
-                e.preventDefault();
-                window.history.back();
-              }}
-            >
-              Go Back
-            </Link>
-          </Button>
+          <Link
+            to="/"
+            className={buttonVariants({ variant: "secondary" })}
+            onClick={(e) => {
+              e.preventDefault();
+              window.history.back();
+            }}
+          >
+            Go Back
+          </Link>
         )}
       </div>
     </div>

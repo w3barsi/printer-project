@@ -61,11 +61,17 @@ export function ShopHero() {
           </p>
 
           <div className="shop-rise shop-rise-5 mt-10 flex flex-wrap items-center gap-4">
-            <ShopButton asChild variant="primary">
-              <a href="#contact">Request a quote</a>
+            <ShopButton
+              render={<a href="#contact" aria-label="Request a quote" />}
+              variant="primary"
+            >
+              Request a quote
             </ShopButton>
-            <ShopButton asChild variant="ghost">
-              <a href="#services">See services</a>
+            <ShopButton
+              render={<a href="#services" aria-label="See services" />}
+              variant="ghost"
+            >
+              See services
             </ShopButton>
           </div>
         </div>

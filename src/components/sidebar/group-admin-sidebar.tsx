@@ -19,20 +19,21 @@ export function AdminSidebarGroup() {
     <>
       {user.role === "admin" ? (
         <SidebarGroup>
-          <SidebarGroupLabel asChild>
-            <span>Admin</span>
-          </SidebarGroupLabel>
+          <SidebarGroupLabel render={<span />}>Admin</SidebarGroupLabel>
           <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton asChild isActive={!!match}>
-                <Link
-                  to={`/app/admin/users`}
-                  onClick={() => isMobile && setOpenMobile(false)}
-                  tabIndex={0}
-                >
-                  <ShieldUserIcon />
-                  <span>User Management</span>
-                </Link>
+              <SidebarMenuButton
+                isActive={!!match}
+                render={
+                  <Link
+                    to={`/app/admin/users`}
+                    onClick={() => isMobile && setOpenMobile(false)}
+                    tabIndex={0}
+                  />
+                }
+              >
+                <ShieldUserIcon />
+                <span>User Management</span>
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>

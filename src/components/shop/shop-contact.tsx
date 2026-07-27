@@ -31,11 +31,22 @@ export function ShopContact() {
         </p>
 
         <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
-          <ShopButton asChild variant="primary">
-            <a href="mailto:darcygraphix@yahoo.com">darcygraphix@yahoo.com</a>
+          <ShopButton
+            render={
+              <a
+                href="mailto:darcygraphix@yahoo.com"
+                aria-label="Email darcygraphix@yahoo.com"
+              />
+            }
+            variant="primary"
+          >
+            darcygraphix@yahoo.com
           </ShopButton>
-          <ShopButton asChild variant="ghost">
-            <a href="#services">Browse services</a>
+          <ShopButton
+            render={<a href="#services" aria-label="Browse services" />}
+            variant="ghost"
+          >
+            Browse services
           </ShopButton>
         </div>
 

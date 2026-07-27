@@ -26,6 +26,7 @@ import { Kbd } from "../ui/kbd";
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
   SelectTrigger,
   SelectValue,
@@ -40,6 +41,14 @@ const formSchema = z.object({
 });
 
 type FormData = z.infer<typeof formSchema>;
+
+const paymentTypeItems: Array<{
+  label: string;
+  value: FormData["paymentType"];
+}> = [
+  { label: "Cash", value: "cash" },
+  { label: "Bank", value: "bank" },
+];
 
 export function AddPaymentDialog({
   joId,
@@ -122,12 +131,8 @@ export function AddPaymentDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <Tooltip>
-        <TooltipTrigger asChild>
-          <DialogTrigger asChild>
-            <Button size="lg">
-              <PlusIcon /> Add Payment
-            </Button>
-          </DialogTrigger>
+        <TooltipTrigger render={<DialogTrigger render={<Button size="lg" />} />}>
+          <PlusIcon /> Add Payment
         </TooltipTrigger>
         <TooltipContent>
           <div className="flex items-center gap-2">
@@ -180,6 +185,7 @@ export function AddPaymentDialog({
               <Field data-invalid={fieldState.invalid}>
                 <FieldLabel htmlFor="payment-type">Payment Type</FieldLabel>
                 <Select
+                  items={paymentTypeItems}
                   name={field.name}
                   value={field.value}
                   onValueChange={field.onChange}
@@ -188,8 +194,13 @@ export function AddPaymentDialog({
                     <SelectValue placeholder="Select payment type" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="cash">Cash</SelectItem>
-                    <SelectItem value="bank">Bank</SelectItem>
+                    <SelectGroup>
+                      {paymentTypeItems.map((item) => (
+                        <SelectItem key={item.value} value={item.value}>
+                          {item.label}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
                   </SelectContent>
                 </Select>
                 {fieldState.invalid && <FieldError errors={[fieldState.error]} />}

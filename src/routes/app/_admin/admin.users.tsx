@@ -130,10 +130,8 @@ function UserManagementTable() {
                 <TableCell>{u.email || "-"}</TableCell>
                 <TableCell>
                   <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="outline" size="sm">
-                        {u.role || "user"}
-                      </Button>
+                    <DropdownMenuTrigger render={<Button variant="outline" size="sm" />}>
+                      {u.role || "user"}
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="start">
                       <DropdownMenuItem onClick={() => onChangeRole(u.id, "admin")}>
@@ -156,10 +154,10 @@ function UserManagementTable() {
                 </TableCell>
                 <TableCell className="pr-4 text-right">
                   <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" aria-label="Actions">
-                        <MoreVerticalIcon className="size-4" />
-                      </Button>
+                    <DropdownMenuTrigger
+                      render={<Button variant="ghost" size="icon" aria-label="Actions" />}
+                    >
+                      <MoreVerticalIcon className="size-4" />
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem

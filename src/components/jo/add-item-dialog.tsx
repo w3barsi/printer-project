@@ -94,12 +94,8 @@ export function AddItemDialog({ joId }: { joId: Id<"jo"> }) {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <Tooltip>
-        <TooltipTrigger asChild>
-          <DialogTrigger asChild>
-            <Button size="lg">
-              <PlusIcon className="" /> Add Item
-            </Button>
-          </DialogTrigger>
+        <TooltipTrigger render={<DialogTrigger render={<Button size="lg" />} />}>
+          <PlusIcon className="" /> Add Item
         </TooltipTrigger>
         <TooltipContent>
           <div className="flex items-center gap-2">

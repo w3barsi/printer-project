@@ -61,9 +61,7 @@ function Crumb({ idx, crumb }: { idx: number; crumb: CrumbType }) {
       {idx !== 0 && <BreadcrumbSeparator />}
       {crumb.type === "static" ? (
         <BreadcrumbItem>
-          <BreadcrumbLink asChild>
-            <Link to={crumb.href}>{crumb.value}</Link>
-          </BreadcrumbLink>
+          <BreadcrumbLink render={<Link to={crumb.href} />}>{crumb.value}</BreadcrumbLink>
         </BreadcrumbItem>
       ) : null}
 
