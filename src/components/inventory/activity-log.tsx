@@ -263,8 +263,8 @@ function ActivityRow({ activity }: { activity: InventoryActivity }) {
   const itemChanged =
     activity.itemNameBefore && activity.itemNameBefore !== activity.itemNameAfter;
   const supplierChanged =
-    activity.supplierNameBefore &&
-    activity.supplierNameBefore !== activity.supplierNameAfter;
+    activity.operation === "details_updated" &&
+    activity.supplierIdBefore !== activity.supplierIdAfter;
   const delta =
     activity.quantityDelta > 0
       ? `+${activity.quantityDelta.toLocaleString()}`
@@ -294,7 +294,7 @@ function ActivityRow({ activity }: { activity: InventoryActivity }) {
         <div className="flex min-w-36 flex-col">
           <span className="font-medium">{activity.itemNameAfter}</span>
           <span className="text-xs text-muted-foreground">
-            {activity.supplierNameAfter}
+            {activity.supplierNameAfter ?? "No supplier"}
           </span>
           <span className="text-xs text-muted-foreground md:hidden">
             Recorded by {activity.actorName} · Balance{" "}
@@ -313,7 +313,7 @@ function ActivityRow({ activity }: { activity: InventoryActivity }) {
               Previously{" "}
               {[
                 itemChanged ? activity.itemNameBefore : null,
-                supplierChanged ? activity.supplierNameBefore : null,
+                supplierChanged ? (activity.supplierNameBefore ?? "No supplier") : null,
               ]
                 .filter(Boolean)
                 .join(" · ")}

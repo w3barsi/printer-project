@@ -75,7 +75,7 @@ export default defineSchema({
   inventoryItems: defineTable({
     name: v.string(),
     quantity: v.number(),
-    supplierId: v.id("inventorySuppliers"),
+    supplierId: v.optional(v.id("inventorySuppliers")),
     createdBy: v.id("users"),
   })
     .index("by_name", ["name"])
@@ -98,8 +98,8 @@ export default defineSchema({
     itemNameAfter: v.string(),
     supplierIdBefore: v.optional(v.id("inventorySuppliers")),
     supplierNameBefore: v.optional(v.string()),
-    supplierIdAfter: v.id("inventorySuppliers"),
-    supplierNameAfter: v.string(),
+    supplierIdAfter: v.optional(v.id("inventorySuppliers")),
+    supplierNameAfter: v.optional(v.string()),
   })
     .index("by_inventory_item_id", ["inventoryItemId"])
     .index("by_action", ["action"])

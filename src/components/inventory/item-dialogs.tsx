@@ -54,7 +54,7 @@ export type InventoryListItem = Doc<"inventoryItems"> & {
 
 const addItemSchema = z.object({
   name: z.string().trim().min(1, "Item name is required").max(120),
-  supplierId: z.string().min(1, "Select a supplier"),
+  supplierId: z.string(),
   initialQuantity: z
     .number()
     .int("Quantity must be a whole number")
@@ -123,7 +123,9 @@ export function AddInventoryItemDialog() {
           onSubmit={form.handleSubmit((values) =>
             mutation.mutate({
               ...values,
-              supplierId: values.supplierId as Id<"inventorySuppliers">,
+              supplierId: values.supplierId
+                ? (values.supplierId as Id<"inventorySuppliers">)
+                : undefined,
               reason: values.reason || undefined,
             }),
           )}
@@ -152,7 +154,9 @@ export function AddInventoryItemDialog() {
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="inventory-item-supplier">Supplier</FieldLabel>
+                  <FieldLabel htmlFor="inventory-item-supplier">
+                    Supplier (optional)
+                  </FieldLabel>
                   <SupplierCombobox
                     id="inventory-item-supplier"
                     value={field.value ? (field.value as Id<"inventorySuppliers">) : null}
@@ -561,7 +565,7 @@ function StockAdjustmentDialog({
 
 const editItemSchema = z.object({
   name: z.string().trim().min(1, "Item name is required").max(120),
-  supplierId: z.string().min(1, "Select a supplier"),
+  supplierId: z.string(),
   reason: z.string().trim().min(1, "Reason is required").max(500),
 });
 
@@ -581,7 +585,7 @@ function EditItemDetailsDialog({
     resolver: zodResolver(editItemSchema),
     defaultValues: {
       name: item.name,
-      supplierId: item.supplierId,
+      supplierId: item.supplierId ?? "",
       reason: "",
     },
   });
@@ -610,7 +614,9 @@ function EditItemDetailsDialog({
             mutation.mutate({
               inventoryItemId: item._id,
               name: values.name,
-              supplierId: values.supplierId as Id<"inventorySuppliers">,
+              supplierId: values.supplierId
+                ? (values.supplierId as Id<"inventorySuppliers">)
+                : undefined,
               reason: values.reason,
             }),
           )}
@@ -638,11 +644,13 @@ function EditItemDetailsDialog({
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor={`${fieldId}-supplier`}>Supplier</FieldLabel>
+                  <FieldLabel htmlFor={`${fieldId}-supplier`}>
+                    Supplier (optional)
+                  </FieldLabel>
                   <SupplierCombobox
                     id={`${fieldId}-supplier`}
-                    value={field.value as Id<"inventorySuppliers">}
-                    initialLabel={item.supplierName}
+                    value={field.value ? (field.value as Id<"inventorySuppliers">) : null}
+                    initialLabel={item.supplierId ? item.supplierName : undefined}
                     onValueChange={field.onChange}
                     disabled={mutation.isPending}
                     invalid={fieldState.invalid}

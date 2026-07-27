@@ -33,7 +33,7 @@ type SupplierComboboxOption = SupplierOption | CreateSupplierOption;
 
 type SupplierComboboxProps = {
   value: Id<"inventorySuppliers"> | null;
-  onValueChange: (value: Id<"inventorySuppliers">) => void;
+  onValueChange: (value: Id<"inventorySuppliers"> | null) => void;
   id?: string;
   initialLabel?: string;
   disabled?: boolean;
@@ -139,7 +139,12 @@ export function SupplierCombobox({
       }
       onInputValueChange={(nextSearch) => setSearch(nextSearch)}
       onValueChange={(option) => {
-        if (!option) return;
+        if (!option) {
+          onValueChange(null);
+          setSelectedName(undefined);
+          setSearch("");
+          return;
+        }
 
         if (option.kind === "create") {
           createMutation.mutate({ name: option.name });
@@ -154,6 +159,7 @@ export function SupplierCombobox({
       <ComboboxInput
         id={inputId}
         placeholder="Search or create a supplier..."
+        showClear={Boolean(value)}
         aria-invalid={invalid}
         disabled={disabled || createMutation.isPending}
         className="w-full"

@@ -32,7 +32,7 @@ const inventoryItemListItemValidator = v.object({
   _creationTime: v.number(),
   name: v.string(),
   quantity: v.number(),
-  supplierId: v.id("inventorySuppliers"),
+  supplierId: v.optional(v.id("inventorySuppliers")),
   supplierName: v.string(),
   createdBy: v.id("users"),
   createdByName: v.string(),
@@ -41,7 +41,7 @@ const inventoryItemListItemValidator = v.object({
 const inventoryItemOptionValidator = v.object({
   _id: v.id("inventoryItems"),
   name: v.string(),
-  supplierId: v.id("inventorySuppliers"),
+  supplierId: v.optional(v.id("inventorySuppliers")),
   supplierName: v.string(),
 });
 
@@ -61,8 +61,8 @@ const inventoryActivityValidator = v.object({
   itemNameAfter: v.string(),
   supplierIdBefore: v.optional(v.id("inventorySuppliers")),
   supplierNameBefore: v.optional(v.string()),
-  supplierIdAfter: v.id("inventorySuppliers"),
-  supplierNameAfter: v.string(),
+  supplierIdAfter: v.optional(v.id("inventorySuppliers")),
+  supplierNameAfter: v.optional(v.string()),
 });
 
 type InventoryActivityInput = Omit<Doc<"inventoryActivities">, "_id" | "_creationTime">;
@@ -90,11 +90,9 @@ async function getItemAndSupplier(
     throw new Error("Inventory item not found");
   }
 
-  const supplier = await db.get("inventorySuppliers", item.supplierId);
-
-  if (!supplier) {
-    throw new Error("Inventory item supplier not found");
-  }
+  const supplier = item.supplierId
+    ? await db.get("inventorySuppliers", item.supplierId)
+    : null;
 
   return {
     item,
@@ -167,7 +165,7 @@ export const renameSupplier = authedMutation({
 export const createItem = authedMutation({
   args: {
     name: v.string(),
-    supplierId: v.id("inventorySuppliers"),
+    supplierId: v.optional(v.id("inventorySuppliers")),
     initialQuantity: v.number(),
     reason: v.optional(v.string()),
   },
@@ -177,16 +175,18 @@ export const createItem = authedMutation({
     const { name } = validateInventoryName(args.name, "Item name");
     const initialQuantity = validateNonNegativeQuantity(args.initialQuantity);
     const reason = normalizeOptionalReason(args.reason);
-    const supplier = await ctx.db.get("inventorySuppliers", args.supplierId);
+    const supplier = args.supplierId
+      ? await ctx.db.get("inventorySuppliers", args.supplierId)
+      : null;
 
-    if (!supplier) {
+    if (args.supplierId && !supplier) {
       throw new Error("Supplier not found");
     }
 
     const inventoryItemId = await ctx.db.insert("inventoryItems", {
       name,
       quantity: initialQuantity,
-      supplierId: supplier._id,
+      ...(supplier ? { supplierId: supplier._id } : {}),
       createdBy: actor._id,
     });
 
@@ -201,8 +201,9 @@ export const createItem = authedMutation({
       createdBy: actor._id,
       actorName: actor.name,
       itemNameAfter: name,
-      supplierIdAfter: supplier._id,
-      supplierNameAfter: supplier.name,
+      ...(supplier
+        ? { supplierIdAfter: supplier._id, supplierNameAfter: supplier.name }
+        : {}),
     });
 
     return inventoryItemId;
@@ -239,10 +240,14 @@ export const addStock = authedMutation({
       actorName: actor.name,
       itemNameBefore: item.name,
       itemNameAfter: item.name,
-      supplierIdBefore: supplier._id,
-      supplierNameBefore: supplier.name,
-      supplierIdAfter: supplier._id,
-      supplierNameAfter: supplier.name,
+      ...(supplier
+        ? {
+            supplierIdBefore: supplier._id,
+            supplierNameBefore: supplier.name,
+            supplierIdAfter: supplier._id,
+            supplierNameAfter: supplier.name,
+          }
+        : {}),
     });
 
     return null;
@@ -284,10 +289,14 @@ export const removeStock = authedMutation({
       actorName: actor.name,
       itemNameBefore: item.name,
       itemNameAfter: item.name,
-      supplierIdBefore: supplier._id,
-      supplierNameBefore: supplier.name,
-      supplierIdAfter: supplier._id,
-      supplierNameAfter: supplier.name,
+      ...(supplier
+        ? {
+            supplierIdBefore: supplier._id,
+            supplierNameBefore: supplier.name,
+            supplierIdAfter: supplier._id,
+            supplierNameAfter: supplier.name,
+          }
+        : {}),
     });
 
     return null;
@@ -327,10 +336,14 @@ export const correctQuantity = authedMutation({
       actorName: actor.name,
       itemNameBefore: item.name,
       itemNameAfter: item.name,
-      supplierIdBefore: supplier._id,
-      supplierNameBefore: supplier.name,
-      supplierIdAfter: supplier._id,
-      supplierNameAfter: supplier.name,
+      ...(supplier
+        ? {
+            supplierIdBefore: supplier._id,
+            supplierNameBefore: supplier.name,
+            supplierIdAfter: supplier._id,
+            supplierNameAfter: supplier.name,
+          }
+        : {}),
     });
 
     return null;
@@ -341,7 +354,7 @@ export const updateItemDetails = authedMutation({
   args: {
     inventoryItemId: v.id("inventoryItems"),
     name: v.string(),
-    supplierId: v.id("inventorySuppliers"),
+    supplierId: v.optional(v.id("inventorySuppliers")),
     reason: v.string(),
   },
   returns: v.null(),
@@ -354,21 +367,23 @@ export const updateItemDetails = authedMutation({
       args.inventoryItemId,
     );
     const nextSupplier =
-      args.supplierId === previousSupplier._id
+      args.supplierId === previousSupplier?._id
         ? previousSupplier
-        : await ctx.db.get("inventorySuppliers", args.supplierId);
+        : args.supplierId
+          ? await ctx.db.get("inventorySuppliers", args.supplierId)
+          : null;
 
-    if (!nextSupplier) {
+    if (args.supplierId && !nextSupplier) {
       throw new Error("Supplier not found");
     }
 
-    if (name === item.name && nextSupplier._id === previousSupplier._id) {
+    if (name === item.name && nextSupplier?._id === previousSupplier?._id) {
       throw new Error("Item details are unchanged");
     }
 
     await ctx.db.patch("inventoryItems", item._id, {
       name,
-      supplierId: nextSupplier._id,
+      supplierId: nextSupplier?._id,
     });
 
     await insertInventoryActivity(ctx.db, {
@@ -383,10 +398,18 @@ export const updateItemDetails = authedMutation({
       actorName: actor.name,
       itemNameBefore: item.name,
       itemNameAfter: name,
-      supplierIdBefore: previousSupplier._id,
-      supplierNameBefore: previousSupplier.name,
-      supplierIdAfter: nextSupplier._id,
-      supplierNameAfter: nextSupplier.name,
+      ...(previousSupplier
+        ? {
+            supplierIdBefore: previousSupplier._id,
+            supplierNameBefore: previousSupplier.name,
+          }
+        : {}),
+      ...(nextSupplier
+        ? {
+            supplierIdAfter: nextSupplier._id,
+            supplierNameAfter: nextSupplier.name,
+          }
+        : {}),
     });
 
     return null;
@@ -468,13 +491,15 @@ export const listItems = authedQuery({
     const page = await Promise.all(
       result.page.map(async (item) => {
         const [supplier, creator] = await Promise.all([
-          ctx.db.get("inventorySuppliers", item.supplierId),
+          item.supplierId
+            ? ctx.db.get("inventorySuppliers", item.supplierId)
+            : Promise.resolve(null),
           ctx.db.get("users", item.createdBy),
         ]);
 
         return {
           ...item,
-          supplierName: supplier?.name ?? "Unknown supplier",
+          supplierName: supplier?.name ?? "No supplier",
           createdByName: creator?.name ?? "Former user",
         };
       }),
@@ -504,13 +529,15 @@ export const searchItemOptions = authedQuery({
 
     return await Promise.all(
       items.map(async (item) => {
-        const supplier = await ctx.db.get("inventorySuppliers", item.supplierId);
+        const supplier = item.supplierId
+          ? await ctx.db.get("inventorySuppliers", item.supplierId)
+          : null;
 
         return {
           _id: item._id,
           name: item.name,
           supplierId: item.supplierId,
-          supplierName: supplier?.name ?? "Unknown supplier",
+          supplierName: supplier?.name ?? "No supplier",
         };
       }),
     );

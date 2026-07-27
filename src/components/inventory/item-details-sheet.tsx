@@ -228,8 +228,8 @@ function ActivityEntry({
     activity.itemNameBefore !== undefined &&
     activity.itemNameBefore !== activity.itemNameAfter;
   const supplierChanged =
-    activity.supplierNameBefore !== undefined &&
-    activity.supplierNameBefore !== activity.supplierNameAfter;
+    activity.operation === "details_updated" &&
+    activity.supplierIdBefore !== activity.supplierIdAfter;
   const delta =
     activity.quantityDelta > 0
       ? `+${activity.quantityDelta.toLocaleString()}`
@@ -286,9 +286,12 @@ function ActivityEntry({
               <p>
                 Supplier:{" "}
                 <span className="text-muted-foreground">
-                  {activity.supplierNameBefore}
+                  {activity.supplierNameBefore ?? "No supplier"}
                 </span>{" "}
-                to <span className="font-medium">{activity.supplierNameAfter}</span>
+                to{" "}
+                <span className="font-medium">
+                  {activity.supplierNameAfter ?? "No supplier"}
+                </span>
               </p>
             )}
           </div>
