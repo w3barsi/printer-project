@@ -15,6 +15,7 @@ import { Route as ConvexRouteImport } from './routes/convex'
 import { Route as AppRouteRouteImport } from './routes/app/route'
 import { Route as ShopRouteRouteImport } from './routes/_shop/route'
 import { Route as AuthRouteRouteImport } from './routes/_auth/route'
+import { Route as AppIndexRouteImport } from './routes/app/index'
 import { Route as ShopIndexRouteImport } from './routes/_shop/index'
 import { Route as AppTesttrelloRouteImport } from './routes/app/testtrello'
 import { Route as ShopOrderRouteImport } from './routes/_shop/order'
@@ -61,6 +62,11 @@ const ShopRouteRoute = ShopRouteRouteImport.update({
 const AuthRouteRoute = AuthRouteRouteImport.update({
   id: '/_auth',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AppIndexRoute = AppIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppRouteRoute,
 } as any)
 const ShopIndexRoute = ShopIndexRouteImport.update({
   id: '/',
@@ -162,6 +168,7 @@ export interface FileRoutesByFullPath {
   '/signup': typeof AuthSignupRoute
   '/order': typeof ShopOrderRoute
   '/app/testtrello': typeof AppTesttrelloRoute
+  '/app/': typeof AppIndexRoute
   '/showcase/$service': typeof ShopShowcaseServiceRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/app/cashflow': typeof AppCashierCashflowRoute
@@ -176,10 +183,10 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof ShopIndexRoute
-  '/app': typeof AppRouteRouteWithChildren
   '/convex': typeof ConvexRoute
   '/testdnd': typeof TestdndRoute
   '/testfruits': typeof TestfruitsRoute
+  '/app': typeof AppIndexRoute
   '/login': typeof AuthLoginRoute
   '/signup': typeof AuthSignupRoute
   '/order': typeof ShopOrderRoute
@@ -211,6 +218,7 @@ export interface FileRoutesById {
   '/_shop/order': typeof ShopOrderRoute
   '/app/testtrello': typeof AppTesttrelloRoute
   '/_shop/': typeof ShopIndexRoute
+  '/app/': typeof AppIndexRoute
   '/_shop/showcase/$service': typeof ShopShowcaseServiceRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/app/_cashier/cashflow': typeof AppCashierCashflowRoute
@@ -235,6 +243,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/order'
     | '/app/testtrello'
+    | '/app/'
     | '/showcase/$service'
     | '/api/auth/$'
     | '/app/cashflow'
@@ -249,10 +258,10 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/app'
     | '/convex'
     | '/testdnd'
     | '/testfruits'
+    | '/app'
     | '/login'
     | '/signup'
     | '/order'
@@ -283,6 +292,7 @@ export interface FileRouteTypes {
     | '/_shop/order'
     | '/app/testtrello'
     | '/_shop/'
+    | '/app/'
     | '/_shop/showcase/$service'
     | '/api/auth/$'
     | '/app/_cashier/cashflow'
@@ -349,6 +359,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof AuthRouteRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/app/': {
+      id: '/app/'
+      path: '/'
+      fullPath: '/app/'
+      preLoaderRoute: typeof AppIndexRouteImport
+      parentRoute: typeof AppRouteRoute
     }
     '/_shop/': {
       id: '/_shop/'
@@ -541,6 +558,7 @@ interface AppRouteRouteChildren {
   AppAdminRouteRoute: typeof AppAdminRouteRouteWithChildren
   AppCashierRouteRoute: typeof AppCashierRouteRouteWithChildren
   AppTesttrelloRoute: typeof AppTesttrelloRoute
+  AppIndexRoute: typeof AppIndexRoute
   AppDriveChar123DriveChar125Route: typeof AppDriveChar123DriveChar125Route
   AppJoJoIdRoute: typeof AppJoJoIdRoute
   AppTrelloListIdRoute: typeof AppTrelloListIdRoute
@@ -552,6 +570,7 @@ const AppRouteRouteChildren: AppRouteRouteChildren = {
   AppAdminRouteRoute: AppAdminRouteRouteWithChildren,
   AppCashierRouteRoute: AppCashierRouteRouteWithChildren,
   AppTesttrelloRoute: AppTesttrelloRoute,
+  AppIndexRoute: AppIndexRoute,
   AppDriveChar123DriveChar125Route: AppDriveChar123DriveChar125Route,
   AppJoJoIdRoute: AppJoJoIdRoute,
   AppTrelloListIdRoute: AppTrelloListIdRoute,
