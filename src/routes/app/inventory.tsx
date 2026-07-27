@@ -93,7 +93,7 @@ function InventoryPage() {
         </div>
       </div>
 
-      <Tabs defaultValue="items">
+      <Tabs defaultValue="items" className="flex-col">
         <TabsList variant="line">
           <TabsTrigger value="items">Stock</TabsTrigger>
           <TabsTrigger value="activity">Activity</TabsTrigger>
