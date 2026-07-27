@@ -13,6 +13,8 @@ import type * as auth from "../auth.js";
 import type * as cashier from "../cashier.js";
 import type * as drive from "../drive.js";
 import type * as http from "../http.js";
+import type * as inventory from "../inventory.js";
+import type * as inventoryHelpers from "../inventoryHelpers.js";
 import type * as items from "../items.js";
 import type * as jo from "../jo.js";
 import type * as migrations from "../migrations.js";
@@ -37,6 +39,8 @@ declare const fullApi: ApiFromModules<{
   cashier: typeof cashier;
   drive: typeof drive;
   http: typeof http;
+  inventory: typeof inventory;
+  inventoryHelpers: typeof inventoryHelpers;
   items: typeof items;
   jo: typeof jo;
   migrations: typeof migrations;

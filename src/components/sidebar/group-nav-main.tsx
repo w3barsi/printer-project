@@ -1,5 +1,5 @@
 import { Link, useMatch, useRouteContext } from "@tanstack/react-router";
-import { HardDriveIcon, PiggyBankIcon } from "lucide-react";
+import { BoxesIcon, HardDriveIcon, PiggyBankIcon } from "lucide-react";
 
 import {
   SidebarGroup,
@@ -16,10 +16,31 @@ export function MainNavGroup() {
     <SidebarGroup>
       <SidebarMenu>
         <CashflowSidebarItem />
+        <InventorySidebarItem />
         <DriveSidebarItem />
         <TrelloSidebar />
       </SidebarMenu>
     </SidebarGroup>
+  );
+}
+
+function InventorySidebarItem() {
+  const { isMobile, setOpenMobile } = useSidebar();
+  const match = useMatch({ from: "/app/inventory", shouldThrow: false });
+
+  return (
+    <SidebarMenuItem>
+      <SidebarMenuButton asChild tooltip="Inventory" isActive={!!match}>
+        <Link
+          to="/app/inventory"
+          onClick={() => isMobile && setOpenMobile(false)}
+          tabIndex={0}
+        >
+          <BoxesIcon />
+          <span>Inventory</span>
+        </Link>
+      </SidebarMenuButton>
+    </SidebarMenuItem>
   );
 }
 
