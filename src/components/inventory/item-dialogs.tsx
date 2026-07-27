@@ -245,7 +245,7 @@ export function InventoryItemActions({ item }: { item: InventoryListItem }) {
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => setAction("correct")}>
               <RefreshCwIcon />
-              Correct count
+              Update stock
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => setAction("edit")}>
               <PencilIcon />
@@ -273,6 +273,50 @@ export function InventoryItemActions({ item }: { item: InventoryListItem }) {
           }}
         />
       ) : null}
+    </>
+  );
+}
+
+export function InventoryStockActions({ item }: { item: InventoryListItem }) {
+  const [action, setAction] = useState<StockMode | null>(null);
+
+  return (
+    <>
+      <div className="grid grid-cols-3 gap-2">
+        <Button type="button" size="sm" onClick={() => setAction("add")}>
+          <PackagePlusIcon data-icon="inline-start" />
+          Add
+        </Button>
+        <Button
+          type="button"
+          variant="destructive"
+          size="sm"
+          onClick={() => setAction("remove")}
+        >
+          <MinusIcon data-icon="inline-start" />
+          Remove
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={() => setAction("correct")}
+        >
+          <RefreshCwIcon data-icon="inline-start" />
+          Update
+        </Button>
+      </div>
+
+      {action && (
+        <StockAdjustmentDialog
+          item={item}
+          mode={action}
+          open
+          onOpenChange={(nextOpen) => {
+            if (!nextOpen) setAction(null);
+          }}
+        />
+      )}
     </>
   );
 }
@@ -335,7 +379,7 @@ function StockAdjustmentDialog({
             message: "Quantity must be at least 1",
           });
         }
-        if (mode !== "add" && !values.reason.trim()) {
+        if (mode === "correct" && !values.reason.trim()) {
           context.addIssue({
             code: "custom",
             path: ["reason"],
@@ -377,7 +421,7 @@ function StockAdjustmentDialog({
         return await removeStock({
           inventoryItemId: item._id,
           quantity: values.quantity,
-          reason: values.reason,
+          reason: values.reason.trim() || undefined,
         });
       }
 
@@ -470,7 +514,7 @@ function StockAdjustmentDialog({
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor={`${fieldId}-reason`}>
                     Reason
-                    {mode === "add" && (
+                    {mode !== "correct" && (
                       <span className="text-muted-foreground">(optional)</span>
                     )}
                   </FieldLabel>
@@ -480,7 +524,9 @@ function StockAdjustmentDialog({
                     placeholder={
                       mode === "add"
                         ? "Delivery, returned materials..."
-                        : "Required for the activity log"
+                        : mode === "remove"
+                          ? "Usage, damage, disposal..."
+                          : "Required for the activity log"
                     }
                     aria-invalid={fieldState.invalid}
                     disabled={mutation.isPending}

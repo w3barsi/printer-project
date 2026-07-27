@@ -128,6 +128,9 @@ function InventoryTable() {
       },
     }),
   );
+  const currentSelectedItem = selectedItem
+    ? (data.page.find((item) => item._id === selectedItem._id) ?? selectedItem)
+    : null;
 
   if (data.page.length === 0 && cursorHistory.length === 0) {
     return (
@@ -270,10 +273,10 @@ function InventoryTable() {
         </div>
       </div>
 
-      {selectedItem && (
+      {currentSelectedItem && (
         <InventoryItemDetailsSheet
-          key={selectedItem._id}
-          item={selectedItem}
+          key={currentSelectedItem._id}
+          item={currentSelectedItem}
           open={detailsOpen}
           onOpenChange={setDetailsOpen}
         />

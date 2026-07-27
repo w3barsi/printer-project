@@ -268,7 +268,8 @@ function ActivityEntry({
         </div>
 
         <p className="mt-2 text-sm">
-          Balance {activity.quantityBefore.toLocaleString()} to{" "}
+          {activity.quantityBefore.toLocaleString()}{" "}
+          <span className="text-muted-foreground">{">"}</span>{" "}
           <span className="font-medium">{activity.quantityAfter.toLocaleString()}</span>
         </p>
 

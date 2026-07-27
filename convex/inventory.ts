@@ -253,13 +253,13 @@ export const removeStock = authedMutation({
   args: {
     inventoryItemId: v.id("inventoryItems"),
     quantity: v.number(),
-    reason: v.string(),
+    reason: v.optional(v.string()),
   },
   returns: v.null(),
   handler: async (ctx, args) => {
     const actor = await requireLocalUser(ctx);
     const removedQuantity = validatePositiveQuantity(args.quantity);
-    const reason = validateRequiredReason(args.reason);
+    const reason = normalizeOptionalReason(args.reason);
     const { item, supplier } = await getItemAndSupplier(ctx.db, args.inventoryItemId);
 
     if (removedQuantity > item.quantity) {
@@ -279,7 +279,7 @@ export const removeStock = authedMutation({
       quantityBefore: item.quantity,
       quantityAfter,
       quantityDelta: -removedQuantity,
-      reason,
+      ...(reason ? { reason } : {}),
       createdBy: actor._id,
       actorName: actor.name,
       itemNameBefore: item.name,
