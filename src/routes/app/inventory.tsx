@@ -10,9 +10,11 @@ import {
   InventoryActivityLog,
   InventoryActivityLogSkeleton,
 } from "@/components/inventory/activity-log";
+import { InventoryItemDetailsSheet } from "@/components/inventory/item-details-sheet";
 import {
   AddInventoryItemDialog,
   InventoryItemActions,
+  type InventoryListItem,
 } from "@/components/inventory/item-dialogs";
 import { SupplierManagerDialog } from "@/components/inventory/supplier-manager-dialog";
 import { Container } from "@/components/layouts/container";
@@ -115,6 +117,8 @@ function InventoryPage() {
 
 function InventoryTable() {
   const [cursorHistory, setCursorHistory] = useState<string[]>([]);
+  const [selectedItem, setSelectedItem] = useState<InventoryListItem | null>(null);
+  const [detailsOpen, setDetailsOpen] = useState(false);
   const cursor = cursorHistory.at(-1) ?? null;
   const { data, isFetching } = useSuspenseQuery(
     convexQuery(api.inventory.listItems, {
@@ -155,9 +159,15 @@ function InventoryTable() {
     setCursorHistory((history) => history.slice(0, -1));
   }
 
+  function showItemDetails(item: InventoryListItem) {
+    setDetailsOpen(false);
+    setSelectedItem(item);
+    requestAnimationFrame(() => setDetailsOpen(true));
+  }
+
   return (
     <div className="flex flex-col gap-3">
-      <Card className="overflow-hidden py-0">
+      <Card className="gap-0 overflow-hidden py-0">
         <CardHeader className="border-b py-4">
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div className="flex flex-col gap-1">
@@ -166,10 +176,6 @@ function InventoryTable() {
                 Current quantities grouped by inventory item and supplier.
               </CardDescription>
             </div>
-            <Badge variant="outline">
-              Page {cursorHistory.length + 1}
-              {isFetching ? " · Updating" : ""}
-            </Badge>
           </div>
         </CardHeader>
         <CardContent className="p-0">
@@ -190,8 +196,24 @@ function InventoryTable() {
               </TableHeader>
               <TableBody>
                 {data.page.map((item) => (
-                  <TableRow key={item._id}>
-                    <TableCell className="font-medium md:pl-4">{item.name}</TableCell>
+                  <TableRow
+                    key={item._id}
+                    className="cursor-pointer"
+                    onClick={() => showItemDetails(item)}
+                  >
+                    <TableCell className="md:pl-4">
+                      <Button
+                        type="button"
+                        variant="link"
+                        className="h-auto justify-start p-0 font-medium"
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          showItemDetails(item);
+                        }}
+                      >
+                        {item.name}
+                      </Button>
+                    </TableCell>
                     <TableCell className="text-muted-foreground">
                       {item.supplierName}
                     </TableCell>
@@ -203,7 +225,10 @@ function InventoryTable() {
                     <TableCell className="hidden text-muted-foreground md:table-cell md:pr-4">
                       {item.createdByName}
                     </TableCell>
-                    <TableCell className="pr-2 text-right">
+                    <TableCell
+                      className="pr-2 text-right"
+                      onClick={(event) => event.stopPropagation()}
+                    >
                       <InventoryItemActions item={item} />
                     </TableCell>
                   </TableRow>
@@ -218,7 +243,7 @@ function InventoryTable() {
         <p className="text-sm text-muted-foreground">
           Showing {data.page.length} item{data.page.length === 1 ? "" : "s"}
         </p>
-        <div className="flex gap-2">
+        <div className="flex items-center gap-2">
           <Button
             type="button"
             variant="outline"
@@ -229,6 +254,9 @@ function InventoryTable() {
             <ArrowLeftIcon data-icon="inline-start" />
             Previous
           </Button>
+          <span className="min-w-6 text-center text-sm text-muted-foreground tabular-nums">
+            {cursorHistory.length + 1}
+          </span>
           <Button
             type="button"
             variant="outline"
@@ -241,6 +269,15 @@ function InventoryTable() {
           </Button>
         </div>
       </div>
+
+      {selectedItem && (
+        <InventoryItemDetailsSheet
+          key={selectedItem._id}
+          item={selectedItem}
+          open={detailsOpen}
+          onOpenChange={setDetailsOpen}
+        />
+      )}
     </div>
   );
 }
