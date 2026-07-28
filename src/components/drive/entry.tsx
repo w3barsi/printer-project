@@ -1,5 +1,6 @@
 import type { Id } from "@convex/_generated/dataModel";
 import { useNavigate, useParams } from "@tanstack/react-router";
+import fileSaver from "file-saver";
 import {
   CopyIcon,
   DownloadIcon,
@@ -16,6 +17,7 @@ import {
 } from "lucide-react";
 import type { ComponentPropsWithRef } from "react";
 import { useState } from "react";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { useSelected } from "@/contexts/SelectedContext";
@@ -49,6 +51,7 @@ export function EntryWrapper({
   const navigate = useNavigate();
 
   const [openRename, setOpenRename] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   const { isSelected, addSelected, removeSelected, selected, clearSelected } =
     useSelected();
@@ -81,6 +84,28 @@ export function EntryWrapper({
     navigate({ to: "/app/drive/{-$drive}", params: { drive: d._id } });
   };
 
+  async function handleDownload() {
+    if (!d.isFile || isDownloading) return;
+
+    setIsDownloading(true);
+
+    try {
+      const response = await fetch(`https://drive.darcygraphix.com/${d.key}`);
+
+      if (!response.ok) {
+        throw new Error(`Download failed with status ${response.status}`);
+      }
+
+      const blob = await response.blob();
+      fileSaver.saveAs(blob, d.name);
+    } catch (error) {
+      console.error(`Failed to download ${d.name}:`, error);
+      toast.error("Failed to download file");
+    } finally {
+      setIsDownloading(false);
+    }
+  }
+
   const link = d.isFile
     ? `https://drive.darcygraphix.com/${d.key}`
     : `${window.location.origin}/app/drive/${d._id}`;
@@ -110,10 +135,12 @@ export function EntryWrapper({
         </div>
       </ContextMenuTrigger>
       <ContextMenuContent>
-        <ContextMenuItem>
-          <DownloadIcon />
-          Download
-        </ContextMenuItem>
+        {d.isFile && (
+          <ContextMenuItem onClick={handleDownload} disabled={isDownloading}>
+            <DownloadIcon />
+            {isDownloading ? "Downloading..." : "Download"}
+          </ContextMenuItem>
+        )}
         <ContextMenuItem onClick={() => setOpenRename(true)}>
           <PenLineIcon />
           Rename
