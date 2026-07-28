@@ -1,3 +1,4 @@
+import type { SelectedItem } from "@/contexts/SelectedContext";
 import { useDriveDrag } from "@/hooks/use-drive-drag";
 import { extractId } from "@/lib/drive/drag-utils";
 import { cn } from "@/lib/utils";
@@ -7,6 +8,7 @@ import { EntryWrapper } from "./entry";
 
 interface DriveItemProps {
   item: GetDriveType;
+  selectionOrder: SelectedItem[];
   activeId: string | null;
   sharedTransform: { x: number; y: number } | null;
   isOverTrash: boolean;
@@ -14,6 +16,7 @@ interface DriveItemProps {
 
 export function DriveItem({
   item,
+  selectionOrder,
   activeId,
   sharedTransform,
   isOverTrash,
@@ -41,11 +44,12 @@ export function DriveItem({
   return (
     <EntryWrapper
       d={item}
+      selectionOrder={selectionOrder}
       style={style}
       ref={setNodeRef}
       className={cn(
         shouldTransform && "opacity-50",
-        isItemSelected && "border-blue-800",
+        isItemSelected && "border border-blue-800",
         isOver && overId !== activeDragId && "border-blue-500",
         isOverTrash && shouldTransform && "border-red-500",
       )}

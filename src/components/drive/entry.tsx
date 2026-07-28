@@ -20,7 +20,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
-import { useSelected } from "@/contexts/SelectedContext";
+import { type SelectedItem, useSelected } from "@/contexts/SelectedContext";
 import { useDeleteFilesOrFolders } from "@/lib/convex/optimistic-mutations";
 import { useGetParentFolder } from "@/lib/get-parent-folder";
 import { cn } from "@/lib/utils";
@@ -46,35 +46,59 @@ export function EntryWrapper({
   className,
   isDragging,
   d,
+  selectionOrder,
   ...props
-}: { isDragging?: boolean; d: GetDriveType } & ComponentPropsWithRef<"div">) {
+}: {
+  isDragging?: boolean;
+  d: GetDriveType;
+  selectionOrder?: SelectedItem[];
+} & ComponentPropsWithRef<"div">) {
   const navigate = useNavigate();
 
   const [openRename, setOpenRename] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
 
-  const { isSelected, addSelected, removeSelected, selected, clearSelected } =
-    useSelected();
+  const {
+    isSelected,
+    addSelected,
+    removeSelected,
+    selected,
+    clearSelected,
+    selectRange,
+    setSelectionAnchor,
+  } = useSelected();
 
   const parent = useGetParentFolder();
 
   const { mutate: deleteMutate } = useDeleteFilesOrFolders(parent);
 
   const handleClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-    if (selected.length === 1 && !e.ctrlKey && isSelected(d._id)) return clearSelected();
-    if (selected.length === 0 && !e.ctrlKey) return addSelected(d._id);
-    if (selected.length > 0 && !e.ctrlKey) {
+    if (e.shiftKey && selectionOrder) {
+      e.preventDefault();
+      selectRange(selectionOrder, d._id);
+      return;
+    }
+
+    if (!e.ctrlKey) {
+      if (selected.length === 1 && isSelected(d._id)) {
+        clearSelected();
+        setSelectionAnchor(d._id);
+        return;
+      }
+
       clearSelected();
       addSelected(d._id);
+      setSelectionAnchor(d._id);
+      return;
     }
-    // if (selected.length > 0 && !e.ctrlKey) return clearSelected();
-    if (!e.ctrlKey) return;
 
     if (isSelected(d._id)) {
       removeSelected(d._id);
     } else {
       addSelected(d._id);
     }
+
+    setSelectionAnchor(d._id);
   };
 
   const handleDoubleClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
@@ -124,7 +148,7 @@ export function EntryWrapper({
           onClick={handleClick}
           onDoubleClick={handleDoubleClick}
           className={cn(
-            "flex h-14 cursor-pointer items-center gap-4 rounded-lg border border-border bg-card px-4 transition-colors duration-200 select-none hover:bg-muted/30",
+            "flex h-14 cursor-pointer items-center gap-4 rounded-lg bg-card px-4 transition-colors duration-200 select-none hover:bg-muted/30",
             isDragging && "hover:bg-muted",
             className,
           )}

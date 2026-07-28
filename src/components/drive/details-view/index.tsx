@@ -13,7 +13,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { FolderOpenIcon } from "lucide-react";
 import { useState } from "react";
 
-import { useSelected } from "@/contexts/SelectedContext";
+import { type SelectedItem, useSelected } from "@/contexts/SelectedContext";
 import { useMoveFilesOrFolders } from "@/lib/convex/optimistic-mutations";
 import { extractId, isTrashTarget, TRASH_ID } from "@/lib/drive/drag-utils";
 import { useDeleteSelected } from "@/lib/drive/use-delete-selected";
@@ -36,6 +36,7 @@ export function DetailsView({ parent }: { parent: Parent }) {
 
   const { selected, clearSelected, addSelected } = useSelected();
   const { data } = useSuspenseQuery(convexQuery(api.drive.getDrive, { parent }));
+  const selectionOrder = data.data.map((item) => item._id as SelectedItem);
 
   const { mutate: moveMutate, isPending: isMoving } = useMoveFilesOrFolders(parent);
   const { deleteSelected, isDeleting } = useDeleteSelected(parent);
@@ -142,6 +143,7 @@ export function DetailsView({ parent }: { parent: Parent }) {
               <DriveItem
                 key={item._id}
                 item={item}
+                selectionOrder={selectionOrder}
                 activeId={activeId}
                 sharedTransform={sharedTransform}
                 isOverTrash={isOverTrash}
