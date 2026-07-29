@@ -32,7 +32,6 @@ Before substantial work:
 - **Styling**: Tailwind + shadcn/ui
 - **Hover**: Do not use translate/lift motion on hover; prefer color, border, or shadow changes.
 - **Convex**: Use `v` validator from convex/values
-- **Testing**: Vitest + React Testing Library
 - **Components**: Use `function ComponentName()` instead of `React.FC<>`
 
 ## Restrictions
@@ -41,6 +40,7 @@ Before substantial work:
 - Do not run `convex dev` or any dev server commands
 - Do not modify `routeTree.gen.ts`
 - Do not modify anything from `convex/_generated/`
+- Do not create, modify, or plan tests for this project. Do not add test dependencies, configuration, scripts, or test files.
 - NEVER run `pnpm check`
 
 ## Todo Management
