@@ -18,6 +18,7 @@ import { Route as AuthRouteRouteImport } from './routes/_auth/route'
 import { Route as AppIndexRouteImport } from './routes/app/index'
 import { Route as ShopIndexRouteImport } from './routes/_shop/index'
 import { Route as AppTesttrelloRouteImport } from './routes/app/testtrello'
+import { Route as AppNewdriveRouteImport } from './routes/app/newdrive'
 import { Route as AppInventoryRouteImport } from './routes/app/inventory'
 import { Route as ShopOrderRouteImport } from './routes/_shop/order'
 import { Route as AuthSignupRouteImport } from './routes/_auth/signup'
@@ -77,6 +78,11 @@ const ShopIndexRoute = ShopIndexRouteImport.update({
 const AppTesttrelloRoute = AppTesttrelloRouteImport.update({
   id: '/testtrello',
   path: '/testtrello',
+  getParentRoute: () => AppRouteRoute,
+} as any)
+const AppNewdriveRoute = AppNewdriveRouteImport.update({
+  id: '/newdrive',
+  path: '/newdrive',
   getParentRoute: () => AppRouteRoute,
 } as any)
 const AppInventoryRoute = AppInventoryRouteImport.update({
@@ -174,6 +180,7 @@ export interface FileRoutesByFullPath {
   '/signup': typeof AuthSignupRoute
   '/order': typeof ShopOrderRoute
   '/app/inventory': typeof AppInventoryRoute
+  '/app/newdrive': typeof AppNewdriveRoute
   '/app/testtrello': typeof AppTesttrelloRoute
   '/app/': typeof AppIndexRoute
   '/showcase/$service': typeof ShopShowcaseServiceRoute
@@ -198,6 +205,7 @@ export interface FileRoutesByTo {
   '/signup': typeof AuthSignupRoute
   '/order': typeof ShopOrderRoute
   '/app/inventory': typeof AppInventoryRoute
+  '/app/newdrive': typeof AppNewdriveRoute
   '/app/testtrello': typeof AppTesttrelloRoute
   '/showcase/$service': typeof ShopShowcaseServiceRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -225,6 +233,7 @@ export interface FileRoutesById {
   '/_auth/signup': typeof AuthSignupRoute
   '/_shop/order': typeof ShopOrderRoute
   '/app/inventory': typeof AppInventoryRoute
+  '/app/newdrive': typeof AppNewdriveRoute
   '/app/testtrello': typeof AppTesttrelloRoute
   '/_shop/': typeof ShopIndexRoute
   '/app/': typeof AppIndexRoute
@@ -252,6 +261,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/order'
     | '/app/inventory'
+    | '/app/newdrive'
     | '/app/testtrello'
     | '/app/'
     | '/showcase/$service'
@@ -276,6 +286,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/order'
     | '/app/inventory'
+    | '/app/newdrive'
     | '/app/testtrello'
     | '/showcase/$service'
     | '/api/auth/$'
@@ -302,6 +313,7 @@ export interface FileRouteTypes {
     | '/_auth/signup'
     | '/_shop/order'
     | '/app/inventory'
+    | '/app/newdrive'
     | '/app/testtrello'
     | '/_shop/'
     | '/app/'
@@ -391,6 +403,13 @@ declare module '@tanstack/react-router' {
       path: '/testtrello'
       fullPath: '/app/testtrello'
       preLoaderRoute: typeof AppTesttrelloRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
+    '/app/newdrive': {
+      id: '/app/newdrive'
+      path: '/newdrive'
+      fullPath: '/app/newdrive'
+      preLoaderRoute: typeof AppNewdriveRouteImport
       parentRoute: typeof AppRouteRoute
     }
     '/app/inventory': {
@@ -577,6 +596,7 @@ interface AppRouteRouteChildren {
   AppAdminRouteRoute: typeof AppAdminRouteRouteWithChildren
   AppCashierRouteRoute: typeof AppCashierRouteRouteWithChildren
   AppInventoryRoute: typeof AppInventoryRoute
+  AppNewdriveRoute: typeof AppNewdriveRoute
   AppTesttrelloRoute: typeof AppTesttrelloRoute
   AppIndexRoute: typeof AppIndexRoute
   AppDriveChar123DriveChar125Route: typeof AppDriveChar123DriveChar125Route
@@ -590,6 +610,7 @@ const AppRouteRouteChildren: AppRouteRouteChildren = {
   AppAdminRouteRoute: AppAdminRouteRouteWithChildren,
   AppCashierRouteRoute: AppCashierRouteRouteWithChildren,
   AppInventoryRoute: AppInventoryRoute,
+  AppNewdriveRoute: AppNewdriveRoute,
   AppTesttrelloRoute: AppTesttrelloRoute,
   AppIndexRoute: AppIndexRoute,
   AppDriveChar123DriveChar125Route: AppDriveChar123DriveChar125Route,
