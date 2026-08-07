@@ -11,7 +11,7 @@ import {
   validatePositiveQuantity,
   validateRequiredReason,
 } from "./inventoryHelpers";
-import { inventoryAction, inventoryOperation } from "./schema";
+import { inventoryAction, inventoryOperation } from "./schemas/inventory";
 
 const supplierListItemValidator = v.object({
   _id: v.id("inventorySuppliers"),

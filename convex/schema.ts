@@ -1,24 +1,12 @@
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
+import { inventorySchema } from "./schemas/inventory";
+
 export const cashflowType = v.optional(
   // CA = Cash Advance
   // COH = Cash On Hand
   v.union(v.literal("Expense"), v.literal("CA"), v.literal("COH")),
-);
-
-export const inventoryAction = v.union(
-  v.literal("add"),
-  v.literal("remove"),
-  v.literal("update"),
-);
-
-export const inventoryOperation = v.union(
-  v.literal("item_created"),
-  v.literal("stock_added"),
-  v.literal("stock_removed"),
-  v.literal("quantity_corrected"),
-  v.literal("details_updated"),
 );
 
 export default defineSchema({
@@ -61,49 +49,7 @@ export default defineSchema({
     price: v.number(),
   }),
 
-  inventorySuppliers: defineTable({
-    name: v.string(),
-    normalizedName: v.string(),
-    createdBy: v.id("users"),
-  })
-    .index("by_name", ["name"])
-    .index("by_normalized_name", ["normalizedName"])
-    .searchIndex("search_name", {
-      searchField: "name",
-    }),
-
-  inventoryItems: defineTable({
-    name: v.string(),
-    quantity: v.number(),
-    supplierId: v.optional(v.id("inventorySuppliers")),
-    createdBy: v.id("users"),
-  })
-    .index("by_name", ["name"])
-    .index("by_supplier_id", ["supplierId"])
-    .searchIndex("search_name", {
-      searchField: "name",
-    }),
-
-  inventoryActivities: defineTable({
-    inventoryItemId: v.id("inventoryItems"),
-    action: inventoryAction,
-    operation: inventoryOperation,
-    quantityBefore: v.number(),
-    quantityAfter: v.number(),
-    quantityDelta: v.number(),
-    reason: v.optional(v.string()),
-    createdBy: v.id("users"),
-    actorName: v.string(),
-    itemNameBefore: v.optional(v.string()),
-    itemNameAfter: v.string(),
-    supplierIdBefore: v.optional(v.id("inventorySuppliers")),
-    supplierNameBefore: v.optional(v.string()),
-    supplierIdAfter: v.optional(v.id("inventorySuppliers")),
-    supplierNameAfter: v.optional(v.string()),
-  })
-    .index("by_inventory_item_id", ["inventoryItemId"])
-    .index("by_action", ["action"])
-    .index("by_inventory_item_id_and_action", ["inventoryItemId", "action"]),
+  ...inventorySchema,
 
   jo: defineTable({
     updatedAt: v.optional(v.number()),

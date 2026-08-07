@@ -21,6 +21,8 @@ import type * as migrations from "../migrations.js";
 import type * as payment from "../payment.js";
 import type * as products from "../products.js";
 import type * as r2 from "../r2.js";
+import type * as schemas_inventory from "../schemas/inventory.js";
+import type * as schemas_newDrive from "../schemas/newDrive.js";
 import type * as shop_orderHelpers from "../shop/orderHelpers.js";
 import type * as shop_orders from "../shop/orders.js";
 import type * as shop_telegram from "../shop/telegram.js";
@@ -47,6 +49,8 @@ declare const fullApi: ApiFromModules<{
   payment: typeof payment;
   products: typeof products;
   r2: typeof r2;
+  "schemas/inventory": typeof schemas_inventory;
+  "schemas/newDrive": typeof schemas_newDrive;
   "shop/orderHelpers": typeof shop_orderHelpers;
   "shop/orders": typeof shop_orders;
   "shop/telegram": typeof shop_telegram;
