@@ -24,10 +24,9 @@ import {
   SidebarMenuSubItem,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { newDriveSpaces } from "@/lib/new-drive-spaces";
 
 import { TrelloSidebar } from "./trello-sidebar";
-
-const newDriveSpaces = ["DarcyGraphix workspace", "Client projects", "Team resources"];
 
 export function MainNavGroup() {
   return (
@@ -122,12 +121,12 @@ function NewDriveSidebarItem() {
       <CollapsibleContent>
         <SidebarMenuSub>
           {newDriveSpaces.map((space) => (
-            <SidebarMenuSubItem key={space}>
+            <SidebarMenuSubItem key={space.id}>
               <SidebarMenuSubButton
-                render={<button type="button" aria-label={`Open ${space}`} />}
+                render={<button type="button" aria-label={`Open ${space.name}`} />}
               >
                 <FolderIcon />
-                <span>{space}</span>
+                <span>{space.name}</span>
               </SidebarMenuSubButton>
             </SidebarMenuSubItem>
           ))}

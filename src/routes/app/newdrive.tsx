@@ -1,27 +1,36 @@
 import { createFileRoute } from "@tanstack/react-router";
 import {
   ArrowUpDownIcon,
-  CheckCircle2Icon,
   ChevronDownIcon,
-  Clock3Icon,
+  ChevronRightIcon,
   FileIcon,
   FileImageIcon,
   FileTextIcon,
   FolderIcon,
-  Grid2X2Icon,
-  ListIcon,
   MoreHorizontalIcon,
+  PencilIcon,
   PlusIcon,
   SearchIcon,
   Share2Icon,
+  Trash2Icon,
   UploadCloudIcon,
 } from "lucide-react";
 import { type DragEvent, useRef, useState } from "react";
+import { toast } from "sonner";
 
 import { Container } from "@/components/layouts/container";
+import { UploadToast } from "@/components/ui-custom/upload-toast";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
+import { newDriveSpaces } from "@/lib/new-drive-spaces";
 import { cn } from "@/lib/utils";
 
 const items = [
@@ -67,6 +76,37 @@ const items = [
   },
 ];
 
+function mockFileUpload(name: string) {
+  let progress = 0;
+  const toastId = toast.custom(
+    () => <UploadToast name={name} progress={progress} status="uploading" />,
+    { duration: Infinity, position: "bottom-right" },
+  );
+
+  const interval = window.setInterval(() => {
+    progress = Math.min(progress + 8, 100);
+
+    toast.custom(
+      () => (
+        <UploadToast
+          name={name}
+          progress={progress}
+          status={progress === 100 ? "success" : "uploading"}
+        />
+      ),
+      {
+        id: toastId,
+        duration: progress === 100 ? 3000 : Infinity,
+        position: "bottom-right",
+      },
+    );
+
+    if (progress === 100) {
+      window.clearInterval(interval);
+    }
+  }, 240);
+}
+
 export const Route = createFileRoute("/app/newdrive")({
   component: NewDrivePage,
   loader: () => ({
@@ -78,7 +118,6 @@ export const Route = createFileRoute("/app/newdrive")({
 });
 
 function NewDrivePage() {
-  const [view, setView] = useState<"list" | "grid">("list");
   const [isDraggingFiles, setIsDraggingFiles] = useState(false);
   const dragDepth = useRef(0);
 
@@ -118,6 +157,14 @@ function NewDrivePage() {
     event.preventDefault();
     dragDepth.current = 0;
     setIsDraggingFiles(false);
+
+    const files = Array.from(event.dataTransfer.files);
+    if (files.length === 0) {
+      mockFileUpload("Dropped folder");
+      return;
+    }
+
+    files.forEach((file) => mockFileUpload(file.name));
   }
 
   return (
@@ -162,11 +209,40 @@ function NewDrivePage() {
           </div>
         </section>
 
-        <section
-          aria-labelledby="files-heading"
-          className="overflow-hidden rounded-lg border bg-card shadow-xs"
-        >
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b px-4 py-3">
+        <section aria-labelledby="spaces-heading" className="flex flex-col gap-3">
+          <div className="flex items-center justify-between gap-3">
+            <h2 id="spaces-heading" className="text-sm font-semibold">
+              Spaces
+            </h2>
+            <span className="text-xs text-muted-foreground">
+              {newDriveSpaces.length} spaces
+            </span>
+          </div>
+          <div className="grid gap-2 md:grid-cols-3">
+            {newDriveSpaces.map((space) => (
+              <Button
+                key={space.id}
+                type="button"
+                variant="outline"
+                className="h-auto min-w-0 justify-start gap-3 bg-card p-3 text-left"
+              >
+                <span className="flex size-9 shrink-0 items-center justify-center rounded-md bg-muted text-muted-foreground">
+                  <FolderIcon />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-sm font-medium">{space.name}</span>
+                  <span className="block truncate text-xs text-muted-foreground">
+                    {space.description}
+                  </span>
+                </span>
+                <ChevronRightIcon className="shrink-0 text-muted-foreground" />
+              </Button>
+            ))}
+          </div>
+        </section>
+
+        <section aria-labelledby="files-heading" className="flex flex-col gap-3">
+          <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
               <h2 id="files-heading" className="text-sm font-semibold">
                 Files and folders
@@ -180,173 +256,90 @@ function NewDrivePage() {
                 <ArrowUpDownIcon />
                 <span className="hidden sm:inline">Last modified</span>
               </Button>
-              <div className="mx-1 h-5 w-px bg-border" />
-              <Button
-                variant={view === "list" ? "secondary" : "ghost"}
-                size="icon-sm"
-                aria-label="List view"
-                aria-pressed={view === "list"}
-                aria-controls="drive-items"
-                onClick={() => setView("list")}
-              >
-                <ListIcon />
-              </Button>
-              <Button
-                variant={view === "grid" ? "secondary" : "ghost"}
-                size="icon-sm"
-                aria-label="Grid view"
-                aria-pressed={view === "grid"}
-                aria-controls="drive-items"
-                onClick={() => setView("grid")}
-              >
-                <Grid2X2Icon />
-              </Button>
             </div>
           </div>
 
-          <div id="drive-items">
-            {view === "list" ? (
-              <>
-                <div className="grid grid-cols-[minmax(0,1fr)_auto] border-b bg-muted/40 px-4 py-2 text-[11px] font-medium tracking-wide text-muted-foreground uppercase md:grid-cols-[minmax(240px,1.7fr)_minmax(100px,.65fr)_minmax(140px,.85fr)_90px_110px_32px]">
-                  <span>Name</span>
-                  <span className="hidden md:block">Owner</span>
-                  <span className="hidden md:block">Last modified</span>
-                  <span className="hidden md:block">Size</span>
-                  <span className="hidden md:block">Access</span>
-                  <span className="sr-only">Actions</span>
-                </div>
+          <div className="flex flex-col gap-1" role="list" aria-label="Files and folders">
+            <div className="grid grid-cols-[minmax(0,1fr)_32px] px-4 pb-1 text-[11px] font-medium tracking-wide text-muted-foreground uppercase md:grid-cols-[minmax(220px,1.7fr)_minmax(90px,.65fr)_minmax(130px,.85fr)_80px_110px_32px]">
+              <span>Name</span>
+              <span className="hidden md:block">Owner</span>
+              <span className="hidden md:block">Last modified</span>
+              <span className="hidden md:block">Size</span>
+              <span className="hidden md:block">Access</span>
+              <span className="sr-only">Actions</span>
+            </div>
 
-                <div className="divide-y">
-                  {items.map((item) => (
-                    <div
-                      key={item.name}
-                      className="group grid min-h-14 grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-4 py-2 transition-colors hover:bg-muted/45 md:grid-cols-[minmax(240px,1.7fr)_minmax(100px,.65fr)_minmax(140px,.85fr)_90px_110px_32px]"
-                    >
-                      <div className="flex min-w-0 items-center gap-3">
-                        <ItemIcon kind={item.kind} />
-                        <div className="min-w-0">
-                          <p className="truncate text-sm font-medium">{item.name}</p>
-                          <p className="mt-0.5 truncate text-xs text-muted-foreground md:hidden">
-                            {item.updated} / {item.size}
-                          </p>
-                        </div>
-                      </div>
-                      <span className="hidden truncate text-xs text-muted-foreground md:block">
-                        {item.owner}
-                      </span>
-                      <span className="hidden truncate text-xs text-muted-foreground md:block">
-                        {item.updated}
-                      </span>
-                      <span className="hidden text-xs text-muted-foreground md:block">
-                        {item.size}
-                      </span>
-                      <div className="hidden md:block">
-                        <Badge
-                          variant="outline"
-                          className={cn(
-                            "h-6 rounded-md bg-background px-1.5 font-normal text-muted-foreground",
-                            item.access !== "Restricted" &&
-                              "border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-900 dark:bg-blue-950/50 dark:text-blue-400",
-                          )}
-                        >
-                          {item.access !== "Restricted" && <Share2Icon />}
-                          {item.access}
-                        </Badge>
-                      </div>
+            {items.map((item) => (
+              <div
+                key={item.name}
+                className="group grid min-h-14 grid-cols-[minmax(0,1fr)_32px] items-center gap-3 rounded-lg bg-card px-4 py-2.5 transition-colors duration-200 hover:bg-muted/50 md:grid-cols-[minmax(220px,1.7fr)_minmax(90px,.65fr)_minmax(130px,.85fr)_80px_110px_32px]"
+                role="listitem"
+              >
+                <div className="flex min-w-0 items-center gap-3">
+                  <ItemIcon kind={item.kind} />
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-medium">{item.name}</p>
+                    <p className="mt-0.5 truncate text-xs text-muted-foreground md:hidden">
+                      {item.owner} / {item.updated} / {item.size}
+                    </p>
+                  </div>
+                </div>
+                <span className="hidden truncate text-xs text-muted-foreground md:block">
+                  {item.owner}
+                </span>
+                <span className="hidden truncate text-xs text-muted-foreground md:block">
+                  {item.updated}
+                </span>
+                <span className="hidden text-xs text-muted-foreground md:block">
+                  {item.size}
+                </span>
+                <div className="hidden md:block">
+                  <Badge
+                    variant="outline"
+                    className={cn(
+                      "h-6 rounded-md bg-background px-1.5 font-normal text-muted-foreground",
+                      item.access !== "Restricted" &&
+                        "border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-900 dark:bg-blue-950/50 dark:text-blue-400",
+                    )}
+                  >
+                    {item.access !== "Restricted" && <Share2Icon />}
+                    {item.access}
+                  </Badge>
+                </div>
+                <DropdownMenu>
+                  <DropdownMenuTrigger
+                    render={
                       <Button
                         variant="ghost"
                         size="icon-sm"
-                        className="text-muted-foreground md:opacity-0 md:group-hover:opacity-100"
+                        className="text-muted-foreground md:opacity-0 md:group-hover:opacity-100 md:data-popup-open:opacity-100"
                         aria-label={`More actions for ${item.name}`}
-                      >
-                        <MoreHorizontalIcon />
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-              </>
-            ) : (
-              <div className="grid grid-cols-1 gap-3 p-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                {items.map((item) => (
-                  <div
-                    key={item.name}
-                    className="group min-w-0 overflow-hidden rounded-lg border bg-background transition-[border-color,box-shadow] hover:border-blue-300 hover:shadow-sm dark:hover:border-blue-800"
+                      />
+                    }
                   >
-                    <div className="flex h-28 items-center justify-center border-b bg-muted/35">
-                      <ItemIcon kind={item.kind} size="lg" />
-                    </div>
-                    <div className="p-3">
-                      <div className="flex min-w-0 items-start gap-2">
-                        <div className="min-w-0 flex-1">
-                          <p className="truncate text-sm font-medium">{item.name}</p>
-                          <p className="mt-1 truncate text-xs text-muted-foreground">
-                            {item.updated} / {item.size}
-                          </p>
-                        </div>
-                        <Button
-                          variant="ghost"
-                          size="icon-xs"
-                          className="-mt-1 -mr-1 text-muted-foreground sm:opacity-0 sm:group-hover:opacity-100"
-                          aria-label={`More actions for ${item.name}`}
-                        >
-                          <MoreHorizontalIcon />
-                        </Button>
-                      </div>
-                      <div className="mt-3 flex items-center justify-between gap-2">
-                        <Badge
-                          variant="outline"
-                          className={cn(
-                            "h-6 rounded-md bg-background px-1.5 font-normal text-muted-foreground",
-                            item.access !== "Restricted" &&
-                              "border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-900 dark:bg-blue-950/50 dark:text-blue-400",
-                          )}
-                        >
-                          {item.access !== "Restricted" && <Share2Icon />}
-                          {item.access}
-                        </Badge>
-                        <span className="truncate text-xs text-muted-foreground">
-                          {item.owner}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
+                    <MoreHorizontalIcon />
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuGroup>
+                      <DropdownMenuItem>
+                        <PencilIcon />
+                        Rename
+                      </DropdownMenuItem>
+                      <DropdownMenuItem>
+                        <Share2Icon />
+                        Share
+                      </DropdownMenuItem>
+                      <DropdownMenuItem variant="destructive">
+                        <Trash2Icon />
+                        Delete
+                      </DropdownMenuItem>
+                    </DropdownMenuGroup>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
-            )}
+            ))}
           </div>
         </section>
-
-        <section
-          aria-label="Upload status"
-          className="flex flex-col gap-3 rounded-lg border border-blue-200 bg-blue-50/60 p-3 sm:flex-row sm:items-center dark:border-blue-900 dark:bg-blue-950/25"
-        >
-          <span className="flex size-9 shrink-0 items-center justify-center rounded-md bg-blue-700 text-white dark:bg-blue-600">
-            <UploadCloudIcon className="size-4" />
-          </span>
-          <div className="min-w-0 flex-1">
-            <div className="flex items-center justify-between gap-3">
-              <p className="truncate text-sm font-medium">Artwork-package.zip</p>
-              <span className="text-xs font-medium text-blue-700 dark:text-blue-400">
-                72%
-              </span>
-            </div>
-            <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-blue-200 dark:bg-blue-950">
-              <div className="h-full w-[72%] rounded-full bg-blue-700 dark:bg-blue-500" />
-            </div>
-            <div className="mt-1.5 flex items-center gap-1.5 text-xs text-muted-foreground">
-              <Clock3Icon className="size-3" />
-              Uploading to Client proofs / about 1 minute left
-            </div>
-          </div>
-          <Button variant="ghost" size="sm" className="self-end sm:self-center">
-            Cancel
-          </Button>
-        </section>
-
-        <div className="flex items-center justify-center gap-1.5 pb-2 text-xs text-muted-foreground">
-          <CheckCircle2Icon className="size-3.5 text-blue-700 dark:text-blue-400" />
-          All other changes are saved
-        </div>
       </Container>
 
       {isDraggingFiles && (
