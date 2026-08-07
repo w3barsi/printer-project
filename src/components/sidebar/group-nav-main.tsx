@@ -1,3 +1,6 @@
+import { convexQuery } from "@convex-dev/react-query";
+import { api } from "@convex/_generated/api";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, useMatch, useRouteContext } from "@tanstack/react-router";
 import {
   BoxesIcon,
@@ -8,6 +11,7 @@ import {
   PiggyBankIcon,
 } from "lucide-react";
 
+import { CreateSpaceDialog } from "@/components/new-drive/create-space-dialog";
 import {
   Collapsible,
   CollapsibleContent,
@@ -24,7 +28,6 @@ import {
   SidebarMenuSubItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { newDriveSpaces } from "@/lib/new-drive-spaces";
 
 import { TrelloSidebar } from "./trello-sidebar";
 
@@ -91,14 +94,20 @@ function DriveSidebarItem() {
 }
 
 function NewDriveSidebarItem() {
+  const { user } = useRouteContext({ from: "/app" });
+  const { data: spaces } = useSuspenseQuery(convexQuery(api.spaces.list, {}));
   const { isMobile, setOpenMobile } = useSidebar();
-  const match = useMatch({ from: "/app/newdrive", shouldThrow: false });
+  const landingMatch = useMatch({ from: "/app/newdrive/", shouldThrow: false });
+  const spaceMatch = useMatch({
+    from: "/app/newdrive/$spaceId/{-$folderId}",
+    shouldThrow: false,
+  });
 
   return (
     <Collapsible defaultOpen render={<SidebarMenuItem />}>
       <SidebarMenuButton
         tooltip="New Drive"
-        isActive={!!match}
+        isActive={!!landingMatch || !!spaceMatch}
         render={
           <Link
             to="/app/newdrive"
@@ -120,16 +129,29 @@ function NewDriveSidebarItem() {
       </CollapsibleTrigger>
       <CollapsibleContent>
         <SidebarMenuSub>
-          {newDriveSpaces.map((space) => (
-            <SidebarMenuSubItem key={space.id}>
+          {spaces.map((space) => (
+            <SidebarMenuSubItem key={space._id}>
               <SidebarMenuSubButton
-                render={<button type="button" aria-label={`Open ${space.name}`} />}
+                isActive={spaceMatch?.params.spaceId === space._id}
+                render={
+                  <Link
+                    to="/app/newdrive/$spaceId/{-$folderId}"
+                    params={{ spaceId: space._id }}
+                    onClick={() => isMobile && setOpenMobile(false)}
+                    aria-label={`Open ${space.name}`}
+                  />
+                }
               >
                 <FolderIcon />
                 <span>{space.name}</span>
               </SidebarMenuSubButton>
             </SidebarMenuSubItem>
           ))}
+          {user.role === "admin" && (
+            <SidebarMenuSubItem>
+              <CreateSpaceDialog variant="sidebar" />
+            </SidebarMenuSubItem>
+          )}
         </SidebarMenuSub>
       </CollapsibleContent>
     </Collapsible>

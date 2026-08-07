@@ -26,6 +26,7 @@ import { Route as AuthLoginRouteImport } from './routes/_auth/login'
 import { Route as AppCashierRouteRouteImport } from './routes/app/_cashier/route'
 import { Route as AppAdminRouteRouteImport } from './routes/app/_admin/route'
 import { Route as AppTrelloIndexRouteImport } from './routes/app/trello.index'
+import { Route as AppNewdriveIndexRouteImport } from './routes/app/newdrive.index'
 import { Route as AppJoIndexRouteImport } from './routes/app/jo.index'
 import { Route as ShopShowcaseIndexRouteImport } from './routes/_shop/showcase.index'
 import { Route as AppTrelloListIdRouteImport } from './routes/app/trello.$listId'
@@ -35,6 +36,7 @@ import { Route as AppCashierCashflowRouteImport } from './routes/app/_cashier/ca
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth.$'
 import { Route as ShopShowcaseServiceRouteImport } from './routes/_shop/showcase.$service'
 import { Route as AppAdminAdminIndexRouteImport } from './routes/app/_admin/admin.index'
+import { Route as AppNewdriveSpaceIdChar123FolderIdChar125RouteImport } from './routes/app/newdrive.$spaceId.{-$folderId}'
 import { Route as AppAdminAdminUsersRouteImport } from './routes/app/_admin/admin.users'
 
 const TestfruitsRoute = TestfruitsRouteImport.update({
@@ -118,6 +120,11 @@ const AppTrelloIndexRoute = AppTrelloIndexRouteImport.update({
   path: '/trello/',
   getParentRoute: () => AppRouteRoute,
 } as any)
+const AppNewdriveIndexRoute = AppNewdriveIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppNewdriveRoute,
+} as any)
 const AppJoIndexRoute = AppJoIndexRouteImport.update({
   id: '/jo/',
   path: '/jo/',
@@ -164,6 +171,12 @@ const AppAdminAdminIndexRoute = AppAdminAdminIndexRouteImport.update({
   path: '/admin/',
   getParentRoute: () => AppAdminRouteRoute,
 } as any)
+const AppNewdriveSpaceIdChar123FolderIdChar125Route =
+  AppNewdriveSpaceIdChar123FolderIdChar125RouteImport.update({
+    id: '/$spaceId/{-$folderId}',
+    path: '/$spaceId/{-$folderId}',
+    getParentRoute: () => AppNewdriveRoute,
+  } as any)
 const AppAdminAdminUsersRoute = AppAdminAdminUsersRouteImport.update({
   id: '/admin/users',
   path: '/admin/users',
@@ -180,7 +193,7 @@ export interface FileRoutesByFullPath {
   '/signup': typeof AuthSignupRoute
   '/order': typeof ShopOrderRoute
   '/app/inventory': typeof AppInventoryRoute
-  '/app/newdrive': typeof AppNewdriveRoute
+  '/app/newdrive': typeof AppNewdriveRouteWithChildren
   '/app/testtrello': typeof AppTesttrelloRoute
   '/app/': typeof AppIndexRoute
   '/showcase/$service': typeof ShopShowcaseServiceRoute
@@ -191,8 +204,10 @@ export interface FileRoutesByFullPath {
   '/app/trello/$listId': typeof AppTrelloListIdRoute
   '/showcase/': typeof ShopShowcaseIndexRoute
   '/app/jo/': typeof AppJoIndexRoute
+  '/app/newdrive/': typeof AppNewdriveIndexRoute
   '/app/trello/': typeof AppTrelloIndexRoute
   '/app/admin/users': typeof AppAdminAdminUsersRoute
+  '/app/newdrive/$spaceId/{-$folderId}': typeof AppNewdriveSpaceIdChar123FolderIdChar125Route
   '/app/admin/': typeof AppAdminAdminIndexRoute
 }
 export interface FileRoutesByTo {
@@ -205,7 +220,6 @@ export interface FileRoutesByTo {
   '/signup': typeof AuthSignupRoute
   '/order': typeof ShopOrderRoute
   '/app/inventory': typeof AppInventoryRoute
-  '/app/newdrive': typeof AppNewdriveRoute
   '/app/testtrello': typeof AppTesttrelloRoute
   '/showcase/$service': typeof ShopShowcaseServiceRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -215,8 +229,10 @@ export interface FileRoutesByTo {
   '/app/trello/$listId': typeof AppTrelloListIdRoute
   '/showcase': typeof ShopShowcaseIndexRoute
   '/app/jo': typeof AppJoIndexRoute
+  '/app/newdrive': typeof AppNewdriveIndexRoute
   '/app/trello': typeof AppTrelloIndexRoute
   '/app/admin/users': typeof AppAdminAdminUsersRoute
+  '/app/newdrive/$spaceId/{-$folderId}': typeof AppNewdriveSpaceIdChar123FolderIdChar125Route
   '/app/admin': typeof AppAdminAdminIndexRoute
 }
 export interface FileRoutesById {
@@ -233,7 +249,7 @@ export interface FileRoutesById {
   '/_auth/signup': typeof AuthSignupRoute
   '/_shop/order': typeof ShopOrderRoute
   '/app/inventory': typeof AppInventoryRoute
-  '/app/newdrive': typeof AppNewdriveRoute
+  '/app/newdrive': typeof AppNewdriveRouteWithChildren
   '/app/testtrello': typeof AppTesttrelloRoute
   '/_shop/': typeof ShopIndexRoute
   '/app/': typeof AppIndexRoute
@@ -245,8 +261,10 @@ export interface FileRoutesById {
   '/app/trello/$listId': typeof AppTrelloListIdRoute
   '/_shop/showcase/': typeof ShopShowcaseIndexRoute
   '/app/jo/': typeof AppJoIndexRoute
+  '/app/newdrive/': typeof AppNewdriveIndexRoute
   '/app/trello/': typeof AppTrelloIndexRoute
   '/app/_admin/admin/users': typeof AppAdminAdminUsersRoute
+  '/app/newdrive/$spaceId/{-$folderId}': typeof AppNewdriveSpaceIdChar123FolderIdChar125Route
   '/app/_admin/admin/': typeof AppAdminAdminIndexRoute
 }
 export interface FileRouteTypes {
@@ -272,8 +290,10 @@ export interface FileRouteTypes {
     | '/app/trello/$listId'
     | '/showcase/'
     | '/app/jo/'
+    | '/app/newdrive/'
     | '/app/trello/'
     | '/app/admin/users'
+    | '/app/newdrive/$spaceId/{-$folderId}'
     | '/app/admin/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -286,7 +306,6 @@ export interface FileRouteTypes {
     | '/signup'
     | '/order'
     | '/app/inventory'
-    | '/app/newdrive'
     | '/app/testtrello'
     | '/showcase/$service'
     | '/api/auth/$'
@@ -296,8 +315,10 @@ export interface FileRouteTypes {
     | '/app/trello/$listId'
     | '/showcase'
     | '/app/jo'
+    | '/app/newdrive'
     | '/app/trello'
     | '/app/admin/users'
+    | '/app/newdrive/$spaceId/{-$folderId}'
     | '/app/admin'
   id:
     | '__root__'
@@ -325,8 +346,10 @@ export interface FileRouteTypes {
     | '/app/trello/$listId'
     | '/_shop/showcase/'
     | '/app/jo/'
+    | '/app/newdrive/'
     | '/app/trello/'
     | '/app/_admin/admin/users'
+    | '/app/newdrive/$spaceId/{-$folderId}'
     | '/app/_admin/admin/'
   fileRoutesById: FileRoutesById
 }
@@ -461,6 +484,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppTrelloIndexRouteImport
       parentRoute: typeof AppRouteRoute
     }
+    '/app/newdrive/': {
+      id: '/app/newdrive/'
+      path: '/'
+      fullPath: '/app/newdrive/'
+      preLoaderRoute: typeof AppNewdriveIndexRouteImport
+      parentRoute: typeof AppNewdriveRoute
+    }
     '/app/jo/': {
       id: '/app/jo/'
       path: '/jo'
@@ -523,6 +553,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/app/admin/'
       preLoaderRoute: typeof AppAdminAdminIndexRouteImport
       parentRoute: typeof AppAdminRouteRoute
+    }
+    '/app/newdrive/$spaceId/{-$folderId}': {
+      id: '/app/newdrive/$spaceId/{-$folderId}'
+      path: '/$spaceId/{-$folderId}'
+      fullPath: '/app/newdrive/$spaceId/{-$folderId}'
+      preLoaderRoute: typeof AppNewdriveSpaceIdChar123FolderIdChar125RouteImport
+      parentRoute: typeof AppNewdriveRoute
     }
     '/app/_admin/admin/users': {
       id: '/app/_admin/admin/users'
@@ -592,11 +629,26 @@ const AppCashierRouteRouteWithChildren = AppCashierRouteRoute._addFileChildren(
   AppCashierRouteRouteChildren,
 )
 
+interface AppNewdriveRouteChildren {
+  AppNewdriveIndexRoute: typeof AppNewdriveIndexRoute
+  AppNewdriveSpaceIdChar123FolderIdChar125Route: typeof AppNewdriveSpaceIdChar123FolderIdChar125Route
+}
+
+const AppNewdriveRouteChildren: AppNewdriveRouteChildren = {
+  AppNewdriveIndexRoute: AppNewdriveIndexRoute,
+  AppNewdriveSpaceIdChar123FolderIdChar125Route:
+    AppNewdriveSpaceIdChar123FolderIdChar125Route,
+}
+
+const AppNewdriveRouteWithChildren = AppNewdriveRoute._addFileChildren(
+  AppNewdriveRouteChildren,
+)
+
 interface AppRouteRouteChildren {
   AppAdminRouteRoute: typeof AppAdminRouteRouteWithChildren
   AppCashierRouteRoute: typeof AppCashierRouteRouteWithChildren
   AppInventoryRoute: typeof AppInventoryRoute
-  AppNewdriveRoute: typeof AppNewdriveRoute
+  AppNewdriveRoute: typeof AppNewdriveRouteWithChildren
   AppTesttrelloRoute: typeof AppTesttrelloRoute
   AppIndexRoute: typeof AppIndexRoute
   AppDriveChar123DriveChar125Route: typeof AppDriveChar123DriveChar125Route
@@ -610,7 +662,7 @@ const AppRouteRouteChildren: AppRouteRouteChildren = {
   AppAdminRouteRoute: AppAdminRouteRouteWithChildren,
   AppCashierRouteRoute: AppCashierRouteRouteWithChildren,
   AppInventoryRoute: AppInventoryRoute,
-  AppNewdriveRoute: AppNewdriveRoute,
+  AppNewdriveRoute: AppNewdriveRouteWithChildren,
   AppTesttrelloRoute: AppTesttrelloRoute,
   AppIndexRoute: AppIndexRoute,
   AppDriveChar123DriveChar125Route: AppDriveChar123DriveChar125Route,

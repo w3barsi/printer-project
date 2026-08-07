@@ -38,6 +38,7 @@ Before substantial work:
 
 - Do not run `pnpm dev` (tanstack-router dev server)
 - Do not run `convex dev` or any dev server commands
+- Do not run any lint commands. Rely on the LSP to look at errors.
 - Do not modify `routeTree.gen.ts`
 - Do not modify anything from `convex/_generated/`
 - Do not create, modify, or plan tests for this project. Do not add test dependencies, configuration, scripts, or test files.

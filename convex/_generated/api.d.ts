@@ -18,6 +18,7 @@ import type * as inventoryHelpers from "../inventoryHelpers.js";
 import type * as items from "../items.js";
 import type * as jo from "../jo.js";
 import type * as migrations from "../migrations.js";
+import type * as newDrive from "../newDrive.js";
 import type * as payment from "../payment.js";
 import type * as products from "../products.js";
 import type * as r2 from "../r2.js";
@@ -27,6 +28,7 @@ import type * as shop_orderHelpers from "../shop/orderHelpers.js";
 import type * as shop_orders from "../shop/orders.js";
 import type * as shop_telegram from "../shop/telegram.js";
 import type * as shop_uploads from "../shop/uploads.js";
+import type * as spaces from "../spaces.js";
 import type * as trello from "../trello.js";
 
 import type {
@@ -46,6 +48,7 @@ declare const fullApi: ApiFromModules<{
   items: typeof items;
   jo: typeof jo;
   migrations: typeof migrations;
+  newDrive: typeof newDrive;
   payment: typeof payment;
   products: typeof products;
   r2: typeof r2;
@@ -55,6 +58,7 @@ declare const fullApi: ApiFromModules<{
   "shop/orders": typeof shop_orders;
   "shop/telegram": typeof shop_telegram;
   "shop/uploads": typeof shop_uploads;
+  spaces: typeof spaces;
   trello: typeof trello;
 }>;
 

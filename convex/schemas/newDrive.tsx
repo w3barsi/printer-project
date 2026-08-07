@@ -23,12 +23,17 @@ const commonNewDriveItemFields = {
 export const newDriveSchema = {
   newDriveSpaces: defineTable({
     name: v.string(),
+    nameKey: v.optional(v.string()),
+    description: v.optional(v.string()),
+    visibility: v.optional(v.union(v.literal("admin"), v.literal("everyone"))),
     rootItemId: v.optional(v.id("newDriveItems")),
     createdBy: v.id("users"),
     createdAt: v.number(),
     updatedAt: v.number(),
   })
     .index("by_name", ["name"])
+    .index("by_nameKey", ["nameKey"])
+    .index("by_visibility", ["visibility"])
     .index("by_rootItemId", ["rootItemId"]),
 
   newDriveItems: defineTable(
@@ -76,7 +81,7 @@ export const newDriveSchema = {
   newDriveUploadTickets: defineTable({
     key: v.string(),
     spaceId: v.id("newDriveSpaces"),
-    parentId: v.id("newDriveItems"),
+    parentId: v.optional(v.id("newDriveItems")),
     shareRootId: v.optional(v.id("newDriveItems")),
     uploadedBy: newDriveItemCreator,
     name: v.string(),
