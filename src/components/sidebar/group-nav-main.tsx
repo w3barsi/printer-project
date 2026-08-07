@@ -1,15 +1,33 @@
 import { Link, useMatch, useRouteContext } from "@tanstack/react-router";
-import { BoxesIcon, FolderPlusIcon, HardDriveIcon, PiggyBankIcon } from "lucide-react";
+import {
+  BoxesIcon,
+  ChevronRightIcon,
+  FolderIcon,
+  FolderPlusIcon,
+  HardDriveIcon,
+  PiggyBankIcon,
+} from "lucide-react";
 
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import {
   SidebarGroup,
   SidebarMenu,
+  SidebarMenuAction,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
   useSidebar,
 } from "@/components/ui/sidebar";
 
 import { TrelloSidebar } from "./trello-sidebar";
+
+const newDriveSpaces = ["DarcyGraphix workspace", "Client projects", "Team resources"];
 
 export function MainNavGroup() {
   return (
@@ -78,7 +96,7 @@ function NewDriveSidebarItem() {
   const match = useMatch({ from: "/app/newdrive", shouldThrow: false });
 
   return (
-    <SidebarMenuItem>
+    <Collapsible defaultOpen render={<SidebarMenuItem />}>
       <SidebarMenuButton
         tooltip="New Drive"
         isActive={!!match}
@@ -93,7 +111,29 @@ function NewDriveSidebarItem() {
         <FolderPlusIcon />
         <span>New Drive</span>
       </SidebarMenuButton>
-    </SidebarMenuItem>
+      <CollapsibleTrigger
+        render={
+          <SidebarMenuAction className="border border-sidebar-border transition-[color,background-color,border-color,transform] peer-data-active/menu-button:hover:border-sidebar-primary peer-data-active/menu-button:hover:bg-sidebar-primary peer-data-active/menu-button:hover:text-sidebar-primary-foreground data-open:rotate-90" />
+        }
+      >
+        <ChevronRightIcon />
+        <span className="sr-only">Toggle New Drive spaces</span>
+      </CollapsibleTrigger>
+      <CollapsibleContent>
+        <SidebarMenuSub>
+          {newDriveSpaces.map((space) => (
+            <SidebarMenuSubItem key={space}>
+              <SidebarMenuSubButton
+                render={<button type="button" aria-label={`Open ${space}`} />}
+              >
+                <FolderIcon />
+                <span>{space}</span>
+              </SidebarMenuSubButton>
+            </SidebarMenuSubItem>
+          ))}
+        </SidebarMenuSub>
+      </CollapsibleContent>
+    </Collapsible>
   );
 }
 
