@@ -16,16 +16,26 @@ import type { NewDriveItem } from "@/lib/new-drive-items";
 export const Route = createFileRoute("/app/newdrive/$spaceId/{-$folderId}")({
   component: SpaceBrowserPage,
   loader: async ({ context: { queryClient: qc }, params }) => {
-    const spaces = await qc.ensureQueryData(convexQuery(api.spaces.list, {}));
+    const spaceId = params.spaceId as Id<"newDriveSpaces">;
+    const folderId = params.folderId as Id<"newDriveItems"> | undefined;
+    const [spaces, folder] = await Promise.all([
+      qc.ensureQueryData(convexQuery(api.spaces.list, {})),
+      folderId
+        ? qc.ensureQueryData(
+            convexQuery(api.newDrive.getFolder, {
+              spaceId,
+              folderId,
+            }),
+          )
+        : undefined,
+      qc.ensureQueryData(
+        convexQuery(api.newDrive.listItems, {
+          spaceId,
+          parentId: folderId,
+        }),
+      ),
+    ]);
     const space = spaces.find((item) => item._id === params.spaceId);
-    const folder = params.folderId
-      ? await qc.ensureQueryData(
-          convexQuery(api.newDrive.getFolder, {
-            spaceId: params.spaceId as Id<"newDriveSpaces">,
-            folderId: params.folderId as Id<"newDriveItems">,
-          }),
-        )
-      : undefined;
 
     return {
       space,
