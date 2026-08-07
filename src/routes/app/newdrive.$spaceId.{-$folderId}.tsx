@@ -36,10 +36,19 @@ export const Route = createFileRoute("/app/newdrive/$spaceId/{-$folderId}")({
       ),
     ]);
     const space = spaces.find((item) => item._id === params.spaceId);
+    const parentFolder = folder?.parentId
+      ? await qc.ensureQueryData(
+          convexQuery(api.newDrive.getFolder, {
+            spaceId,
+            folderId: folder.parentId,
+          }),
+        )
+      : null;
 
     return {
       space,
       folder,
+      parentFolder,
       crumb: [
         { value: "New Drive", href: "/app/newdrive", type: "static" },
         {
@@ -69,7 +78,7 @@ export const Route = createFileRoute("/app/newdrive/$spaceId/{-$folderId}")({
 function SpaceBrowserPage() {
   const { user } = useRouteContext({ from: "/app" });
   const { spaceId, folderId } = Route.useParams();
-  const { space, folder } = Route.useLoaderData();
+  const { space, folder, parentFolder } = Route.useLoaderData();
   const typedSpaceId = spaceId as Id<"newDriveSpaces">;
   const typedFolderId = folderId as Id<"newDriveItems"> | undefined;
   const { data } = useSuspenseQuery(
@@ -79,6 +88,7 @@ function SpaceBrowserPage() {
     }),
   );
   const deleteItems = useMutation(api.newDrive.deleteItems);
+  const moveItems = useMutation(api.newDrive.moveItems);
   const items: NewDriveItem[] = data.map((item) => ({
     id: item._id,
     name: item.name,
@@ -114,9 +124,6 @@ function SpaceBrowserPage() {
             </span>
             <div className="min-w-0">
               <h1 className="truncate text-2xl font-bold tracking-tight">{title}</h1>
-              <p className="truncate text-sm text-muted-foreground">
-                {folder ? `Inside ${space?.name ?? "space"}` : space?.description}
-              </p>
             </div>
           </div>
           <AddItemsMenu spaceId={typedSpaceId} parentId={typedFolderId} />
@@ -127,11 +134,27 @@ function SpaceBrowserPage() {
           items={items}
           title="Files and folders"
           interactive
+          parentPath={
+            folder
+              ? {
+                  spaceId,
+                  name: parentFolder?.name ?? space?.name ?? "Space",
+                  folderId: folder.parentId ?? null,
+                }
+              : undefined
+          }
           onDeleteItems={(itemIds) =>
             deleteItems({
               spaceId: typedSpaceId,
               itemIds: itemIds as Id<"newDriveItems">[],
             }).then(() => undefined)
+          }
+          onMoveItems={(itemIds, destinationFolderId) =>
+            moveItems({
+              spaceId: typedSpaceId,
+              itemIds: itemIds as Id<"newDriveItems">[],
+              destinationFolderId: destinationFolderId as Id<"newDriveItems">,
+            })
           }
         />
       </Container>

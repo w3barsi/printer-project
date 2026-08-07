@@ -17,6 +17,7 @@ import {
   FileTextIcon,
   FolderIcon,
   FolderOpenIcon,
+  FolderUpIcon,
   MoreHorizontalIcon,
   PencilIcon,
   Share2Icon,
@@ -68,14 +69,19 @@ export function NewDriveFileList({
   items,
   title,
   interactive = false,
+  parentPath,
   onDeleteItems,
   onMoveItems,
 }: {
   items: NewDriveItem[];
   title: string;
   interactive?: boolean;
+  parentPath?: { spaceId: string; name: string; folderId: string | null };
   onDeleteItems?: (itemIds: string[]) => void | Promise<void>;
-  onMoveItems?: (itemIds: string[], destinationFolderId: string) => boolean;
+  onMoveItems?: (
+    itemIds: string[],
+    destinationFolderId: string,
+  ) => boolean | Promise<boolean>;
 }) {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
@@ -240,21 +246,21 @@ export function NewDriveFileList({
     }
   }
 
-  function handleDragEnd(event: DragEndEvent) {
+  async function handleDragEnd(event: DragEndEvent) {
     const draggedItemId = event.active.data.current?.itemId;
     const destinationFolderId = event.over?.data.current?.folderId;
+    const isTrashTarget = event.over?.data.current?.isTrash === true;
     setActiveDragId(null);
     lastDragEndedAt.current = performance.now();
 
-    if (
-      !dragEnabled ||
-      typeof draggedItemId !== "string" ||
-      typeof destinationFolderId !== "string"
-    ) {
-      return;
-    }
+    if (!dragEnabled || typeof draggedItemId !== "string") return;
 
     const itemIds = selectedIds.includes(draggedItemId) ? selectedIds : [draggedItemId];
+    if (isTrashTarget) {
+      setDeleteRequest(itemIds);
+      return;
+    }
+    if (typeof destinationFolderId !== "string") return;
     if (itemIds.includes(destinationFolderId)) {
       toast.error("A folder cannot be moved into itself", { position: "bottom-right" });
       return;
@@ -263,18 +269,24 @@ export function NewDriveFileList({
     const destination = displayedItems.find((item) => item.id === destinationFolderId);
     if (!destination || destination.kind !== "folder") return;
 
-    const didMove = onMoveItems?.(itemIds, destinationFolderId) ?? false;
-    if (!didMove) {
-      toast.error("Items cannot be moved into that folder", {
+    try {
+      const didMove = (await onMoveItems?.(itemIds, destinationFolderId)) ?? false;
+      if (!didMove) {
+        toast.error("Items cannot be moved into that folder", {
+          position: "bottom-right",
+        });
+        return;
+      }
+      toast.success(
+        `${itemIds.length} ${itemIds.length === 1 ? "item" : "items"} moved to ${destination.name}`,
+        { position: "bottom-right" },
+      );
+      clearSelection();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Items could not be moved", {
         position: "bottom-right",
       });
-      return;
     }
-    toast.success(
-      `${itemIds.length} ${itemIds.length === 1 ? "item" : "items"} moved to ${destination.name}`,
-      { position: "bottom-right" },
-    );
-    clearSelection();
   }
 
   return (
@@ -288,49 +300,44 @@ export function NewDriveFileList({
       <h2 id="files-heading" className="sr-only">
         {title}
       </h2>
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div className="flex items-center gap-2">
-          {selectionEnabled && selectedIds.length > 0 && (
-            <>
-              <Badge variant="secondary">{selectedIds.length} selected</Badge>
-              <Button
-                type="button"
-                variant="outline"
-                size="icon-sm"
-                className="text-destructive hover:border-destructive/50 hover:bg-destructive/10 hover:text-destructive"
-                aria-label={`Delete ${selectedIds.length} selected ${selectedIds.length === 1 ? "item" : "items"}`}
-                onClick={() => setDeleteRequest(selectedIds)}
-              >
-                <Trash2Icon />
-              </Button>
-            </>
-          )}
-          <Button variant="ghost" size="sm" className="text-muted-foreground">
-            <ArrowUpDownIcon data-icon="inline-start" />
-            <span className="hidden sm:inline">Last modified</span>
-          </Button>
+      <DndContext
+        sensors={sensors}
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
+        onDragCancel={() => setActiveDragId(null)}
+      >
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <div className="flex items-center gap-2">
+            {selectionEnabled && selectedIds.length > 0 && (
+              <>
+                <Badge variant="secondary">{selectedIds.length} selected</Badge>
+                <DeleteDropButton
+                  itemCount={selectedIds.length}
+                  dragEnabled={dragEnabled}
+                  onClick={() => setDeleteRequest(selectedIds)}
+                />
+              </>
+            )}
+            <Button variant="ghost" size="sm" className="text-muted-foreground">
+              <ArrowUpDownIcon data-icon="inline-start" />
+              <span className="hidden sm:inline">Last modified</span>
+            </Button>
+          </div>
         </div>
-      </div>
 
-      {displayedItems.length === 0 ? (
-        <Empty className="rounded-lg bg-card py-14">
-          <EmptyHeader>
-            <EmptyMedia variant="icon">
-              <FolderOpenIcon />
-            </EmptyMedia>
-            <EmptyTitle>No files or folders found</EmptyTitle>
-            <EmptyDescription>
-              Try a different search or add something to this folder.
-            </EmptyDescription>
-          </EmptyHeader>
-        </Empty>
-      ) : (
-        <DndContext
-          sensors={sensors}
-          onDragStart={handleDragStart}
-          onDragEnd={handleDragEnd}
-          onDragCancel={() => setActiveDragId(null)}
-        >
+        {displayedItems.length === 0 && !parentPath ? (
+          <Empty className="rounded-lg bg-card py-14">
+            <EmptyHeader>
+              <EmptyMedia variant="icon">
+                <FolderOpenIcon />
+              </EmptyMedia>
+              <EmptyTitle>No files or folders found</EmptyTitle>
+              <EmptyDescription>
+                Try a different search or add something to this folder.
+              </EmptyDescription>
+            </EmptyHeader>
+          </Empty>
+        ) : (
           <div
             className="flex flex-col gap-1"
             role={selectionEnabled ? "listbox" : "list"}
@@ -352,6 +359,8 @@ export function NewDriveFileList({
               <span className="hidden md:block">Access</span>
               <span className="sr-only">Actions</span>
             </div>
+
+            {parentPath && <ParentFolderRow parentPath={parentPath} />}
 
             {displayedItems.map((item) => (
               <NewDriveFileRow
@@ -377,19 +386,19 @@ export function NewDriveFileList({
               />
             ))}
           </div>
-          <DragOverlay>
-            {activeDragId && (
-              <DragPreview
-                items={
-                  selectedIds.includes(activeDragId)
-                    ? selectedItems
-                    : displayedItems.filter((item) => item.id === activeDragId)
-                }
-              />
-            )}
-          </DragOverlay>
-        </DndContext>
-      )}
+        )}
+        <DragOverlay>
+          {activeDragId && (
+            <DragPreview
+              items={
+                selectedIds.includes(activeDragId)
+                  ? selectedItems
+                  : displayedItems.filter((item) => item.id === activeDragId)
+              }
+            />
+          )}
+        </DragOverlay>
+      </DndContext>
       <AlertDialog
         open={deleteRequest.length > 0}
         onOpenChange={(open) => !open && !isDeleting && setDeleteRequest([])}
@@ -439,6 +448,94 @@ export function NewDriveFileList({
         </AlertDialogContent>
       </AlertDialog>
     </section>
+  );
+}
+
+function ParentFolderRow({
+  parentPath,
+}: {
+  parentPath: { spaceId: string; name: string; folderId: string | null };
+}) {
+  const navigate = useNavigate();
+
+  function openParentFolder() {
+    navigate({
+      to: "/app/newdrive/$spaceId/{-$folderId}",
+      params: {
+        spaceId: parentPath.spaceId,
+        folderId: parentPath.folderId ?? undefined,
+      },
+    });
+  }
+
+  return (
+    <div
+      className="grid min-h-14 cursor-pointer grid-cols-[minmax(0,1fr)_32px] items-center gap-3 rounded-lg border border-dashed border-border/70 bg-muted/20 px-4 py-2.5 transition-colors duration-200 select-none hover:bg-muted/40 md:grid-cols-[minmax(220px,1.7fr)_minmax(90px,.65fr)_minmax(130px,.85fr)_80px_110px_32px]"
+      role="link"
+      tabIndex={0}
+      aria-label={`Open parent folder ${parentPath.name}`}
+      onDoubleClick={openParentFolder}
+      onKeyDown={(event) => {
+        if (event.key !== "Enter") return;
+        event.preventDefault();
+        openParentFolder();
+      }}
+    >
+      <div className="flex min-w-0 items-center gap-3">
+        <span className="flex size-8 shrink-0 items-center justify-center rounded-md bg-muted text-muted-foreground">
+          <FolderUpIcon className="size-4" />
+        </span>
+        <div className="min-w-0">
+          <p className="text-[10px] font-medium tracking-wider text-muted-foreground uppercase">
+            Up one level
+          </p>
+          <p className="truncate text-sm font-medium">{parentPath.name}</p>
+        </div>
+      </div>
+      <span className="hidden text-xs text-muted-foreground md:block">-</span>
+      <span className="hidden text-xs text-muted-foreground md:block">-</span>
+      <span className="hidden text-xs text-muted-foreground md:block">-</span>
+      <span className="hidden text-xs text-muted-foreground md:block">-</span>
+      <span aria-hidden="true" />
+    </div>
+  );
+}
+
+function DeleteDropButton({
+  itemCount,
+  dragEnabled,
+  onClick,
+}: {
+  itemCount: number;
+  dragEnabled: boolean;
+  onClick: () => void;
+}) {
+  const { setNodeRef, isOver } = useDroppable({
+    id: "new-drive-trash",
+    data: { isTrash: true },
+    disabled: !dragEnabled,
+  });
+
+  return (
+    <Button
+      ref={setNodeRef}
+      type="button"
+      variant={isOver ? "destructive" : "outline"}
+      size="icon-sm"
+      className={cn(
+        !isOver &&
+          "text-destructive hover:border-destructive/50 hover:bg-destructive/10 hover:text-destructive",
+        isOver && "ring-2 ring-destructive/30",
+      )}
+      aria-label={
+        isOver
+          ? `Drop to delete ${itemCount} selected ${itemCount === 1 ? "item" : "items"}`
+          : `Delete ${itemCount} selected ${itemCount === 1 ? "item" : "items"}`
+      }
+      onClick={onClick}
+    >
+      <Trash2Icon />
+    </Button>
   );
 }
 
@@ -595,7 +692,7 @@ function NewDriveFileRow({
 
 function DragPreview({ items }: { items: NewDriveItem[] }) {
   return (
-    <div className="flex w-72 flex-col gap-1 rounded-xl bg-background p-2 shadow-xl ring-1 ring-foreground/10">
+    <div className="pointer-events-none flex w-72 flex-col gap-1 rounded-xl bg-background/80 p-2 opacity-80 shadow-xl ring-1 ring-foreground/10">
       {items.slice(0, 3).map((item) => (
         <div
           key={item.id}

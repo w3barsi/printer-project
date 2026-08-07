@@ -235,6 +235,87 @@ export const createFolder = authedMutation({
   },
 });
 
+export const moveItems = authedMutation({
+  args: {
+    spaceId: v.id("newDriveSpaces"),
+    itemIds: v.array(v.id("newDriveItems")),
+    destinationFolderId: v.id("newDriveItems"),
+  },
+  returns: v.boolean(),
+  handler: async (ctx, args) => {
+    await requireSpaceAccess(ctx, args.spaceId);
+    if (args.itemIds.length === 0 || args.itemIds.length > 100) {
+      throw new ConvexError("Move between 1 and 100 items at a time");
+    }
+
+    const itemIds = [...new Set(args.itemIds)];
+    const items = await Promise.all(
+      itemIds.map((itemId) => ctx.db.get("newDriveItems", itemId)),
+    );
+    if (
+      items.some(
+        (item) => !item || item.spaceId !== args.spaceId || item.deletedAt !== undefined,
+      )
+    ) {
+      throw new ConvexError("One or more items could not be moved");
+    }
+    const existingItems = items.filter((item) => item !== null);
+    const sourceParentId = existingItems[0]?.parentId;
+    if (existingItems.some((item) => item.parentId !== sourceParentId)) {
+      throw new ConvexError("Selected items must come from the same folder");
+    }
+
+    const destination = await ctx.db.get("newDriveItems", args.destinationFolderId);
+    if (
+      !destination ||
+      destination.kind !== "folder" ||
+      destination.spaceId !== args.spaceId ||
+      destination.deletedAt !== undefined
+    ) {
+      throw new ConvexError("Destination folder not found");
+    }
+    if (sourceParentId === destination._id) return true;
+
+    const movingIds = new Set<Id<"newDriveItems">>(itemIds);
+    let ancestor: Doc<"newDriveItems"> | null = destination;
+    while (ancestor) {
+      if (movingIds.has(ancestor._id)) {
+        throw new ConvexError("A folder cannot be moved into itself or a descendant");
+      }
+      ancestor = ancestor.parentId
+        ? await ctx.db.get("newDriveItems", ancestor.parentId)
+        : null;
+    }
+
+    for (const item of existingItems) {
+      const conflict = await ctx.db
+        .query("newDriveItems")
+        .withIndex("by_spaceId_and_parentId_and_deletedAt_and_nameKey", (q) =>
+          q
+            .eq("spaceId", args.spaceId)
+            .eq("parentId", destination._id)
+            .eq("deletedAt", undefined)
+            .eq("nameKey", item.nameKey),
+        )
+        .unique();
+      if (conflict && !movingIds.has(conflict._id)) {
+        throw new ConvexError(`An item named ${item.name} already exists there`);
+      }
+    }
+
+    const now = Date.now();
+    for (const item of existingItems) {
+      await ctx.db.patch("newDriveItems", item._id, {
+        parentId: destination._id,
+        updatedAt: now,
+      });
+    }
+    await ctx.db.patch("newDriveItems", destination._id, { updatedAt: now });
+    await ctx.db.patch("newDriveSpaces", args.spaceId, { updatedAt: now });
+    return true;
+  },
+});
+
 export const createUploadTicket = authedMutation({
   args: {
     spaceId: v.id("newDriveSpaces"),
