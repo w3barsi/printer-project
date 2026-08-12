@@ -57,6 +57,20 @@ const listedItemValidator = v.union(
   }),
 );
 
+const filePreviewValidator = v.object({
+  _id: v.id("newDriveItems"),
+  name: v.string(),
+  parentId: parentIdValidator,
+  spaceId: v.id("newDriveSpaces"),
+  spaceName: v.string(),
+  ownerName: v.string(),
+  updatedAt: v.number(),
+  publicAccess: v.optional(v.literal("read")),
+  contentType: v.string(),
+  size: v.number(),
+  url: v.string(),
+});
+
 type SpaceAccessCtx = Pick<QueryCtx, "db"> & {
   user: UserIdentity;
 };
@@ -190,6 +204,35 @@ export const getFolder = authedQuery({
   },
 });
 
+export const getFilePreview = authedQuery({
+  args: { itemId: v.id("newDriveItems") },
+  returns: v.union(v.null(), filePreviewValidator),
+  handler: async (ctx, args) => {
+    const item = await ctx.db.get("newDriveItems", args.itemId);
+    if (!item || item.kind !== "file" || item.deletedAt !== undefined) return null;
+
+    const space = await requireSpaceAccess(ctx, item.spaceId);
+    const owner =
+      item.createdBy === "guest" ? null : await ctx.db.get("users", item.createdBy);
+    const url = await r2.getUrl(item.r2.key, { expiresIn: 15 * 60 });
+    if (!url) return null;
+
+    return {
+      _id: item._id,
+      name: item.name,
+      parentId: item.parentId,
+      spaceId: item.spaceId,
+      spaceName: space.name,
+      ownerName: item.createdBy === "guest" ? "Guest" : (owner?.name ?? "User"),
+      updatedAt: item.updatedAt,
+      publicAccess: item.publicAccess,
+      contentType: item.r2.contentType,
+      size: item.r2.size,
+      url,
+    };
+  },
+});
+
 export const createFolder = authedMutation({
   args: {
     spaceId: v.id("newDriveSpaces"),
@@ -232,6 +275,44 @@ export const createFolder = authedMutation({
     });
     await ctx.db.patch("newDriveSpaces", args.spaceId, { updatedAt: now });
     return folderId;
+  },
+});
+
+export const renameItem = authedMutation({
+  args: {
+    spaceId: v.id("newDriveSpaces"),
+    itemId: v.id("newDriveItems"),
+    name: v.string(),
+  },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    await requireSpaceAccess(ctx, args.spaceId);
+    const item = await ctx.db.get("newDriveItems", args.itemId);
+    if (!item || item.spaceId !== args.spaceId || item.deletedAt !== undefined) {
+      throw new ConvexError("Item not found");
+    }
+
+    const name = assertItemName(args.name);
+    const nameKey = normalizeName(name);
+    const conflict = await ctx.db
+      .query("newDriveItems")
+      .withIndex("by_spaceId_and_parentId_and_deletedAt_and_nameKey", (q) =>
+        q
+          .eq("spaceId", args.spaceId)
+          .eq("parentId", item.parentId)
+          .eq("deletedAt", undefined)
+          .eq("nameKey", nameKey),
+      )
+      .unique();
+    if (conflict && conflict._id !== item._id) {
+      throw new ConvexError("An item with this name already exists");
+    }
+    if (item.name === name) return null;
+
+    const updatedAt = Date.now();
+    await ctx.db.patch("newDriveItems", item._id, { name, nameKey, updatedAt });
+    await ctx.db.patch("newDriveSpaces", args.spaceId, { updatedAt });
+    return null;
   },
 });
 

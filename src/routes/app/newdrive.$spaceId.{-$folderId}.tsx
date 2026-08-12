@@ -89,6 +89,7 @@ function SpaceBrowserPage() {
   );
   const deleteItems = useMutation(api.newDrive.deleteItems);
   const moveItems = useMutation(api.newDrive.moveItems);
+  const renameItem = useMutation(api.newDrive.renameItem);
   const items: NewDriveItem[] = data.map((item) => ({
     id: item._id,
     name: item.name,
@@ -155,6 +156,13 @@ function SpaceBrowserPage() {
               itemIds: itemIds as Id<"newDriveItems">[],
               destinationFolderId: destinationFolderId as Id<"newDriveItems">,
             })
+          }
+          onRenameItem={(itemId, name) =>
+            renameItem({
+              spaceId: typedSpaceId,
+              itemId: itemId as Id<"newDriveItems">,
+              name,
+            }).then(() => undefined)
           }
         />
       </Container>

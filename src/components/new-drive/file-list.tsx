@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import {
   useCallback,
+  type FormEvent,
   type KeyboardEvent,
   type MouseEvent,
   useEffect,
@@ -47,6 +48,14 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
@@ -60,6 +69,7 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty";
+import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { useIsMobile } from "@/hooks/use-mobile";
 import type { NewDriveItem } from "@/lib/new-drive-items";
@@ -72,6 +82,7 @@ export function NewDriveFileList({
   parentPath,
   onDeleteItems,
   onMoveItems,
+  onRenameItem,
 }: {
   items: NewDriveItem[];
   title: string;
@@ -82,6 +93,7 @@ export function NewDriveFileList({
     itemIds: string[],
     destinationFolderId: string,
   ) => boolean | Promise<boolean>;
+  onRenameItem?: (itemId: string, name: string) => void | Promise<void>;
 }) {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
@@ -90,7 +102,10 @@ export function NewDriveFileList({
   const [selectionAnchor, setSelectionAnchor] = useState<string | null>(null);
   const [activeDragId, setActiveDragId] = useState<string | null>(null);
   const [deleteRequest, setDeleteRequest] = useState<string[]>([]);
+  const [renameRequest, setRenameRequest] = useState<NewDriveItem | null>(null);
+  const [renameValue, setRenameValue] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isRenaming, setIsRenaming] = useState(false);
   const lastDragEndedAt = useRef(0);
   const usesDirectNavigation = isMobile || hasCoarsePointer;
   const selectionEnabled = interactive && !usesDirectNavigation;
@@ -143,6 +158,28 @@ export function NewDriveFileList({
     }
   }
 
+  async function confirmRename(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!onRenameItem || !renameRequest || !renameValue.trim()) return;
+    setIsRenaming(true);
+    try {
+      await onRenameItem(renameRequest.id, renameValue);
+      toast.success(`Renamed to ${renameValue.trim()}`, { position: "bottom-right" });
+      setRenameRequest(null);
+      setIsRenaming(false);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Item could not be renamed", {
+        position: "bottom-right",
+      });
+      setIsRenaming(false);
+    }
+  }
+
+  function requestRename(item: NewDriveItem) {
+    setRenameValue(item.name);
+    setRenameRequest(item);
+  }
+
   function selectRange(itemId: string) {
     const anchorIndex = selectionAnchor
       ? displayedItems.findIndex((item) => item.id === selectionAnchor)
@@ -178,9 +215,9 @@ export function NewDriveFileList({
       return;
     }
 
-    toast.info("File preview is not connected yet", {
-      description: item.name,
-      position: "bottom-right",
+    navigate({
+      to: "/app/newdrive/file/$itemId",
+      params: { itemId: item.id },
     });
   }
 
@@ -383,6 +420,7 @@ export function NewDriveFileList({
                   }
                 }}
                 onDelete={() => setDeleteRequest([item.id])}
+                onRename={onRenameItem ? () => requestRename(item) : undefined}
               />
             ))}
           </div>
@@ -447,6 +485,49 @@ export function NewDriveFileList({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      <Dialog
+        open={renameRequest !== null}
+        onOpenChange={(open) => !open && !isRenaming && setRenameRequest(null)}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Rename</DialogTitle>
+            <DialogDescription>
+              Enter a new name for {renameRequest?.name}.
+            </DialogDescription>
+          </DialogHeader>
+          <form className="space-y-4" onSubmit={confirmRename}>
+            <Input
+              autoFocus
+              aria-label="New item name"
+              maxLength={255}
+              value={renameValue}
+              onChange={(event) => setRenameValue(event.target.value)}
+            />
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                disabled={isRenaming}
+                onClick={() => setRenameRequest(null)}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                disabled={
+                  isRenaming ||
+                  !renameValue.trim() ||
+                  renameValue.trim() === renameRequest?.name
+                }
+              >
+                {isRenaming && <Spinner data-icon="inline-start" />}
+                Rename
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </section>
   );
 }
@@ -550,6 +631,7 @@ function NewDriveFileRow({
   onKeyDown,
   onContextMenu,
   onDelete,
+  onRename,
 }: {
   item: NewDriveItem;
   interactive: boolean;
@@ -561,6 +643,7 @@ function NewDriveFileRow({
   onKeyDown: (event: KeyboardEvent<HTMLDivElement>) => void;
   onContextMenu: () => void;
   onDelete: () => void;
+  onRename?: () => void;
 }) {
   const {
     attributes,
@@ -670,10 +753,12 @@ function NewDriveFileRow({
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <PencilIcon />
-                Rename
-              </DropdownMenuItem>
+              {onRename && (
+                <DropdownMenuItem onClick={onRename}>
+                  <PencilIcon />
+                  Rename
+                </DropdownMenuItem>
+              )}
               <DropdownMenuItem>
                 <Share2Icon />
                 Share
