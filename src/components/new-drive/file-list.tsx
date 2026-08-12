@@ -46,7 +46,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -692,18 +692,16 @@ function NewDriveFileRow({
         <ItemIcon kind={item.kind} />
         <div className="min-w-0">
           {item.kind === "folder" && !interactive ? (
-            <Button
-              variant="link"
-              className="h-auto max-w-full justify-start p-0 font-medium"
-              render={
-                <Link
-                  to="/app/newdrive/$spaceId/{-$folderId}"
-                  params={{ spaceId: item.spaceId, folderId: item.id }}
-                />
-              }
+            <Link
+              to="/app/newdrive/$spaceId/{-$folderId}"
+              params={{ spaceId: item.spaceId, folderId: item.id }}
+              className={buttonVariants({
+                variant: "link",
+                className: "h-auto max-w-full justify-start p-0 font-medium",
+              })}
             >
               <span className="truncate">{item.name}</span>
-            </Button>
+            </Link>
           ) : (
             <p className="truncate text-sm font-medium">{item.name}</p>
           )}

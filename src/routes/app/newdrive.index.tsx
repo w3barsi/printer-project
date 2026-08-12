@@ -10,7 +10,7 @@ import { Container } from "@/components/layouts/container";
 import { CreateSpaceDialog } from "@/components/new-drive/create-space-dialog";
 import { NewDriveFileList } from "@/components/new-drive/file-list";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import {
   Card,
   CardAction,
@@ -75,19 +75,14 @@ function NewDrivePage() {
                     {space.description || "No description"}
                   </CardDescription>
                   <CardAction>
-                    <Button
-                      variant="ghost"
-                      size="icon-sm"
+                    <Link
+                      to="/app/newdrive/$spaceId/{-$folderId}"
+                      params={{ spaceId: space._id }}
                       aria-label={`Open ${space.name}`}
-                      render={
-                        <Link
-                          to="/app/newdrive/$spaceId/{-$folderId}"
-                          params={{ spaceId: space._id }}
-                        />
-                      }
+                      className={buttonVariants({ variant: "ghost", size: "icon-sm" })}
                     >
                       <ArrowRightIcon />
-                    </Button>
+                    </Link>
                   </CardAction>
                 </CardHeader>
                 <CardContent className="flex items-center gap-4 text-xs text-muted-foreground">
@@ -100,20 +95,18 @@ function NewDrivePage() {
                   </span>
                 </CardContent>
                 <CardFooter>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="w-full"
-                    render={
-                      <Link
-                        to="/app/newdrive/$spaceId/{-$folderId}"
-                        params={{ spaceId: space._id }}
-                      />
-                    }
+                  <Link
+                    to="/app/newdrive/$spaceId/{-$folderId}"
+                    params={{ spaceId: space._id }}
+                    className={buttonVariants({
+                      variant: "outline",
+                      size: "sm",
+                      className: "w-full",
+                    })}
                   >
                     Open space
                     <ArrowRightIcon data-icon="inline-end" />
-                  </Button>
+                  </Link>
                 </CardFooter>
               </Card>
             ))}

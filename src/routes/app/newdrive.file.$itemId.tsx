@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 
 import { Container } from "@/components/layouts/container";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 
 export const Route = createFileRoute("/app/newdrive/file/$itemId")({
   component: FilePreviewPage,
@@ -67,10 +67,13 @@ function FilePreviewPage() {
           <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
             This file may have been moved, deleted, or restricted.
           </p>
-          <Button className="mt-6" variant="outline" render={<Link to="/app/newdrive" />}>
+          <Link
+            to="/app/newdrive"
+            className={buttonVariants({ variant: "outline", className: "mt-6" })}
+          >
             <ArrowLeftIcon data-icon="inline-start" />
             Back to New Drive
-          </Button>
+          </Link>
         </div>
       </Container>
     );
@@ -89,16 +92,14 @@ function FilePreviewPage() {
     >
       <main className="grid min-h-[calc(100svh-6.6rem)] gap-3 lg:grid-cols-[300px_minmax(0,1fr)] lg:gap-5">
         <aside className="flex flex-col rounded-xl border bg-card/70 p-4 shadow-[0_16px_48px_-32px_rgba(0,0,0,0.28)] lg:p-5">
-          <Button
-            variant="outline"
-            className="w-fit"
-            render={
-              <Link to="/app/newdrive/$spaceId/{-$folderId}" params={parentParams} />
-            }
+          <Link
+            to="/app/newdrive/$spaceId/{-$folderId}"
+            params={parentParams}
+            className={buttonVariants({ variant: "outline", className: "w-fit" })}
           >
             <ArrowLeftIcon data-icon="inline-start" />
             Parent folder
-          </Button>
+          </Link>
 
           <div className="mt-6 flex min-w-0 items-start gap-3 lg:mt-10 lg:block">
             <FileMark kind={previewKind} />
@@ -124,21 +125,23 @@ function FilePreviewPage() {
           </dl>
 
           <div className="mt-6 flex gap-2 lg:mt-7">
-            <Button
-              className="flex-1"
-              render={<a href={file.url} download={file.name} />}
+            <a
+              href={file.url}
+              download={file.name}
+              className={buttonVariants({ className: "flex-1" })}
             >
               <DownloadIcon data-icon="inline-start" />
               Download
-            </Button>
-            <Button
-              variant="outline"
-              size="icon"
+            </a>
+            <a
+              href={file.url}
+              target="_blank"
+              rel="noreferrer"
               aria-label="Open file in a new tab"
-              render={<a href={file.url} target="_blank" rel="noreferrer" />}
+              className={buttonVariants({ variant: "outline", size: "icon" })}
             >
               <ExternalLinkIcon />
-            </Button>
+            </a>
           </div>
         </aside>
 
