@@ -1,6 +1,7 @@
 import { ConvexError, v } from "convex/values";
 
 import { authedMutation, authedQuery, requireLocalUser } from "../auth";
+import { normalizeName } from "./lib";
 
 const visibilityValidator = v.union(v.literal("admin"), v.literal("everyone"));
 
@@ -68,7 +69,7 @@ export const create = authedMutation({
       throw new ConvexError("Description must be 160 characters or fewer");
     }
 
-    const nameKey = name.toLocaleLowerCase();
+    const nameKey = normalizeName(name);
     const duplicate = await ctx.db
       .query("newDriveSpaces")
       .withIndex("by_nameKey", (q) => q.eq("nameKey", nameKey))

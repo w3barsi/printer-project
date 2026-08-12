@@ -60,7 +60,8 @@ Before substantial work:
 - Always include validators: `v.string()`, `v.null()`, etc.
 - Public: `query/mutation/action`, Private: `internalQuery/mutation/action`
 - Use `ctx.runQuery/Mutation/Action` for function calls
-- Schema in `convex/schema.ts` with `defineTable` and `v` validators
+- Keep the assembled main schema in `convex/schema.ts`; all domain schema modules must live in `convex/schemas/`
+- Define tables with `defineTable` and `v` validators
 - HTTP endpoints in `convex/http.ts` with `httpAction`
 - Route loader: `loader: ({context: {queryClient: qc}})` - alias queryClient as `qc`
 

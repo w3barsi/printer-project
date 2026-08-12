@@ -1,4 +1,3 @@
-import type { UserIdentity } from "convex/server";
 import { ConvexError, v } from "convex/values";
 
 import { internal } from "../_generated/api";
@@ -9,10 +8,15 @@ import {
   internalMutation,
   internalQuery,
   type MutationCtx,
-  type QueryCtx,
 } from "../_generated/server";
 import { authedMutation, authedQuery, requireLocalUser } from "../auth";
 import { r2 } from "../r2";
+import {
+  assertItemName,
+  normalizeName,
+  requireParentFolder,
+  requireSpaceAccess,
+} from "./lib";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024 * 1024;
 const MAX_DELETE_ITEMS = 500;
@@ -71,10 +75,6 @@ const filePreviewValidator = v.object({
   url: v.string(),
 });
 
-type SpaceAccessCtx = Pick<QueryCtx, "db"> & {
-  user: UserIdentity;
-};
-
 type UploadTicketResult = {
   _id: Id<"newDriveUploadTickets">;
   key: string;
@@ -87,46 +87,6 @@ type UploadTicketResult = {
   declaredSize: number;
   expiresAt: number;
 };
-
-async function requireSpaceAccess(ctx: SpaceAccessCtx, spaceId: Id<"newDriveSpaces">) {
-  const space = await ctx.db.get("newDriveSpaces", spaceId);
-  if (!space || (space.visibility === "admin" && ctx.user.role !== "admin")) {
-    throw new ConvexError("Space not found");
-  }
-  return space;
-}
-
-async function requireParentFolder(
-  ctx: SpaceAccessCtx,
-  spaceId: Id<"newDriveSpaces">,
-  parentId?: Id<"newDriveItems">,
-) {
-  if (!parentId) return;
-  const parent = await ctx.db.get("newDriveItems", parentId);
-  if (
-    !parent ||
-    parent.kind !== "folder" ||
-    parent.spaceId !== spaceId ||
-    parent.deletedAt !== undefined
-  ) {
-    throw new ConvexError("Destination folder not found");
-  }
-}
-
-function normalizeName(name: string) {
-  return name.trim().toLocaleLowerCase();
-}
-
-function assertItemName(name: string) {
-  const trimmed = name.trim();
-  if (!trimmed || trimmed.length > 255 || trimmed === "." || trimmed === "..") {
-    throw new ConvexError("Item name must be between 1 and 255 characters");
-  }
-  if (trimmed.includes("/") || trimmed.includes("\\")) {
-    throw new ConvexError("Item names cannot contain path separators");
-  }
-  return trimmed;
-}
 
 export const listItems = authedQuery({
   args: {

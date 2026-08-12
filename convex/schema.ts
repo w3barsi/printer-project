@@ -1,7 +1,7 @@
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
-import { driveSchema } from "./drive/schema";
+import { driveSchema } from "./schemas/drive";
 import { inventorySchema } from "./schemas/inventory";
 
 export const cashflowType = v.optional(
