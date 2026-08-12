@@ -64,7 +64,7 @@ export function CreateSpaceDialog({ variant = "button" }: CreateSpaceDialogProps
   const id = useId();
   const [open, setOpen] = useState(false);
   const qc = useQueryClient();
-  const createSpace = useConvexMutation(api.spaces.create);
+  const createSpace = useConvexMutation(api.drive.spaces.create);
   const form = useForm<CreateSpaceFormData>({
     resolver: zodResolver(createSpaceSchema),
     defaultValues: {
@@ -76,7 +76,7 @@ export function CreateSpaceDialog({ variant = "button" }: CreateSpaceDialogProps
   const mutation = useMutation({
     mutationFn: createSpace,
     onSuccess: () => {
-      void qc.invalidateQueries(convexQuery(api.spaces.list, {}));
+      void qc.invalidateQueries(convexQuery(api.drive.spaces.list, {}));
       toast.success("Space created");
       setOpen(false);
       form.reset();

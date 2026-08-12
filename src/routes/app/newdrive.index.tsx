@@ -35,7 +35,7 @@ export const Route = createFileRoute("/app/newdrive/")({
 
 function NewDrivePage() {
   const { items } = useNewDrive();
-  const { data: spaces } = useSuspenseQuery(convexQuery(api.spaces.list, {}));
+  const { data: spaces } = useSuspenseQuery(convexQuery(api.drive.spaces.list, {}));
   const [query, setQuery] = useState("");
   const deferredQuery = useDeferredValue(query.trim().toLowerCase());
   const visibleSpaceIds = new Set<string>(spaces.map((space) => space._id));

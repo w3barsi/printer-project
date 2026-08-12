@@ -38,7 +38,7 @@ export function AddItemsMenu({ spaceId, parentId }: AddItemsMenuProps) {
   const [folderPopoverOpen, setFolderPopoverOpen] = useState(false);
   const [folderName, setFolderName] = useState("");
   const [isCreatingFolder, setIsCreatingFolder] = useState(false);
-  const createFolder = useMutation(api.newDrive.createFolder);
+  const createFolder = useMutation(api.drive.items.createFolder);
   const { upload, isUploading } = useNewDriveUpload(spaceId, parentId);
 
   async function uploadSelectedFiles(event: ChangeEvent<HTMLInputElement>) {

@@ -19,17 +19,17 @@ export const Route = createFileRoute("/app/newdrive/$spaceId/{-$folderId}")({
     const spaceId = params.spaceId as Id<"newDriveSpaces">;
     const folderId = params.folderId as Id<"newDriveItems"> | undefined;
     const [spaces, folder] = await Promise.all([
-      qc.ensureQueryData(convexQuery(api.spaces.list, {})),
+      qc.ensureQueryData(convexQuery(api.drive.spaces.list, {})),
       folderId
         ? qc.ensureQueryData(
-            convexQuery(api.newDrive.getFolder, {
+            convexQuery(api.drive.items.getFolder, {
               spaceId,
               folderId,
             }),
           )
         : undefined,
       qc.ensureQueryData(
-        convexQuery(api.newDrive.listItems, {
+        convexQuery(api.drive.items.listItems, {
           spaceId,
           parentId: folderId,
         }),
@@ -38,7 +38,7 @@ export const Route = createFileRoute("/app/newdrive/$spaceId/{-$folderId}")({
     const space = spaces.find((item) => item._id === params.spaceId);
     const parentFolder = folder?.parentId
       ? await qc.ensureQueryData(
-          convexQuery(api.newDrive.getFolder, {
+          convexQuery(api.drive.items.getFolder, {
             spaceId,
             folderId: folder.parentId,
           }),
@@ -82,14 +82,14 @@ function SpaceBrowserPage() {
   const typedSpaceId = spaceId as Id<"newDriveSpaces">;
   const typedFolderId = folderId as Id<"newDriveItems"> | undefined;
   const { data } = useSuspenseQuery(
-    convexQuery(api.newDrive.listItems, {
+    convexQuery(api.drive.items.listItems, {
       spaceId: typedSpaceId,
       parentId: typedFolderId,
     }),
   );
-  const deleteItems = useMutation(api.newDrive.deleteItems);
-  const moveItems = useMutation(api.newDrive.moveItems);
-  const renameItem = useMutation(api.newDrive.renameItem);
+  const deleteItems = useMutation(api.drive.items.deleteItems);
+  const moveItems = useMutation(api.drive.items.moveItems);
+  const renameItem = useMutation(api.drive.items.renameItem);
   const items: NewDriveItem[] = data.map((item) => ({
     id: item._id,
     name: item.name,

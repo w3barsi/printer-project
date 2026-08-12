@@ -95,7 +95,7 @@ function DriveSidebarItem() {
 
 function NewDriveSidebarItem() {
   const { user } = useRouteContext({ from: "/app" });
-  const { data: spaces } = useSuspenseQuery(convexQuery(api.spaces.list, {}));
+  const { data: spaces } = useSuspenseQuery(convexQuery(api.drive.spaces.list, {}));
   const { isMobile, setOpenMobile } = useSidebar();
   const landingMatch = useMatch({ from: "/app/newdrive/", shouldThrow: false });
   const spaceMatch = useMatch({

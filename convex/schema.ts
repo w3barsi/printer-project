@@ -1,8 +1,8 @@
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
+import { driveSchema } from "./drive/schema";
 import { inventorySchema } from "./schemas/inventory";
-import { newDriveSchema } from "./schemas/newDrive";
 
 export const cashflowType = v.optional(
   // CA = Cash Advance
@@ -51,7 +51,7 @@ export default defineSchema({
   }),
 
   ...inventorySchema,
-  ...newDriveSchema,
+  ...driveSchema,
 
   jo: defineTable({
     updatedAt: v.optional(v.number()),

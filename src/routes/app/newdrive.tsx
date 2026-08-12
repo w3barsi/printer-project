@@ -7,7 +7,7 @@ import { NewDriveProvider } from "@/contexts/new-drive-context";
 export const Route = createFileRoute("/app/newdrive")({
   component: NewDriveLayout,
   loader: ({ context: { queryClient: qc } }) =>
-    qc.ensureQueryData(convexQuery(api.spaces.list, {})),
+    qc.ensureQueryData(convexQuery(api.drive.spaces.list, {})),
 });
 
 function NewDriveLayout() {

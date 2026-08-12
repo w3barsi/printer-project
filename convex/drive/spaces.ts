@@ -1,6 +1,6 @@
 import { ConvexError, v } from "convex/values";
 
-import { authedMutation, authedQuery, requireLocalUser } from "./auth";
+import { authedMutation, authedQuery, requireLocalUser } from "../auth";
 
 const visibilityValidator = v.union(v.literal("admin"), v.literal("everyone"));
 

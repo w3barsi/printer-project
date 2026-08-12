@@ -43,10 +43,10 @@ export function useNewDriveUpload(
   spaceId: Id<"newDriveSpaces">,
   parentId?: Id<"newDriveItems">,
 ) {
-  const createFolder = useMutation(api.newDrive.createFolder);
-  const createUploadTicket = useMutation(api.newDrive.createUploadTicket);
-  const finalizeUpload = useAction(api.newDrive.finalizeUpload);
-  const cancelUpload = useAction(api.newDrive.cancelUpload);
+  const createFolder = useMutation(api.drive.items.createFolder);
+  const createUploadTicket = useMutation(api.drive.items.createUploadTicket);
+  const finalizeUpload = useAction(api.drive.items.finalizeUpload);
+  const cancelUpload = useAction(api.drive.items.cancelUpload);
   const [isUploading, setIsUploading] = useState(false);
 
   const upload = useCallback(

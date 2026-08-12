@@ -20,7 +20,7 @@ const commonNewDriveItemFields = {
   deletedAt: v.optional(v.number()),
 };
 
-export const newDriveSchema = {
+export const driveSchema = {
   newDriveSpaces: defineTable({
     name: v.string(),
     nameKey: v.optional(v.string()),

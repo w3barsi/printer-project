@@ -1,8 +1,8 @@
 import type { UserIdentity } from "convex/server";
 import { ConvexError, v } from "convex/values";
 
-import { internal } from "./_generated/api";
-import type { Doc, Id } from "./_generated/dataModel";
+import { internal } from "../_generated/api";
+import type { Doc, Id } from "../_generated/dataModel";
 import {
   action,
   internalAction,
@@ -10,9 +10,9 @@ import {
   internalQuery,
   type MutationCtx,
   type QueryCtx,
-} from "./_generated/server";
-import { authedMutation, authedQuery, requireLocalUser } from "./auth";
-import { r2 } from "./r2";
+} from "../_generated/server";
+import { authedMutation, authedQuery, requireLocalUser } from "../auth";
+import { r2 } from "../r2";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024 * 1024;
 const MAX_DELETE_ITEMS = 500;
@@ -538,7 +538,7 @@ export const finalizeUpload = action({
       throw new ConvexError("Authentication required");
     }
     const ticket: UploadTicketResult | null = await ctx.runQuery(
-      internal.newDrive.getUploadTicket,
+      internal.drive.items.getUploadTicket,
       args,
     );
     if (!ticket || ticket.uploadedBy !== identity.userId) {
@@ -550,7 +550,7 @@ export const finalizeUpload = action({
     if (!metadata || metadata.size === undefined) {
       throw new ConvexError("Uploaded file metadata is unavailable");
     }
-    return await ctx.runMutation(internal.newDrive.completeUpload, {
+    return await ctx.runMutation(internal.drive.items.completeUpload, {
       ticketId: ticket._id,
       contentType: metadata.contentType ?? ticket.declaredContentType,
       size: metadata.size,
@@ -578,12 +578,12 @@ export const cancelUpload = action({
       throw new ConvexError("Authentication required");
     }
     const ticket: UploadTicketResult | null = await ctx.runQuery(
-      internal.newDrive.getUploadTicket,
+      internal.drive.items.getUploadTicket,
       args,
     );
     if (!ticket || ticket.uploadedBy !== identity.userId) return null;
     await r2.deleteObject(ctx, ticket.key);
-    await ctx.runMutation(internal.newDrive.removeUploadTicket, args);
+    await ctx.runMutation(internal.drive.items.removeUploadTicket, args);
     return null;
   },
 });
@@ -635,7 +635,7 @@ export const deleteItems = authedMutation({
     await ctx.db.patch("newDriveSpaces", args.spaceId, { updatedAt: deletedAt });
     const keys = items.flatMap((item) => (item.kind === "file" ? [item.r2.key] : []));
     if (keys.length > 0) {
-      await ctx.scheduler.runAfter(0, internal.newDrive.deleteObjects, { keys });
+      await ctx.scheduler.runAfter(0, internal.drive.items.deleteObjects, { keys });
     }
     return items.length;
   },
