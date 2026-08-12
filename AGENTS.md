@@ -43,6 +43,8 @@ Before substantial work:
 - Do not modify anything from `convex/_generated/`
 - Do not create, modify, or plan tests for this project. Do not add test dependencies, configuration, scripts, or test files.
 - NEVER run `pnpm check`
+- When asked a question, do not yet proceed to implementation. Answer the question first, instructions for implementation will follow.
+- When told to "plan" something in build mode, do not yet proceed with the implementation. Create the plan first, instructions for implementation will follow.
 
 ## Todo Management
 
