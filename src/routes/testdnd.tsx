@@ -16,6 +16,7 @@ export const Route = createFileRoute("/testdnd")({
 });
 
 function RouteComponent() {
+  const dndContextId = useId();
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
@@ -27,6 +28,7 @@ function RouteComponent() {
   return (
     <Container className="flex flex-col gap-2">
       <DndContext
+        id={dndContextId}
         sensors={sensors}
         onDragStart={(event) => console.log("Drag started", event)}
         onDragEnd={(event) => console.log("Drag ended", event)}

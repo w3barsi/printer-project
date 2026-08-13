@@ -29,6 +29,7 @@ import { Route as AppTrelloIndexRouteImport } from './routes/app/trello.index'
 import { Route as AppNewdriveIndexRouteImport } from './routes/app/newdrive.index'
 import { Route as AppJoIndexRouteImport } from './routes/app/jo.index'
 import { Route as ShopShowcaseIndexRouteImport } from './routes/_shop/showcase.index'
+import { Route as ShareTokenChar123ItemIdChar125RouteImport } from './routes/share.$token.{-$itemId}'
 import { Route as AppTrelloListIdRouteImport } from './routes/app/trello.$listId'
 import { Route as AppJoJoIdRouteImport } from './routes/app/jo.$joId'
 import { Route as AppDriveChar123DriveChar125RouteImport } from './routes/app/drive.{-$drive}'
@@ -136,6 +137,12 @@ const ShopShowcaseIndexRoute = ShopShowcaseIndexRouteImport.update({
   path: '/showcase/',
   getParentRoute: () => ShopRouteRoute,
 } as any)
+const ShareTokenChar123ItemIdChar125Route =
+  ShareTokenChar123ItemIdChar125RouteImport.update({
+    id: '/share/$token/{-$itemId}',
+    path: '/share/$token/{-$itemId}',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AppTrelloListIdRoute = AppTrelloListIdRouteImport.update({
   id: '/trello/$listId',
   path: '/trello/$listId',
@@ -208,6 +215,7 @@ export interface FileRoutesByFullPath {
   '/app/drive/{-$drive}': typeof AppDriveChar123DriveChar125Route
   '/app/jo/$joId': typeof AppJoJoIdRoute
   '/app/trello/$listId': typeof AppTrelloListIdRoute
+  '/share/$token/{-$itemId}': typeof ShareTokenChar123ItemIdChar125Route
   '/showcase/': typeof ShopShowcaseIndexRoute
   '/app/jo/': typeof AppJoIndexRoute
   '/app/newdrive/': typeof AppNewdriveIndexRoute
@@ -234,6 +242,7 @@ export interface FileRoutesByTo {
   '/app/drive/{-$drive}': typeof AppDriveChar123DriveChar125Route
   '/app/jo/$joId': typeof AppJoJoIdRoute
   '/app/trello/$listId': typeof AppTrelloListIdRoute
+  '/share/$token/{-$itemId}': typeof ShareTokenChar123ItemIdChar125Route
   '/showcase': typeof ShopShowcaseIndexRoute
   '/app/jo': typeof AppJoIndexRoute
   '/app/newdrive': typeof AppNewdriveIndexRoute
@@ -267,6 +276,7 @@ export interface FileRoutesById {
   '/app/drive/{-$drive}': typeof AppDriveChar123DriveChar125Route
   '/app/jo/$joId': typeof AppJoJoIdRoute
   '/app/trello/$listId': typeof AppTrelloListIdRoute
+  '/share/$token/{-$itemId}': typeof ShareTokenChar123ItemIdChar125Route
   '/_shop/showcase/': typeof ShopShowcaseIndexRoute
   '/app/jo/': typeof AppJoIndexRoute
   '/app/newdrive/': typeof AppNewdriveIndexRoute
@@ -297,6 +307,7 @@ export interface FileRouteTypes {
     | '/app/drive/{-$drive}'
     | '/app/jo/$joId'
     | '/app/trello/$listId'
+    | '/share/$token/{-$itemId}'
     | '/showcase/'
     | '/app/jo/'
     | '/app/newdrive/'
@@ -323,6 +334,7 @@ export interface FileRouteTypes {
     | '/app/drive/{-$drive}'
     | '/app/jo/$joId'
     | '/app/trello/$listId'
+    | '/share/$token/{-$itemId}'
     | '/showcase'
     | '/app/jo'
     | '/app/newdrive'
@@ -355,6 +367,7 @@ export interface FileRouteTypes {
     | '/app/drive/{-$drive}'
     | '/app/jo/$joId'
     | '/app/trello/$listId'
+    | '/share/$token/{-$itemId}'
     | '/_shop/showcase/'
     | '/app/jo/'
     | '/app/newdrive/'
@@ -373,6 +386,7 @@ export interface RootRouteChildren {
   TestdndRoute: typeof TestdndRoute
   TestfruitsRoute: typeof TestfruitsRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
+  ShareTokenChar123ItemIdChar125Route: typeof ShareTokenChar123ItemIdChar125Route
 }
 
 declare module '@tanstack/react-router' {
@@ -516,6 +530,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/showcase/'
       preLoaderRoute: typeof ShopShowcaseIndexRouteImport
       parentRoute: typeof ShopRouteRoute
+    }
+    '/share/$token/{-$itemId}': {
+      id: '/share/$token/{-$itemId}'
+      path: '/share/$token/{-$itemId}'
+      fullPath: '/share/$token/{-$itemId}'
+      preLoaderRoute: typeof ShareTokenChar123ItemIdChar125RouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/app/trello/$listId': {
       id: '/app/trello/$listId'
@@ -705,6 +726,7 @@ const rootRouteChildren: RootRouteChildren = {
   TestdndRoute: TestdndRoute,
   TestfruitsRoute: TestfruitsRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
+  ShareTokenChar123ItemIdChar125Route: ShareTokenChar123ItemIdChar125Route,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -16,6 +16,21 @@ export type NewDriveUploadSelection = {
   folderPaths: string[];
 };
 
+export type NewDriveUploadOperations = {
+  createFolder: (args: {
+    parentId?: Id<"newDriveItems">;
+    name: string;
+  }) => Promise<Id<"newDriveItems">>;
+  createUploadTicket: (args: {
+    parentId?: Id<"newDriveItems">;
+    name: string;
+    contentType: string;
+    size: number;
+  }) => Promise<{ ticketId: Id<"newDriveUploadTickets">; url: string }>;
+  finalizeUpload: (args: { ticketId: Id<"newDriveUploadTickets"> }) => Promise<unknown>;
+  cancelUpload: (args: { ticketId: Id<"newDriveUploadTickets"> }) => Promise<unknown>;
+};
+
 function pathSegments(path: string) {
   return path.split(/[\\/]/).filter(Boolean);
 }
@@ -47,6 +62,19 @@ export function useNewDriveUpload(
   const createUploadTicket = useMutation(api.drive.items.createUploadTicket);
   const finalizeUpload = useAction(api.drive.items.finalizeUpload);
   const cancelUpload = useAction(api.drive.items.cancelUpload);
+  return useNewDriveUploadWithOperations(parentId, {
+    createFolder: (args) => createFolder({ spaceId, ...args }),
+    createUploadTicket: (args) => createUploadTicket({ spaceId, ...args }),
+    finalizeUpload,
+    cancelUpload,
+  });
+}
+
+export function useNewDriveUploadWithOperations(
+  parentId: Id<"newDriveItems"> | undefined,
+  operations: NewDriveUploadOperations,
+) {
+  const { createFolder, createUploadTicket, finalizeUpload, cancelUpload } = operations;
   const [isUploading, setIsUploading] = useState(false);
 
   const upload = useCallback(
@@ -67,7 +95,6 @@ export function useNewDriveUpload(
             continue;
           }
           currentParent = await createFolder({
-            spaceId,
             parentId: currentParent,
             name: segment,
           });
@@ -106,7 +133,6 @@ export function useNewDriveUpload(
           );
           try {
             const ticket = await createUploadTicket({
-              spaceId,
               parentId: targetParent,
               name,
               contentType: uploadFile.file.type || "application/octet-stream",
@@ -170,7 +196,6 @@ export function useNewDriveUpload(
       finalizeUpload,
       isUploading,
       parentId,
-      spaceId,
     ],
   );
 

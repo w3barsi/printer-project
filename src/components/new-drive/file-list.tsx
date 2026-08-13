@@ -17,6 +17,7 @@ import {
   FileTextIcon,
   FolderIcon,
   FolderOpenIcon,
+  FolderInputIcon,
   FolderUpIcon,
   MoreHorizontalIcon,
   PencilIcon,
@@ -29,6 +30,7 @@ import {
   type KeyboardEvent,
   type MouseEvent,
   useEffect,
+  useId,
   useRef,
   useState,
 } from "react";
@@ -70,6 +72,14 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
 import { useIsMobile } from "@/hooks/use-mobile";
 import type { NewDriveItem } from "@/lib/new-drive-items";
@@ -83,6 +93,12 @@ export function NewDriveFileList({
   onDeleteItems,
   onMoveItems,
   onRenameItem,
+  onShareItem,
+  onOpenItem,
+  onOpenParent,
+  publicSafe = false,
+  moveDestinations = [],
+  deleteDescription,
 }: {
   items: NewDriveItem[];
   title: string;
@@ -94,7 +110,14 @@ export function NewDriveFileList({
     destinationFolderId: string,
   ) => boolean | Promise<boolean>;
   onRenameItem?: (itemId: string, name: string) => void | Promise<void>;
+  onShareItem?: (item: NewDriveItem) => void;
+  onOpenItem?: (item: NewDriveItem) => void;
+  onOpenParent?: () => void;
+  publicSafe?: boolean;
+  moveDestinations?: Array<{ id: string; name: string }>;
+  deleteDescription?: string;
 }) {
+  const dndContextId = useId();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const [hasCoarsePointer, setHasCoarsePointer] = useState(false);
@@ -106,6 +129,9 @@ export function NewDriveFileList({
   const [renameValue, setRenameValue] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
   const [isRenaming, setIsRenaming] = useState(false);
+  const [moveRequest, setMoveRequest] = useState<NewDriveItem | null>(null);
+  const [moveDestinationId, setMoveDestinationId] = useState("");
+  const [isMoving, setIsMoving] = useState(false);
   const lastDragEndedAt = useRef(0);
   const usesDirectNavigation = isMobile || hasCoarsePointer;
   const selectionEnabled = interactive && !usesDirectNavigation;
@@ -180,6 +206,24 @@ export function NewDriveFileList({
     setRenameRequest(item);
   }
 
+  async function confirmMove() {
+    if (!onMoveItems || !moveRequest || !moveDestinationId) return;
+    setIsMoving(true);
+    try {
+      const didMove = await onMoveItems([moveRequest.id], moveDestinationId);
+      if (!didMove) throw new Error("Item cannot be moved there");
+      toast.success(`${moveRequest.name} moved`, { position: "bottom-right" });
+      setMoveRequest(null);
+      setMoveDestinationId("");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Item could not be moved", {
+        position: "bottom-right",
+      });
+    } finally {
+      setIsMoving(false);
+    }
+  }
+
   function selectRange(itemId: string) {
     const anchorIndex = selectionAnchor
       ? displayedItems.findIndex((item) => item.id === selectionAnchor)
@@ -207,6 +251,10 @@ export function NewDriveFileList({
   }
 
   function openItem(item: NewDriveItem) {
+    if (onOpenItem) {
+      onOpenItem(item);
+      return;
+    }
     if (item.kind === "folder") {
       navigate({
         to: "/app/newdrive/$spaceId/{-$folderId}",
@@ -338,6 +386,7 @@ export function NewDriveFileList({
         {title}
       </h2>
       <DndContext
+        id={dndContextId}
         sensors={sensors}
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
@@ -386,18 +435,29 @@ export function NewDriveFileList({
             }}
           >
             <div
-              className="grid grid-cols-[minmax(0,1fr)_32px] px-4 pb-1 text-[11px] font-medium tracking-wide text-muted-foreground uppercase md:grid-cols-[minmax(220px,1.7fr)_minmax(90px,.65fr)_minmax(130px,.85fr)_80px_110px_32px]"
+              className={cn(
+                "grid grid-cols-[minmax(0,1fr)_32px] px-4 pb-1 text-[11px] font-medium tracking-wide text-muted-foreground uppercase",
+                publicSafe
+                  ? "md:grid-cols-[minmax(220px,1.7fr)_minmax(130px,.85fr)_80px_32px]"
+                  : "md:grid-cols-[minmax(220px,1.7fr)_minmax(90px,.65fr)_minmax(130px,.85fr)_80px_110px_32px]",
+              )}
               role="presentation"
             >
               <span>Name</span>
-              <span className="hidden md:block">Owner</span>
+              {!publicSafe && <span className="hidden md:block">Owner</span>}
               <span className="hidden md:block">Last modified</span>
               <span className="hidden md:block">Size</span>
-              <span className="hidden md:block">Access</span>
+              {!publicSafe && <span className="hidden md:block">Access</span>}
               <span className="sr-only">Actions</span>
             </div>
 
-            {parentPath && <ParentFolderRow parentPath={parentPath} />}
+            {parentPath && (
+              <ParentFolderRow
+                parentPath={parentPath}
+                onOpen={onOpenParent}
+                publicSafe={publicSafe}
+              />
+            )}
 
             {displayedItems.map((item) => (
               <NewDriveFileRow
@@ -421,6 +481,17 @@ export function NewDriveFileList({
                 }}
                 onDelete={() => setDeleteRequest([item.id])}
                 onRename={onRenameItem ? () => requestRename(item) : undefined}
+                onShare={onShareItem ? () => onShareItem(item) : undefined}
+                onMove={
+                  onMoveItems && moveDestinations.some(({ id }) => id !== item.id)
+                    ? () => {
+                        setMoveRequest(item);
+                        setMoveDestinationId("");
+                      }
+                    : undefined
+                }
+                canDelete={!!onDeleteItems}
+                publicSafe={publicSafe}
               />
             ))}
           </div>
@@ -462,7 +533,7 @@ export function NewDriveFileList({
                 `This will permanently remove ${deleteRequest.length} selected items.`
               )}{" "}
               Folders and everything inside them will be deleted. This action cannot be
-              undone.
+              undone. {deleteDescription}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -496,7 +567,7 @@ export function NewDriveFileList({
               Enter a new name for {renameRequest?.name}.
             </DialogDescription>
           </DialogHeader>
-          <form className="space-y-4" onSubmit={confirmRename}>
+          <form className="flex flex-col gap-4" onSubmit={confirmRename}>
             <Input
               autoFocus
               aria-label="New item name"
@@ -528,18 +599,80 @@ export function NewDriveFileList({
           </form>
         </DialogContent>
       </Dialog>
+      <Dialog
+        open={moveRequest !== null}
+        onOpenChange={(open) => !open && !isMoving && setMoveRequest(null)}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Move {moveRequest?.name}</DialogTitle>
+            <DialogDescription>
+              Choose a folder within this shared area.
+            </DialogDescription>
+          </DialogHeader>
+          <Select
+            value={moveDestinationId}
+            onValueChange={(value) => setMoveDestinationId(value ?? "")}
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select a destination" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                {moveDestinations
+                  .filter(({ id }) => id !== moveRequest?.id)
+                  .map((destination) => (
+                    <SelectItem key={destination.id} value={destination.id}>
+                      {destination.name}
+                    </SelectItem>
+                  ))}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              disabled={isMoving}
+              onClick={() => setMoveRequest(null)}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              disabled={isMoving || !moveDestinationId}
+              onClick={() => void confirmMove()}
+            >
+              {isMoving ? (
+                <Spinner data-icon="inline-start" />
+              ) : (
+                <FolderInputIcon data-icon="inline-start" />
+              )}
+              Move
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </section>
   );
 }
 
 function ParentFolderRow({
   parentPath,
+  onOpen,
+  publicSafe,
 }: {
   parentPath: { spaceId: string; name: string; folderId: string | null };
+  onOpen?: () => void;
+  publicSafe: boolean;
 }) {
   const navigate = useNavigate();
 
   function openParentFolder() {
+    if (onOpen) {
+      onOpen();
+      return;
+    }
     navigate({
       to: "/app/newdrive/$spaceId/{-$folderId}",
       params: {
@@ -551,11 +684,16 @@ function ParentFolderRow({
 
   return (
     <div
-      className="grid min-h-14 cursor-pointer grid-cols-[minmax(0,1fr)_32px] items-center gap-3 rounded-lg border border-dashed border-border/70 bg-muted/20 px-4 py-2.5 transition-colors duration-200 select-none hover:bg-muted/40 md:grid-cols-[minmax(220px,1.7fr)_minmax(90px,.65fr)_minmax(130px,.85fr)_80px_110px_32px]"
+      className={cn(
+        "grid min-h-14 cursor-pointer grid-cols-[minmax(0,1fr)_32px] items-center gap-3 rounded-lg border border-dashed border-border/70 bg-muted/20 px-4 py-2.5 transition-colors duration-200 select-none hover:bg-muted/40",
+        publicSafe
+          ? "md:grid-cols-[minmax(220px,1.7fr)_minmax(130px,.85fr)_80px_32px]"
+          : "md:grid-cols-[minmax(220px,1.7fr)_minmax(90px,.65fr)_minmax(130px,.85fr)_80px_110px_32px]",
+      )}
       role="link"
       tabIndex={0}
       aria-label={`Open parent folder ${parentPath.name}`}
-      onDoubleClick={openParentFolder}
+      onClick={openParentFolder}
       onKeyDown={(event) => {
         if (event.key !== "Enter") return;
         event.preventDefault();
@@ -573,8 +711,12 @@ function ParentFolderRow({
           <p className="truncate text-sm font-medium">{parentPath.name}</p>
         </div>
       </div>
-      <span className="hidden text-xs text-muted-foreground md:block">-</span>
-      <span className="hidden text-xs text-muted-foreground md:block">-</span>
+      {!publicSafe && (
+        <span className="hidden text-xs text-muted-foreground md:block">-</span>
+      )}
+      {!publicSafe && (
+        <span className="hidden text-xs text-muted-foreground md:block">-</span>
+      )}
       <span className="hidden text-xs text-muted-foreground md:block">-</span>
       <span className="hidden text-xs text-muted-foreground md:block">-</span>
       <span aria-hidden="true" />
@@ -632,6 +774,10 @@ function NewDriveFileRow({
   onContextMenu,
   onDelete,
   onRename,
+  onShare,
+  onMove,
+  canDelete,
+  publicSafe,
 }: {
   item: NewDriveItem;
   interactive: boolean;
@@ -644,6 +790,10 @@ function NewDriveFileRow({
   onContextMenu: () => void;
   onDelete: () => void;
   onRename?: () => void;
+  onShare?: () => void;
+  onMove?: () => void;
+  canDelete: boolean;
+  publicSafe: boolean;
 }) {
   const {
     attributes,
@@ -667,6 +817,7 @@ function NewDriveFileRow({
     },
     [setDraggableRef, setDroppableRef],
   );
+  const hasActions = !!onRename || !!onMove || !!onShare || canDelete;
 
   return (
     <div
@@ -674,7 +825,10 @@ function NewDriveFileRow({
       {...attributes}
       {...listeners}
       className={cn(
-        "group grid min-h-14 grid-cols-[minmax(0,1fr)_32px] items-center gap-3 rounded-lg bg-card px-4 py-2.5 transition-[color,background-color,box-shadow,opacity] duration-200 hover:bg-muted/50 md:grid-cols-[minmax(220px,1.7fr)_minmax(90px,.65fr)_minmax(130px,.85fr)_80px_110px_32px]",
+        "group grid min-h-14 grid-cols-[minmax(0,1fr)_32px] items-center gap-3 rounded-lg bg-card px-4 py-2.5 transition-[color,background-color,box-shadow,opacity] duration-200 hover:bg-muted/50",
+        publicSafe
+          ? "md:grid-cols-[minmax(220px,1.7fr)_minmax(130px,.85fr)_80px_32px]"
+          : "md:grid-cols-[minmax(220px,1.7fr)_minmax(90px,.65fr)_minmax(130px,.85fr)_80px_110px_32px]",
         interactive && "cursor-pointer select-none",
         isSelected && selectionEnabled && "bg-muted/50 ring-1 ring-primary",
         isDragging && "opacity-35",
@@ -706,69 +860,89 @@ function NewDriveFileRow({
             <p className="truncate text-sm font-medium">{item.name}</p>
           )}
           <p className="mt-0.5 truncate text-xs text-muted-foreground md:hidden">
-            {item.owner} / {item.updated} / {item.size}
+            {publicSafe
+              ? `${item.updated} / ${item.size}`
+              : `${item.owner} / ${item.updated} / ${item.size}`}
           </p>
         </div>
       </div>
-      <span className="hidden truncate text-xs text-muted-foreground md:block">
-        {item.owner}
-      </span>
+      {!publicSafe && (
+        <span className="hidden truncate text-xs text-muted-foreground md:block">
+          {item.owner}
+        </span>
+      )}
       <span className="hidden truncate text-xs text-muted-foreground md:block">
         {item.updated}
       </span>
       <span className="hidden text-xs text-muted-foreground md:block">{item.size}</span>
-      <div className="hidden md:block">
-        <Badge
-          variant="outline"
-          className={cn(
-            "h-6 rounded-md bg-background px-1.5 font-normal text-muted-foreground",
-            item.access !== "Restricted" &&
-              "border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-900 dark:bg-blue-950/50 dark:text-blue-400",
-          )}
-        >
-          {item.access !== "Restricted" && <Share2Icon />}
-          {item.access}
-        </Badge>
-      </div>
-      <div
-        onPointerDown={(event) => event.stopPropagation()}
-        onClick={(event) => event.stopPropagation()}
-        onDoubleClick={(event) => event.stopPropagation()}
-        onKeyDown={(event) => event.stopPropagation()}
-      >
-        <DropdownMenu>
-          <DropdownMenuTrigger
-            render={
-              <Button
-                variant="ghost"
-                size="icon-sm"
-                className="text-muted-foreground md:data-popup-open:opacity-100"
-                aria-label={`More actions for ${item.name}`}
-              />
-            }
+      {!publicSafe && (
+        <div className="hidden md:block">
+          <Badge
+            variant="outline"
+            className={cn(
+              "h-6 rounded-md bg-background px-1.5 font-normal text-muted-foreground",
+              item.access !== "Restricted" &&
+                "border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-900 dark:bg-blue-950/50 dark:text-blue-400",
+            )}
           >
-            <MoreHorizontalIcon />
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuGroup>
-              {onRename && (
-                <DropdownMenuItem onClick={onRename}>
-                  <PencilIcon />
-                  Rename
-                </DropdownMenuItem>
-              )}
-              <DropdownMenuItem>
-                <Share2Icon />
-                Share
-              </DropdownMenuItem>
-              <DropdownMenuItem variant="destructive" onClick={onDelete}>
-                <Trash2Icon />
-                Delete
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
+            {item.access !== "Restricted" && <Share2Icon />}
+            {item.access}
+          </Badge>
+        </div>
+      )}
+      {hasActions ? (
+        <div
+          onPointerDown={(event) => event.stopPropagation()}
+          onClick={(event) => event.stopPropagation()}
+          onDoubleClick={(event) => event.stopPropagation()}
+          onKeyDown={(event) => event.stopPropagation()}
+        >
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              render={
+                <Button
+                  variant="ghost"
+                  size="icon-sm"
+                  className="text-muted-foreground md:data-popup-open:opacity-100"
+                  aria-label={`More actions for ${item.name}`}
+                />
+              }
+            >
+              <MoreHorizontalIcon />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuGroup>
+                {onRename && (
+                  <DropdownMenuItem onClick={onRename}>
+                    <PencilIcon />
+                    Rename
+                  </DropdownMenuItem>
+                )}
+                {onMove && (
+                  <DropdownMenuItem onClick={onMove}>
+                    <FolderInputIcon />
+                    Move
+                  </DropdownMenuItem>
+                )}
+                {onShare && (
+                  <DropdownMenuItem onClick={onShare}>
+                    <Share2Icon />
+                    Share
+                  </DropdownMenuItem>
+                )}
+                {canDelete && (
+                  <DropdownMenuItem variant="destructive" onClick={onDelete}>
+                    <Trash2Icon />
+                    Delete
+                  </DropdownMenuItem>
+                )}
+              </DropdownMenuGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      ) : (
+        <span aria-hidden="true" />
+      )}
     </div>
   );
 }

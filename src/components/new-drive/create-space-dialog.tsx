@@ -98,7 +98,13 @@ export function CreateSpaceDialog({ variant = "button" }: CreateSpaceDialogProps
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger
-        render={variant === "sidebar" ? <SidebarMenuSubButton /> : <Button />}
+        render={
+          variant === "sidebar" ? (
+            <SidebarMenuSubButton render={<button type="button" />} />
+          ) : (
+            <Button />
+          )
+        }
       >
         <PlusIcon data-icon="inline-start" />
         <span>Create space</span>

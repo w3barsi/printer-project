@@ -1,8 +1,10 @@
-import type { Id } from "@convex/_generated/dataModel";
 import { UploadCloudIcon } from "lucide-react";
 import { type DragEvent, type ReactNode, useRef, useState } from "react";
 
-import { type NewDriveUploadFile, useNewDriveUpload } from "@/hooks/use-new-drive-upload";
+import type {
+  NewDriveUploadFile,
+  NewDriveUploadSelection,
+} from "@/hooks/use-new-drive-upload";
 
 type FileSystemEntry = {
   isFile: boolean;
@@ -57,17 +59,11 @@ async function walkEntry(
 }
 
 interface UploadDropzoneProps {
-  spaceId: Id<"newDriveSpaces">;
-  parentId?: Id<"newDriveItems">;
+  upload: (selection: NewDriveUploadSelection) => Promise<void>;
   children: ReactNode;
 }
 
-export function NewDriveUploadDropzone({
-  spaceId,
-  parentId,
-  children,
-}: UploadDropzoneProps) {
-  const { upload } = useNewDriveUpload(spaceId, parentId);
+export function NewDriveUploadDropzone({ upload, children }: UploadDropzoneProps) {
   const [isDraggingFiles, setIsDraggingFiles] = useState(false);
   const dragDepth = useRef(0);
 

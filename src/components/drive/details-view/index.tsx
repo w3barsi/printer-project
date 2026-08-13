@@ -11,7 +11,7 @@ import {
 } from "@dnd-kit/core";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { FolderOpenIcon } from "lucide-react";
-import { useState } from "react";
+import { useId, useState } from "react";
 
 import { type SelectedItem, useSelected } from "@/contexts/SelectedContext";
 import { useMoveFilesOrFolders } from "@/lib/convex/optimistic-mutations";
@@ -28,6 +28,7 @@ import { ParentFolder } from "./parent-folder";
 import { TrashButton } from "./trash-button";
 
 export function DetailsView({ parent }: { parent: Parent }) {
+  const dndContextId = useId();
   const [activeId, setActiveId] = useState<string | null>(null);
   const [sharedTransform, setSharedTransform] = useState<{ x: number; y: number } | null>(
     null,
@@ -104,6 +105,7 @@ export function DetailsView({ parent }: { parent: Parent }) {
   return (
     <>
       <DndContext
+        id={dndContextId}
         sensors={sensors}
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}

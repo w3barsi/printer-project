@@ -1,6 +1,3 @@
-import { api } from "@convex/_generated/api";
-import type { Id } from "@convex/_generated/dataModel";
-import { useMutation } from "convex/react";
 import { FolderPlusIcon, FolderUpIcon, UploadIcon } from "lucide-react";
 import { type ChangeEvent, useId, useRef, useState } from "react";
 import { toast } from "sonner";
@@ -24,22 +21,21 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Spinner } from "@/components/ui/spinner";
-import { useNewDriveUpload } from "@/hooks/use-new-drive-upload";
+import type { NewDriveUploadSelection } from "@/hooks/use-new-drive-upload";
 
 interface AddItemsMenuProps {
-  spaceId: Id<"newDriveSpaces">;
-  parentId?: Id<"newDriveItems">;
+  upload: (selection: NewDriveUploadSelection) => Promise<void>;
+  isUploading: boolean;
+  onCreateFolder: (name: string) => Promise<unknown>;
 }
 
-export function AddItemsMenu({ spaceId, parentId }: AddItemsMenuProps) {
+export function AddItemsMenu({ upload, isUploading, onCreateFolder }: AddItemsMenuProps) {
   const id = useId();
   const fileInput = useRef<HTMLInputElement>(null);
   const folderInput = useRef<HTMLInputElement>(null);
   const [folderPopoverOpen, setFolderPopoverOpen] = useState(false);
   const [folderName, setFolderName] = useState("");
   const [isCreatingFolder, setIsCreatingFolder] = useState(false);
-  const createFolder = useMutation(api.drive.items.createFolder);
-  const { upload, isUploading } = useNewDriveUpload(spaceId, parentId);
 
   async function uploadSelectedFiles(event: ChangeEvent<HTMLInputElement>) {
     const files = Array.from(event.target.files ?? []);
@@ -58,7 +54,7 @@ export function AddItemsMenu({ spaceId, parentId }: AddItemsMenuProps) {
     if (!folderName.trim()) return;
     setIsCreatingFolder(true);
     try {
-      await createFolder({ spaceId, parentId, name: folderName });
+      await onCreateFolder(folderName);
       toast.success("Folder created");
       setFolderName("");
       setFolderPopoverOpen(false);
