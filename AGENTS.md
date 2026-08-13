@@ -57,6 +57,7 @@ Before substantial work:
 ## Convex Rules
 
 - Use new function syntax: `query/mutation({ args, returns, handler })`
+- Returns are not required. If the resulting value can be inferred, omit it.
 - Always include validators: `v.string()`, `v.null()`, etc.
 - Public: `query/mutation/action`, Private: `internalQuery/mutation/action`
 - Use `ctx.runQuery/Mutation/Action` for function calls
