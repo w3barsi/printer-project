@@ -18,6 +18,8 @@ const commonNewDriveItemFields = {
   createdAt: v.number(),
   updatedAt: v.number(),
   deletedAt: v.optional(v.number()),
+  publicToken: v.optional(v.string()),
+  publicExpiresAt: v.optional(v.number()),
 };
 
 export const driveSchema = {
@@ -73,6 +75,7 @@ export const driveSchema = {
     ])
     .index("by_spaceId_and_deletedAt", ["spaceId", "deletedAt"])
     .index("by_deletedAt", ["deletedAt"])
+    .index("by_publicToken", ["publicToken"])
     .searchIndex("search_name", {
       searchField: "name",
       filterFields: ["spaceId", "kind"],

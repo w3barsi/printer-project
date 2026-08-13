@@ -5,20 +5,8 @@ import { normalizeName } from "./lib";
 
 const visibilityValidator = v.union(v.literal("admin"), v.literal("everyone"));
 
-const spaceValidator = v.object({
-  _id: v.id("newDriveSpaces"),
-  _creationTime: v.number(),
-  name: v.string(),
-  description: v.optional(v.string()),
-  visibility: visibilityValidator,
-  createdBy: v.id("users"),
-  createdAt: v.number(),
-  updatedAt: v.number(),
-});
-
 export const list = authedQuery({
   args: {},
-  returns: v.array(spaceValidator),
   handler: async (ctx) => {
     const spaces =
       ctx.user.role === "admin"
@@ -54,7 +42,6 @@ export const create = authedMutation({
     description: v.optional(v.string()),
     visibility: visibilityValidator,
   },
-  returns: v.id("newDriveSpaces"),
   handler: async (ctx, args) => {
     if (ctx.user.role !== "admin") {
       throw new ConvexError("Only administrators can create spaces");

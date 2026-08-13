@@ -18,68 +18,18 @@ import {
   requireSpaceAccess,
 } from "./lib";
 
-const MAX_FILE_SIZE = 5 * 1024 * 1024 * 1024;
-const MAX_DELETE_ITEMS = 500;
-const UPLOAD_TICKET_TTL = 15 * 60 * 1000;
+export const MAX_FILE_SIZE = 5 * 1024 * 1024 * 1024;
+export const MAX_DELETE_ITEMS = 500;
+export const UPLOAD_TICKET_TTL = 15 * 60 * 1000;
 
-const itemCreatorValidator = v.union(v.id("users"), v.literal("guest"));
 const parentIdValidator = v.optional(v.id("newDriveItems"));
-
-const folderResultValidator = v.object({
-  _id: v.id("newDriveItems"),
-  name: v.string(),
-  parentId: parentIdValidator,
-  updatedAt: v.number(),
-});
-
-const listedItemValidator = v.union(
-  v.object({
-    _id: v.id("newDriveItems"),
-    name: v.string(),
-    kind: v.literal("folder"),
-    parentId: parentIdValidator,
-    createdBy: itemCreatorValidator,
-    ownerName: v.string(),
-    updatedAt: v.number(),
-    publicAccess: v.optional(v.union(v.literal("read"), v.literal("edit"))),
-  }),
-  v.object({
-    _id: v.id("newDriveItems"),
-    name: v.string(),
-    kind: v.literal("file"),
-    parentId: parentIdValidator,
-    createdBy: itemCreatorValidator,
-    ownerName: v.string(),
-    updatedAt: v.number(),
-    publicAccess: v.optional(v.literal("read")),
-    r2: v.object({
-      key: v.string(),
-      contentType: v.string(),
-      size: v.number(),
-      sha256: v.optional(v.string()),
-    }),
-  }),
-);
-
-const filePreviewValidator = v.object({
-  _id: v.id("newDriveItems"),
-  name: v.string(),
-  parentId: parentIdValidator,
-  spaceId: v.id("newDriveSpaces"),
-  spaceName: v.string(),
-  ownerName: v.string(),
-  updatedAt: v.number(),
-  publicAccess: v.optional(v.literal("read")),
-  contentType: v.string(),
-  size: v.number(),
-  url: v.string(),
-});
 
 type UploadTicketResult = {
   _id: Id<"newDriveUploadTickets">;
   key: string;
   spaceId: Id<"newDriveSpaces">;
   parentId?: Id<"newDriveItems">;
+  shareRootId?: Id<"newDriveItems">;
   uploadedBy: Id<"users"> | "guest";
   name: string;
   nameKey: string;
@@ -93,7 +43,6 @@ export const listItems = authedQuery({
     spaceId: v.id("newDriveSpaces"),
     parentId: parentIdValidator,
   },
-  returns: v.array(listedItemValidator),
   handler: async (ctx, args) => {
     await requireSpaceAccess(ctx, args.spaceId);
     await requireParentFolder(ctx, args.spaceId, args.parentId);
@@ -143,7 +92,6 @@ export const getFolder = authedQuery({
     spaceId: v.id("newDriveSpaces"),
     folderId: v.id("newDriveItems"),
   },
-  returns: v.union(v.null(), folderResultValidator),
   handler: async (ctx, args) => {
     await requireSpaceAccess(ctx, args.spaceId);
     const folder = await ctx.db.get("newDriveItems", args.folderId);
@@ -166,7 +114,6 @@ export const getFolder = authedQuery({
 
 export const getFilePreview = authedQuery({
   args: { itemId: v.id("newDriveItems") },
-  returns: v.union(v.null(), filePreviewValidator),
   handler: async (ctx, args) => {
     const item = await ctx.db.get("newDriveItems", args.itemId);
     if (!item || item.kind !== "file" || item.deletedAt !== undefined) return null;
@@ -199,7 +146,6 @@ export const createFolder = authedMutation({
     parentId: parentIdValidator,
     name: v.string(),
   },
-  returns: v.id("newDriveItems"),
   handler: async (ctx, args) => {
     await requireSpaceAccess(ctx, args.spaceId);
     await requireParentFolder(ctx, args.spaceId, args.parentId);
@@ -244,7 +190,6 @@ export const renameItem = authedMutation({
     itemId: v.id("newDriveItems"),
     name: v.string(),
   },
-  returns: v.null(),
   handler: async (ctx, args) => {
     await requireSpaceAccess(ctx, args.spaceId);
     const item = await ctx.db.get("newDriveItems", args.itemId);
@@ -282,7 +227,6 @@ export const moveItems = authedMutation({
     itemIds: v.array(v.id("newDriveItems")),
     destinationFolderId: v.id("newDriveItems"),
   },
-  returns: v.boolean(),
   handler: async (ctx, args) => {
     await requireSpaceAccess(ctx, args.spaceId);
     if (args.itemIds.length === 0 || args.itemIds.length > 100) {
@@ -365,11 +309,6 @@ export const createUploadTicket = authedMutation({
     contentType: v.string(),
     size: v.number(),
   },
-  returns: v.object({
-    ticketId: v.id("newDriveUploadTickets"),
-    key: v.string(),
-    url: v.string(),
-  }),
   handler: async (ctx, args) => {
     await requireSpaceAccess(ctx, args.spaceId);
     await requireParentFolder(ctx, args.spaceId, args.parentId);
@@ -404,21 +343,6 @@ export const createUploadTicket = authedMutation({
 
 export const getUploadTicket = internalQuery({
   args: { ticketId: v.id("newDriveUploadTickets") },
-  returns: v.union(
-    v.null(),
-    v.object({
-      _id: v.id("newDriveUploadTickets"),
-      key: v.string(),
-      spaceId: v.id("newDriveSpaces"),
-      parentId: parentIdValidator,
-      uploadedBy: itemCreatorValidator,
-      name: v.string(),
-      nameKey: v.string(),
-      declaredContentType: v.string(),
-      declaredSize: v.number(),
-      expiresAt: v.number(),
-    }),
-  ),
   handler: async (ctx, args) => {
     const ticket = await ctx.db.get("newDriveUploadTickets", args.ticketId);
     if (!ticket) return null;
@@ -427,6 +351,7 @@ export const getUploadTicket = internalQuery({
       key: ticket.key,
       spaceId: ticket.spaceId,
       parentId: ticket.parentId,
+      shareRootId: ticket.shareRootId,
       uploadedBy: ticket.uploadedBy,
       name: ticket.name,
       nameKey: ticket.nameKey,
@@ -444,10 +369,14 @@ export const completeUpload = internalMutation({
     size: v.number(),
     sha256: v.optional(v.string()),
   },
-  returns: v.id("newDriveItems"),
   handler: async (ctx, args) => {
     const ticket = await ctx.db.get("newDriveUploadTickets", args.ticketId);
-    if (!ticket || ticket.expiresAt < Date.now()) {
+    if (
+      !ticket ||
+      ticket.expiresAt < Date.now() ||
+      ticket.uploadedBy === "guest" ||
+      ticket.shareRootId !== undefined
+    ) {
       throw new ConvexError("Upload ticket expired");
     }
     if (args.size !== ticket.declaredSize) {
@@ -521,7 +450,6 @@ export const finalizeUpload = action({
 
 export const removeUploadTicket = internalMutation({
   args: { ticketId: v.id("newDriveUploadTickets") },
-  returns: v.null(),
   handler: async (ctx, args) => {
     const ticket = await ctx.db.get("newDriveUploadTickets", args.ticketId);
     if (ticket) await ctx.db.delete("newDriveUploadTickets", ticket._id);
@@ -548,7 +476,7 @@ export const cancelUpload = action({
   },
 });
 
-async function collectDeletedItems(
+export async function collectDeletedItems(
   ctx: MutationCtx,
   spaceId: Id<"newDriveSpaces">,
   initialIds: Id<"newDriveItems">[],
@@ -584,7 +512,6 @@ export const deleteItems = authedMutation({
     spaceId: v.id("newDriveSpaces"),
     itemIds: v.array(v.id("newDriveItems")),
   },
-  returns: v.number(),
   handler: async (ctx, args) => {
     await requireSpaceAccess(ctx, args.spaceId);
     const items = await collectDeletedItems(ctx, args.spaceId, args.itemIds);

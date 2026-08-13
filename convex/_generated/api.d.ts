@@ -14,6 +14,8 @@ import type * as cashier from "../cashier.js";
 import type * as drive from "../drive.js";
 import type * as drive_items from "../drive/items.js";
 import type * as drive_lib from "../drive/lib.js";
+import type * as drive_sharedUploads from "../drive/sharedUploads.js";
+import type * as drive_shares from "../drive/shares.js";
 import type * as drive_spaces from "../drive/spaces.js";
 import type * as http from "../http.js";
 import type * as inventory from "../inventory.js";
@@ -45,6 +47,8 @@ declare const fullApi: ApiFromModules<{
   drive: typeof drive;
   "drive/items": typeof drive_items;
   "drive/lib": typeof drive_lib;
+  "drive/sharedUploads": typeof drive_sharedUploads;
+  "drive/shares": typeof drive_shares;
   "drive/spaces": typeof drive_spaces;
   http: typeof http;
   inventory: typeof inventory;
