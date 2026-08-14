@@ -13,7 +13,10 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 
-import type { InventoryListItem } from "@/components/inventory/item-dialogs";
+import {
+  InventoryStockActions,
+  type InventoryListItem,
+} from "@/components/inventory/item-dialogs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -72,19 +75,22 @@ export function InventoryItemDetailsSheet({
         <div className="min-h-0 flex-1 overflow-y-auto">
           <div className="flex flex-col gap-6 p-4 sm:p-6">
             <section aria-labelledby="inventory-balance-heading">
-              <div className="flex items-end justify-between gap-4 rounded-lg border bg-muted/30 p-4">
-                <div className="flex flex-col gap-1">
-                  <h2
-                    id="inventory-balance-heading"
-                    className="text-sm font-medium text-muted-foreground"
-                  >
-                    Current stock
-                  </h2>
-                  <p className="text-4xl font-bold tracking-tight tabular-nums">
-                    {item.quantity.toLocaleString()}
-                  </p>
+              <div className="flex flex-col gap-3">
+                <div className="flex items-end justify-between gap-4 rounded-lg border bg-muted/30 p-4">
+                  <div className="flex flex-col gap-1">
+                    <h2
+                      id="inventory-balance-heading"
+                      className="text-sm font-medium text-muted-foreground"
+                    >
+                      Current stock
+                    </h2>
+                    <p className="text-4xl font-bold tracking-tight tabular-nums">
+                      {item.quantity.toLocaleString()}
+                    </p>
+                  </div>
+                  <PackageIcon className="size-8 text-muted-foreground" />
                 </div>
-                <PackageIcon className="size-8 text-muted-foreground" />
+                <InventoryStockActions item={item} />
               </div>
             </section>
 

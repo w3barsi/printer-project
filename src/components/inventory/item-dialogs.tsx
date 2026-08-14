@@ -286,36 +286,55 @@ export function InventoryItemActions({ item }: { item: InventoryListItem }) {
 }
 
 export function InventoryStockActions({ item }: { item: InventoryListItem }) {
-  const [action, setAction] = useState<StockMode | null>(null);
+  const [action, setAction] = useState<ItemAction | null>(null);
 
   return (
     <>
-      <div className="grid grid-cols-3 gap-2">
-        <Button type="button" size="sm" onClick={() => setAction("add")}>
-          <PackagePlusIcon data-icon="inline-start" />
-          Add
-        </Button>
-        <Button
-          type="button"
-          variant="destructive"
-          size="sm"
-          onClick={() => setAction("remove")}
-        >
+      <div className="flex flex-col gap-2">
+        <Button type="button" variant="destructive" onClick={() => setAction("remove")}>
           <MinusIcon data-icon="inline-start" />
-          Use
+          Use Stock
         </Button>
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          onClick={() => setAction("correct")}
-        >
-          <RefreshCwIcon data-icon="inline-start" />
-          Update
-        </Button>
+        <div className="grid grid-cols-3 gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => setAction("add")}
+          >
+            <PackagePlusIcon data-icon="inline-start" />
+            Add
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => setAction("correct")}
+          >
+            <RefreshCwIcon data-icon="inline-start" />
+            Update
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => setAction("edit")}
+          >
+            <PencilIcon data-icon="inline-start" />
+            Edit
+          </Button>
+        </div>
       </div>
 
-      {action && (
+      {action === "edit" ? (
+        <EditItemDetailsDialog
+          item={item}
+          open
+          onOpenChange={(nextOpen) => {
+            if (!nextOpen) setAction(null);
+          }}
+        />
+      ) : action ? (
         <StockAdjustmentDialog
           item={item}
           mode={action}
@@ -324,7 +343,7 @@ export function InventoryStockActions({ item }: { item: InventoryListItem }) {
             if (!nextOpen) setAction(null);
           }}
         />
-      )}
+      ) : null}
     </>
   );
 }
