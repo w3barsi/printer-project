@@ -2,7 +2,7 @@ import type { Id } from "@convex/_generated/dataModel";
 import { useNavigate } from "@tanstack/react-router";
 import { useAction, useConvex, useMutation, useQuery } from "convex/react";
 import { format, formatDistanceToNow } from "date-fns";
-import { saveAs } from "file-saver";
+import fileSaver from "file-saver";
 import {
   ArrowLeftIcon,
   DownloadIcon,
@@ -271,7 +271,7 @@ function PublicFile({
         throw new Error("This shared item is unavailable");
       const response = await fetch(result.url);
       if (!response.ok) throw new Error("Download failed");
-      saveAs(await response.blob(), file.item.name);
+      fileSaver.saveAs(await response.blob(), file.item.name);
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Download failed");
     } finally {

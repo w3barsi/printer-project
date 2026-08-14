@@ -10,6 +10,8 @@ export type NewDriveItem = {
   parentId: string | null;
 };
 
+export type NewDriveShareItem = Pick<NewDriveItem, "id" | "name" | "kind">;
+
 export const newDriveItems: NewDriveItem[] = [
   {
     id: "brand-assets",

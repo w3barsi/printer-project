@@ -14,7 +14,7 @@ import { NewDriveFileList } from "@/components/new-drive/file-list";
 import { ShareDialog } from "@/components/new-drive/share-dialog";
 import { NewDriveUploadDropzone } from "@/components/new-drive/upload-dropzone";
 import { useNewDriveUpload } from "@/hooks/use-new-drive-upload";
-import type { NewDriveItem } from "@/lib/new-drive-items";
+import type { NewDriveItem, NewDriveShareItem } from "@/lib/new-drive-items";
 
 export const Route = createFileRoute("/app/newdrive/$spaceId/{-$folderId}")({
   component: SpaceBrowserPage,
@@ -95,7 +95,7 @@ function SpaceBrowserPage() {
   const renameItem = useMutation(api.drive.items.renameItem);
   const createFolder = useMutation(api.drive.items.createFolder);
   const { upload, isUploading } = useNewDriveUpload(typedSpaceId, typedFolderId);
-  const [shareItem, setShareItem] = useState<NewDriveItem | null>(null);
+  const [shareItem, setShareItem] = useState<NewDriveShareItem | null>(null);
   const items: NewDriveItem[] = data.map((item) => ({
     id: item._id,
     name: item.name,
@@ -138,6 +138,16 @@ function SpaceBrowserPage() {
             isUploading={isUploading}
             onCreateFolder={(name) =>
               createFolder({ spaceId: typedSpaceId, parentId: typedFolderId, name })
+            }
+            onShareFolder={
+              folder
+                ? () =>
+                    setShareItem({
+                      id: folder._id,
+                      name: folder.name,
+                      kind: "folder",
+                    })
+                : undefined
             }
           />
         </div>

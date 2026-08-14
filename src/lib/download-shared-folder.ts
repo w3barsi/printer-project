@@ -1,4 +1,4 @@
-import { saveAs } from "file-saver";
+import fileSaver from "file-saver";
 import JSZip from "jszip";
 
 type ArchiveFile = { path: string; url: string };
@@ -52,5 +52,5 @@ export async function downloadSharedFolder(
     onProgress(files.length + metadata.percent / 100, files.length + 1);
   });
   if (signal?.aborted) throw new DOMException("Archive cancelled", "AbortError");
-  saveAs(blob, `${safeFileName(rootName)}.zip`);
+  fileSaver.saveAs(blob, `${safeFileName(rootName)}.zip`);
 }

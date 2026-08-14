@@ -1,4 +1,10 @@
-import { FolderPlusIcon, FolderUpIcon, UploadIcon } from "lucide-react";
+import {
+  FolderPlusIcon,
+  FolderUpIcon,
+  MoreHorizontalIcon,
+  Share2Icon,
+  UploadIcon,
+} from "lucide-react";
 import { type ChangeEvent, useId, useRef, useState } from "react";
 import { toast } from "sonner";
 
@@ -27,9 +33,15 @@ interface AddItemsMenuProps {
   upload: (selection: NewDriveUploadSelection) => Promise<void>;
   isUploading: boolean;
   onCreateFolder: (name: string) => Promise<unknown>;
+  onShareFolder?: () => void;
 }
 
-export function AddItemsMenu({ upload, isUploading, onCreateFolder }: AddItemsMenuProps) {
+export function AddItemsMenu({
+  upload,
+  isUploading,
+  onCreateFolder,
+  onShareFolder,
+}: AddItemsMenuProps) {
   const id = useId();
   const fileInput = useRef<HTMLInputElement>(null);
   const folderInput = useRef<HTMLInputElement>(null);
@@ -132,6 +144,31 @@ export function AddItemsMenu({ upload, isUploading, onCreateFolder }: AddItemsMe
           </form>
         </PopoverContent>
       </Popover>
+
+      {onShareFolder && (
+        <DropdownMenu>
+          <DropdownMenuTrigger
+            render={
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                aria-label="Folder actions"
+              />
+            }
+          >
+            <MoreHorizontalIcon />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuGroup>
+              <DropdownMenuItem onClick={onShareFolder}>
+                <Share2Icon />
+                Share this folder
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      )}
 
       <input
         ref={fileInput}

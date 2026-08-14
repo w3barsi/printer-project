@@ -24,7 +24,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
-import type { NewDriveItem } from "@/lib/new-drive-items";
+import type { NewDriveShareItem } from "@/lib/new-drive-items";
 import { shareApi } from "@/lib/share-api";
 
 type Expiration = "never" | "day" | "week" | "month" | "custom";
@@ -42,7 +42,7 @@ export function ShareDialog({
   item,
   onOpenChange,
 }: {
-  item: NewDriveItem | null;
+  item: NewDriveShareItem | null;
   onOpenChange: (open: boolean) => void;
 }) {
   const itemId = item?.id as Id<"newDriveItems"> | undefined;
