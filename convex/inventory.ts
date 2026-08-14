@@ -2,7 +2,7 @@ import { paginationOptsValidator, paginationResultValidator } from "convex/serve
 import { v } from "convex/values";
 
 import type { Doc, Id } from "./_generated/dataModel";
-import type { MutationCtx } from "./_generated/server";
+import type { MutationCtx, QueryCtx } from "./_generated/server";
 import { authedMutation, authedQuery, requireLocalUser } from "./auth";
 import {
   normalizeOptionalReason,
@@ -63,6 +63,33 @@ const inventoryActivityValidator = v.object({
   supplierNameBefore: v.optional(v.string()),
   supplierIdAfter: v.optional(v.id("inventorySuppliers")),
   supplierNameAfter: v.optional(v.string()),
+  jobOrderId: v.optional(v.id("jo")),
+  jobOrderNumber: v.optional(v.number()),
+  jobOrderName: v.optional(v.string()),
+});
+
+const linkedInventoryActivityValidator = v.object({
+  _id: v.id("inventoryActivities"),
+  _creationTime: v.number(),
+  inventoryItemId: v.id("inventoryItems"),
+  action: inventoryAction,
+  operation: inventoryOperation,
+  quantityBefore: v.number(),
+  quantityAfter: v.number(),
+  quantityDelta: v.number(),
+  reason: v.optional(v.string()),
+  createdBy: v.id("users"),
+  actorName: v.string(),
+  itemNameBefore: v.optional(v.string()),
+  itemNameAfter: v.string(),
+  supplierIdBefore: v.optional(v.id("inventorySuppliers")),
+  supplierNameBefore: v.optional(v.string()),
+  supplierIdAfter: v.optional(v.id("inventorySuppliers")),
+  supplierNameAfter: v.optional(v.string()),
+  jobOrderId: v.optional(v.id("jo")),
+  jobOrderNumber: v.optional(v.number()),
+  jobOrderName: v.optional(v.string()),
+  jobOrderExists: v.boolean(),
 });
 
 type InventoryActivityInput = Omit<Doc<"inventoryActivities">, "_id" | "_creationTime">;
@@ -98,6 +125,34 @@ async function getItemAndSupplier(
     item,
     supplier,
   };
+}
+
+async function resolveJobOrderName(db: MutationCtx["db"], jobOrder: Doc<"jo">) {
+  const customerId = db.normalizeId("customer", jobOrder.name);
+  const customer = customerId ? await db.get("customer", customerId) : null;
+  const name = customer?.name ?? (customerId ? undefined : jobOrder.name);
+
+  return name?.trim() || `Job Order #${jobOrder.joNumber}`;
+}
+
+async function enrichActivityPage<T extends Doc<"inventoryActivities">>(
+  db: QueryCtx["db"],
+  result: {
+    page: T[];
+    isDone: boolean;
+    continueCursor: string;
+  },
+) {
+  const page = await Promise.all(
+    result.page.map(async (activity) => ({
+      ...activity,
+      jobOrderExists: activity.jobOrderId
+        ? Boolean(await db.get("jo", activity.jobOrderId))
+        : false,
+    })),
+  );
+
+  return { ...result, page };
 }
 
 export const createSupplier = authedMutation({
@@ -259,6 +314,7 @@ export const removeStock = authedMutation({
     inventoryItemId: v.id("inventoryItems"),
     quantity: v.number(),
     reason: v.optional(v.string()),
+    jobOrderId: v.optional(v.id("jo")),
   },
   returns: v.null(),
   handler: async (ctx, args) => {
@@ -266,11 +322,23 @@ export const removeStock = authedMutation({
     const removedQuantity = validatePositiveQuantity(args.quantity);
     const reason = normalizeOptionalReason(args.reason);
     const { item, supplier } = await getItemAndSupplier(ctx.db, args.inventoryItemId);
+    const jobOrder = args.jobOrderId ? await ctx.db.get("jo", args.jobOrderId) : null;
 
-    if (removedQuantity > item.quantity) {
-      throw new Error("Cannot remove more stock than is available");
+    if (args.jobOrderId && !jobOrder) {
+      throw new Error("Job Order not found");
     }
 
+    if (jobOrder?.status === "unconfirmed") {
+      throw new Error("Confirm the Job Order before using inventory stock for it");
+    }
+
+    if (removedQuantity > item.quantity) {
+      throw new Error("Cannot use more stock than is available");
+    }
+
+    const jobOrderName = jobOrder
+      ? await resolveJobOrderName(ctx.db, jobOrder)
+      : undefined;
     const quantityAfter = item.quantity - removedQuantity;
 
     await ctx.db.patch("inventoryItems", item._id, {
@@ -295,6 +363,13 @@ export const removeStock = authedMutation({
             supplierNameBefore: supplier.name,
             supplierIdAfter: supplier._id,
             supplierNameAfter: supplier.name,
+          }
+        : {}),
+      ...(jobOrder && jobOrderName
+        ? {
+            jobOrderId: jobOrder._id,
+            jobOrderNumber: jobOrder.joNumber,
+            jobOrderName,
           }
         : {}),
     });
@@ -550,42 +625,56 @@ export const listActivities = authedQuery({
     inventoryItemId: v.optional(v.id("inventoryItems")),
     action: v.optional(inventoryAction),
   },
-  returns: paginationResultValidator(inventoryActivityValidator),
+  returns: paginationResultValidator(linkedInventoryActivityValidator),
   handler: async (ctx, args) => {
     validatePaginationSize(args.paginationOpts.numItems);
     const inventoryItemId = args.inventoryItemId;
     const action = args.action;
 
-    if (inventoryItemId && action) {
-      return await ctx.db
-        .query("inventoryActivities")
-        .withIndex("by_inventory_item_id_and_action", (q) =>
-          q.eq("inventoryItemId", inventoryItemId).eq("action", action),
-        )
-        .order("desc")
-        .paginate(args.paginationOpts);
-    }
+    const result =
+      inventoryItemId && action
+        ? await ctx.db
+            .query("inventoryActivities")
+            .withIndex("by_inventory_item_id_and_action", (q) =>
+              q.eq("inventoryItemId", inventoryItemId).eq("action", action),
+            )
+            .order("desc")
+            .paginate(args.paginationOpts)
+        : inventoryItemId
+          ? await ctx.db
+              .query("inventoryActivities")
+              .withIndex("by_inventory_item_id", (q) =>
+                q.eq("inventoryItemId", inventoryItemId),
+              )
+              .order("desc")
+              .paginate(args.paginationOpts)
+          : action
+            ? await ctx.db
+                .query("inventoryActivities")
+                .withIndex("by_action", (q) => q.eq("action", action))
+                .order("desc")
+                .paginate(args.paginationOpts)
+            : await ctx.db
+                .query("inventoryActivities")
+                .order("desc")
+                .paginate(args.paginationOpts);
 
-    if (inventoryItemId) {
-      return await ctx.db
-        .query("inventoryActivities")
-        .withIndex("by_inventory_item_id", (q) =>
-          q.eq("inventoryItemId", inventoryItemId),
-        )
-        .order("desc")
-        .paginate(args.paginationOpts);
-    }
+    return await enrichActivityPage(ctx.db, result);
+  },
+});
 
-    if (action) {
-      return await ctx.db
-        .query("inventoryActivities")
-        .withIndex("by_action", (q) => q.eq("action", action))
-        .order("desc")
-        .paginate(args.paginationOpts);
-    }
+export const listUsageByJobOrder = authedQuery({
+  args: {
+    jobOrderId: v.id("jo"),
+    paginationOpts: paginationOptsValidator,
+  },
+  returns: paginationResultValidator(inventoryActivityValidator),
+  handler: async (ctx, args) => {
+    validatePaginationSize(args.paginationOpts.numItems);
 
     return await ctx.db
       .query("inventoryActivities")
+      .withIndex("by_job_order_id", (q) => q.eq("jobOrderId", args.jobOrderId))
       .order("desc")
       .paginate(args.paginationOpts);
   },

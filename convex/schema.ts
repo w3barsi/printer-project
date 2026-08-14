@@ -18,6 +18,8 @@ export default defineSchema({
     createdAt: v.number(),
     updatedAt: v.number(),
     createdBy: v.id("user"),
+  }).searchIndex("search_name", {
+    searchField: "name",
   }),
 
   file: defineTable({
@@ -80,7 +82,12 @@ export default defineSchema({
     .index("by_joNumber", ["joNumber"])
     .index("by_name", ["name"])
     .index("by_lastUpdated", ["updatedAt"])
-    .index("by_forPrinting", ["forPrinting"]),
+    .index("by_forPrinting", ["forPrinting"])
+    .index("by_status_and_updatedAt", ["status", "updatedAt"])
+    .searchIndex("search_name", {
+      searchField: "name",
+      filterFields: ["status"],
+    }),
 
   payment: defineTable({
     createdBy: v.id("users"),

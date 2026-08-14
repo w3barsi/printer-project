@@ -2,6 +2,7 @@ import { convexQuery } from "@convex-dev/react-query";
 import { api } from "@convex/_generated/api";
 import type { Doc, Id } from "@convex/_generated/dataModel";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
+import { Link } from "@tanstack/react-router";
 import { ArrowLeftIcon, ArrowRightIcon, HistoryIcon } from "lucide-react";
 import { useState } from "react";
 
@@ -54,7 +55,9 @@ const PAGE_SIZE = 25;
 
 type InventoryAction = "add" | "remove" | "update";
 type ActionFilter = InventoryAction | "all";
-type InventoryActivity = Doc<"inventoryActivities">;
+type InventoryActivity = Doc<"inventoryActivities"> & {
+  jobOrderExists: boolean;
+};
 
 type InventoryItemOption = {
   id: Id<"inventoryItems"> | null;
@@ -70,14 +73,14 @@ const allItemsOption: InventoryItemOption = {
 const actionFilterItems: Array<{ label: string; value: ActionFilter }> = [
   { label: "All actions", value: "all" },
   { label: "Added", value: "add" },
-  { label: "Removed", value: "remove" },
+  { label: "Used", value: "remove" },
   { label: "Updated", value: "update" },
 ];
 
 const operationLabels: Record<InventoryActivity["operation"], string> = {
   item_created: "Item created",
   stock_added: "Stock added",
-  stock_removed: "Stock removed",
+  stock_removed: "Stock used",
   quantity_corrected: "Count corrected",
   details_updated: "Details updated",
 };
@@ -296,6 +299,9 @@ function ActivityRow({ activity }: { activity: InventoryActivity }) {
           <span className="text-xs text-muted-foreground">
             {activity.supplierNameAfter ?? "No supplier"}
           </span>
+          {activity.jobOrderId && activity.jobOrderNumber !== undefined && (
+            <JobOrderReference activity={activity} />
+          )}
           <span className="text-xs text-muted-foreground md:hidden">
             Recorded by {activity.actorName} · Balance{" "}
             {activity.quantityAfter.toLocaleString()}
@@ -350,6 +356,33 @@ function ActivityRow({ activity }: { activity: InventoryActivity }) {
         {dateTimeFormatter.format(activity._creationTime)}
       </TableCell>
     </TableRow>
+  );
+}
+
+function JobOrderReference({ activity }: { activity: InventoryActivity }) {
+  const content = (
+    <span className="flex min-w-0 flex-wrap items-center gap-x-1 text-xs">
+      <span className="font-medium">JO #{activity.jobOrderNumber}</span>
+      <span className="truncate text-muted-foreground">{activity.jobOrderName}</span>
+      {!activity.jobOrderExists && (
+        <Badge variant="outline" className="mt-0.5">
+          Deleted Job Order
+        </Badge>
+      )}
+    </span>
+  );
+
+  return activity.jobOrderExists && activity.jobOrderId ? (
+    <Link
+      to="/app/jo/$joId"
+      params={{ joId: activity.jobOrderId }}
+      className="w-fit max-w-full underline-offset-4 hover:underline"
+      onClick={(event) => event.stopPropagation()}
+    >
+      {content}
+    </Link>
+  ) : (
+    content
   );
 }
 

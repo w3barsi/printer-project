@@ -57,8 +57,8 @@ Before substantial work:
 ## Convex Rules
 
 - Use new function syntax: `query/mutation({ args, returns, handler })`
-- Returns are not required. If the resulting value can be inferred, omit it.
-- Always include validators: `v.string()`, `v.null()`, etc.
+- The query/mutation "returns" param is not required. If the resulting value can be inferred, just infer it.
+- Always include validators: `v.string()`, `v.null()`, etc for args.
 - Public: `query/mutation/action`, Private: `internalQuery/mutation/action`
 - Use `ctx.runQuery/Mutation/Action` for function calls
 - Keep the assembled main schema in `convex/schema.ts`; all domain schema modules must live in `convex/schemas/`

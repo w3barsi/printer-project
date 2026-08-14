@@ -55,8 +55,12 @@ export const inventorySchema = {
     supplierNameBefore: v.optional(v.string()),
     supplierIdAfter: v.optional(v.id("inventorySuppliers")),
     supplierNameAfter: v.optional(v.string()),
+    jobOrderId: v.optional(v.id("jo")),
+    jobOrderNumber: v.optional(v.number()),
+    jobOrderName: v.optional(v.string()),
   })
     .index("by_inventory_item_id", ["inventoryItemId"])
     .index("by_action", ["action"])
-    .index("by_inventory_item_id_and_action", ["inventoryItemId", "action"]),
+    .index("by_inventory_item_id_and_action", ["inventoryItemId", "action"])
+    .index("by_job_order_id", ["jobOrderId"]),
 };

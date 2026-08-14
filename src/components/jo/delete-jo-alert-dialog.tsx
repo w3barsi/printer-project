@@ -112,7 +112,8 @@ export function DeleteJoAlertDialog({
           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
           <AlertDialogDescription>
             This action cannot be undone. This will permanently delete{" "}
-            <strong>"{joName}"</strong>.
+            <strong>"{joName}"</strong>. Linked inventory usage will remain in the
+            inventory ledger as historical activity.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

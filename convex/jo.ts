@@ -2,9 +2,46 @@ import { paginationOptsValidator } from "convex/server";
 import { v } from "convex/values";
 
 import { internal } from "./_generated/api";
-import type { Id } from "./_generated/dataModel";
+import type { Doc, Id } from "./_generated/dataModel";
+import type { QueryCtx } from "./_generated/server";
 import { internalMutation, internalQuery } from "./_generated/server";
 import { authedMutation, authedQuery } from "./auth";
+
+const selectableJobOrderStatus = v.union(
+  v.literal("pending"),
+  v.literal("in-progress"),
+  v.literal("completed"),
+);
+
+const jobOrderOptionValidator = v.object({
+  _id: v.id("jo"),
+  joNumber: v.number(),
+  name: v.string(),
+  status: selectableJobOrderStatus,
+});
+
+const selectableJobOrderStatuses = ["pending", "in-progress", "completed"] as const;
+
+async function resolveJobOrderName(ctx: QueryCtx, jobOrder: Doc<"jo">) {
+  const customerId = ctx.db.normalizeId("customer", jobOrder.name);
+  const customer = customerId ? await ctx.db.get("customer", customerId) : null;
+  const name = customer?.name ?? (customerId ? undefined : jobOrder.name);
+
+  return name?.trim() || `Job Order #${jobOrder.joNumber}`;
+}
+
+async function toJobOrderOption(ctx: QueryCtx, jobOrder: Doc<"jo">) {
+  if (jobOrder.status === "unconfirmed") {
+    throw new Error("Unconfirmed Job Orders are not selectable");
+  }
+
+  return {
+    _id: jobOrder._id,
+    joNumber: jobOrder.joNumber,
+    name: await resolveJobOrderName(ctx, jobOrder),
+    status: jobOrder.status,
+  };
+}
 
 export const markForPrinting = authedMutation({
   args: v.object({ joId: v.id("jo") }),
@@ -169,6 +206,90 @@ export const getRecent = authedQuery({
       .order("desc")
       .take(5);
     return recent.map((jo) => ({ id: jo._id, name: jo.name }));
+  },
+});
+
+export const searchOptions = authedQuery({
+  args: {
+    query: v.string(),
+  },
+  returns: v.array(jobOrderOptionValidator),
+  handler: async (ctx, args) => {
+    const searchQuery = args.query.trim();
+    const exactNumber = Number(searchQuery);
+
+    if (searchQuery && Number.isSafeInteger(exactNumber) && exactNumber >= 0) {
+      const jobOrder = await ctx.db
+        .query("jo")
+        .withIndex("by_joNumber", (q) => q.eq("joNumber", exactNumber))
+        .unique();
+
+      if (jobOrder?.status !== "unconfirmed") {
+        return jobOrder ? [await toJobOrderOption(ctx, jobOrder)] : [];
+      }
+
+      return [];
+    }
+
+    if (!searchQuery) {
+      const selectable = (
+        await Promise.all(
+          selectableJobOrderStatuses.map((status) =>
+            ctx.db
+              .query("jo")
+              .withIndex("by_status_and_updatedAt", (q) => q.eq("status", status))
+              .order("desc")
+              .take(20),
+          ),
+        )
+      )
+        .flat()
+        .sort(
+          (a, b) => (b.updatedAt ?? b._creationTime) - (a.updatedAt ?? a._creationTime),
+        )
+        .slice(0, 20);
+
+      return await Promise.all(
+        selectable.map((jobOrder) => toJobOrderOption(ctx, jobOrder)),
+      );
+    }
+
+    const [directNameMatchesByStatus, customers] = await Promise.all([
+      Promise.all(
+        selectableJobOrderStatuses.map((status) =>
+          ctx.db
+            .query("jo")
+            .withSearchIndex("search_name", (q) =>
+              q.search("name", searchQuery).eq("status", status),
+            )
+            .take(20),
+        ),
+      ),
+      ctx.db
+        .query("customer")
+        .withSearchIndex("search_name", (q) => q.search("name", searchQuery))
+        .take(20),
+    ]);
+    const customerJobOrders = (
+      await Promise.all(
+        customers.map((customer) =>
+          ctx.db
+            .query("jo")
+            .withIndex("by_name", (q) => q.eq("name", customer._id))
+            .order("desc")
+            .take(20),
+        ),
+      )
+    ).flat();
+    const byId = new Map<Id<"jo">, Doc<"jo">>();
+
+    for (const jobOrder of [...directNameMatchesByStatus.flat(), ...customerJobOrders]) {
+      if (jobOrder.status !== "unconfirmed") byId.set(jobOrder._id, jobOrder);
+    }
+
+    const matches = [...byId.values()].slice(0, 20);
+
+    return await Promise.all(matches.map((jobOrder) => toJobOrderOption(ctx, jobOrder)));
   },
 });
 

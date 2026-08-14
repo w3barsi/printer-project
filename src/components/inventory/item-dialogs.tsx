@@ -17,6 +17,10 @@ import { useHotkeys } from "react-hotkeys-hook";
 import { toast } from "sonner";
 import { z } from "zod";
 
+import {
+  JobOrderCombobox,
+  type JobOrderOption,
+} from "@/components/inventory/job-order-combobox";
 import { SupplierCombobox } from "@/components/inventory/supplier-combobox";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -245,7 +249,7 @@ export function InventoryItemActions({ item }: { item: InventoryListItem }) {
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => setAction("remove")}>
               <MinusIcon />
-              Remove stock
+              Use stock
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => setAction("correct")}>
               <RefreshCwIcon />
@@ -298,7 +302,7 @@ export function InventoryStockActions({ item }: { item: InventoryListItem }) {
           onClick={() => setAction("remove")}
         >
           <MinusIcon data-icon="inline-start" />
-          Remove
+          Use
         </Button>
         <Button
           type="button"
@@ -331,6 +335,7 @@ const stockAdjustmentSchema = z.object({
     .int("Quantity must be a whole number")
     .nonnegative("Quantity cannot be negative"),
   reason: z.string().max(500),
+  jobOrderId: z.string(),
 });
 
 type StockAdjustmentFormData = z.infer<typeof stockAdjustmentSchema>;
@@ -347,10 +352,10 @@ const stockDialogCopy: Record<
     submit: "Add stock",
   },
   remove: {
-    title: "Remove stock",
-    description: "Record stock taken out of inventory.",
-    quantityLabel: "Quantity removed",
-    submit: "Confirm removal",
+    title: "Use stock",
+    description: "Record stock used for a Job Order or another purpose.",
+    quantityLabel: "Quantity used",
+    submit: "Use stock",
   },
   correct: {
     title: "Correct stock count",
@@ -372,6 +377,7 @@ function StockAdjustmentDialog({
   onOpenChange: (open: boolean) => void;
 }) {
   const fieldId = useId();
+  const [selectedJobOrder, setSelectedJobOrder] = useState<JobOrderOption | null>(null);
   const copy = stockDialogCopy[mode];
   const form = useForm<StockAdjustmentFormData>({
     resolver: zodResolver(
@@ -394,7 +400,7 @@ function StockAdjustmentDialog({
           context.addIssue({
             code: "custom",
             path: ["quantity"],
-            message: "Cannot remove more than the current balance",
+            message: "Cannot use more than the current balance",
           });
         }
       }),
@@ -402,6 +408,7 @@ function StockAdjustmentDialog({
     defaultValues: {
       quantity: mode === "correct" ? item.quantity : 1,
       reason: "",
+      jobOrderId: "",
     },
   });
   const quantity = useWatch({
@@ -426,6 +433,7 @@ function StockAdjustmentDialog({
           inventoryItemId: item._id,
           quantity: values.quantity,
           reason: values.reason.trim() || undefined,
+          jobOrderId: values.jobOrderId ? (values.jobOrderId as Id<"jo">) : undefined,
         });
       }
 
@@ -440,7 +448,7 @@ function StockAdjustmentDialog({
         mode === "add"
           ? "Stock added"
           : mode === "remove"
-            ? "Stock removed"
+            ? "Stock used"
             : "Stock count corrected",
       );
       onOpenChange(false);
@@ -461,7 +469,16 @@ function StockAdjustmentDialog({
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog
+      open={open}
+      onOpenChange={(nextOpen) => {
+        if (!nextOpen && !mutation.isPending) {
+          form.reset();
+          setSelectedJobOrder(null);
+        }
+        onOpenChange(nextOpen);
+      }}
+    >
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{copy.title}</DialogTitle>
@@ -511,6 +528,31 @@ function StockAdjustmentDialog({
                 </Field>
               )}
             />
+            {mode === "remove" && (
+              <Controller
+                name="jobOrderId"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor={`${fieldId}-job-order`}>
+                      Used for Job Order (optional)
+                    </FieldLabel>
+                    <JobOrderCombobox
+                      id={`${fieldId}-job-order`}
+                      value={field.value ? (field.value as Id<"jo">) : null}
+                      onValueChange={(jobOrderId) => field.onChange(jobOrderId ?? "")}
+                      onOptionChange={setSelectedJobOrder}
+                      disabled={mutation.isPending}
+                      invalid={fieldState.invalid}
+                    />
+                    <FieldDescription>
+                      Leave blank for damage, disposal, or general use.
+                    </FieldDescription>
+                    {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                  </Field>
+                )}
+              />
+            )}
             <Controller
               name="reason"
               control={form.control}
@@ -542,9 +584,10 @@ function StockAdjustmentDialog({
           </FieldGroup>
           {mode === "remove" && quantity > 0 && (
             <p className="rounded-md border border-destructive/30 bg-destructive/5 p-3 text-sm">
-              You are removing{" "}
+              You are using{" "}
               <strong className="tabular-nums">{quantity.toLocaleString()}</strong> from{" "}
-              {item.name}.
+              {item.name}
+              {selectedJobOrder?.joNumber ? ` for JO #${selectedJobOrder.joNumber}` : ""}.
             </p>
           )}
           <DialogFooter>

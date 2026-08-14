@@ -2,6 +2,7 @@ import { convexQuery } from "@convex-dev/react-query";
 import { api } from "@convex/_generated/api";
 import type { Doc } from "@convex/_generated/dataModel";
 import { useQuery } from "@tanstack/react-query";
+import { Link } from "@tanstack/react-router";
 import {
   ArrowLeftIcon,
   ArrowRightIcon,
@@ -28,12 +29,14 @@ import { cn } from "@/lib/utils";
 
 const ACTIVITY_PAGE_SIZE = 10;
 
-type InventoryActivity = Doc<"inventoryActivities">;
+type InventoryActivity = Doc<"inventoryActivities"> & {
+  jobOrderExists: boolean;
+};
 
 const operationLabels: Record<InventoryActivity["operation"], string> = {
   item_created: "Item created",
   stock_added: "Stock added",
-  stock_removed: "Stock removed",
+  stock_removed: "Stock used",
   quantity_corrected: "Count corrected",
   details_updated: "Details updated",
 };
@@ -300,6 +303,28 @@ function ActivityEntry({
         <p className={cn("mt-2 text-sm", !activity.reason && "text-muted-foreground")}>
           {activity.reason ?? "No reason provided"}
         </p>
+        {activity.jobOrderId && activity.jobOrderNumber !== undefined && (
+          <div className="mt-2 flex flex-wrap items-center gap-2 text-sm">
+            {activity.jobOrderExists ? (
+              <Link
+                to="/app/jo/$joId"
+                params={{ joId: activity.jobOrderId }}
+                className="font-medium underline-offset-4 hover:underline"
+                onClick={(event) => event.stopPropagation()}
+              >
+                JO #{activity.jobOrderNumber}
+              </Link>
+            ) : (
+              <span className="font-medium">JO #{activity.jobOrderNumber}</span>
+            )}
+            <span className="min-w-0 truncate text-muted-foreground">
+              {activity.jobOrderName}
+            </span>
+            {!activity.jobOrderExists && (
+              <Badge variant="outline">Deleted Job Order</Badge>
+            )}
+          </div>
+        )}
         <p className="mt-2 text-xs text-muted-foreground">
           Recorded by {activity.actorName}
         </p>
