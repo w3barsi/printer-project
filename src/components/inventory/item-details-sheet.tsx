@@ -7,7 +7,12 @@ import {
   ArrowLeftIcon,
   ArrowRightIcon,
   HistoryIcon,
+  PackageCheckIcon,
   PackageIcon,
+  PackageMinusIcon,
+  PackagePlusIcon,
+  PencilLineIcon,
+  RefreshCwIcon,
   TruckIcon,
   UserIcon,
 } from "lucide-react";
@@ -19,7 +24,6 @@ import {
 } from "@/components/inventory/item-dialogs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
 import {
   Sheet,
   SheetContent,
@@ -44,6 +48,22 @@ const operationLabels: Record<InventoryActivity["operation"], string> = {
   details_updated: "Details updated",
 };
 
+const movementLabels: Record<InventoryActivity["operation"], string> = {
+  item_created: "Opening stock",
+  stock_added: "Stock added",
+  stock_removed: "Stock used",
+  quantity_corrected: "Count adjustment",
+  details_updated: "No stock change",
+};
+
+const operationIcons: Record<InventoryActivity["operation"], typeof PackageIcon> = {
+  item_created: PackageCheckIcon,
+  stock_added: PackagePlusIcon,
+  stock_removed: PackageMinusIcon,
+  quantity_corrected: RefreshCwIcon,
+  details_updated: PencilLineIcon,
+};
+
 const dateTimeFormatter = new Intl.DateTimeFormat(undefined, {
   dateStyle: "medium",
   timeStyle: "short",
@@ -60,23 +80,23 @@ export function InventoryItemDetailsSheet({
 }) {
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="w-full gap-0 sm:max-w-xl">
-        <SheetHeader className="border-b pr-14">
+      <SheetContent className="w-full gap-0 sm:max-w-2xl">
+        <SheetHeader className="border-b px-5 py-5 pr-14 sm:px-6 sm:py-6">
           <div className="flex items-center gap-2">
             <Badge variant="outline">Inventory item</Badge>
             <span className="text-xs text-muted-foreground">
               Added {dateTimeFormatter.format(item._creationTime)}
             </span>
           </div>
-          <SheetTitle className="text-xl">{item.name}</SheetTitle>
+          <SheetTitle className="text-2xl tracking-tight">{item.name}</SheetTitle>
           <SheetDescription>{item.supplierName}</SheetDescription>
         </SheetHeader>
 
         <div className="min-h-0 flex-1 overflow-y-auto">
-          <div className="flex flex-col gap-6 p-4 sm:p-6">
+          <div className="flex flex-col gap-7 p-4 sm:p-6">
             <section aria-labelledby="inventory-balance-heading">
               <div className="flex flex-col gap-3">
-                <div className="flex items-end justify-between gap-4 rounded-lg border bg-muted/30 p-4">
+                <div className="flex items-end justify-between gap-4 rounded-xl border bg-muted/40 p-5">
                   <div className="flex flex-col gap-1">
                     <h2
                       id="inventory-balance-heading"
@@ -84,11 +104,13 @@ export function InventoryItemDetailsSheet({
                     >
                       Current stock
                     </h2>
-                    <p className="text-4xl font-bold tracking-tight tabular-nums">
+                    <p className="text-4xl font-semibold tracking-tight tabular-nums">
                       {item.quantity.toLocaleString()}
                     </p>
                   </div>
-                  <PackageIcon className="size-8 text-muted-foreground" />
+                  <div className="rounded-lg border bg-background/60 p-3">
+                    <PackageIcon className="size-7 text-muted-foreground" />
+                  </div>
                 </div>
                 <InventoryStockActions item={item} />
               </div>
@@ -101,7 +123,7 @@ export function InventoryItemDetailsSheet({
               <h2 id="item-details-heading" className="font-semibold">
                 Item details
               </h2>
-              <dl className="grid grid-cols-1 gap-4 rounded-lg border p-4 sm:grid-cols-2">
+              <dl className="grid grid-cols-1 gap-x-6 gap-y-5 border-y py-5 sm:grid-cols-2">
                 <Detail icon={TruckIcon} label="Supplier" value={item.supplierName} />
                 <Detail icon={UserIcon} label="Created by" value={item.createdByName} />
                 <Detail
@@ -112,8 +134,6 @@ export function InventoryItemDetailsSheet({
                 <Detail icon={PackageIcon} label="Item ID" value={item._id} breakAll />
               </dl>
             </section>
-
-            <Separator />
 
             <ItemActivity item={item} />
           </div>
@@ -160,13 +180,13 @@ function ItemActivity({ item }: { item: InventoryListItem }) {
 
   return (
     <section className="flex flex-col gap-4" aria-labelledby="item-activity-heading">
-      <div className="flex items-start justify-between gap-4">
+      <div className="flex items-end justify-between gap-4">
         <div className="flex flex-col gap-1">
-          <h2 id="item-activity-heading" className="font-semibold">
+          <h2 id="item-activity-heading" className="text-lg font-semibold tracking-tight">
             Activity
           </h2>
           <p className="text-sm text-muted-foreground">
-            Stock movements and detail changes for this item.
+            A chronological ledger of every stock change.
           </p>
         </div>
         {data && <Badge variant="secondary">Page {cursorHistory.length + 1}</Badge>}
@@ -175,13 +195,9 @@ function ItemActivity({ item }: { item: InventoryListItem }) {
       {!data ? (
         <ActivitySkeleton />
       ) : data.page.length ? (
-        <div className="flex flex-col">
-          {data.page.map((activity, index) => (
-            <ActivityEntry
-              key={activity._id}
-              activity={activity}
-              isLast={index === data.page.length - 1}
-            />
+        <div className="overflow-hidden rounded-xl border">
+          {data.page.map((activity) => (
+            <ActivityEntry key={activity._id} activity={activity} />
           ))}
         </div>
       ) : (
@@ -226,13 +242,7 @@ function ItemActivity({ item }: { item: InventoryListItem }) {
   );
 }
 
-function ActivityEntry({
-  activity,
-  isLast,
-}: {
-  activity: InventoryActivity;
-  isLast: boolean;
-}) {
+function ActivityEntry({ activity }: { activity: InventoryActivity }) {
   const itemChanged =
     activity.itemNameBefore !== undefined &&
     activity.itemNameBefore !== activity.itemNameAfter;
@@ -243,47 +253,70 @@ function ActivityEntry({
     activity.quantityDelta > 0
       ? `+${activity.quantityDelta.toLocaleString()}`
       : activity.quantityDelta.toLocaleString();
+  const OperationIcon = operationIcons[activity.operation];
+  const isStockUsed = activity.operation === "stock_removed";
+  const isStockAdded = activity.operation === "stock_added";
+  const hasStockChange = activity.operation !== "details_updated";
 
   return (
-    <article className="relative flex gap-3 pb-5">
-      {!isLast && <div className="absolute top-3 bottom-0 left-2 border-l" />}
-      <div className="relative mt-1 size-4 shrink-0 rounded-full border-4 border-background bg-muted-foreground" />
-      <div className="min-w-0 flex-1 rounded-lg border p-3">
-        <div className="flex flex-wrap items-start justify-between gap-2">
-          <div className="flex flex-wrap items-center gap-2">
-            <Badge
-              variant={
-                activity.action === "remove"
-                  ? "destructive"
-                  : activity.action === "update"
-                    ? "outline"
-                    : "secondary"
-              }
-            >
+    <article className="grid grid-cols-[5.75rem_minmax(0,1fr)] gap-3 border-b p-4 last:border-b-0 sm:grid-cols-[7rem_minmax(0,1fr)] sm:gap-5 sm:p-5">
+      <div className="border-r pr-3 sm:pr-5">
+        {hasStockChange ? (
+          <p
+            className={cn(
+              "text-xl font-medium tracking-tight tabular-nums sm:text-2xl",
+              isStockUsed && "text-destructive",
+              isStockAdded && "text-emerald-700 dark:text-emerald-400",
+            )}
+          >
+            {delta}
+          </p>
+        ) : (
+          <p className="text-xl font-medium tracking-tight text-muted-foreground tabular-nums sm:text-2xl">
+            0
+          </p>
+        )}
+        <p
+          className={cn(
+            "mt-1 text-xs leading-tight font-medium text-muted-foreground",
+            isStockUsed && "text-destructive",
+            isStockAdded && "text-emerald-700 dark:text-emerald-400",
+          )}
+        >
+          {movementLabels[activity.operation]}
+        </p>
+      </div>
+
+      <div className="min-w-0">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+          <div className="flex items-center gap-2">
+            <span className="flex size-7 shrink-0 items-center justify-center rounded-md bg-muted">
+              <OperationIcon className="size-4" aria-hidden="true" />
+            </span>
+            <span className="text-sm font-semibold">
               {operationLabels[activity.operation]}
-            </Badge>
-            <span
-              className={cn(
-                "font-semibold tabular-nums",
-                activity.quantityDelta === 0 && "text-muted-foreground",
-              )}
-            >
-              {delta}
             </span>
           </div>
-          <time className="text-xs text-muted-foreground">
+          <time className="text-xs whitespace-nowrap text-muted-foreground">
             {dateTimeFormatter.format(activity._creationTime)}
           </time>
         </div>
 
-        <p className="mt-2 text-sm">
-          {activity.quantityBefore.toLocaleString()}{" "}
-          <span className="text-muted-foreground">{">"}</span>{" "}
-          <span className="font-medium">{activity.quantityAfter.toLocaleString()}</span>
-        </p>
+        {hasStockChange && (
+          <div className="mt-3 flex items-center gap-2 text-sm">
+            <span className="text-muted-foreground">Balance</span>
+            <span className="font-medium tabular-nums">
+              {activity.quantityBefore.toLocaleString()}
+            </span>
+            <ArrowRightIcon className="size-3.5 text-muted-foreground" />
+            <span className="font-semibold tabular-nums">
+              {activity.quantityAfter.toLocaleString()}
+            </span>
+          </div>
+        )}
 
         {(itemChanged || supplierChanged) && (
-          <div className="mt-2 flex flex-col gap-1 text-sm">
+          <div className="mt-3 flex flex-col gap-1 border-l-2 pl-3 text-sm">
             {itemChanged && (
               <p>
                 Name:{" "}
@@ -306,7 +339,7 @@ function ActivityEntry({
           </div>
         )}
 
-        <p className={cn("mt-2 text-sm", !activity.reason && "text-muted-foreground")}>
+        <p className={cn("mt-3 text-sm", !activity.reason && "text-muted-foreground")}>
           {activity.reason ?? "No reason provided"}
         </p>
         {activity.jobOrderId && activity.jobOrderNumber !== undefined && (
@@ -331,7 +364,7 @@ function ActivityEntry({
             )}
           </div>
         )}
-        <p className="mt-2 text-xs text-muted-foreground">
+        <p className="mt-3 text-xs text-muted-foreground">
           Recorded by {activity.actorName}
         </p>
       </div>
@@ -341,13 +374,19 @@ function ActivityEntry({
 
 function ActivitySkeleton() {
   return (
-    <div className="flex flex-col gap-3">
+    <div className="overflow-hidden rounded-xl border">
       {Array.from({ length: 3 }, (_, index) => (
-        <div key={index} className="flex gap-3">
-          <Skeleton className="mt-1 size-4 rounded-full" />
-          <div className="flex flex-1 flex-col gap-3 rounded-lg border p-3">
+        <div
+          key={index}
+          className="grid grid-cols-[5.75rem_minmax(0,1fr)] gap-3 border-b p-4 last:border-b-0 sm:grid-cols-[7rem_minmax(0,1fr)] sm:gap-5 sm:p-5"
+        >
+          <div className="flex flex-col gap-2 border-r pr-3 sm:pr-5">
+            <Skeleton className="h-8 w-16" />
+            <Skeleton className="h-3 w-full" />
+          </div>
+          <div className="flex min-w-0 flex-col gap-3">
             <div className="flex justify-between gap-3">
-              <Skeleton className="h-5 w-28" />
+              <Skeleton className="h-7 w-32" />
               <Skeleton className="h-4 w-24" />
             </div>
             <Skeleton className="h-4 w-40" />
