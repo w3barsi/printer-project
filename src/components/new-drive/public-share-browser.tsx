@@ -142,15 +142,6 @@ export function PublicShareBrowser({
         </div>
         <div className="flex flex-wrap gap-2">
           <DownloadAllButton token={token} />
-          {canEdit && (
-            <AddItemsMenu
-              upload={upload}
-              isUploading={isUploading}
-              onCreateFolder={(name) =>
-                createFolder({ token, parentId: parent._id, name })
-              }
-            />
-          )}
         </div>
       </header>
       <Breadcrumb>
@@ -186,6 +177,17 @@ export function PublicShareBrowser({
         key={parent._id}
         items={items}
         title="Shared files and folders"
+        headerActions={
+          canEdit ? (
+            <AddItemsMenu
+              upload={upload}
+              isUploading={isUploading}
+              onCreateFolder={(name) =>
+                createFolder({ token, parentId: parent._id, name })
+              }
+            />
+          ) : undefined
+        }
         interactive
         publicSafe
         onOpenItem={openItem}

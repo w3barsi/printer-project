@@ -159,9 +159,9 @@ export function AddItemsMenu({
           >
             <MoreHorizontalIcon />
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
+          <DropdownMenuContent align="end" className="min-w-52">
             <DropdownMenuGroup>
-              <DropdownMenuItem onClick={onShareFolder}>
+              <DropdownMenuItem className="whitespace-nowrap" onClick={onShareFolder}>
                 <Share2Icon />
                 Share this folder
               </DropdownMenuItem>

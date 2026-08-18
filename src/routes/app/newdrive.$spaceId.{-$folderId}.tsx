@@ -133,29 +133,31 @@ function SpaceBrowserPage() {
               <h1 className="truncate text-2xl font-bold tracking-tight">{title}</h1>
             </div>
           </div>
-          <AddItemsMenu
-            upload={upload}
-            isUploading={isUploading}
-            onCreateFolder={(name) =>
-              createFolder({ spaceId: typedSpaceId, parentId: typedFolderId, name })
-            }
-            onShareFolder={
-              folder
-                ? () =>
-                    setShareItem({
-                      id: folder._id,
-                      name: folder.name,
-                      kind: "folder",
-                    })
-                : undefined
-            }
-          />
         </div>
 
         <NewDriveFileList
           key={`${spaceId}:${folderId ?? "root"}`}
           items={items}
           title="Files and folders"
+          headerActions={
+            <AddItemsMenu
+              upload={upload}
+              isUploading={isUploading}
+              onCreateFolder={(name) =>
+                createFolder({ spaceId: typedSpaceId, parentId: typedFolderId, name })
+              }
+              onShareFolder={
+                folderId
+                  ? () =>
+                      setShareItem({
+                        id: folderId,
+                        name: folder?.name ?? title,
+                        kind: "folder",
+                      })
+                  : undefined
+              }
+            />
+          }
           interactive
           parentPath={
             folder

@@ -17,11 +17,13 @@ import {
   ArrowUpDownIcon,
   FolderOpenIcon,
   FolderUpIcon,
+  XIcon,
 } from "lucide-react";
 import {
   type FormEvent,
   type KeyboardEvent,
   type MouseEvent,
+  type ReactNode,
   useEffect,
   useId,
   useRef,
@@ -29,8 +31,15 @@ import {
 } from "react";
 import { toast } from "sonner";
 
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   Empty,
   EmptyDescription,
@@ -46,15 +55,71 @@ import { ButtonGroup } from "../ui/button-group";
 import { Card, CardHeader } from "../ui/card";
 import { DeleteItemsDialog, MoveItemDialog, RenameItemDialog } from "./file-list-dialogs";
 import { DeleteDropButton, DragPreview } from "./file-list-drag";
-import {
-  NewDriveFileRow,
-  ParentFolderRow,
-  type NewDriveParentPath,
-} from "./file-list-rows";
+import { NewDriveFileRow, type NewDriveParentPath } from "./file-list-rows";
+
+const sortOptions = [
+  { value: "name", label: "Name" },
+  { value: "modified", label: "Date modified" },
+  { value: "size", label: "Size" },
+  { value: "owner", label: "Owner" },
+  { value: "access", label: "Access" },
+] as const;
+
+type SortBy = (typeof sortOptions)[number]["value"];
+
+const itemCollator = new Intl.Collator(undefined, {
+  numeric: true,
+  sensitivity: "base",
+});
+
+function getSizeInBytes(size: string) {
+  const match = size.match(/^([\d.]+)\s*(B|KB|MB|GB|TB)$/i);
+  if (!match) return 0;
+
+  const units = { B: 1, KB: 1024, MB: 1024 ** 2, GB: 1024 ** 3, TB: 1024 ** 4 };
+  return Number(match[1]) * units[match[2].toUpperCase() as keyof typeof units];
+}
+
+function getModifiedTime(updated: string) {
+  const normalized = updated.toLowerCase();
+  const relativeMatch = normalized.match(
+    /(\d+)\s+(minute|hour|day|week|month|year)s? ago/,
+  );
+
+  if (relativeMatch) {
+    const unitMilliseconds = {
+      minute: 60_000,
+      hour: 3_600_000,
+      day: 86_400_000,
+      week: 604_800_000,
+      month: 2_629_800_000,
+      year: 31_557_600_000,
+    };
+    return (
+      Date.now() -
+      Number(relativeMatch[1]) *
+        unitMilliseconds[relativeMatch[2] as keyof typeof unitMilliseconds]
+    );
+  }
+
+  if (normalized.includes("less than a minute ago")) return Date.now();
+
+  const relativeDay = normalized.match(/^(today|yesterday),\s*(.+)$/);
+  if (relativeDay) {
+    const date = new Date();
+    if (relativeDay[1] === "yesterday") date.setDate(date.getDate() - 1);
+    const time = new Date(`${date.toDateString()} ${relativeDay[2]}`).getTime();
+    if (!Number.isNaN(time)) return time;
+  }
+
+  const timestamp = new Date(updated).getTime();
+  return Number.isNaN(timestamp) ? 0 : timestamp;
+}
 
 export function NewDriveFileList({
   items,
   title,
+  headerActions,
   interactive = false,
   parentPath,
   onDeleteItems,
@@ -69,6 +134,7 @@ export function NewDriveFileList({
 }: {
   items: NewDriveItem[];
   title: string;
+  headerActions?: ReactNode;
   interactive?: boolean;
   parentPath?: NewDriveParentPath;
   onDeleteItems?: (itemIds: string[]) => void | Promise<void>;
@@ -85,6 +151,7 @@ export function NewDriveFileList({
   deleteDescription?: string;
 }) {
   const dndContextId = useId();
+  const cardRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const [hasCoarsePointer, setHasCoarsePointer] = useState(false);
@@ -99,11 +166,33 @@ export function NewDriveFileList({
   const [moveRequest, setMoveRequest] = useState<NewDriveItem | null>(null);
   const [moveDestinationId, setMoveDestinationId] = useState("");
   const [isMoving, setIsMoving] = useState(false);
+  const [sortBy, setSortBy] = useState<SortBy>("modified");
   const lastDragEndedAt = useRef(0);
   const usesDirectNavigation = isMobile || hasCoarsePointer;
   const selectionEnabled = interactive && !usesDirectNavigation;
   const dragEnabled = selectionEnabled && !!onMoveItems;
-  const displayedItems = items;
+  const displayedItems = items
+    .map((item, index) => ({ item, index }))
+    .sort((a, b) => {
+      if (a.item.kind === "folder" && b.item.kind !== "folder") return -1;
+      if (a.item.kind !== "folder" && b.item.kind === "folder") return 1;
+
+      let comparison = 0;
+      if (sortBy === "name") comparison = itemCollator.compare(a.item.name, b.item.name);
+      if (sortBy === "modified") {
+        comparison = getModifiedTime(b.item.updated) - getModifiedTime(a.item.updated);
+      }
+      if (sortBy === "size") {
+        comparison = getSizeInBytes(b.item.size) - getSizeInBytes(a.item.size);
+      }
+      if (sortBy === "owner")
+        comparison = itemCollator.compare(a.item.owner, b.item.owner);
+      if (sortBy === "access")
+        comparison = itemCollator.compare(a.item.access, b.item.access);
+
+      return comparison || a.index - b.index;
+    })
+    .map(({ item }) => item);
   const selectedItems = displayedItems.filter((item) => selectedIds.includes(item.id));
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -125,6 +214,26 @@ export function NewDriveFileList({
       setSelectionAnchor(null);
     }
   }, [usesDirectNavigation]);
+
+  useEffect(() => {
+    if (!selectionEnabled) return;
+    const container = cardRef.current?.closest('[data-slot="container"]');
+    if (!container) return;
+
+    function handleContainerClick(event: Event) {
+      if (
+        event.target instanceof Element &&
+        event.target.closest("[data-file-list-item], [data-file-list-selection-actions]")
+      ) {
+        return;
+      }
+      setSelectedIds([]);
+      setSelectionAnchor(null);
+    }
+
+    container.addEventListener("click", handleContainerClick);
+    return () => container.removeEventListener("click", handleContainerClick);
+  }, [selectionEnabled]);
 
   function clearSelection() {
     setSelectedIds([]);
@@ -233,6 +342,22 @@ export function NewDriveFileList({
     navigate({
       to: "/app/newdrive/file/$itemId",
       params: { itemId: item.id },
+    });
+  }
+
+  function openParentFolder() {
+    if (!parentPath) return;
+    if (onOpenParent) {
+      onOpenParent();
+      return;
+    }
+
+    navigate({
+      to: "/app/newdrive/$spaceId/{-$folderId}",
+      params: {
+        spaceId: parentPath.spaceId,
+        folderId: parentPath.folderId ?? undefined,
+      },
     });
   }
 
@@ -348,62 +473,115 @@ export function NewDriveFileList({
   }
 
   return (
-    <Card className="bg-background">
-      <CardHeader>
-        <div className="flex gap-2">
-          <ButtonGroup>
-            <Button variant="outline">
-              <ArrowLeftIcon />
-            </Button>
-
-            <Button variant="outline">
-              <ArrowRightIcon />
-            </Button>
-          </ButtonGroup>
-          <Button variant="outline">
-            <FolderUpIcon />
-          </Button>
-        </div>
-      </CardHeader>
-      <section
-        aria-labelledby="files-heading"
-        className={cn("flex flex-col gap-3", interactive && "flex-1")}
-        onClick={(event) => {
-          if (selectionEnabled && event.target === event.currentTarget) clearSelection();
-        }}
-      >
-        <h2 id="files-heading" className="sr-only">
-          {title}
-        </h2>
-        <DndContext
-          id={dndContextId}
-          sensors={sensors}
-          collisionDetection={pointerWithin}
-          onDragStart={handleDragStart}
-          onDragEnd={handleDragEnd}
-          onDragCancel={() => setActiveDragId(null)}
-        >
-          <div className="flex flex-wrap items-end justify-between gap-3">
-            <div className="flex items-center gap-2">
-              {selectionEnabled && selectedIds.length > 0 && (
-                <>
-                  <Badge variant="secondary">{selectedIds.length} selected</Badge>
-                  <DeleteDropButton
-                    itemCount={selectedIds.length}
-                    dragEnabled={dragEnabled}
-                    onClick={() => setDeleteRequest(selectedIds)}
-                  />
-                </>
-              )}
-              <Button variant="ghost" size="sm" className="text-muted-foreground">
-                <ArrowUpDownIcon data-icon="inline-start" />
-                <span className="hidden sm:inline">Last modified</span>
+    <DndContext
+      id={dndContextId}
+      sensors={sensors}
+      collisionDetection={pointerWithin}
+      onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd}
+      onDragCancel={() => setActiveDragId(null)}
+    >
+      <Card ref={cardRef} className="gap-0 bg-background py-0">
+        <CardHeader className="py-4">
+          {selectionEnabled && selectedIds.length > 0 ? (
+            <div
+              className="flex min-h-9 items-center gap-2"
+              data-file-list-selection-actions
+            >
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                aria-label="Clear selection"
+                onClick={clearSelection}
+              >
+                <XIcon />
               </Button>
+              <span className="px-1 text-sm font-medium">
+                {selectedIds.length} {selectedIds.length === 1 ? "item" : "items"}{" "}
+                selected
+              </span>
+              <DeleteDropButton
+                itemCount={selectedIds.length}
+                dragEnabled={dragEnabled}
+                onClick={() => setDeleteRequest(selectedIds)}
+              />
             </div>
-          </div>
+          ) : (
+            <div className="flex min-h-9 flex-wrap items-center justify-between gap-3">
+              <div className="flex gap-2">
+                <ButtonGroup>
+                  <Button variant="outline">
+                    <ArrowLeftIcon />
+                  </Button>
 
+                  <Button variant="outline">
+                    <ArrowRightIcon />
+                  </Button>
+                </ButtonGroup>
+                <Button
+                  type="button"
+                  variant="outline"
+                  aria-label={
+                    parentPath
+                      ? `Open parent folder ${parentPath.name}`
+                      : "No parent folder"
+                  }
+                  disabled={!parentPath}
+                  onClick={openParentFolder}
+                >
+                  <FolderUpIcon />
+                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger
+                    render={
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        aria-label={`Sort by ${sortOptions.find((option) => option.value === sortBy)?.label}`}
+                      />
+                    }
+                  >
+                    <ArrowUpDownIcon />
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start" className="min-w-48">
+                    <DropdownMenuRadioGroup
+                      value={sortBy}
+                      onValueChange={(value) => setSortBy(value as SortBy)}
+                    >
+                      <DropdownMenuLabel>Sort by</DropdownMenuLabel>
+                      {sortOptions.map((option) => (
+                        <DropdownMenuRadioItem key={option.value} value={option.value}>
+                          {option.label}
+                        </DropdownMenuRadioItem>
+                      ))}
+                    </DropdownMenuRadioGroup>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+              {headerActions && <div className="ml-auto">{headerActions}</div>}
+            </div>
+          )}
+        </CardHeader>
+        <section
+          aria-labelledby="files-heading"
+          className={cn("flex flex-col", interactive && "flex-1")}
+          onClick={(event) => {
+            if (!selectionEnabled) return;
+            if (
+              event.target instanceof Element &&
+              event.target.closest("[data-file-list-item]")
+            ) {
+              return;
+            }
+            clearSelection();
+          }}
+        >
+          <h2 id="files-heading" className="sr-only">
+            {title}
+          </h2>
           {displayedItems.length === 0 && !parentPath ? (
-            <Empty className="rounded-lg bg-card py-14">
+            <Empty className="border-t bg-card py-14">
               <EmptyHeader>
                 <EmptyMedia variant="icon">
                   <FolderOpenIcon />
@@ -416,18 +594,14 @@ export function NewDriveFileList({
             </Empty>
           ) : (
             <div
-              className="flex flex-col gap-1"
+              className="flex flex-1 flex-col"
               role={selectionEnabled ? "listbox" : "list"}
               aria-label={title}
               aria-multiselectable={selectionEnabled || undefined}
-              onClick={(event) => {
-                if (selectionEnabled && event.target === event.currentTarget)
-                  clearSelection();
-              }}
             >
               <div
                 className={cn(
-                  "grid grid-cols-[minmax(0,1fr)_32px] px-4 pb-1 text-[11px] font-medium tracking-wide text-muted-foreground uppercase",
+                  "grid min-h-11 grid-cols-[minmax(0,1fr)_32px] items-center border-y bg-card px-6 text-[11px] font-medium tracking-wide text-muted-foreground uppercase",
                   publicSafe
                     ? "md:grid-cols-[minmax(220px,1.7fr)_minmax(130px,.85fr)_80px_32px]"
                     : "md:grid-cols-[minmax(220px,1.7fr)_minmax(90px,.65fr)_minmax(130px,.85fr)_80px_110px_32px]",
@@ -441,16 +615,6 @@ export function NewDriveFileList({
                 {!publicSafe && <span className="hidden md:block">Access</span>}
                 <span className="sr-only">Actions</span>
               </div>
-
-              {parentPath && (
-                <ParentFolderRow
-                  parentPath={parentPath}
-                  onOpen={onOpenParent}
-                  publicSafe={publicSafe}
-                  dragEnabled={dragEnabled}
-                  lastDragEndedAt={lastDragEndedAt}
-                />
-              )}
 
               {displayedItems.map((item) => (
                 <NewDriveFileRow
@@ -500,33 +664,33 @@ export function NewDriveFileList({
               />
             )}
           </DragOverlay>
-        </DndContext>
-        <DeleteItemsDialog
-          itemIds={deleteRequest}
-          itemName={displayedItems.find((item) => item.id === deleteRequest[0])?.name}
-          description={deleteDescription}
-          isDeleting={isDeleting}
-          onOpenChange={(open) => !open && !isDeleting && setDeleteRequest([])}
-          onConfirm={() => void confirmDelete()}
-        />
-        <RenameItemDialog
-          item={renameRequest}
-          value={renameValue}
-          isRenaming={isRenaming}
-          onOpenChange={(open) => !open && !isRenaming && setRenameRequest(null)}
-          onValueChange={setRenameValue}
-          onSubmit={confirmRename}
-        />
-        <MoveItemDialog
-          item={moveRequest}
-          destinationId={moveDestinationId}
-          destinations={moveDestinations}
-          isMoving={isMoving}
-          onOpenChange={(open) => !open && !isMoving && setMoveRequest(null)}
-          onDestinationChange={setMoveDestinationId}
-          onConfirm={() => void confirmMove()}
-        />
-      </section>
-    </Card>
+          <DeleteItemsDialog
+            itemIds={deleteRequest}
+            itemName={displayedItems.find((item) => item.id === deleteRequest[0])?.name}
+            description={deleteDescription}
+            isDeleting={isDeleting}
+            onOpenChange={(open) => !open && !isDeleting && setDeleteRequest([])}
+            onConfirm={() => void confirmDelete()}
+          />
+          <RenameItemDialog
+            item={renameRequest}
+            value={renameValue}
+            isRenaming={isRenaming}
+            onOpenChange={(open) => !open && !isRenaming && setRenameRequest(null)}
+            onValueChange={setRenameValue}
+            onSubmit={confirmRename}
+          />
+          <MoveItemDialog
+            item={moveRequest}
+            destinationId={moveDestinationId}
+            destinations={moveDestinations}
+            isMoving={isMoving}
+            onOpenChange={(open) => !open && !isMoving && setMoveRequest(null)}
+            onDestinationChange={setMoveDestinationId}
+            onConfirm={() => void confirmMove()}
+          />
+        </section>
+      </Card>
+    </DndContext>
   );
 }

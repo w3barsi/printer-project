@@ -15,7 +15,10 @@ export function Container({
 }: ComponentProps<"div"> & { parentClassName?: ClassValue }) {
   return (
     <div className={cn("flex w-full justify-center", parentClassName)}>
-      <div className={cn("container max-w-xl gap-2 p-2 md:gap-4 md:p-4", className)}>
+      <div
+        data-slot="container"
+        className={cn("container max-w-xl gap-2 p-2 md:gap-4 md:p-4", className)}
+      >
         {children}
       </div>
     </div>

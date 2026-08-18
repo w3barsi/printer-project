@@ -27,7 +27,7 @@ export function DeleteDropButton({
       ref={setNodeRef}
       type="button"
       variant={isOver ? "destructive" : "outline"}
-      size="icon-sm"
+      size="icon"
       className={cn(
         !isOver &&
           "text-destructive hover:border-destructive/50 hover:bg-destructive/10 hover:text-destructive",

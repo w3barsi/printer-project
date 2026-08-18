@@ -1,18 +1,17 @@
 import { useDraggable, useDroppable } from "@dnd-kit/core";
-import { Link, useNavigate } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 import {
   FileIcon,
   FileImageIcon,
   FileTextIcon,
   FolderIcon,
   FolderInputIcon,
-  FolderUpIcon,
   MoreHorizontalIcon,
   PencilIcon,
   Share2Icon,
   Trash2Icon,
 } from "lucide-react";
-import { useCallback, type KeyboardEvent, type MouseEvent, type RefObject } from "react";
+import { useCallback, type KeyboardEvent, type MouseEvent } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -31,85 +30,6 @@ export type NewDriveParentPath = {
   name: string;
   folderId: string | null;
 };
-
-export function ParentFolderRow({
-  parentPath,
-  onOpen,
-  publicSafe,
-  dragEnabled,
-  lastDragEndedAt,
-}: {
-  parentPath: NewDriveParentPath;
-  onOpen?: () => void;
-  publicSafe: boolean;
-  dragEnabled: boolean;
-  lastDragEndedAt: RefObject<number>;
-}) {
-  const navigate = useNavigate();
-  const { setNodeRef, isOver } = useDroppable({
-    id: "new-drive-parent",
-    data: { folderId: parentPath.folderId, isParent: true },
-    disabled: !dragEnabled,
-  });
-
-  function openParentFolder() {
-    if (performance.now() - lastDragEndedAt.current < 150) return;
-    if (onOpen) {
-      onOpen();
-      return;
-    }
-    navigate({
-      to: "/app/newdrive/$spaceId/{-$folderId}",
-      params: {
-        spaceId: parentPath.spaceId,
-        folderId: parentPath.folderId ?? undefined,
-      },
-    });
-  }
-
-  return (
-    <div
-      ref={setNodeRef}
-      className={cn(
-        "grid min-h-14 cursor-pointer grid-cols-[minmax(0,1fr)_32px] items-center gap-3 rounded-lg border border-dashed border-border/70 bg-muted/20 px-4 py-2.5 transition-colors duration-200 select-none hover:bg-muted/40",
-        publicSafe
-          ? "md:grid-cols-[minmax(220px,1.7fr)_minmax(130px,.85fr)_80px_32px]"
-          : "md:grid-cols-[minmax(220px,1.7fr)_minmax(90px,.65fr)_minmax(130px,.85fr)_80px_110px_32px]",
-        isOver && "border-primary bg-primary/10 ring-2 ring-primary",
-      )}
-      role="link"
-      tabIndex={0}
-      aria-label={`Open parent folder ${parentPath.name}`}
-      onClick={openParentFolder}
-      onKeyDown={(event) => {
-        if (event.key !== "Enter") return;
-        event.preventDefault();
-        openParentFolder();
-      }}
-    >
-      <div className="flex min-w-0 items-center gap-3">
-        <span className="flex size-8 shrink-0 items-center justify-center rounded-md bg-muted text-muted-foreground">
-          <FolderUpIcon className="size-4" />
-        </span>
-        <div className="min-w-0">
-          <p className="text-[10px] font-medium tracking-wider text-muted-foreground uppercase">
-            Up one level
-          </p>
-          <p className="truncate text-sm font-medium">{parentPath.name}</p>
-        </div>
-      </div>
-      {!publicSafe && (
-        <span className="hidden text-xs text-muted-foreground md:block">-</span>
-      )}
-      {!publicSafe && (
-        <span className="hidden text-xs text-muted-foreground md:block">-</span>
-      )}
-      <span className="hidden text-xs text-muted-foreground md:block">-</span>
-      <span className="hidden text-xs text-muted-foreground md:block">-</span>
-      <span aria-hidden="true" />
-    </div>
-  );
-}
 
 export function NewDriveFileRow({
   item,
@@ -173,13 +93,14 @@ export function NewDriveFileRow({
       ref={setNodeRef}
       {...attributes}
       {...listeners}
+      data-file-list-item
       className={cn(
-        "group grid min-h-14 grid-cols-[minmax(0,1fr)_32px] items-center gap-3 rounded-lg bg-card px-4 py-2.5 transition-[color,background-color,box-shadow,opacity] duration-200 hover:bg-muted/50",
+        "group grid min-h-14 grid-cols-[minmax(0,1fr)_32px] items-center gap-3 border-b border-border/60 bg-transparent px-6 py-2.5 transition-[color,background-color,box-shadow,opacity] duration-200 hover:bg-muted/35",
         publicSafe
           ? "md:grid-cols-[minmax(220px,1.7fr)_minmax(130px,.85fr)_80px_32px]"
           : "md:grid-cols-[minmax(220px,1.7fr)_minmax(90px,.65fr)_minmax(130px,.85fr)_80px_110px_32px]",
         interactive && "cursor-pointer select-none",
-        isSelected && selectionEnabled && "bg-muted/50 ring-1 ring-primary",
+        isSelected && selectionEnabled && "bg-muted/70",
         isDragging && "opacity-35",
         isOver && "bg-primary/10 ring-2 ring-primary",
       )}
