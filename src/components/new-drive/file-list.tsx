@@ -1,3 +1,4 @@
+// oxlint-disable jsx-a11y/click-events-have-key-events, jsx-a11y/no-noninteractive-element-interactions, jsx-a11y/no-static-element-interactions
 import {
   DndContext,
   DragOverlay,
@@ -5,33 +6,22 @@ import {
   pointerWithin,
   type DragEndEvent,
   type DragStartEvent,
-  useDraggable,
-  useDroppable,
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
 import { snapCenterToCursor } from "@dnd-kit/modifiers";
-import { Link, useNavigate } from "@tanstack/react-router";
+import { useNavigate } from "@tanstack/react-router";
 import {
+  ArrowLeftIcon,
+  ArrowRightIcon,
   ArrowUpDownIcon,
-  FileIcon,
-  FileImageIcon,
-  FileTextIcon,
-  FolderIcon,
   FolderOpenIcon,
-  FolderInputIcon,
   FolderUpIcon,
-  MoreHorizontalIcon,
-  PencilIcon,
-  Share2Icon,
-  Trash2Icon,
 } from "lucide-react";
 import {
-  useCallback,
   type FormEvent,
   type KeyboardEvent,
   type MouseEvent,
-  type RefObject,
   useEffect,
   useId,
   useRef,
@@ -39,34 +29,8 @@ import {
 } from "react";
 import { toast } from "sonner";
 
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogMedia,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
-import { Button, buttonVariants } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
 import {
   Empty,
   EmptyDescription,
@@ -74,21 +38,19 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Spinner } from "@/components/ui/spinner";
 import { useIsMobile } from "@/hooks/use-mobile";
 import type { NewDriveItem } from "@/lib/new-drive-items";
 import { cn } from "@/lib/utils";
 
+import { ButtonGroup } from "../ui/button-group";
 import { Card, CardHeader } from "../ui/card";
+import { DeleteItemsDialog, MoveItemDialog, RenameItemDialog } from "./file-list-dialogs";
+import { DeleteDropButton, DragPreview } from "./file-list-drag";
+import {
+  NewDriveFileRow,
+  ParentFolderRow,
+  type NewDriveParentPath,
+} from "./file-list-rows";
 
 export function NewDriveFileList({
   items,
@@ -108,7 +70,7 @@ export function NewDriveFileList({
   items: NewDriveItem[];
   title: string;
   interactive?: boolean;
-  parentPath?: { spaceId: string; name: string; folderId: string | null };
+  parentPath?: NewDriveParentPath;
   onDeleteItems?: (itemIds: string[]) => void | Promise<void>;
   onMoveItems?: (
     itemIds: string[],
@@ -387,6 +349,22 @@ export function NewDriveFileList({
 
   return (
     <Card className="bg-background">
+      <CardHeader>
+        <div className="flex gap-2">
+          <ButtonGroup>
+            <Button variant="outline">
+              <ArrowLeftIcon />
+            </Button>
+
+            <Button variant="outline">
+              <ArrowRightIcon />
+            </Button>
+          </ButtonGroup>
+          <Button variant="outline">
+            <FolderUpIcon />
+          </Button>
+        </div>
+      </CardHeader>
       <section
         aria-labelledby="files-heading"
         className={cn("flex flex-col gap-3", interactive && "flex-1")}
@@ -523,494 +501,32 @@ export function NewDriveFileList({
             )}
           </DragOverlay>
         </DndContext>
-        <AlertDialog
-          open={deleteRequest.length > 0}
+        <DeleteItemsDialog
+          itemIds={deleteRequest}
+          itemName={displayedItems.find((item) => item.id === deleteRequest[0])?.name}
+          description={deleteDescription}
+          isDeleting={isDeleting}
           onOpenChange={(open) => !open && !isDeleting && setDeleteRequest([])}
-        >
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogMedia className="bg-destructive/10 text-destructive">
-                <Trash2Icon />
-              </AlertDialogMedia>
-              <AlertDialogTitle>
-                Delete {deleteRequest.length === 1 ? "this item" : "selected items"}?
-              </AlertDialogTitle>
-              <AlertDialogDescription>
-                {deleteRequest.length === 1 ? (
-                  <>
-                    This will permanently remove{" "}
-                    <strong>
-                      {displayedItems.find((item) => item.id === deleteRequest[0])?.name}
-                    </strong>
-                    .
-                  </>
-                ) : (
-                  `This will permanently remove ${deleteRequest.length} selected items.`
-                )}{" "}
-                Folders and everything inside them will be deleted. This action cannot be
-                undone. {deleteDescription}
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
-              <AlertDialogAction
-                variant="destructive"
-                disabled={isDeleting}
-                onClick={(event) => {
-                  event.preventDefault();
-                  void confirmDelete();
-                }}
-              >
-                {isDeleting ? (
-                  <Spinner data-icon="inline-start" />
-                ) : (
-                  <Trash2Icon data-icon="inline-start" />
-                )}
-                Delete
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-        <Dialog
-          open={renameRequest !== null}
+          onConfirm={() => void confirmDelete()}
+        />
+        <RenameItemDialog
+          item={renameRequest}
+          value={renameValue}
+          isRenaming={isRenaming}
           onOpenChange={(open) => !open && !isRenaming && setRenameRequest(null)}
-        >
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Rename</DialogTitle>
-              <DialogDescription>
-                Enter a new name for {renameRequest?.name}.
-              </DialogDescription>
-            </DialogHeader>
-            <form className="flex flex-col gap-4" onSubmit={confirmRename}>
-              <Input
-                autoFocus
-                aria-label="New item name"
-                maxLength={255}
-                value={renameValue}
-                onChange={(event) => setRenameValue(event.target.value)}
-              />
-              <DialogFooter>
-                <Button
-                  type="button"
-                  variant="outline"
-                  disabled={isRenaming}
-                  onClick={() => setRenameRequest(null)}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  type="submit"
-                  disabled={
-                    isRenaming ||
-                    !renameValue.trim() ||
-                    renameValue.trim() === renameRequest?.name
-                  }
-                >
-                  {isRenaming && <Spinner data-icon="inline-start" />}
-                  Rename
-                </Button>
-              </DialogFooter>
-            </form>
-          </DialogContent>
-        </Dialog>
-        <Dialog
-          open={moveRequest !== null}
+          onValueChange={setRenameValue}
+          onSubmit={confirmRename}
+        />
+        <MoveItemDialog
+          item={moveRequest}
+          destinationId={moveDestinationId}
+          destinations={moveDestinations}
+          isMoving={isMoving}
           onOpenChange={(open) => !open && !isMoving && setMoveRequest(null)}
-        >
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Move {moveRequest?.name}</DialogTitle>
-              <DialogDescription>
-                Choose a folder within this shared area.
-              </DialogDescription>
-            </DialogHeader>
-            <Select
-              value={moveDestinationId}
-              onValueChange={(value) => setMoveDestinationId(value ?? "")}
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select a destination" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  {moveDestinations
-                    .filter(({ id }) => id !== moveRequest?.id)
-                    .map((destination) => (
-                      <SelectItem key={destination.id} value={destination.id}>
-                        {destination.name}
-                      </SelectItem>
-                    ))}
-                </SelectGroup>
-              </SelectContent>
-            </Select>
-            <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                disabled={isMoving}
-                onClick={() => setMoveRequest(null)}
-              >
-                Cancel
-              </Button>
-              <Button
-                type="button"
-                disabled={isMoving || !moveDestinationId}
-                onClick={() => void confirmMove()}
-              >
-                {isMoving ? (
-                  <Spinner data-icon="inline-start" />
-                ) : (
-                  <FolderInputIcon data-icon="inline-start" />
-                )}
-                Move
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+          onDestinationChange={setMoveDestinationId}
+          onConfirm={() => void confirmMove()}
+        />
       </section>
     </Card>
-  );
-}
-
-function ParentFolderRow({
-  parentPath,
-  onOpen,
-  publicSafe,
-  dragEnabled,
-  lastDragEndedAt,
-}: {
-  parentPath: { spaceId: string; name: string; folderId: string | null };
-  onOpen?: () => void;
-  publicSafe: boolean;
-  dragEnabled: boolean;
-  lastDragEndedAt: RefObject<number>;
-}) {
-  const navigate = useNavigate();
-  const { setNodeRef, isOver } = useDroppable({
-    id: "new-drive-parent",
-    data: { folderId: parentPath.folderId, isParent: true },
-    disabled: !dragEnabled,
-  });
-
-  function openParentFolder() {
-    if (performance.now() - lastDragEndedAt.current < 150) return;
-    if (onOpen) {
-      onOpen();
-      return;
-    }
-    navigate({
-      to: "/app/newdrive/$spaceId/{-$folderId}",
-      params: {
-        spaceId: parentPath.spaceId,
-        folderId: parentPath.folderId ?? undefined,
-      },
-    });
-  }
-
-  return (
-    <div
-      ref={setNodeRef}
-      className={cn(
-        "grid min-h-14 cursor-pointer grid-cols-[minmax(0,1fr)_32px] items-center gap-3 rounded-lg border border-dashed border-border/70 bg-muted/20 px-4 py-2.5 transition-colors duration-200 select-none hover:bg-muted/40",
-        publicSafe
-          ? "md:grid-cols-[minmax(220px,1.7fr)_minmax(130px,.85fr)_80px_32px]"
-          : "md:grid-cols-[minmax(220px,1.7fr)_minmax(90px,.65fr)_minmax(130px,.85fr)_80px_110px_32px]",
-        isOver && "border-primary bg-primary/10 ring-2 ring-primary",
-      )}
-      role="link"
-      tabIndex={0}
-      aria-label={`Open parent folder ${parentPath.name}`}
-      onClick={openParentFolder}
-      onKeyDown={(event) => {
-        if (event.key !== "Enter") return;
-        event.preventDefault();
-        openParentFolder();
-      }}
-    >
-      <div className="flex min-w-0 items-center gap-3">
-        <span className="flex size-8 shrink-0 items-center justify-center rounded-md bg-muted text-muted-foreground">
-          <FolderUpIcon className="size-4" />
-        </span>
-        <div className="min-w-0">
-          <p className="text-[10px] font-medium tracking-wider text-muted-foreground uppercase">
-            Up one level
-          </p>
-          <p className="truncate text-sm font-medium">{parentPath.name}</p>
-        </div>
-      </div>
-      {!publicSafe && (
-        <span className="hidden text-xs text-muted-foreground md:block">-</span>
-      )}
-      {!publicSafe && (
-        <span className="hidden text-xs text-muted-foreground md:block">-</span>
-      )}
-      <span className="hidden text-xs text-muted-foreground md:block">-</span>
-      <span className="hidden text-xs text-muted-foreground md:block">-</span>
-      <span aria-hidden="true" />
-    </div>
-  );
-}
-
-function DeleteDropButton({
-  itemCount,
-  dragEnabled,
-  onClick,
-}: {
-  itemCount: number;
-  dragEnabled: boolean;
-  onClick: () => void;
-}) {
-  const { setNodeRef, isOver } = useDroppable({
-    id: "new-drive-trash",
-    data: { isTrash: true },
-    disabled: !dragEnabled,
-  });
-
-  return (
-    <Button
-      ref={setNodeRef}
-      type="button"
-      variant={isOver ? "destructive" : "outline"}
-      size="icon-sm"
-      className={cn(
-        !isOver &&
-          "text-destructive hover:border-destructive/50 hover:bg-destructive/10 hover:text-destructive",
-        isOver && "ring-2 ring-destructive/30",
-      )}
-      aria-label={
-        isOver
-          ? `Drop to delete ${itemCount} selected ${itemCount === 1 ? "item" : "items"}`
-          : `Delete ${itemCount} selected ${itemCount === 1 ? "item" : "items"}`
-      }
-      onClick={onClick}
-    >
-      <Trash2Icon />
-    </Button>
-  );
-}
-
-function NewDriveFileRow({
-  item,
-  interactive,
-  selectionEnabled,
-  dragEnabled,
-  isSelected,
-  onClick,
-  onDoubleClick,
-  onKeyDown,
-  onContextMenu,
-  onDelete,
-  onRename,
-  onShare,
-  onMove,
-  canDelete,
-  publicSafe,
-}: {
-  item: NewDriveItem;
-  interactive: boolean;
-  selectionEnabled: boolean;
-  dragEnabled: boolean;
-  isSelected: boolean;
-  onClick: (event: MouseEvent<HTMLDivElement>) => void;
-  onDoubleClick: (event: MouseEvent<HTMLDivElement>) => void;
-  onKeyDown: (event: KeyboardEvent<HTMLDivElement>) => void;
-  onContextMenu: () => void;
-  onDelete: () => void;
-  onRename?: () => void;
-  onShare?: () => void;
-  onMove?: () => void;
-  canDelete: boolean;
-  publicSafe: boolean;
-}) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef: setDraggableRef,
-    isDragging,
-  } = useDraggable({
-    id: `new-drive-item:${item.id}`,
-    data: { itemId: item.id },
-    disabled: !dragEnabled,
-  });
-  const { setNodeRef: setDroppableRef, isOver } = useDroppable({
-    id: `new-drive-folder:${item.id}`,
-    data: { folderId: item.id },
-    disabled: !dragEnabled || item.kind !== "folder" || isSelected,
-  });
-  const setNodeRef = useCallback(
-    (node: HTMLDivElement | null) => {
-      setDraggableRef(node);
-      setDroppableRef(node);
-    },
-    [setDraggableRef, setDroppableRef],
-  );
-  const hasActions = !!onRename || !!onMove || !!onShare || canDelete;
-
-  return (
-    <div
-      ref={setNodeRef}
-      {...attributes}
-      {...listeners}
-      className={cn(
-        "group grid min-h-14 grid-cols-[minmax(0,1fr)_32px] items-center gap-3 rounded-lg bg-card px-4 py-2.5 transition-[color,background-color,box-shadow,opacity] duration-200 hover:bg-muted/50",
-        publicSafe
-          ? "md:grid-cols-[minmax(220px,1.7fr)_minmax(130px,.85fr)_80px_32px]"
-          : "md:grid-cols-[minmax(220px,1.7fr)_minmax(90px,.65fr)_minmax(130px,.85fr)_80px_110px_32px]",
-        interactive && "cursor-pointer select-none",
-        isSelected && selectionEnabled && "bg-muted/50 ring-1 ring-primary",
-        isDragging && "opacity-35",
-        isOver && "bg-primary/10 ring-2 ring-primary",
-      )}
-      role={selectionEnabled ? "option" : "listitem"}
-      aria-selected={selectionEnabled ? isSelected : undefined}
-      tabIndex={interactive ? 0 : undefined}
-      onClick={onClick}
-      onDoubleClick={onDoubleClick}
-      onKeyDown={onKeyDown}
-      onContextMenu={onContextMenu}
-    >
-      <div className="flex min-w-0 items-center gap-3">
-        <ItemIcon kind={item.kind} />
-        <div className="min-w-0">
-          {item.kind === "folder" && !interactive ? (
-            <Link
-              to="/app/newdrive/$spaceId/{-$folderId}"
-              params={{ spaceId: item.spaceId, folderId: item.id }}
-              className={buttonVariants({
-                variant: "link",
-                className: "h-auto max-w-full justify-start p-0 font-medium",
-              })}
-            >
-              <span className="truncate">{item.name}</span>
-            </Link>
-          ) : (
-            <p className="truncate text-sm font-medium">{item.name}</p>
-          )}
-          <p className="mt-0.5 truncate text-xs text-muted-foreground md:hidden">
-            {publicSafe
-              ? `${item.updated} / ${item.size}`
-              : `${item.owner} / ${item.updated} / ${item.size}`}
-          </p>
-        </div>
-      </div>
-      {!publicSafe && (
-        <span className="hidden truncate text-xs text-muted-foreground md:block">
-          {item.owner}
-        </span>
-      )}
-      <span className="hidden truncate text-xs text-muted-foreground md:block">
-        {item.updated}
-      </span>
-      <span className="hidden text-xs text-muted-foreground md:block">{item.size}</span>
-      {!publicSafe && (
-        <div className="hidden md:block">
-          <Badge
-            variant="outline"
-            className={cn(
-              "h-6 rounded-md bg-background px-1.5 font-normal text-muted-foreground",
-              item.access !== "Restricted" &&
-                "border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-900 dark:bg-blue-950/50 dark:text-blue-400",
-            )}
-          >
-            {item.access !== "Restricted" && <Share2Icon />}
-            {item.access}
-          </Badge>
-        </div>
-      )}
-      {hasActions ? (
-        <div
-          onPointerDown={(event) => event.stopPropagation()}
-          onClick={(event) => event.stopPropagation()}
-          onDoubleClick={(event) => event.stopPropagation()}
-          onKeyDown={(event) => event.stopPropagation()}
-        >
-          <DropdownMenu>
-            <DropdownMenuTrigger
-              render={
-                <Button
-                  variant="ghost"
-                  size="icon-sm"
-                  className="text-muted-foreground md:data-popup-open:opacity-100"
-                  aria-label={`More actions for ${item.name}`}
-                />
-              }
-            >
-              <MoreHorizontalIcon />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuGroup>
-                {onRename && (
-                  <DropdownMenuItem onClick={onRename}>
-                    <PencilIcon />
-                    Rename
-                  </DropdownMenuItem>
-                )}
-                {onMove && (
-                  <DropdownMenuItem onClick={onMove}>
-                    <FolderInputIcon />
-                    Move
-                  </DropdownMenuItem>
-                )}
-                {onShare && (
-                  <DropdownMenuItem onClick={onShare}>
-                    <Share2Icon />
-                    Share
-                  </DropdownMenuItem>
-                )}
-                {canDelete && (
-                  <DropdownMenuItem variant="destructive" onClick={onDelete}>
-                    <Trash2Icon />
-                    Delete
-                  </DropdownMenuItem>
-                )}
-              </DropdownMenuGroup>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      ) : (
-        <span aria-hidden="true" />
-      )}
-    </div>
-  );
-}
-
-function DragPreview({ items }: { items: NewDriveItem[] }) {
-  return (
-    <div className="pointer-events-none flex w-72 flex-col gap-1 rounded-xl bg-background/80 p-2 opacity-80 shadow-xl ring-1 ring-foreground/10">
-      {items.slice(0, 3).map((item) => (
-        <div
-          key={item.id}
-          className="flex items-center gap-3 rounded-lg bg-card px-3 py-2"
-        >
-          <ItemIcon kind={item.kind} />
-          <span className="truncate text-sm font-medium">{item.name}</span>
-        </div>
-      ))}
-      {items.length > 3 && (
-        <p className="px-3 py-1 text-xs text-muted-foreground">
-          +{items.length - 3} more selected
-        </p>
-      )}
-    </div>
-  );
-}
-
-function ItemIcon({ kind }: { kind: NewDriveItem["kind"] }) {
-  if (kind === "folder") {
-    return (
-      <span className="flex size-8 shrink-0 items-center justify-center rounded-md bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-400">
-        <FolderIcon className="size-4 fill-current/10" />
-      </span>
-    );
-  }
-
-  const Icon =
-    kind === "image" ? FileImageIcon : kind === "pdf" ? FileTextIcon : FileIcon;
-
-  return (
-    <span className="flex size-8 shrink-0 items-center justify-center rounded-md bg-muted text-muted-foreground">
-      <Icon className="size-4" />
-    </span>
   );
 }
