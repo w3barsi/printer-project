@@ -1,6 +1,7 @@
 import { useDraggable, useDroppable } from "@dnd-kit/core";
 import { Link } from "@tanstack/react-router";
 import {
+  DownloadIcon,
   FileIcon,
   FileImageIcon,
   FileTextIcon,
@@ -42,6 +43,7 @@ export function NewDriveFileRow({
   onKeyDown,
   onContextMenu,
   onDelete,
+  onDownload,
   onRename,
   onShare,
   onMove,
@@ -58,6 +60,7 @@ export function NewDriveFileRow({
   onKeyDown: (event: KeyboardEvent<HTMLDivElement>) => void;
   onContextMenu: () => void;
   onDelete: () => void;
+  onDownload?: () => void;
   onRename?: () => void;
   onShare?: () => void;
   onMove?: () => void;
@@ -86,7 +89,7 @@ export function NewDriveFileRow({
     },
     [setDraggableRef, setDroppableRef],
   );
-  const hasActions = !!onRename || !!onMove || !!onShare || canDelete;
+  const hasActions = !!onDownload || !!onRename || !!onMove || !!onShare || canDelete;
 
   return (
     <div
@@ -182,6 +185,12 @@ export function NewDriveFileRow({
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuGroup>
+                {onDownload && (
+                  <DropdownMenuItem onClick={onDownload}>
+                    <DownloadIcon />
+                    {item.kind === "folder" ? "Download Folder" : "Download File"}
+                  </DropdownMenuItem>
+                )}
                 {onRename && (
                   <DropdownMenuItem onClick={onRename}>
                     <PencilIcon />

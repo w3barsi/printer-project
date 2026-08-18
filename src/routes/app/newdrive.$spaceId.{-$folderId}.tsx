@@ -3,10 +3,11 @@ import { api } from "@convex/_generated/api";
 import type { Id } from "@convex/_generated/dataModel";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, useRouteContext } from "@tanstack/react-router";
-import { useMutation } from "convex/react";
+import { useConvex, useMutation } from "convex/react";
 import { formatDistanceToNow } from "date-fns";
 import { FolderOpenIcon } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
 
 import { Container } from "@/components/layouts/container";
 import { AddItemsMenu } from "@/components/new-drive/add-items-menu";
@@ -14,6 +15,7 @@ import { NewDriveFileList } from "@/components/new-drive/file-list";
 import { ShareDialog } from "@/components/new-drive/share-dialog";
 import { NewDriveUploadDropzone } from "@/components/new-drive/upload-dropzone";
 import { useNewDriveUpload } from "@/hooks/use-new-drive-upload";
+import { downloadDriveItem } from "@/lib/download-drive-item";
 import type { NewDriveItem, NewDriveShareItem } from "@/lib/new-drive-items";
 
 export const Route = createFileRoute("/app/newdrive/$spaceId/{-$folderId}")({
@@ -82,6 +84,7 @@ function SpaceBrowserPage() {
   const { user } = useRouteContext({ from: "/app" });
   const { spaceId, folderId } = Route.useParams();
   const { space, folder, parentFolder } = Route.useLoaderData();
+  const convex = useConvex();
   const typedSpaceId = spaceId as Id<"newDriveSpaces">;
   const typedFolderId = folderId as Id<"newDriveItems"> | undefined;
   const { data } = useSuspenseQuery(
@@ -121,6 +124,20 @@ function SpaceBrowserPage() {
   }));
   const title = folder?.name ?? space?.name ?? "Space";
 
+  async function downloadItem(item: Pick<NewDriveItem, "id" | "kind">) {
+    const toastId = toast.loading("Download in progress");
+    try {
+      const manifest = await convex.query(api.drive.items.getDownloadManifest, {
+        itemId: item.id as Id<"newDriveItems">,
+      });
+      await downloadDriveItem(manifest);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Download failed");
+    } finally {
+      toast.dismiss(toastId);
+    }
+  }
+
   return (
     <NewDriveUploadDropzone upload={upload}>
       <Container className="flex min-h-[calc(100svh-4.1rem)] max-w-7xl flex-col gap-6 px-3 py-5 md:px-6 md:py-7">
@@ -145,6 +162,15 @@ function SpaceBrowserPage() {
               isUploading={isUploading}
               onCreateFolder={(name) =>
                 createFolder({ spaceId: typedSpaceId, parentId: typedFolderId, name })
+              }
+              onDownloadFolder={
+                folderId
+                  ? () =>
+                      void downloadItem({
+                        id: folderId,
+                        kind: "folder",
+                      })
+                  : undefined
               }
               onShareFolder={
                 folderId
@@ -174,6 +200,7 @@ function SpaceBrowserPage() {
               itemIds: itemIds as Id<"newDriveItems">[],
             }).then(() => undefined)
           }
+          onDownloadItem={downloadItem}
           onMoveItems={(itemIds, destinationFolderId) =>
             moveItems({
               spaceId: typedSpaceId,

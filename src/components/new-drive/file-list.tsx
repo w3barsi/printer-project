@@ -124,6 +124,7 @@ export function NewDriveFileList({
   parentPath,
   onDeleteItems,
   onMoveItems,
+  onDownloadItem,
   onRenameItem,
   onShareItem,
   onOpenItem,
@@ -142,6 +143,7 @@ export function NewDriveFileList({
     itemIds: string[],
     destinationFolderId: string | null,
   ) => boolean | Promise<boolean>;
+  onDownloadItem?: (item: NewDriveItem) => void | Promise<void>;
   onRenameItem?: (itemId: string, name: string) => void | Promise<void>;
   onShareItem?: (item: NewDriveItem) => void;
   onOpenItem?: (item: NewDriveItem) => void;
@@ -637,6 +639,9 @@ export function NewDriveFileList({
                     }
                   }}
                   onDelete={() => setDeleteRequest([item.id])}
+                  onDownload={
+                    onDownloadItem ? () => void onDownloadItem(item) : undefined
+                  }
                   onRename={onRenameItem ? () => requestRename(item) : undefined}
                   onShare={onShareItem ? () => onShareItem(item) : undefined}
                   onMove={

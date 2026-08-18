@@ -14,6 +14,9 @@ import { authedMutation, authedQuery } from "../auth";
 import { r2 } from "../r2";
 import {
   collectDeletedItems,
+  MAX_ARCHIVE_BYTES,
+  MAX_ARCHIVE_FILES,
+  MAX_ARCHIVE_ITEMS,
   MAX_DELETE_ITEMS,
   MAX_FILE_SIZE,
   UPLOAD_TICKET_TTL,
@@ -23,9 +26,6 @@ import { assertItemName, normalizeName, requireSpaceAccess } from "./lib";
 const SHARE_ERROR = "This shared item is unavailable";
 const MAX_ANCESTRY_DEPTH = 256;
 const MAX_MOVE_ITEMS = 100;
-const MAX_ARCHIVE_FILES = 500;
-const MAX_ARCHIVE_BYTES = 250 * 1024 * 1024;
-const MAX_ARCHIVE_ITEMS = 1_000;
 const SIGNED_URL_TTL_SECONDS = 15 * 60;
 
 type DbCtx = Pick<QueryCtx, "db"> | Pick<MutationCtx, "db">;
@@ -406,15 +406,19 @@ function safeArchiveSegment(name: string) {
 }
 
 export const getSharedArchiveManifest = query({
-  args: { token: v.string() },
+  args: { token: v.string(), itemId: v.optional(v.string()) },
   handler: async (ctx, args) => {
     try {
-      const root = await resolveActiveShare(ctx, args.token);
+      const shareRoot = await resolveActiveShare(ctx, args.token);
+      const root = args.itemId
+        ? await requireSharedItem(ctx, shareRoot, normalizeItemId(ctx, args.itemId))
+        : shareRoot;
       if (root.kind !== "folder" || !safeArchiveSegment(root.name)) shareError();
       const queue: Array<{ folder: Doc<"newDriveItems">; path: string }> = [
         { folder: root, path: root.name },
       ];
       const visited = new Set<Id<"newDriveItems">>();
+      const folders: string[] = [];
       const files: Array<{
         item: Doc<"newDriveItems"> & { kind: "file" };
         path: string;
@@ -425,6 +429,7 @@ export const getSharedArchiveManifest = query({
         const current = queue.shift()!;
         if (visited.has(current.folder._id)) shareError();
         visited.add(current.folder._id);
+        folders.push(current.path);
         const children = await ctx.db
           .query("newDriveItems")
           .withIndex(
@@ -468,6 +473,7 @@ export const getSharedArchiveManifest = query({
         fileCount: files.length,
         totalSize,
         files: signedFiles,
+        folders,
       };
     } catch {
       return { status: "unavailable" as const };

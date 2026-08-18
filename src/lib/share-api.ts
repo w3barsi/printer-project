@@ -103,7 +103,7 @@ export const shareApi = {
   >("drive/shares:getSharedDownloadUrl"),
   getSharedArchiveManifest: makeFunctionReference<
     "query",
-    { token: string },
+    { token: string; itemId?: string },
     | Unavailable
     | { status: "archiveTooLarge"; maxFiles: number; maxBytes: number }
     | {
@@ -112,6 +112,7 @@ export const shareApi = {
         fileCount: number;
         totalSize: number;
         files: { path: string; size: number; url: string }[];
+        folders: string[];
       }
   >("drive/shares:getSharedArchiveManifest"),
   createSharedFolder: makeFunctionReference<

@@ -1,4 +1,5 @@
 import {
+  DownloadIcon,
   FolderPlusIcon,
   FolderUpIcon,
   MoreHorizontalIcon,
@@ -33,6 +34,7 @@ interface AddItemsMenuProps {
   upload: (selection: NewDriveUploadSelection) => Promise<void>;
   isUploading: boolean;
   onCreateFolder: (name: string) => Promise<unknown>;
+  onDownloadFolder?: () => void;
   onShareFolder?: () => void;
 }
 
@@ -40,6 +42,7 @@ export function AddItemsMenu({
   upload,
   isUploading,
   onCreateFolder,
+  onDownloadFolder,
   onShareFolder,
 }: AddItemsMenuProps) {
   const id = useId();
@@ -145,7 +148,7 @@ export function AddItemsMenu({
         </PopoverContent>
       </Popover>
 
-      {onShareFolder && (
+      {(onDownloadFolder || onShareFolder) && (
         <DropdownMenu>
           <DropdownMenuTrigger
             render={
@@ -161,10 +164,21 @@ export function AddItemsMenu({
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="min-w-52">
             <DropdownMenuGroup>
-              <DropdownMenuItem className="whitespace-nowrap" onClick={onShareFolder}>
-                <Share2Icon />
-                Share this folder
-              </DropdownMenuItem>
+              {onDownloadFolder && (
+                <DropdownMenuItem
+                  className="whitespace-nowrap"
+                  onClick={onDownloadFolder}
+                >
+                  <DownloadIcon />
+                  Download this folder
+                </DropdownMenuItem>
+              )}
+              {onShareFolder && (
+                <DropdownMenuItem className="whitespace-nowrap" onClick={onShareFolder}>
+                  <Share2Icon />
+                  Share this folder
+                </DropdownMenuItem>
+              )}
             </DropdownMenuGroup>
           </DropdownMenuContent>
         </DropdownMenu>

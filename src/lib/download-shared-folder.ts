@@ -23,10 +23,12 @@ export async function downloadSharedFolder(
   files: ArchiveFile[],
   onProgress: (completed: number, total: number) => void,
   signal?: AbortSignal,
+  folders: string[] = [],
 ) {
   const zip = new JSZip();
-  zip.folder(safeFileName(rootName));
+  if (folders.length === 0) zip.folder(safeFileName(rootName));
   const paths = new Set<string>();
+  for (const folder of folders) zip.folder(safePath(folder));
   const queue = files.map((file) => ({ ...file, path: safePath(file.path) }));
   for (const file of queue) {
     if (paths.has(file.path)) throw new Error("The archive contains duplicate paths");
@@ -40,7 +42,7 @@ export async function downloadSharedFolder(
       const file = queue.shift();
       if (!file) return;
       const response = await fetch(file.url, { signal });
-      if (!response.ok) throw new Error("A shared file could not be downloaded");
+      if (!response.ok) throw new Error("A file could not be downloaded");
       zip.file(file.path, await response.blob());
       completed += 1;
       onProgress(completed, files.length);

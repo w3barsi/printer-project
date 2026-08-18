@@ -20,7 +20,12 @@ import {
 
 export const MAX_FILE_SIZE = 5 * 1024 * 1024 * 1024;
 export const MAX_DELETE_ITEMS = 500;
+export const MAX_ARCHIVE_FILES = 500;
+export const MAX_ARCHIVE_BYTES = 250 * 1024 * 1024;
+export const MAX_ARCHIVE_ITEMS = 1_000;
 export const UPLOAD_TICKET_TTL = 15 * 60 * 1000;
+
+const SIGNED_URL_TTL_SECONDS = 15 * 60;
 
 const parentIdValidator = v.optional(v.id("newDriveItems"));
 
@@ -136,6 +141,113 @@ export const getFilePreview = authedQuery({
       contentType: item.r2.contentType,
       size: item.r2.size,
       url,
+    };
+  },
+});
+
+function safeArchiveSegment(name: string) {
+  return (
+    name !== "." &&
+    name !== ".." &&
+    !name.includes("/") &&
+    !name.includes("\\") &&
+    !/[\u0000-\u001f\u007f]/.test(name)
+  );
+}
+
+export const getDownloadManifest = authedQuery({
+  args: { itemId: v.id("newDriveItems") },
+  handler: async (ctx, args) => {
+    const root = await ctx.db.get("newDriveItems", args.itemId);
+    if (!root || root.deletedAt !== undefined || !safeArchiveSegment(root.name)) {
+      throw new ConvexError("Item not found");
+    }
+    await requireSpaceAccess(ctx, root.spaceId);
+
+    if (root.kind === "file") {
+      const url = await r2.getUrl(root.r2.key, { expiresIn: SIGNED_URL_TTL_SECONDS });
+      if (!url) throw new ConvexError("File download is unavailable");
+      return {
+        status: "available" as const,
+        kind: "file" as const,
+        rootName: root.name,
+        files: [{ path: root.name, size: root.r2.size, url }],
+        folders: [] as string[],
+      };
+    }
+
+    const queue: Array<{ folder: Doc<"newDriveItems">; path: string }> = [
+      { folder: root, path: root.name },
+    ];
+    const visited = new Set<Id<"newDriveItems">>();
+    const folders: string[] = [];
+    const files: Array<{
+      item: Doc<"newDriveItems"> & { kind: "file" };
+      path: string;
+    }> = [];
+    let totalSize = 0;
+    let itemCount = 0;
+
+    while (queue.length > 0) {
+      const current = queue.shift()!;
+      if (visited.has(current.folder._id)) {
+        throw new ConvexError("Folder structure is invalid");
+      }
+      visited.add(current.folder._id);
+      folders.push(current.path);
+
+      const children = await ctx.db
+        .query("newDriveItems")
+        .withIndex(
+          "by_spaceId_and_parentId_and_deletedAt_and_kindSort_and_nameKey",
+          (q) =>
+            q
+              .eq("spaceId", root.spaceId)
+              .eq("parentId", current.folder._id)
+              .eq("deletedAt", undefined),
+        )
+        .take(MAX_ARCHIVE_ITEMS + 1);
+
+      for (const child of children) {
+        itemCount += 1;
+        if (itemCount > MAX_ARCHIVE_ITEMS || !safeArchiveSegment(child.name)) {
+          throw new ConvexError("Folder is too large to download");
+        }
+        const path = `${current.path}/${child.name}`;
+        if (child.kind === "folder") {
+          queue.push({ folder: child, path });
+          continue;
+        }
+        files.push({ item: child, path });
+        totalSize += child.r2.size;
+        if (files.length > MAX_ARCHIVE_FILES || totalSize > MAX_ARCHIVE_BYTES) {
+          return {
+            status: "archiveTooLarge" as const,
+            maxFiles: MAX_ARCHIVE_FILES,
+            maxBytes: MAX_ARCHIVE_BYTES,
+          };
+        }
+      }
+    }
+
+    const signedFiles = await Promise.all(
+      files.map(async ({ item, path }) => {
+        const url = await r2.getUrl(item.r2.key, {
+          expiresIn: SIGNED_URL_TTL_SECONDS,
+        });
+        if (!url) throw new ConvexError("A file download is unavailable");
+        return { path, size: item.r2.size, url };
+      }),
+    );
+
+    return {
+      status: "available" as const,
+      kind: "folder" as const,
+      rootName: root.name,
+      fileCount: files.length,
+      totalSize,
+      files: signedFiles,
+      folders,
     };
   },
 });
