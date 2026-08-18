@@ -225,7 +225,7 @@ export const moveItems = authedMutation({
   args: {
     spaceId: v.id("newDriveSpaces"),
     itemIds: v.array(v.id("newDriveItems")),
-    destinationFolderId: v.id("newDriveItems"),
+    destinationFolderId: v.union(v.id("newDriveItems"), v.null()),
   },
   handler: async (ctx, args) => {
     await requireSpaceAccess(ctx, args.spaceId);
@@ -250,16 +250,20 @@ export const moveItems = authedMutation({
       throw new ConvexError("Selected items must come from the same folder");
     }
 
-    const destination = await ctx.db.get("newDriveItems", args.destinationFolderId);
+    const destination = args.destinationFolderId
+      ? await ctx.db.get("newDriveItems", args.destinationFolderId)
+      : null;
     if (
-      !destination ||
-      destination.kind !== "folder" ||
-      destination.spaceId !== args.spaceId ||
-      destination.deletedAt !== undefined
+      (args.destinationFolderId !== null && !destination) ||
+      (destination &&
+        (destination.kind !== "folder" ||
+          destination.spaceId !== args.spaceId ||
+          destination.deletedAt !== undefined))
     ) {
       throw new ConvexError("Destination folder not found");
     }
-    if (sourceParentId === destination._id) return true;
+    const destinationParentId = destination?._id;
+    if (sourceParentId === destinationParentId) return true;
 
     const movingIds = new Set<Id<"newDriveItems">>(itemIds);
     let ancestor: Doc<"newDriveItems"> | null = destination;
@@ -278,7 +282,7 @@ export const moveItems = authedMutation({
         .withIndex("by_spaceId_and_parentId_and_deletedAt_and_nameKey", (q) =>
           q
             .eq("spaceId", args.spaceId)
-            .eq("parentId", destination._id)
+            .eq("parentId", destinationParentId)
             .eq("deletedAt", undefined)
             .eq("nameKey", item.nameKey),
         )
@@ -291,11 +295,13 @@ export const moveItems = authedMutation({
     const now = Date.now();
     for (const item of existingItems) {
       await ctx.db.patch("newDriveItems", item._id, {
-        parentId: destination._id,
+        parentId: destinationParentId,
         updatedAt: now,
       });
     }
-    await ctx.db.patch("newDriveItems", destination._id, { updatedAt: now });
+    if (destination) {
+      await ctx.db.patch("newDriveItems", destination._id, { updatedAt: now });
+    }
     await ctx.db.patch("newDriveSpaces", args.spaceId, { updatedAt: now });
     return true;
   },

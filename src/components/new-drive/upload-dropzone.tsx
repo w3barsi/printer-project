@@ -123,7 +123,7 @@ export function NewDriveUploadDropzone({ upload, children }: UploadDropzoneProps
 
   return (
     <div
-      className="relative min-h-[calc(100svh-4.1rem)] bg-muted/25"
+      className="relative min-h-[calc(100svh-4.1rem)]"
       onDragEnter={handleDragEnter}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}

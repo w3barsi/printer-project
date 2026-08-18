@@ -176,7 +176,7 @@ function SpaceBrowserPage() {
             moveItems({
               spaceId: typedSpaceId,
               itemIds: itemIds as Id<"newDriveItems">[],
-              destinationFolderId: destinationFolderId as Id<"newDriveItems">,
+              destinationFolderId: destinationFolderId as Id<"newDriveItems"> | null,
             })
           }
           onRenameItem={(itemId, name) =>

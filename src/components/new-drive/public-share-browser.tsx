@@ -218,11 +218,13 @@ export function PublicShareBrowser({
         onMoveItems={
           canEdit
             ? (ids, destinationFolderId) =>
-                moveItems({
-                  token,
-                  itemIds: ids as Id<"newDriveItems">[],
-                  destinationFolderId: destinationFolderId as Id<"newDriveItems">,
-                })
+                destinationFolderId
+                  ? moveItems({
+                      token,
+                      itemIds: ids as Id<"newDriveItems">[],
+                      destinationFolderId: destinationFolderId as Id<"newDriveItems">,
+                    })
+                  : false
             : undefined
         }
         onDeleteItems={

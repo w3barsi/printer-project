@@ -2,6 +2,7 @@ import {
   DndContext,
   DragOverlay,
   PointerSensor,
+  pointerWithin,
   type DragEndEvent,
   type DragStartEvent,
   useDraggable,
@@ -9,6 +10,7 @@ import {
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
+import { snapCenterToCursor } from "@dnd-kit/modifiers";
 import { Link, useNavigate } from "@tanstack/react-router";
 import {
   ArrowUpDownIcon,
@@ -29,6 +31,7 @@ import {
   type FormEvent,
   type KeyboardEvent,
   type MouseEvent,
+  type RefObject,
   useEffect,
   useId,
   useRef,
@@ -85,6 +88,8 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import type { NewDriveItem } from "@/lib/new-drive-items";
 import { cn } from "@/lib/utils";
 
+import { Card, CardHeader } from "../ui/card";
+
 export function NewDriveFileList({
   items,
   title,
@@ -107,7 +112,7 @@ export function NewDriveFileList({
   onDeleteItems?: (itemIds: string[]) => void | Promise<void>;
   onMoveItems?: (
     itemIds: string[],
-    destinationFolderId: string,
+    destinationFolderId: string | null,
   ) => boolean | Promise<boolean>;
   onRenameItem?: (itemId: string, name: string) => void | Promise<void>;
   onShareItem?: (item: NewDriveItem) => void;
@@ -334,6 +339,7 @@ export function NewDriveFileList({
   async function handleDragEnd(event: DragEndEvent) {
     const draggedItemId = event.active.data.current?.itemId;
     const destinationFolderId = event.over?.data.current?.folderId;
+    const isParentTarget = event.over?.data.current?.isParent === true;
     const isTrashTarget = event.over?.data.current?.isTrash === true;
     setActiveDragId(null);
     lastDragEndedAt.current = performance.now();
@@ -345,17 +351,22 @@ export function NewDriveFileList({
       setDeleteRequest(itemIds);
       return;
     }
-    if (typeof destinationFolderId !== "string") return;
-    if (itemIds.includes(destinationFolderId)) {
-      toast.error("A folder cannot be moved into itself", { position: "bottom-right" });
+    if (!isParentTarget && typeof destinationFolderId !== "string") return;
+    if (
+      typeof destinationFolderId === "string" &&
+      itemIds.includes(destinationFolderId)
+    ) {
       return;
     }
 
-    const destination = displayedItems.find((item) => item.id === destinationFolderId);
-    if (!destination || destination.kind !== "folder") return;
+    const destination = isParentTarget
+      ? parentPath
+      : displayedItems.find((item) => item.id === destinationFolderId);
+    if (!destination || ("kind" in destination && destination.kind !== "folder")) return;
 
     try {
-      const didMove = (await onMoveItems?.(itemIds, destinationFolderId)) ?? false;
+      const destinationId = isParentTarget ? parentPath?.folderId : destinationFolderId;
+      const didMove = (await onMoveItems?.(itemIds, destinationId ?? null)) ?? false;
       if (!didMove) {
         toast.error("Items cannot be moved into that folder", {
           position: "bottom-right",
@@ -375,285 +386,290 @@ export function NewDriveFileList({
   }
 
   return (
-    <section
-      aria-labelledby="files-heading"
-      className={cn("flex flex-col gap-3", interactive && "flex-1")}
-      onClick={(event) => {
-        if (selectionEnabled && event.target === event.currentTarget) clearSelection();
-      }}
-    >
-      <h2 id="files-heading" className="sr-only">
-        {title}
-      </h2>
-      <DndContext
-        id={dndContextId}
-        sensors={sensors}
-        onDragStart={handleDragStart}
-        onDragEnd={handleDragEnd}
-        onDragCancel={() => setActiveDragId(null)}
+    <Card className="bg-background">
+      <section
+        aria-labelledby="files-heading"
+        className={cn("flex flex-col gap-3", interactive && "flex-1")}
+        onClick={(event) => {
+          if (selectionEnabled && event.target === event.currentTarget) clearSelection();
+        }}
       >
-        <div className="flex flex-wrap items-end justify-between gap-3">
-          <div className="flex items-center gap-2">
-            {selectionEnabled && selectedIds.length > 0 && (
-              <>
-                <Badge variant="secondary">{selectedIds.length} selected</Badge>
-                <DeleteDropButton
-                  itemCount={selectedIds.length}
-                  dragEnabled={dragEnabled}
-                  onClick={() => setDeleteRequest(selectedIds)}
-                />
-              </>
-            )}
-            <Button variant="ghost" size="sm" className="text-muted-foreground">
-              <ArrowUpDownIcon data-icon="inline-start" />
-              <span className="hidden sm:inline">Last modified</span>
-            </Button>
-          </div>
-        </div>
-
-        {displayedItems.length === 0 && !parentPath ? (
-          <Empty className="rounded-lg bg-card py-14">
-            <EmptyHeader>
-              <EmptyMedia variant="icon">
-                <FolderOpenIcon />
-              </EmptyMedia>
-              <EmptyTitle>No files or folders found</EmptyTitle>
-              <EmptyDescription>
-                Try a different search or add something to this folder.
-              </EmptyDescription>
-            </EmptyHeader>
-          </Empty>
-        ) : (
-          <div
-            className="flex flex-col gap-1"
-            role={selectionEnabled ? "listbox" : "list"}
-            aria-label={title}
-            aria-multiselectable={selectionEnabled || undefined}
-            onClick={(event) => {
-              if (selectionEnabled && event.target === event.currentTarget)
-                clearSelection();
-            }}
-          >
-            <div
-              className={cn(
-                "grid grid-cols-[minmax(0,1fr)_32px] px-4 pb-1 text-[11px] font-medium tracking-wide text-muted-foreground uppercase",
-                publicSafe
-                  ? "md:grid-cols-[minmax(220px,1.7fr)_minmax(130px,.85fr)_80px_32px]"
-                  : "md:grid-cols-[minmax(220px,1.7fr)_minmax(90px,.65fr)_minmax(130px,.85fr)_80px_110px_32px]",
-              )}
-              role="presentation"
-            >
-              <span>Name</span>
-              {!publicSafe && <span className="hidden md:block">Owner</span>}
-              <span className="hidden md:block">Last modified</span>
-              <span className="hidden md:block">Size</span>
-              {!publicSafe && <span className="hidden md:block">Access</span>}
-              <span className="sr-only">Actions</span>
-            </div>
-
-            {parentPath && (
-              <ParentFolderRow
-                parentPath={parentPath}
-                onOpen={onOpenParent}
-                publicSafe={publicSafe}
-              />
-            )}
-
-            {displayedItems.map((item) => (
-              <NewDriveFileRow
-                key={item.id}
-                item={item}
-                interactive={interactive}
-                selectionEnabled={selectionEnabled}
-                dragEnabled={dragEnabled}
-                isSelected={selectedIds.includes(item.id)}
-                onClick={(event) => handleItemClick(event, item)}
-                onDoubleClick={(event) => {
-                  if (!selectionEnabled || event.ctrlKey || event.metaKey) return;
-                  openItem(item);
-                }}
-                onKeyDown={(event) => handleItemKeyDown(event, item)}
-                onContextMenu={() => {
-                  if (selectionEnabled && !selectedIds.includes(item.id)) {
-                    setSelectedIds([item.id]);
-                    setSelectionAnchor(item.id);
-                  }
-                }}
-                onDelete={() => setDeleteRequest([item.id])}
-                onRename={onRenameItem ? () => requestRename(item) : undefined}
-                onShare={onShareItem ? () => onShareItem(item) : undefined}
-                onMove={
-                  onMoveItems && moveDestinations.some(({ id }) => id !== item.id)
-                    ? () => {
-                        setMoveRequest(item);
-                        setMoveDestinationId("");
-                      }
-                    : undefined
-                }
-                canDelete={!!onDeleteItems}
-                publicSafe={publicSafe}
-              />
-            ))}
-          </div>
-        )}
-        <DragOverlay>
-          {activeDragId && (
-            <DragPreview
-              items={
-                selectedIds.includes(activeDragId)
-                  ? selectedItems
-                  : displayedItems.filter((item) => item.id === activeDragId)
-              }
-            />
-          )}
-        </DragOverlay>
-      </DndContext>
-      <AlertDialog
-        open={deleteRequest.length > 0}
-        onOpenChange={(open) => !open && !isDeleting && setDeleteRequest([])}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogMedia className="bg-destructive/10 text-destructive">
-              <Trash2Icon />
-            </AlertDialogMedia>
-            <AlertDialogTitle>
-              Delete {deleteRequest.length === 1 ? "this item" : "selected items"}?
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              {deleteRequest.length === 1 ? (
+        <h2 id="files-heading" className="sr-only">
+          {title}
+        </h2>
+        <DndContext
+          id={dndContextId}
+          sensors={sensors}
+          collisionDetection={pointerWithin}
+          onDragStart={handleDragStart}
+          onDragEnd={handleDragEnd}
+          onDragCancel={() => setActiveDragId(null)}
+        >
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <div className="flex items-center gap-2">
+              {selectionEnabled && selectedIds.length > 0 && (
                 <>
-                  This will permanently remove{" "}
-                  <strong>
-                    {displayedItems.find((item) => item.id === deleteRequest[0])?.name}
-                  </strong>
-                  .
+                  <Badge variant="secondary">{selectedIds.length} selected</Badge>
+                  <DeleteDropButton
+                    itemCount={selectedIds.length}
+                    dragEnabled={dragEnabled}
+                    onClick={() => setDeleteRequest(selectedIds)}
+                  />
                 </>
-              ) : (
-                `This will permanently remove ${deleteRequest.length} selected items.`
-              )}{" "}
-              Folders and everything inside them will be deleted. This action cannot be
-              undone. {deleteDescription}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              variant="destructive"
-              disabled={isDeleting}
+              )}
+              <Button variant="ghost" size="sm" className="text-muted-foreground">
+                <ArrowUpDownIcon data-icon="inline-start" />
+                <span className="hidden sm:inline">Last modified</span>
+              </Button>
+            </div>
+          </div>
+
+          {displayedItems.length === 0 && !parentPath ? (
+            <Empty className="rounded-lg bg-card py-14">
+              <EmptyHeader>
+                <EmptyMedia variant="icon">
+                  <FolderOpenIcon />
+                </EmptyMedia>
+                <EmptyTitle>No files or folders found</EmptyTitle>
+                <EmptyDescription>
+                  Try a different search or add something to this folder.
+                </EmptyDescription>
+              </EmptyHeader>
+            </Empty>
+          ) : (
+            <div
+              className="flex flex-col gap-1"
+              role={selectionEnabled ? "listbox" : "list"}
+              aria-label={title}
+              aria-multiselectable={selectionEnabled || undefined}
               onClick={(event) => {
-                event.preventDefault();
-                void confirmDelete();
+                if (selectionEnabled && event.target === event.currentTarget)
+                  clearSelection();
               }}
             >
-              {isDeleting ? (
-                <Spinner data-icon="inline-start" />
-              ) : (
-                <Trash2Icon data-icon="inline-start" />
+              <div
+                className={cn(
+                  "grid grid-cols-[minmax(0,1fr)_32px] px-4 pb-1 text-[11px] font-medium tracking-wide text-muted-foreground uppercase",
+                  publicSafe
+                    ? "md:grid-cols-[minmax(220px,1.7fr)_minmax(130px,.85fr)_80px_32px]"
+                    : "md:grid-cols-[minmax(220px,1.7fr)_minmax(90px,.65fr)_minmax(130px,.85fr)_80px_110px_32px]",
+                )}
+                role="presentation"
+              >
+                <span>Name</span>
+                {!publicSafe && <span className="hidden md:block">Owner</span>}
+                <span className="hidden md:block">Last modified</span>
+                <span className="hidden md:block">Size</span>
+                {!publicSafe && <span className="hidden md:block">Access</span>}
+                <span className="sr-only">Actions</span>
+              </div>
+
+              {parentPath && (
+                <ParentFolderRow
+                  parentPath={parentPath}
+                  onOpen={onOpenParent}
+                  publicSafe={publicSafe}
+                  dragEnabled={dragEnabled}
+                  lastDragEndedAt={lastDragEndedAt}
+                />
               )}
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-      <Dialog
-        open={renameRequest !== null}
-        onOpenChange={(open) => !open && !isRenaming && setRenameRequest(null)}
-      >
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Rename</DialogTitle>
-            <DialogDescription>
-              Enter a new name for {renameRequest?.name}.
-            </DialogDescription>
-          </DialogHeader>
-          <form className="flex flex-col gap-4" onSubmit={confirmRename}>
-            <Input
-              autoFocus
-              aria-label="New item name"
-              maxLength={255}
-              value={renameValue}
-              onChange={(event) => setRenameValue(event.target.value)}
-            />
+
+              {displayedItems.map((item) => (
+                <NewDriveFileRow
+                  key={item.id}
+                  item={item}
+                  interactive={interactive}
+                  selectionEnabled={selectionEnabled}
+                  dragEnabled={dragEnabled}
+                  isSelected={selectedIds.includes(item.id)}
+                  onClick={(event) => handleItemClick(event, item)}
+                  onDoubleClick={(event) => {
+                    if (!selectionEnabled || event.ctrlKey || event.metaKey) return;
+                    openItem(item);
+                  }}
+                  onKeyDown={(event) => handleItemKeyDown(event, item)}
+                  onContextMenu={() => {
+                    if (selectionEnabled && !selectedIds.includes(item.id)) {
+                      setSelectedIds([item.id]);
+                      setSelectionAnchor(item.id);
+                    }
+                  }}
+                  onDelete={() => setDeleteRequest([item.id])}
+                  onRename={onRenameItem ? () => requestRename(item) : undefined}
+                  onShare={onShareItem ? () => onShareItem(item) : undefined}
+                  onMove={
+                    onMoveItems && moveDestinations.some(({ id }) => id !== item.id)
+                      ? () => {
+                          setMoveRequest(item);
+                          setMoveDestinationId("");
+                        }
+                      : undefined
+                  }
+                  canDelete={!!onDeleteItems}
+                  publicSafe={publicSafe}
+                />
+              ))}
+            </div>
+          )}
+          <DragOverlay modifiers={[snapCenterToCursor]}>
+            {activeDragId && (
+              <DragPreview
+                items={
+                  selectedIds.includes(activeDragId)
+                    ? selectedItems
+                    : displayedItems.filter((item) => item.id === activeDragId)
+                }
+              />
+            )}
+          </DragOverlay>
+        </DndContext>
+        <AlertDialog
+          open={deleteRequest.length > 0}
+          onOpenChange={(open) => !open && !isDeleting && setDeleteRequest([])}
+        >
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogMedia className="bg-destructive/10 text-destructive">
+                <Trash2Icon />
+              </AlertDialogMedia>
+              <AlertDialogTitle>
+                Delete {deleteRequest.length === 1 ? "this item" : "selected items"}?
+              </AlertDialogTitle>
+              <AlertDialogDescription>
+                {deleteRequest.length === 1 ? (
+                  <>
+                    This will permanently remove{" "}
+                    <strong>
+                      {displayedItems.find((item) => item.id === deleteRequest[0])?.name}
+                    </strong>
+                    .
+                  </>
+                ) : (
+                  `This will permanently remove ${deleteRequest.length} selected items.`
+                )}{" "}
+                Folders and everything inside them will be deleted. This action cannot be
+                undone. {deleteDescription}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                variant="destructive"
+                disabled={isDeleting}
+                onClick={(event) => {
+                  event.preventDefault();
+                  void confirmDelete();
+                }}
+              >
+                {isDeleting ? (
+                  <Spinner data-icon="inline-start" />
+                ) : (
+                  <Trash2Icon data-icon="inline-start" />
+                )}
+                Delete
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+        <Dialog
+          open={renameRequest !== null}
+          onOpenChange={(open) => !open && !isRenaming && setRenameRequest(null)}
+        >
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Rename</DialogTitle>
+              <DialogDescription>
+                Enter a new name for {renameRequest?.name}.
+              </DialogDescription>
+            </DialogHeader>
+            <form className="flex flex-col gap-4" onSubmit={confirmRename}>
+              <Input
+                autoFocus
+                aria-label="New item name"
+                maxLength={255}
+                value={renameValue}
+                onChange={(event) => setRenameValue(event.target.value)}
+              />
+              <DialogFooter>
+                <Button
+                  type="button"
+                  variant="outline"
+                  disabled={isRenaming}
+                  onClick={() => setRenameRequest(null)}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={
+                    isRenaming ||
+                    !renameValue.trim() ||
+                    renameValue.trim() === renameRequest?.name
+                  }
+                >
+                  {isRenaming && <Spinner data-icon="inline-start" />}
+                  Rename
+                </Button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
+        <Dialog
+          open={moveRequest !== null}
+          onOpenChange={(open) => !open && !isMoving && setMoveRequest(null)}
+        >
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Move {moveRequest?.name}</DialogTitle>
+              <DialogDescription>
+                Choose a folder within this shared area.
+              </DialogDescription>
+            </DialogHeader>
+            <Select
+              value={moveDestinationId}
+              onValueChange={(value) => setMoveDestinationId(value ?? "")}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select a destination" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  {moveDestinations
+                    .filter(({ id }) => id !== moveRequest?.id)
+                    .map((destination) => (
+                      <SelectItem key={destination.id} value={destination.id}>
+                        {destination.name}
+                      </SelectItem>
+                    ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
             <DialogFooter>
               <Button
                 type="button"
                 variant="outline"
-                disabled={isRenaming}
-                onClick={() => setRenameRequest(null)}
+                disabled={isMoving}
+                onClick={() => setMoveRequest(null)}
               >
                 Cancel
               </Button>
               <Button
-                type="submit"
-                disabled={
-                  isRenaming ||
-                  !renameValue.trim() ||
-                  renameValue.trim() === renameRequest?.name
-                }
+                type="button"
+                disabled={isMoving || !moveDestinationId}
+                onClick={() => void confirmMove()}
               >
-                {isRenaming && <Spinner data-icon="inline-start" />}
-                Rename
+                {isMoving ? (
+                  <Spinner data-icon="inline-start" />
+                ) : (
+                  <FolderInputIcon data-icon="inline-start" />
+                )}
+                Move
               </Button>
             </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
-      <Dialog
-        open={moveRequest !== null}
-        onOpenChange={(open) => !open && !isMoving && setMoveRequest(null)}
-      >
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Move {moveRequest?.name}</DialogTitle>
-            <DialogDescription>
-              Choose a folder within this shared area.
-            </DialogDescription>
-          </DialogHeader>
-          <Select
-            value={moveDestinationId}
-            onValueChange={(value) => setMoveDestinationId(value ?? "")}
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Select a destination" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                {moveDestinations
-                  .filter(({ id }) => id !== moveRequest?.id)
-                  .map((destination) => (
-                    <SelectItem key={destination.id} value={destination.id}>
-                      {destination.name}
-                    </SelectItem>
-                  ))}
-              </SelectGroup>
-            </SelectContent>
-          </Select>
-          <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              disabled={isMoving}
-              onClick={() => setMoveRequest(null)}
-            >
-              Cancel
-            </Button>
-            <Button
-              type="button"
-              disabled={isMoving || !moveDestinationId}
-              onClick={() => void confirmMove()}
-            >
-              {isMoving ? (
-                <Spinner data-icon="inline-start" />
-              ) : (
-                <FolderInputIcon data-icon="inline-start" />
-              )}
-              Move
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </section>
+          </DialogContent>
+        </Dialog>
+      </section>
+    </Card>
   );
 }
 
@@ -661,14 +677,24 @@ function ParentFolderRow({
   parentPath,
   onOpen,
   publicSafe,
+  dragEnabled,
+  lastDragEndedAt,
 }: {
   parentPath: { spaceId: string; name: string; folderId: string | null };
   onOpen?: () => void;
   publicSafe: boolean;
+  dragEnabled: boolean;
+  lastDragEndedAt: RefObject<number>;
 }) {
   const navigate = useNavigate();
+  const { setNodeRef, isOver } = useDroppable({
+    id: "new-drive-parent",
+    data: { folderId: parentPath.folderId, isParent: true },
+    disabled: !dragEnabled,
+  });
 
   function openParentFolder() {
+    if (performance.now() - lastDragEndedAt.current < 150) return;
     if (onOpen) {
       onOpen();
       return;
@@ -684,11 +710,13 @@ function ParentFolderRow({
 
   return (
     <div
+      ref={setNodeRef}
       className={cn(
         "grid min-h-14 cursor-pointer grid-cols-[minmax(0,1fr)_32px] items-center gap-3 rounded-lg border border-dashed border-border/70 bg-muted/20 px-4 py-2.5 transition-colors duration-200 select-none hover:bg-muted/40",
         publicSafe
           ? "md:grid-cols-[minmax(220px,1.7fr)_minmax(130px,.85fr)_80px_32px]"
           : "md:grid-cols-[minmax(220px,1.7fr)_minmax(90px,.65fr)_minmax(130px,.85fr)_80px_110px_32px]",
+        isOver && "border-primary bg-primary/10 ring-2 ring-primary",
       )}
       role="link"
       tabIndex={0}
