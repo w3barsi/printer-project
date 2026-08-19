@@ -1,14 +1,15 @@
 import { api } from "@convex/_generated/api";
 import type { Id } from "@convex/_generated/dataModel";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouteContext } from "@tanstack/react-router";
 import { useMutation } from "convex/react";
 import { PlusIcon } from "lucide-react";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useHotkeys } from "react-hotkeys-hook";
+import { toast } from "sonner";
 import { z } from "zod";
 
+import { CustomerCombobox } from "@/components/jo/customer-combobox";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -19,7 +20,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Field, FieldError, FieldLabel } from "@/components/ui/field";
+import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Kbd } from "@/components/ui/kbd";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -27,7 +28,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import DateAndTimePicker from "../date-and-time-picker";
 
 const formSchema = z.object({
-  name: z.string().min(1, "Name is required"),
+  customerId: z.string().min(1, "Customer is required"),
   contact: z.string(),
   date: z.date(),
   time: z.string().nullable(),
@@ -43,67 +44,31 @@ export function CreateJoDialog() {
   });
   const [open, setOpen] = useState(false);
 
-  const userData = useRouteContext({ from: "/app/jo/" });
-
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: "",
+      customerId: "",
       contact: "",
       date: today,
       time: null,
     },
   });
 
-  const createJo = useMutation(api.jo.createJo).withOptimisticUpdate(
-    (localStore, args) => {
-      const { name, pickupDate, pickupTime, contactNumber } = args;
-
-      const getWithPaginationArgs = {
-        paginationOptions: {
-          numItems: 10,
-          cursor: null,
-        },
-      };
-
-      const currentValue = localStore.getQuery(
-        api.jo.getWithPagination,
-        getWithPaginationArgs,
-      );
-
-      // eslint-disable-next-line react-hooks/purity
-      const now = Date.now();
-
-      const newJo = {
-        _id: crypto.randomUUID() as Id<"jo">,
-        _creationTime: now,
-        createdBy: userData.user.userId as Id<"users">,
-        updatedAt: undefined,
-        pickupDate,
-        pickupTime,
-        contactNumber,
-        name,
-        joNumber: currentValue?.jos?.length ? currentValue.jos[0].joNumber + 1 : 999,
-        status: "pending" as const,
-        items: [],
-      };
-
-      localStore.setQuery(api.jo.getWithPagination, getWithPaginationArgs, {
-        nextCursor: currentValue?.nextCursor,
-        jos: [newJo, ...(currentValue?.jos ?? [])],
-      });
-    },
-  );
+  const createJo = useMutation(api.jo.createJo);
 
   const onSubmit = async (data: FormData) => {
-    await createJo({
-      name: data.name,
-      contactNumber: data.contact.length === 0 ? undefined : data.contact,
-      pickupTime: data.time ?? undefined,
-      pickupDate: data.date.getTime(),
-    });
-    setOpen(false);
-    form.reset();
+    try {
+      await createJo({
+        customerId: data.customerId as Id<"customer">,
+        contactNumber: data.contact.length === 0 ? undefined : data.contact,
+        pickupTime: data.time ?? undefined,
+        pickupDate: data.date.getTime(),
+      });
+      setOpen(false);
+      form.reset();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Could not create Job Order");
+    }
   };
 
   useHotkeys("c", (e) => {
@@ -131,22 +96,22 @@ export function CreateJoDialog() {
           <DialogTitle>Create job order</DialogTitle>
           <DialogDescription>Add the customer and pickup details.</DialogDescription>
         </DialogHeader>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          <div className="space-y-4">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4">
+          <FieldGroup>
             <Controller
-              name="name"
+              name="customerId"
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field className="gap-2" data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="name">Customer name</FieldLabel>
-                  <Input
-                    {...field}
-                    id="name"
-                    className="h-10"
-                    placeholder="e.g. Maria Santos"
-                    autoComplete="name"
-                    autoFocus
-                    aria-invalid={fieldState.invalid}
+                  <FieldLabel htmlFor="customer">Customer</FieldLabel>
+                  <CustomerCombobox
+                    id="customer"
+                    value={field.value ? (field.value as Id<"customer">) : null}
+                    invalid={fieldState.invalid}
+                    onValueChange={(customer) => {
+                      field.onChange(customer?._id ?? "");
+                      form.setValue("contact", customer?.contactNumbers?.[0] ?? "");
+                    }}
                   />
                   {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                 </Field>
@@ -193,7 +158,7 @@ export function CreateJoDialog() {
                 </Field>
               )}
             />
-          </div>
+          </FieldGroup>
           <DialogFooter>
             <Button
               type="submit"

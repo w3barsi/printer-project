@@ -145,13 +145,16 @@ export const getOne = internalQuery({
 
 export const createJo = authedMutation({
   args: v.object({
-    name: v.string(),
+    customerId: v.id("customer"),
     contactNumber: v.optional(v.string()),
     pickupDate: v.optional(v.number()),
     pickupTime: v.optional(v.string()),
   }),
   handler: async (ctx, args) => {
-    const { name, pickupDate, contactNumber, pickupTime } = args;
+    const { customerId, pickupDate, contactNumber, pickupTime } = args;
+    const customer = await ctx.db.get("customer", customerId);
+
+    if (!customer) throw new Error("Customer not found");
 
     const lastJoNumber = await ctx.db
       .query("jo")
@@ -162,7 +165,8 @@ export const createJo = authedMutation({
 
     const joId = await ctx.db.insert("jo", {
       joNumber,
-      name,
+      name: customer.name,
+      customerId: customer._id,
       pickupDate,
       pickupTime,
       contactNumber,
@@ -272,13 +276,22 @@ export const searchOptions = authedQuery({
     ]);
     const customerJobOrders = (
       await Promise.all(
-        customers.map((customer) =>
-          ctx.db
-            .query("jo")
-            .withIndex("by_name", (q) => q.eq("name", customer._id))
-            .order("desc")
-            .take(20),
-        ),
+        customers.map(async (customer) => {
+          const [current, legacy] = await Promise.all([
+            ctx.db
+              .query("jo")
+              .withIndex("by_customer_id", (q) => q.eq("customerId", customer._id))
+              .order("desc")
+              .take(20),
+            ctx.db
+              .query("jo")
+              .withIndex("by_name", (q) => q.eq("name", customer._id))
+              .order("desc")
+              .take(20),
+          ]);
+
+          return [...current, ...legacy];
+        }),
       )
     ).flat();
     const byId = new Map<Id<"jo">, Doc<"jo">>();

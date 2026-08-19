@@ -13,14 +13,15 @@ export const cashflowType = v.optional(
 export default defineSchema({
   customer: defineTable({
     name: v.string(),
-    handler: v.string(),
+    normalizedName: v.optional(v.string()),
+    handler: v.optional(v.string()),
     contactNumbers: v.optional(v.array(v.string())),
-    createdAt: v.number(),
-    updatedAt: v.number(),
-    createdBy: v.id("user"),
-  }).searchIndex("search_name", {
-    searchField: "name",
-  }),
+    createdBy: v.id("users"),
+  })
+    .index("by_normalized_name", ["normalizedName"])
+    .searchIndex("search_name", {
+      searchField: "name",
+    }),
 
   file: defineTable({
     createdBy: v.id("users"),
@@ -67,6 +68,7 @@ export default defineSchema({
     forPrinting: v.optional(v.boolean()),
 
     name: v.union(v.string(), v.id("customer")),
+    customerId: v.optional(v.id("customer")),
     joNumber: v.number(),
     pickupDate: v.optional(v.number()),
     pickupTime: v.optional(v.string()),
@@ -81,6 +83,7 @@ export default defineSchema({
     .index("by_trelloId", ["trelloId"])
     .index("by_joNumber", ["joNumber"])
     .index("by_name", ["name"])
+    .index("by_customer_id", ["customerId"])
     .index("by_lastUpdated", ["updatedAt"])
     .index("by_forPrinting", ["forPrinting"])
     .index("by_status_and_updatedAt", ["status", "updatedAt"])
