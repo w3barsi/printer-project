@@ -612,6 +612,37 @@ export const listItems = authedQuery({
   },
 });
 
+export const listItemsBySupplier = authedQuery({
+  args: {
+    supplierId: v.id("inventorySuppliers"),
+    paginationOpts: paginationOptsValidator,
+  },
+  returns: paginationResultValidator(inventoryItemListItemValidator),
+  handler: async (ctx, args) => {
+    validatePaginationSize(args.paginationOpts.numItems);
+    const supplier = await ctx.db.get("inventorySuppliers", args.supplierId);
+
+    if (!supplier) throw new Error("Supplier not found");
+
+    const result = await ctx.db
+      .query("inventoryItems")
+      .withIndex("by_supplier_id", (q) => q.eq("supplierId", supplier._id))
+      .paginate(args.paginationOpts);
+    const page = await Promise.all(
+      result.page.map(async (item) => {
+        const creator = await ctx.db.get("users", item.createdBy);
+        return {
+          ...item,
+          supplierName: supplier.name,
+          createdByName: creator?.name ?? "Former user",
+        };
+      }),
+    );
+
+    return { ...result, page };
+  },
+});
+
 export const searchItemOptions = authedQuery({
   args: {
     query: v.string(),

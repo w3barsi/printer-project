@@ -1,5 +1,5 @@
 import { Link, useMatch, useRouteContext } from "@tanstack/react-router";
-import { ShieldUserIcon } from "lucide-react";
+import { ContactRoundIcon, ShieldUserIcon, TruckIcon } from "lucide-react";
 
 import {
   SidebarGroup,
@@ -13,7 +13,15 @@ import {
 export function AdminSidebarGroup() {
   const { user } = useRouteContext({ from: "/app" });
   const { isMobile, setOpenMobile } = useSidebar();
-  const match = useMatch({ from: "/app/_admin/admin/users", shouldThrow: false });
+  const usersMatch = useMatch({ from: "/app/_admin/admin/users", shouldThrow: false });
+  const customersMatch = useMatch({
+    from: "/app/_admin/admin/customers",
+    shouldThrow: false,
+  });
+  const suppliersMatch = useMatch({
+    from: "/app/_admin/admin/suppliers",
+    shouldThrow: false,
+  });
 
   return (
     <>
@@ -23,7 +31,7 @@ export function AdminSidebarGroup() {
           <SidebarMenu>
             <SidebarMenuItem>
               <SidebarMenuButton
-                isActive={!!match}
+                isActive={!!usersMatch}
                 render={
                   <Link
                     to={`/app/admin/users`}
@@ -34,6 +42,34 @@ export function AdminSidebarGroup() {
               >
                 <ShieldUserIcon />
                 <span>User Management</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                isActive={!!customersMatch}
+                render={
+                  <Link
+                    to="/app/admin/customers"
+                    onClick={() => isMobile && setOpenMobile(false)}
+                  />
+                }
+              >
+                <ContactRoundIcon />
+                <span>Manage Customers</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                isActive={!!suppliersMatch}
+                render={
+                  <Link
+                    to="/app/admin/suppliers"
+                    onClick={() => isMobile && setOpenMobile(false)}
+                  />
+                }
+              >
+                <TruckIcon />
+                <span>Manage Suppliers</span>
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>
