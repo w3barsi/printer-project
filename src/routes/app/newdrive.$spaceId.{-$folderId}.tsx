@@ -15,7 +15,7 @@ import { NewDriveFileList } from "@/components/new-drive/file-list";
 import { ShareDialog } from "@/components/new-drive/share-dialog";
 import { NewDriveUploadDropzone } from "@/components/new-drive/upload-dropzone";
 import { useNewDriveUpload } from "@/hooks/use-new-drive-upload";
-import { downloadDriveItem } from "@/lib/download-drive-item";
+import { downloadDriveItems } from "@/lib/download-drive-item";
 import type { NewDriveItem, NewDriveShareItem } from "@/lib/new-drive-items";
 
 export const Route = createFileRoute("/app/newdrive/$spaceId/{-$folderId}")({
@@ -124,18 +124,26 @@ function SpaceBrowserPage() {
   }));
   const title = folder?.name ?? space?.name ?? "Space";
 
-  async function downloadItem(item: Pick<NewDriveItem, "id" | "kind">) {
+  async function downloadItems(items: Array<Pick<NewDriveItem, "id" | "kind">>) {
     const toastId = toast.loading("Download in progress");
     try {
-      const manifest = await convex.query(api.drive.items.getDownloadManifest, {
-        itemId: item.id as Id<"newDriveItems">,
-      });
-      await downloadDriveItem(manifest);
+      const manifests = await Promise.all(
+        items.map((item) =>
+          convex.query(api.drive.items.getDownloadManifest, {
+            itemId: item.id as Id<"newDriveItems">,
+          }),
+        ),
+      );
+      await downloadDriveItems(manifests);
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Download failed");
     } finally {
       toast.dismiss(toastId);
     }
+  }
+
+  function downloadItem(item: Pick<NewDriveItem, "id" | "kind">) {
+    return downloadItems([item]);
   }
 
   return (
@@ -201,6 +209,7 @@ function SpaceBrowserPage() {
             }).then(() => undefined)
           }
           onDownloadItem={downloadItem}
+          onDownloadItems={downloadItems}
           onMoveItems={(itemIds, destinationFolderId) =>
             moveItems({
               spaceId: typedSpaceId,

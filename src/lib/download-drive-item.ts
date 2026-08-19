@@ -36,3 +36,37 @@ export async function downloadDriveItem(manifest: DownloadManifest) {
     manifest.folders,
   );
 }
+
+export async function downloadDriveItems(manifests: DownloadManifest[]) {
+  if (manifests.length === 0) return;
+  if (manifests.length === 1) {
+    await downloadDriveItem(manifests[0]);
+    return;
+  }
+
+  const available = manifests.map((manifest) => {
+    if (manifest.status === "archiveTooLarge") {
+      throw new Error("Folder downloads are limited to 500 files and 250 MiB");
+    }
+    return manifest;
+  });
+  const files = available.flatMap((manifest) => manifest.files);
+  const totalSize = files.reduce((total, file) => total + file.size, 0);
+  if (files.length > 500 || totalSize > 250 * 1024 * 1024) {
+    throw new Error("Downloads are limited to 500 files and 250 MiB");
+  }
+
+  const archiveRoot = "downloaded-items";
+  await downloadSharedFolder(
+    archiveRoot,
+    files.map((file) => ({ ...file, path: `${archiveRoot}/${file.path}` })),
+    () => undefined,
+    undefined,
+    [
+      archiveRoot,
+      ...available.flatMap((manifest) =>
+        manifest.folders.map((folder) => `${archiveRoot}/${folder}`),
+      ),
+    ],
+  );
+}

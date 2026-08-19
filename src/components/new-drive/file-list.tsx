@@ -15,6 +15,7 @@ import {
   ArrowLeftIcon,
   ArrowRightIcon,
   ArrowUpDownIcon,
+  DownloadIcon,
   FolderOpenIcon,
   FolderUpIcon,
   XIcon,
@@ -125,6 +126,7 @@ export function NewDriveFileList({
   onDeleteItems,
   onMoveItems,
   onDownloadItem,
+  onDownloadItems,
   onRenameItem,
   onShareItem,
   onOpenItem,
@@ -144,6 +146,7 @@ export function NewDriveFileList({
     destinationFolderId: string | null,
   ) => boolean | Promise<boolean>;
   onDownloadItem?: (item: NewDriveItem) => void | Promise<void>;
+  onDownloadItems?: (items: NewDriveItem[]) => void | Promise<void>;
   onRenameItem?: (itemId: string, name: string) => void | Promise<void>;
   onShareItem?: (item: NewDriveItem) => void;
   onOpenItem?: (item: NewDriveItem) => void;
@@ -487,7 +490,7 @@ export function NewDriveFileList({
         <CardHeader className="py-4">
           {selectionEnabled && selectedIds.length > 0 ? (
             <div
-              className="flex min-h-9 items-center gap-2"
+              className="flex min-h-9 w-full items-center gap-2"
               data-file-list-selection-actions
             >
               <Button
@@ -503,11 +506,23 @@ export function NewDriveFileList({
                 {selectedIds.length} {selectedIds.length === 1 ? "item" : "items"}{" "}
                 selected
               </span>
-              <DeleteDropButton
-                itemCount={selectedIds.length}
-                dragEnabled={dragEnabled}
-                onClick={() => setDeleteRequest(selectedIds)}
-              />
+              {onDownloadItems && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => void onDownloadItems(selectedItems)}
+                >
+                  <DownloadIcon data-icon="inline-start" />
+                  Download Items
+                </Button>
+              )}
+              <div className="ml-auto">
+                <DeleteDropButton
+                  itemCount={selectedIds.length}
+                  dragEnabled={dragEnabled}
+                  onClick={() => setDeleteRequest(selectedIds)}
+                />
+              </div>
             </div>
           ) : (
             <div className="flex min-h-9 flex-wrap items-center justify-between gap-3">

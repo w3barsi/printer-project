@@ -30,7 +30,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Spinner } from "@/components/ui/spinner";
 import { useNewDriveUploadWithOperations } from "@/hooks/use-new-drive-upload";
-import { downloadDriveItem } from "@/lib/download-drive-item";
+import { downloadDriveItems, type DownloadManifest } from "@/lib/download-drive-item";
 import { downloadSharedFolder } from "@/lib/download-shared-folder";
 import type { NewDriveItem } from "@/lib/new-drive-items";
 import { shareApi, type PublicShareItem } from "@/lib/share-api";
@@ -90,48 +90,56 @@ export function PublicShareBrowser({
     });
   }
 
-  async function downloadItem(item: Pick<NewDriveItem, "id" | "kind">) {
-    const toastId = toast.loading("Download in progress");
-    try {
-      if (item.kind === "folder") {
-        const manifest = await convex.query(shareApi.getSharedArchiveManifest, {
-          token,
-          itemId: item.id,
-        });
-        if (manifest.status === "unavailable") {
-          throw new Error("This shared folder is unavailable");
-        }
-        await downloadDriveItem(
-          manifest.status === "available" ? { ...manifest, kind: "folder" } : manifest,
-        );
-        return;
-      }
-
-      const result = await convex.query(shareApi.getSharedDownloadUrl, {
+  async function getDownloadManifest(
+    item: Pick<NewDriveItem, "id" | "kind">,
+  ): Promise<DownloadManifest> {
+    if (item.kind === "folder") {
+      const manifest = await convex.query(shareApi.getSharedArchiveManifest, {
         token,
         itemId: item.id,
       });
-      if (result.status !== "available" || !result.url) {
-        throw new Error("This shared file is unavailable");
+      if (manifest.status === "unavailable") {
+        throw new Error("This shared folder is unavailable");
       }
-      await downloadDriveItem({
-        status: "available",
-        kind: "file",
-        rootName: result.item.name,
-        files: [
-          {
-            path: result.item.name,
-            size: result.item.kind === "file" ? result.item.size : 0,
-            url: result.url,
-          },
-        ],
-        folders: [],
-      });
+      return manifest.status === "available" ? { ...manifest, kind: "folder" } : manifest;
+    }
+
+    const result = await convex.query(shareApi.getSharedDownloadUrl, {
+      token,
+      itemId: item.id,
+    });
+    if (result.status !== "available" || !result.url) {
+      throw new Error("This shared file is unavailable");
+    }
+    return {
+      status: "available",
+      kind: "file",
+      rootName: result.item.name,
+      files: [
+        {
+          path: result.item.name,
+          size: result.item.kind === "file" ? result.item.size : 0,
+          url: result.url,
+        },
+      ],
+      folders: [],
+    };
+  }
+
+  async function downloadItems(items: Array<Pick<NewDriveItem, "id" | "kind">>) {
+    const toastId = toast.loading("Download in progress");
+    try {
+      const manifests = await Promise.all(items.map(getDownloadManifest));
+      await downloadDriveItems(manifests);
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Download failed");
     } finally {
       toast.dismiss(toastId);
     }
+  }
+
+  function downloadItem(item: Pick<NewDriveItem, "id" | "kind">) {
+    return downloadItems([item]);
   }
 
   const nestedItemLoading =
@@ -241,6 +249,7 @@ export function PublicShareBrowser({
         publicSafe
         onOpenItem={openItem}
         onDownloadItem={downloadItem}
+        onDownloadItems={downloadItems}
         parentPath={
           !parent.isShareRoot
             ? {
