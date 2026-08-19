@@ -36,7 +36,11 @@ const formSchema = z.object({
 type FormData = z.infer<typeof formSchema>;
 
 export function CreateJoDialog() {
-  const today = new Date();
+  const [today] = useState(() => {
+    const date = new Date();
+    date.setHours(0, 0, 0, 0);
+    return date;
+  });
   const [open, setOpen] = useState(false);
 
   const userData = useRouteContext({ from: "/app/jo/" });
@@ -92,7 +96,7 @@ export function CreateJoDialog() {
   );
 
   const onSubmit = async (data: FormData) => {
-    createJo({
+    await createJo({
       name: data.name,
       contactNumber: data.contact.length === 0 ? undefined : data.contact,
       pickupTime: data.time ?? undefined,
@@ -110,8 +114,10 @@ export function CreateJoDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <Tooltip>
-        <TooltipTrigger render={<DialogTrigger render={<Button size="lg" />} />}>
-          <PlusIcon className="h-4 w-4" />
+        <TooltipTrigger
+          render={<DialogTrigger render={<Button size="lg" className="px-4" />} />}
+        >
+          <PlusIcon className="size-4" />
           Create Job Order
         </TooltipTrigger>
         <TooltipContent>
@@ -120,25 +126,26 @@ export function CreateJoDialog() {
           </div>
         </TooltipContent>
       </Tooltip>
-      <DialogContent className="md:max-w-sm">
-        <DialogHeader className="">
-          <DialogTitle>Create Job Orders</DialogTitle>
-          <DialogDescription>
-            Create a new job order to start tracking items and progress.
-          </DialogDescription>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Create job order</DialogTitle>
+          <DialogDescription>Add the customer and pickup details.</DialogDescription>
         </DialogHeader>
-        <div className="">
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <div className="space-y-4">
             <Controller
               name="name"
               control={form.control}
               render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="name">Name</FieldLabel>
+                <Field className="gap-2" data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor="name">Customer name</FieldLabel>
                   <Input
                     {...field}
                     id="name"
-                    placeholder="Enter job order name"
+                    className="h-10"
+                    placeholder="e.g. Maria Santos"
+                    autoComplete="name"
+                    autoFocus
                     aria-invalid={fieldState.invalid}
                   />
                   {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
@@ -149,12 +156,18 @@ export function CreateJoDialog() {
               name="contact"
               control={form.control}
               render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="contact">Contact Number</FieldLabel>
+                <Field className="gap-2" data-invalid={fieldState.invalid}>
+                  <div className="flex items-baseline justify-between gap-3">
+                    <FieldLabel htmlFor="contact">Contact number</FieldLabel>
+                    <span className="text-xs text-muted-foreground">Optional</span>
+                  </div>
                   <Input
                     {...field}
                     id="contact"
-                    placeholder="Enter contact number (optional)"
+                    type="tel"
+                    className="h-10"
+                    placeholder="e.g. 0917 123 4567"
+                    autoComplete="tel"
                     aria-invalid={fieldState.invalid}
                   />
                   {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
@@ -165,33 +178,32 @@ export function CreateJoDialog() {
               name="date"
               control={form.control}
               render={({ field }) => (
-                <DateAndTimePicker
-                  date={field.value}
-                  setDate={(newDate) => {
-                    if (newDate) {
-                      field.onChange(newDate);
-                      form.setValue("time", null);
-                    }
-                  }}
-                  time={form.watch("time")}
-                  setTime={(newTime) => {
-                    const value =
-                      typeof newTime === "function"
-                        ? newTime(form.getValues("time"))
-                        : newTime;
-                    form.setValue("time", value);
-                  }}
-                  today={today}
-                />
+                <Field className="gap-2">
+                  <FieldLabel htmlFor="pickup-date">Pickup date</FieldLabel>
+                  <DateAndTimePicker
+                    date={field.value}
+                    setDate={(newDate) => {
+                      if (newDate) {
+                        field.onChange(newDate);
+                        form.setValue("time", null);
+                      }
+                    }}
+                    today={today}
+                  />
+                </Field>
               )}
             />
-            <DialogFooter className="shrink-0">
-              <Button type="submit" disabled={form.formState.isSubmitting}>
-                {form.formState.isSubmitting ? "Creating..." : "Create"}
-              </Button>
-            </DialogFooter>
-          </form>
-        </div>
+          </div>
+          <DialogFooter>
+            <Button
+              type="submit"
+              className="w-full px-5"
+              disabled={form.formState.isSubmitting}
+            >
+              {form.formState.isSubmitting ? "Creating…" : "Create job order"}
+            </Button>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   );

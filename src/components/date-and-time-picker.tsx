@@ -1,108 +1,51 @@
+import { format } from "date-fns";
+import { ChevronDownIcon } from "lucide-react";
+import { useState } from "react";
+
+import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 export default function DateAndTimePicker({
   date,
   setDate,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  time,
-  setTime,
   today,
 }: {
   date: Date;
   setDate: React.Dispatch<React.SetStateAction<Date>>;
-  time: string | null;
-  setTime: React.Dispatch<React.SetStateAction<string | null>>;
   today: Date;
 }) {
-  // Mock time slots data
-  // const timeSlots = [
-  //   { time: "8:00 AM" },
-  //   { time: "8:30 AM" },
-  //   { time: "9:00 AM" },
-  //   { time: "9:30 AM" },
-  //   { time: "10:00 AM" },
-  //   { time: "10:30 AM" },
-  //   { time: "11:00 AM" },
-  //   { time: "11:30 AM" },
-  //   { time: "12:00 PM" },
-  //   { time: "12:30 PM" },
-  //   { time: "1:00 PM" },
-  //   { time: "1:30 PM" },
-  //   { time: "2:00 PM" },
-  //   { time: "2:30 PM" },
-  //   { time: "3:00 PM" },
-  //   { time: "3:30 PM" },
-  //   { time: "4:00 PM" },
-  //   { time: "4:30 PM" },
-  //   { time: "5:00 PM" },
-  // ];
-  //
-  // useEffect(() => {
-  //   const now = new Date();
-  //   const currentMinutes = now.getHours() * 60 + now.getMinutes();
-  //   let nearestTime = null;
-  //   let minDiff = Infinity;
-  //
-  //   for (const slot of timeSlots) {
-  //     const slotMinutes = timeToMinutes(slot.time);
-  //     const diff = Math.abs(slotMinutes - currentMinutes);
-  //     if (diff < minDiff) {
-  //       minDiff = diff;
-  //       nearestTime = slot.time;
-  //     }
-  //   }
-  //
-  //   if (nearestTime) {
-  //     // eslint-disable-next-line @eslint-react/hooks-extra/no-direct-set-state-in-use-effect
-  //     setTime(nearestTime);
-  //     // Scroll to selected time after a short delay to ensure DOM update
-  //     const timeoutId = setTimeout(() => {
-  //       const button = document.querySelector(
-  //         `[data-time="${nearestTime}"]`,
-  //       ) as HTMLElement;
-  //       if (button) {
-  //         button.scrollIntoView({ behavior: "smooth", block: "center" });
-  //       }
-  //     }, 100);
-  //
-  //     // Cleanup timeout on unmount or re-run
-  //     return () => clearTimeout(timeoutId);
-  //   }
-  // }, []);
+  const [open, setOpen] = useState(false);
 
   return (
-    <div className="overflow-hidden rounded-md border bg-background">
-      <Calendar
-        mode="single"
-        selected={date}
-        onSelect={(newDate) => {
-          if (newDate) {
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger
+        render={
+          <Button
+            id="pickup-date"
+            type="button"
+            variant="outline"
+            className="h-10 w-full justify-between font-normal"
+          />
+        }
+      >
+        {format(date, "MMM d, yyyy")}
+        <ChevronDownIcon className="text-muted-foreground" />
+      </PopoverTrigger>
+      <PopoverContent className="w-auto overflow-hidden p-0" align="start">
+        <Calendar
+          mode="single"
+          selected={date}
+          onSelect={(newDate) => {
+            if (!newDate) return;
             setDate(newDate);
-            setTime(null);
-          }
-        }}
-        className="mx-auto w-full p-2"
-        disabled={[
-          { before: today }, // Dates before today
-        ]}
-      />
-    </div>
+            setOpen(false);
+          }}
+          className="p-1.5 [--cell-size:--spacing(7)]"
+          disabled={{ before: today }}
+        />
+      </PopoverContent>
+    </Popover>
   );
 }
-
-// <div className="flex max-h-[400px] flex-col gap-1 overflow-y-auto border-t p-2 md:max-h-none md:border-t-0 md:border-l">
-//         <p className="pb-1 text-sm font-medium">{format(date, "EEEE, d")}</p>
-//         {timeSlots.map(({ time: timeSlot }) => (
-//           <Button
-//             key={timeSlot}
-//             data-time={timeSlot}
-//             variant={time === timeSlot ? "default" : "outline"}
-//             size="sm"
-//             className="w-full"
-//             type="button"
-//             onClick={() => setTime(timeSlot)}
-//           >
-//             {timeSlot}
-//           </Button>
-//         ))}
 //       </div>
