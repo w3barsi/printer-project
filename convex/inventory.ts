@@ -523,6 +523,24 @@ export const listSuppliers = authedQuery({
   },
 });
 
+export const getSupplier = authedQuery({
+  args: {
+    supplierId: v.id("inventorySuppliers"),
+  },
+  returns: v.union(supplierListItemValidator, v.null()),
+  handler: async (ctx, args) => {
+    const supplier = await ctx.db.get("inventorySuppliers", args.supplierId);
+
+    if (!supplier) return null;
+
+    const creator = await ctx.db.get("users", supplier.createdBy);
+    return {
+      ...supplier,
+      createdByName: creator?.name ?? "Former user",
+    };
+  },
+});
+
 export const searchSupplierOptions = authedQuery({
   args: {
     query: v.string(),

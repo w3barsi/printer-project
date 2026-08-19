@@ -43,7 +43,9 @@ import { Route as AppNewdriveSpaceIdChar123FolderIdChar125RouteImport } from './
 import { Route as AppAdminAdminUsersRouteImport } from './routes/app/_admin/admin.users'
 import { Route as AppAdminAdminSuppliersRouteImport } from './routes/app/_admin/admin.suppliers'
 import { Route as AppAdminAdminCustomersRouteImport } from './routes/app/_admin/admin.customers'
+import { Route as AppAdminAdminSuppliersIndexRouteImport } from './routes/app/_admin/admin.suppliers.index'
 import { Route as AppAdminAdminCustomersIndexRouteImport } from './routes/app/_admin/admin.customers.index'
+import { Route as AppAdminAdminSuppliersSupplierIdRouteImport } from './routes/app/_admin/admin.suppliers.$supplierId'
 import { Route as AppAdminAdminCustomersCustomerIdRouteImport } from './routes/app/_admin/admin.customers.$customerId'
 
 const TestfruitsRoute = TestfruitsRouteImport.update({
@@ -215,11 +217,23 @@ const AppAdminAdminCustomersRoute = AppAdminAdminCustomersRouteImport.update({
   path: '/admin/customers',
   getParentRoute: () => AppAdminRouteRoute,
 } as any)
+const AppAdminAdminSuppliersIndexRoute =
+  AppAdminAdminSuppliersIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AppAdminAdminSuppliersRoute,
+  } as any)
 const AppAdminAdminCustomersIndexRoute =
   AppAdminAdminCustomersIndexRouteImport.update({
     id: '/',
     path: '/',
     getParentRoute: () => AppAdminAdminCustomersRoute,
+  } as any)
+const AppAdminAdminSuppliersSupplierIdRoute =
+  AppAdminAdminSuppliersSupplierIdRouteImport.update({
+    id: '/$supplierId',
+    path: '/$supplierId',
+    getParentRoute: () => AppAdminAdminSuppliersRoute,
   } as any)
 const AppAdminAdminCustomersCustomerIdRoute =
   AppAdminAdminCustomersCustomerIdRouteImport.update({
@@ -254,13 +268,15 @@ export interface FileRoutesByFullPath {
   '/app/newdrive/': typeof AppNewdriveIndexRoute
   '/app/trello/': typeof AppTrelloIndexRoute
   '/app/admin/customers': typeof AppAdminAdminCustomersRouteWithChildren
-  '/app/admin/suppliers': typeof AppAdminAdminSuppliersRoute
+  '/app/admin/suppliers': typeof AppAdminAdminSuppliersRouteWithChildren
   '/app/admin/users': typeof AppAdminAdminUsersRoute
   '/app/newdrive/$spaceId/{-$folderId}': typeof AppNewdriveSpaceIdChar123FolderIdChar125Route
   '/app/newdrive/file/$itemId': typeof AppNewdriveFileItemIdRoute
   '/app/admin/': typeof AppAdminAdminIndexRoute
   '/app/admin/customers/$customerId': typeof AppAdminAdminCustomersCustomerIdRoute
+  '/app/admin/suppliers/$supplierId': typeof AppAdminAdminSuppliersSupplierIdRoute
   '/app/admin/customers/': typeof AppAdminAdminCustomersIndexRoute
+  '/app/admin/suppliers/': typeof AppAdminAdminSuppliersIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof ShopIndexRoute
@@ -285,13 +301,14 @@ export interface FileRoutesByTo {
   '/app/jo': typeof AppJoIndexRoute
   '/app/newdrive': typeof AppNewdriveIndexRoute
   '/app/trello': typeof AppTrelloIndexRoute
-  '/app/admin/suppliers': typeof AppAdminAdminSuppliersRoute
   '/app/admin/users': typeof AppAdminAdminUsersRoute
   '/app/newdrive/$spaceId/{-$folderId}': typeof AppNewdriveSpaceIdChar123FolderIdChar125Route
   '/app/newdrive/file/$itemId': typeof AppNewdriveFileItemIdRoute
   '/app/admin': typeof AppAdminAdminIndexRoute
   '/app/admin/customers/$customerId': typeof AppAdminAdminCustomersCustomerIdRoute
+  '/app/admin/suppliers/$supplierId': typeof AppAdminAdminSuppliersSupplierIdRoute
   '/app/admin/customers': typeof AppAdminAdminCustomersIndexRoute
+  '/app/admin/suppliers': typeof AppAdminAdminSuppliersIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -324,13 +341,15 @@ export interface FileRoutesById {
   '/app/newdrive/': typeof AppNewdriveIndexRoute
   '/app/trello/': typeof AppTrelloIndexRoute
   '/app/_admin/admin/customers': typeof AppAdminAdminCustomersRouteWithChildren
-  '/app/_admin/admin/suppliers': typeof AppAdminAdminSuppliersRoute
+  '/app/_admin/admin/suppliers': typeof AppAdminAdminSuppliersRouteWithChildren
   '/app/_admin/admin/users': typeof AppAdminAdminUsersRoute
   '/app/newdrive/$spaceId/{-$folderId}': typeof AppNewdriveSpaceIdChar123FolderIdChar125Route
   '/app/newdrive/file/$itemId': typeof AppNewdriveFileItemIdRoute
   '/app/_admin/admin/': typeof AppAdminAdminIndexRoute
   '/app/_admin/admin/customers/$customerId': typeof AppAdminAdminCustomersCustomerIdRoute
+  '/app/_admin/admin/suppliers/$supplierId': typeof AppAdminAdminSuppliersSupplierIdRoute
   '/app/_admin/admin/customers/': typeof AppAdminAdminCustomersIndexRoute
+  '/app/_admin/admin/suppliers/': typeof AppAdminAdminSuppliersIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -366,7 +385,9 @@ export interface FileRouteTypes {
     | '/app/newdrive/file/$itemId'
     | '/app/admin/'
     | '/app/admin/customers/$customerId'
+    | '/app/admin/suppliers/$supplierId'
     | '/app/admin/customers/'
+    | '/app/admin/suppliers/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -391,13 +412,14 @@ export interface FileRouteTypes {
     | '/app/jo'
     | '/app/newdrive'
     | '/app/trello'
-    | '/app/admin/suppliers'
     | '/app/admin/users'
     | '/app/newdrive/$spaceId/{-$folderId}'
     | '/app/newdrive/file/$itemId'
     | '/app/admin'
     | '/app/admin/customers/$customerId'
+    | '/app/admin/suppliers/$supplierId'
     | '/app/admin/customers'
+    | '/app/admin/suppliers'
   id:
     | '__root__'
     | '/_auth'
@@ -435,7 +457,9 @@ export interface FileRouteTypes {
     | '/app/newdrive/file/$itemId'
     | '/app/_admin/admin/'
     | '/app/_admin/admin/customers/$customerId'
+    | '/app/_admin/admin/suppliers/$supplierId'
     | '/app/_admin/admin/customers/'
+    | '/app/_admin/admin/suppliers/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -689,12 +713,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAdminAdminCustomersRouteImport
       parentRoute: typeof AppAdminRouteRoute
     }
+    '/app/_admin/admin/suppliers/': {
+      id: '/app/_admin/admin/suppliers/'
+      path: '/'
+      fullPath: '/app/admin/suppliers/'
+      preLoaderRoute: typeof AppAdminAdminSuppliersIndexRouteImport
+      parentRoute: typeof AppAdminAdminSuppliersRoute
+    }
     '/app/_admin/admin/customers/': {
       id: '/app/_admin/admin/customers/'
       path: '/'
       fullPath: '/app/admin/customers/'
       preLoaderRoute: typeof AppAdminAdminCustomersIndexRouteImport
       parentRoute: typeof AppAdminAdminCustomersRoute
+    }
+    '/app/_admin/admin/suppliers/$supplierId': {
+      id: '/app/_admin/admin/suppliers/$supplierId'
+      path: '/$supplierId'
+      fullPath: '/app/admin/suppliers/$supplierId'
+      preLoaderRoute: typeof AppAdminAdminSuppliersSupplierIdRouteImport
+      parentRoute: typeof AppAdminAdminSuppliersRoute
     }
     '/app/_admin/admin/customers/$customerId': {
       id: '/app/_admin/admin/customers/$customerId'
@@ -755,16 +793,33 @@ const AppAdminAdminCustomersRouteWithChildren =
     AppAdminAdminCustomersRouteChildren,
   )
 
+interface AppAdminAdminSuppliersRouteChildren {
+  AppAdminAdminSuppliersSupplierIdRoute: typeof AppAdminAdminSuppliersSupplierIdRoute
+  AppAdminAdminSuppliersIndexRoute: typeof AppAdminAdminSuppliersIndexRoute
+}
+
+const AppAdminAdminSuppliersRouteChildren: AppAdminAdminSuppliersRouteChildren =
+  {
+    AppAdminAdminSuppliersSupplierIdRoute:
+      AppAdminAdminSuppliersSupplierIdRoute,
+    AppAdminAdminSuppliersIndexRoute: AppAdminAdminSuppliersIndexRoute,
+  }
+
+const AppAdminAdminSuppliersRouteWithChildren =
+  AppAdminAdminSuppliersRoute._addFileChildren(
+    AppAdminAdminSuppliersRouteChildren,
+  )
+
 interface AppAdminRouteRouteChildren {
   AppAdminAdminCustomersRoute: typeof AppAdminAdminCustomersRouteWithChildren
-  AppAdminAdminSuppliersRoute: typeof AppAdminAdminSuppliersRoute
+  AppAdminAdminSuppliersRoute: typeof AppAdminAdminSuppliersRouteWithChildren
   AppAdminAdminUsersRoute: typeof AppAdminAdminUsersRoute
   AppAdminAdminIndexRoute: typeof AppAdminAdminIndexRoute
 }
 
 const AppAdminRouteRouteChildren: AppAdminRouteRouteChildren = {
   AppAdminAdminCustomersRoute: AppAdminAdminCustomersRouteWithChildren,
-  AppAdminAdminSuppliersRoute: AppAdminAdminSuppliersRoute,
+  AppAdminAdminSuppliersRoute: AppAdminAdminSuppliersRouteWithChildren,
   AppAdminAdminUsersRoute: AppAdminAdminUsersRoute,
   AppAdminAdminIndexRoute: AppAdminAdminIndexRoute,
 }
