@@ -1,7 +1,7 @@
 import { convexQuery } from "@convex-dev/react-query";
 import { api } from "@convex/_generated/api";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArchiveIcon, ArrowLeftIcon, ArrowRightIcon, BoxesIcon } from "lucide-react";
 import { Suspense, useState } from "react";
 
@@ -10,11 +10,9 @@ import {
   InventoryActivityLog,
   InventoryActivityLogSkeleton,
 } from "@/components/inventory/activity-log";
-import { InventoryItemDetailsSheet } from "@/components/inventory/item-details-sheet";
 import {
   AddInventoryItemDialog,
   InventoryItemActions,
-  type InventoryListItem,
 } from "@/components/inventory/item-dialogs";
 import { SupplierManagerDialog } from "@/components/inventory/supplier-manager-dialog";
 import { Container } from "@/components/layouts/container";
@@ -116,9 +114,8 @@ function InventoryPage() {
 }
 
 function InventoryTable() {
+  const navigate = Route.useNavigate();
   const [cursorHistory, setCursorHistory] = useState<string[]>([]);
-  const [selectedItem, setSelectedItem] = useState<InventoryListItem | null>(null);
-  const [detailsOpen, setDetailsOpen] = useState(false);
   const cursor = cursorHistory.at(-1) ?? null;
   const { data, isFetching } = useSuspenseQuery(
     convexQuery(api.inventory.listItems, {
@@ -128,10 +125,6 @@ function InventoryTable() {
       },
     }),
   );
-  const currentSelectedItem = selectedItem
-    ? (data.page.find((item) => item._id === selectedItem._id) ?? selectedItem)
-    : null;
-
   if (data.page.length === 0 && cursorHistory.length === 0) {
     return (
       <Card>
@@ -160,12 +153,6 @@ function InventoryTable() {
 
   function goToPreviousPage() {
     setCursorHistory((history) => history.slice(0, -1));
-  }
-
-  function showItemDetails(item: InventoryListItem) {
-    setDetailsOpen(false);
-    setSelectedItem(item);
-    requestAnimationFrame(() => setDetailsOpen(true));
   }
 
   return (
@@ -201,21 +188,38 @@ function InventoryTable() {
                 {data.page.map((item) => (
                   <TableRow
                     key={item._id}
+                    role="link"
+                    tabIndex={0}
                     className="cursor-pointer"
-                    onClick={() => showItemDetails(item)}
+                    onClick={(event) => {
+                      if (
+                        event.target instanceof Element &&
+                        event.target.closest("a, button")
+                      ) {
+                        return;
+                      }
+                      void navigate({
+                        to: "/app/inventory/$id",
+                        params: { id: item._id },
+                      });
+                    }}
+                    onKeyDown={(event) => {
+                      if (event.key !== "Enter" || event.target !== event.currentTarget)
+                        return;
+                      void navigate({
+                        to: "/app/inventory/$id",
+                        params: { id: item._id },
+                      });
+                    }}
                   >
                     <TableCell className="md:pl-4">
-                      <Button
-                        type="button"
-                        variant="link"
-                        className="h-auto justify-start p-0 font-medium"
-                        onClick={(event) => {
-                          event.stopPropagation();
-                          showItemDetails(item);
-                        }}
+                      <Link
+                        to="/app/inventory/$id"
+                        params={{ id: item._id }}
+                        className="font-medium underline-offset-4 hover:underline"
                       >
                         {item.name}
-                      </Button>
+                      </Link>
                     </TableCell>
                     <TableCell className="text-muted-foreground">
                       {item.supplierName}
@@ -228,10 +232,7 @@ function InventoryTable() {
                     <TableCell className="hidden text-muted-foreground md:table-cell md:pr-4">
                       {item.createdByName}
                     </TableCell>
-                    <TableCell
-                      className="pr-2 text-right"
-                      onClick={(event) => event.stopPropagation()}
-                    >
+                    <TableCell className="pr-2 text-right">
                       <InventoryItemActions item={item} />
                     </TableCell>
                   </TableRow>
@@ -272,15 +273,6 @@ function InventoryTable() {
           </Button>
         </div>
       </div>
-
-      {currentSelectedItem && (
-        <InventoryItemDetailsSheet
-          key={currentSelectedItem._id}
-          item={currentSelectedItem}
-          open={detailsOpen}
-          onOpenChange={setDetailsOpen}
-        />
-      )}
     </div>
   );
 }

@@ -26,13 +26,6 @@ import {
 } from "@/components/inventory/item-dialogs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 
@@ -71,77 +64,60 @@ const dateTimeFormatter = new Intl.DateTimeFormat(undefined, {
   timeStyle: "short",
 });
 
-export function InventoryItemDetailsSheet({
-  item,
-  open,
-  onOpenChange,
-}: {
-  item: InventoryListItem;
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-}) {
+export function InventoryItemDetails({ item }: { item: InventoryListItem }) {
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="w-full gap-0 sm:max-w-2xl">
-        <SheetHeader className="border-b px-5 py-5 pr-14 sm:px-6 sm:py-6">
-          <div className="flex items-center gap-2">
-            <Badge variant="outline">Inventory item</Badge>
-            <span className="text-xs text-muted-foreground">
-              Added {dateTimeFormatter.format(item._creationTime)}
-            </span>
-          </div>
-          <SheetTitle className="text-2xl tracking-tight">{item.name}</SheetTitle>
-          <SheetDescription>{item.supplierName}</SheetDescription>
-        </SheetHeader>
-
-        <div className="min-h-0 flex-1 overflow-y-auto">
-          <div className="flex flex-col gap-7 p-4 sm:p-6">
-            <section aria-labelledby="inventory-balance-heading">
-              <div className="flex flex-col gap-3">
-                <div className="flex items-end justify-between gap-4 rounded-xl border bg-muted/40 p-5">
-                  <div className="flex flex-col gap-1">
-                    <h2
-                      id="inventory-balance-heading"
-                      className="text-sm font-medium text-muted-foreground"
-                    >
-                      Current stock
-                    </h2>
-                    <p className="text-4xl font-semibold tracking-tight tabular-nums">
-                      {item.quantity.toLocaleString()}
-                    </p>
-                  </div>
-                  <div className="rounded-lg border bg-background/60 p-3">
-                    <PackageIcon className="size-7 text-muted-foreground" />
-                  </div>
-                </div>
-                <InventoryStockActions item={item} />
-              </div>
-            </section>
-
-            <section
-              className="flex flex-col gap-3"
-              aria-labelledby="item-details-heading"
-            >
-              <h2 id="item-details-heading" className="font-semibold">
-                Item details
-              </h2>
-              <dl className="grid grid-cols-1 gap-x-6 gap-y-5 border-y py-5 sm:grid-cols-2">
-                <Detail icon={TruckIcon} label="Supplier" value={item.supplierName} />
-                <Detail icon={UserIcon} label="Created by" value={item.createdByName} />
-                <Detail
-                  icon={HistoryIcon}
-                  label="Created"
-                  value={dateTimeFormatter.format(item._creationTime)}
-                />
-                <Detail icon={PackageIcon} label="Item ID" value={item._id} breakAll />
-              </dl>
-            </section>
-
-            <ItemActivity item={item} />
-          </div>
+    <div className="flex flex-col gap-7">
+      <header className="flex flex-col gap-2 border-b pb-6">
+        <div className="flex flex-wrap items-center gap-2">
+          <Badge variant="outline">Inventory item</Badge>
+          <span className="text-xs text-muted-foreground">
+            Added {dateTimeFormatter.format(item._creationTime)}
+          </span>
         </div>
-      </SheetContent>
-    </Sheet>
+        <h1 className="text-3xl font-semibold tracking-tight">{item.name}</h1>
+        <p className="text-sm text-muted-foreground">{item.supplierName}</p>
+      </header>
+
+      <section aria-labelledby="inventory-balance-heading">
+        <div className="flex flex-col gap-3">
+          <div className="flex items-end justify-between gap-4 rounded-xl border bg-muted/40 p-5">
+            <div className="flex flex-col gap-1">
+              <h2
+                id="inventory-balance-heading"
+                className="text-sm font-medium text-muted-foreground"
+              >
+                Current stock
+              </h2>
+              <p className="text-4xl font-semibold tracking-tight tabular-nums">
+                {item.quantity.toLocaleString()}
+              </p>
+            </div>
+            <div className="rounded-lg border bg-background/60 p-3">
+              <PackageIcon className="size-7 text-muted-foreground" />
+            </div>
+          </div>
+          <InventoryStockActions item={item} />
+        </div>
+      </section>
+
+      <section className="flex flex-col gap-3" aria-labelledby="item-details-heading">
+        <h2 id="item-details-heading" className="font-semibold">
+          Item details
+        </h2>
+        <dl className="grid grid-cols-1 gap-x-6 gap-y-5 border-y py-5 sm:grid-cols-2">
+          <Detail icon={TruckIcon} label="Supplier" value={item.supplierName} />
+          <Detail icon={UserIcon} label="Created by" value={item.createdByName} />
+          <Detail
+            icon={HistoryIcon}
+            label="Created"
+            value={dateTimeFormatter.format(item._creationTime)}
+          />
+          <Detail icon={PackageIcon} label="Item ID" value={item._id} breakAll />
+        </dl>
+      </section>
+
+      <ItemActivity item={item} />
+    </div>
   );
 }
 

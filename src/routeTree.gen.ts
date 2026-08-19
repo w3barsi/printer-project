@@ -32,6 +32,7 @@ import { Route as ShopShowcaseIndexRouteImport } from './routes/_shop/showcase.i
 import { Route as ShareTokenChar123ItemIdChar125RouteImport } from './routes/share.$token.{-$itemId}'
 import { Route as AppTrelloListIdRouteImport } from './routes/app/trello.$listId'
 import { Route as AppJoJoIdRouteImport } from './routes/app/jo.$joId'
+import { Route as AppInventoryIdRouteImport } from './routes/app/inventory_.$id'
 import { Route as AppDriveChar123DriveChar125RouteImport } from './routes/app/drive.{-$drive}'
 import { Route as AppCashierCashflowRouteImport } from './routes/app/_cashier/cashflow'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth.$'
@@ -153,6 +154,11 @@ const AppJoJoIdRoute = AppJoJoIdRouteImport.update({
   path: '/jo/$joId',
   getParentRoute: () => AppRouteRoute,
 } as any)
+const AppInventoryIdRoute = AppInventoryIdRouteImport.update({
+  id: '/inventory_/$id',
+  path: '/inventory/$id',
+  getParentRoute: () => AppRouteRoute,
+} as any)
 const AppDriveChar123DriveChar125Route =
   AppDriveChar123DriveChar125RouteImport.update({
     id: '/drive/{-$drive}',
@@ -213,6 +219,7 @@ export interface FileRoutesByFullPath {
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/app/cashflow': typeof AppCashierCashflowRoute
   '/app/drive/{-$drive}': typeof AppDriveChar123DriveChar125Route
+  '/app/inventory/$id': typeof AppInventoryIdRoute
   '/app/jo/$joId': typeof AppJoJoIdRoute
   '/app/trello/$listId': typeof AppTrelloListIdRoute
   '/share/$token/{-$itemId}': typeof ShareTokenChar123ItemIdChar125Route
@@ -240,6 +247,7 @@ export interface FileRoutesByTo {
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/app/cashflow': typeof AppCashierCashflowRoute
   '/app/drive/{-$drive}': typeof AppDriveChar123DriveChar125Route
+  '/app/inventory/$id': typeof AppInventoryIdRoute
   '/app/jo/$joId': typeof AppJoJoIdRoute
   '/app/trello/$listId': typeof AppTrelloListIdRoute
   '/share/$token/{-$itemId}': typeof ShareTokenChar123ItemIdChar125Route
@@ -274,6 +282,7 @@ export interface FileRoutesById {
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/app/_cashier/cashflow': typeof AppCashierCashflowRoute
   '/app/drive/{-$drive}': typeof AppDriveChar123DriveChar125Route
+  '/app/inventory_/$id': typeof AppInventoryIdRoute
   '/app/jo/$joId': typeof AppJoJoIdRoute
   '/app/trello/$listId': typeof AppTrelloListIdRoute
   '/share/$token/{-$itemId}': typeof ShareTokenChar123ItemIdChar125Route
@@ -305,6 +314,7 @@ export interface FileRouteTypes {
     | '/api/auth/$'
     | '/app/cashflow'
     | '/app/drive/{-$drive}'
+    | '/app/inventory/$id'
     | '/app/jo/$joId'
     | '/app/trello/$listId'
     | '/share/$token/{-$itemId}'
@@ -332,6 +342,7 @@ export interface FileRouteTypes {
     | '/api/auth/$'
     | '/app/cashflow'
     | '/app/drive/{-$drive}'
+    | '/app/inventory/$id'
     | '/app/jo/$joId'
     | '/app/trello/$listId'
     | '/share/$token/{-$itemId}'
@@ -365,6 +376,7 @@ export interface FileRouteTypes {
     | '/api/auth/$'
     | '/app/_cashier/cashflow'
     | '/app/drive/{-$drive}'
+    | '/app/inventory_/$id'
     | '/app/jo/$joId'
     | '/app/trello/$listId'
     | '/share/$token/{-$itemId}'
@@ -552,6 +564,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppJoJoIdRouteImport
       parentRoute: typeof AppRouteRoute
     }
+    '/app/inventory_/$id': {
+      id: '/app/inventory_/$id'
+      path: '/inventory/$id'
+      fullPath: '/app/inventory/$id'
+      preLoaderRoute: typeof AppInventoryIdRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
     '/app/drive/{-$drive}': {
       id: '/app/drive/{-$drive}'
       path: '/drive/{-$drive}'
@@ -694,6 +713,7 @@ interface AppRouteRouteChildren {
   AppTesttrelloRoute: typeof AppTesttrelloRoute
   AppIndexRoute: typeof AppIndexRoute
   AppDriveChar123DriveChar125Route: typeof AppDriveChar123DriveChar125Route
+  AppInventoryIdRoute: typeof AppInventoryIdRoute
   AppJoJoIdRoute: typeof AppJoJoIdRoute
   AppTrelloListIdRoute: typeof AppTrelloListIdRoute
   AppJoIndexRoute: typeof AppJoIndexRoute
@@ -708,6 +728,7 @@ const AppRouteRouteChildren: AppRouteRouteChildren = {
   AppTesttrelloRoute: AppTesttrelloRoute,
   AppIndexRoute: AppIndexRoute,
   AppDriveChar123DriveChar125Route: AppDriveChar123DriveChar125Route,
+  AppInventoryIdRoute: AppInventoryIdRoute,
   AppJoJoIdRoute: AppJoJoIdRoute,
   AppTrelloListIdRoute: AppTrelloListIdRoute,
   AppJoIndexRoute: AppJoIndexRoute,

@@ -549,6 +549,31 @@ export const searchSupplierOptions = authedQuery({
   },
 });
 
+export const getItem = authedQuery({
+  args: {
+    inventoryItemId: v.id("inventoryItems"),
+  },
+  returns: v.union(inventoryItemListItemValidator, v.null()),
+  handler: async (ctx, args) => {
+    const item = await ctx.db.get("inventoryItems", args.inventoryItemId);
+
+    if (!item) return null;
+
+    const [supplier, creator] = await Promise.all([
+      item.supplierId
+        ? ctx.db.get("inventorySuppliers", item.supplierId)
+        : Promise.resolve(null),
+      ctx.db.get("users", item.createdBy),
+    ]);
+
+    return {
+      ...item,
+      supplierName: supplier?.name ?? "No supplier",
+      createdByName: creator?.name ?? "Former user",
+    };
+  },
+});
+
 export const listItems = authedQuery({
   args: {
     paginationOpts: paginationOptsValidator,
