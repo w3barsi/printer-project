@@ -98,7 +98,7 @@ export function NewDriveFileRow({
       {...listeners}
       data-file-list-item
       className={cn(
-        "group grid min-h-14 grid-cols-[minmax(0,1fr)_32px] items-center gap-3 border-b border-border/60 bg-transparent px-6 py-2.5 transition-[color,background-color,box-shadow,opacity] duration-200 hover:bg-muted/35",
+        "group grid min-h-14 grid-cols-[minmax(0,1fr)_32px] items-center gap-3 border-b border-border/60 bg-transparent px-6 py-2.5 transition-[color,background-color,box-shadow,opacity] duration-200 last:border-b-0 hover:bg-muted/35",
         publicSafe
           ? "md:grid-cols-[minmax(220px,1.7fr)_minmax(130px,.85fr)_80px_32px]"
           : "md:grid-cols-[minmax(220px,1.7fr)_minmax(90px,.65fr)_minmax(130px,.85fr)_80px_110px_32px]",

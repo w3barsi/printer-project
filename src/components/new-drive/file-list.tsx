@@ -487,7 +487,7 @@ export function NewDriveFileList({
       onDragCancel={() => setActiveDragId(null)}
     >
       <Card ref={cardRef} className="gap-0 bg-background py-0">
-        <CardHeader className="py-4">
+        <CardHeader className="py-6">
           {selectionEnabled && selectedIds.length > 0 ? (
             <div
               className="flex min-h-9 w-full items-center gap-2"

@@ -2,10 +2,11 @@ import { convexQuery } from "@convex-dev/react-query";
 import { api } from "@convex/_generated/api";
 import type { Doc, Id } from "@convex/_generated/dataModel";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
-import { Link } from "@tanstack/react-router";
-import { ArrowLeftIcon, ArrowRightIcon, HistoryIcon } from "lucide-react";
+import { Link, useRouteContext } from "@tanstack/react-router";
+import { ArrowLeftIcon, ArrowRightIcon, HistoryIcon, Trash2Icon } from "lucide-react";
 import { useState } from "react";
 
+import { DeleteInventoryActivityDialog } from "@/components/inventory/delete-activity-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -91,7 +92,11 @@ const dateTimeFormatter = new Intl.DateTimeFormat(undefined, {
 });
 
 export function InventoryActivityLog() {
+  const { user } = useRouteContext({ from: "/app" });
   const [cursorHistory, setCursorHistory] = useState<string[]>([]);
+  const [activityToDelete, setActivityToDelete] = useState<InventoryActivity | null>(
+    null,
+  );
   const [inventoryItemId, setInventoryItemId] = useState<Id<"inventoryItems"> | null>(
     null,
   );
@@ -154,9 +159,7 @@ export function InventoryActivityLog() {
           <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-end">
             <div className="flex flex-col gap-1">
               <CardTitle>Inventory ledger</CardTitle>
-              <CardDescription>
-                An immutable trail of stock and item-detail changes.
-              </CardDescription>
+              <CardDescription>A trail of stock and item-detail changes.</CardDescription>
             </div>
             <div className="flex flex-col gap-2 sm:flex-row">
               <InventoryItemFilter
@@ -201,11 +204,21 @@ export function InventoryActivityLog() {
                     <TableHead className="hidden lg:table-cell">Reason</TableHead>
                     <TableHead className="hidden md:table-cell">Recorded by</TableHead>
                     <TableHead className="hidden xl:table-cell xl:pr-4">When</TableHead>
+                    {user.role === "admin" && (
+                      <TableHead className="w-12">
+                        <span className="sr-only">Actions</span>
+                      </TableHead>
+                    )}
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {data.page.map((activity) => (
-                    <ActivityRow key={activity._id} activity={activity} />
+                    <ActivityRow
+                      key={activity._id}
+                      activity={activity}
+                      canDelete={user.role === "admin"}
+                      onDelete={() => setActivityToDelete(activity)}
+                    />
                   ))}
                 </TableBody>
               </Table>
@@ -258,11 +271,26 @@ export function InventoryActivityLog() {
           </Button>
         </div>
       </div>
+
+      <DeleteInventoryActivityDialog
+        activity={activityToDelete}
+        onOpenChange={(open) => {
+          if (!open) setActivityToDelete(null);
+        }}
+      />
     </div>
   );
 }
 
-function ActivityRow({ activity }: { activity: InventoryActivity }) {
+function ActivityRow({
+  activity,
+  canDelete,
+  onDelete,
+}: {
+  activity: InventoryActivity;
+  canDelete: boolean;
+  onDelete: () => void;
+}) {
   const itemChanged =
     activity.itemNameBefore && activity.itemNameBefore !== activity.itemNameAfter;
   const supplierChanged =
@@ -355,6 +383,19 @@ function ActivityRow({ activity }: { activity: InventoryActivity }) {
       <TableCell className="hidden whitespace-nowrap text-muted-foreground xl:table-cell xl:pr-4">
         {dateTimeFormatter.format(activity._creationTime)}
       </TableCell>
+      {canDelete && (
+        <TableCell className="pr-2 text-right">
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            aria-label={`Delete ${operationLabels[activity.operation]} activity for ${activity.itemNameAfter}`}
+            onClick={onDelete}
+          >
+            <Trash2Icon />
+          </Button>
+        </TableCell>
+      )}
     </TableRow>
   );
 }

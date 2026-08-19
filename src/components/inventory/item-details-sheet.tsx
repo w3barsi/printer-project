@@ -2,7 +2,7 @@ import { convexQuery } from "@convex-dev/react-query";
 import { api } from "@convex/_generated/api";
 import type { Doc } from "@convex/_generated/dataModel";
 import { useQuery } from "@tanstack/react-query";
-import { Link } from "@tanstack/react-router";
+import { Link, useRouteContext } from "@tanstack/react-router";
 import {
   ArrowLeftIcon,
   ArrowRightIcon,
@@ -13,11 +13,13 @@ import {
   PackagePlusIcon,
   PencilLineIcon,
   RefreshCwIcon,
+  Trash2Icon,
   TruckIcon,
   UserIcon,
 } from "lucide-react";
 import { useState } from "react";
 
+import { DeleteInventoryActivityDialog } from "@/components/inventory/delete-activity-dialog";
 import {
   InventoryStockActions,
   type InventoryListItem,
@@ -166,7 +168,11 @@ function Detail({
 }
 
 function ItemActivity({ item }: { item: InventoryListItem }) {
+  const { user } = useRouteContext({ from: "/app" });
   const [cursorHistory, setCursorHistory] = useState<string[]>([]);
+  const [activityToDelete, setActivityToDelete] = useState<InventoryActivity | null>(
+    null,
+  );
   const cursor = cursorHistory.at(-1) ?? null;
   const { data, isFetching } = useQuery(
     convexQuery(api.inventory.listActivities, {
@@ -197,7 +203,12 @@ function ItemActivity({ item }: { item: InventoryListItem }) {
       ) : data.page.length ? (
         <div className="overflow-hidden rounded-xl border">
           {data.page.map((activity) => (
-            <ActivityEntry key={activity._id} activity={activity} />
+            <ActivityEntry
+              key={activity._id}
+              activity={activity}
+              canDelete={user.role === "admin"}
+              onDelete={() => setActivityToDelete(activity)}
+            />
           ))}
         </div>
       ) : (
@@ -238,11 +249,26 @@ function ItemActivity({ item }: { item: InventoryListItem }) {
           </Button>
         </div>
       )}
+
+      <DeleteInventoryActivityDialog
+        activity={activityToDelete}
+        onOpenChange={(open) => {
+          if (!open) setActivityToDelete(null);
+        }}
+      />
     </section>
   );
 }
 
-function ActivityEntry({ activity }: { activity: InventoryActivity }) {
+function ActivityEntry({
+  activity,
+  canDelete,
+  onDelete,
+}: {
+  activity: InventoryActivity;
+  canDelete: boolean;
+  onDelete: () => void;
+}) {
   const itemChanged =
     activity.itemNameBefore !== undefined &&
     activity.itemNameBefore !== activity.itemNameAfter;
@@ -297,9 +323,22 @@ function ActivityEntry({ activity }: { activity: InventoryActivity }) {
               {operationLabels[activity.operation]}
             </span>
           </div>
-          <time className="text-xs whitespace-nowrap text-muted-foreground">
-            {dateTimeFormatter.format(activity._creationTime)}
-          </time>
+          <div className="flex items-center gap-1">
+            <time className="text-xs whitespace-nowrap text-muted-foreground">
+              {dateTimeFormatter.format(activity._creationTime)}
+            </time>
+            {canDelete && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon-xs"
+                aria-label={`Delete ${operationLabels[activity.operation]} activity`}
+                onClick={onDelete}
+              >
+                <Trash2Icon />
+              </Button>
+            )}
+          </div>
         </div>
 
         {hasStockChange && (

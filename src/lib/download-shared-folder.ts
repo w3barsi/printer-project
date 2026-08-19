@@ -26,10 +26,22 @@ export async function downloadSharedFolder(
   folders: string[] = [],
 ) {
   const zip = new JSZip();
-  if (folders.length === 0) zip.folder(safeFileName(rootName));
+  const rootPath = safePath(rootName);
+  function archivePath(path: string) {
+    const safe = safePath(path);
+    if (safe === rootPath) return "";
+    if (!safe.startsWith(`${rootPath}/`)) {
+      throw new Error("The archive contains an invalid path");
+    }
+    return safe.slice(rootPath.length + 1);
+  }
+
   const paths = new Set<string>();
-  for (const folder of folders) zip.folder(safePath(folder));
-  const queue = files.map((file) => ({ ...file, path: safePath(file.path) }));
+  for (const folder of folders) {
+    const path = archivePath(folder);
+    if (path) zip.folder(path);
+  }
+  const queue = files.map((file) => ({ ...file, path: archivePath(file.path) }));
   for (const file of queue) {
     if (paths.has(file.path)) throw new Error("The archive contains duplicate paths");
     paths.add(file.path);

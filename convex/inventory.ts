@@ -663,6 +663,27 @@ export const listActivities = authedQuery({
   },
 });
 
+export const deleteActivity = authedMutation({
+  args: {
+    activityId: v.id("inventoryActivities"),
+  },
+  handler: async (ctx, args) => {
+    const user = await requireLocalUser(ctx);
+
+    if (user.role !== "admin") {
+      throw new Error("Only admins can delete inventory activity");
+    }
+
+    const activity = await ctx.db.get("inventoryActivities", args.activityId);
+
+    if (!activity) {
+      throw new Error("Inventory activity not found");
+    }
+
+    await ctx.db.delete("inventoryActivities", args.activityId);
+  },
+});
+
 export const listUsageByJobOrder = authedQuery({
   args: {
     jobOrderId: v.id("jo"),
