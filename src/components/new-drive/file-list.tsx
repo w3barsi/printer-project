@@ -199,6 +199,15 @@ export function NewDriveFileList({
     })
     .map(({ item }) => item);
   const selectedItems = displayedItems.filter((item) => selectedIds.includes(item.id));
+  const selectedFolderCount = selectedItems.filter(
+    (item) => item.kind === "folder",
+  ).length;
+  const downloadSelectionLabel =
+    selectedFolderCount === selectedItems.length
+      ? `Download ${selectedItems.length === 1 ? "folder" : "folders"}`
+      : selectedFolderCount === 0
+        ? `Download ${selectedItems.length === 1 ? "file" : "files"}`
+        : "Download items";
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: { distance: 5 },
@@ -513,7 +522,7 @@ export function NewDriveFileList({
                   onClick={() => void onDownloadItems(selectedItems)}
                 >
                   <DownloadIcon data-icon="inline-start" />
-                  Download Items
+                  {downloadSelectionLabel}
                 </Button>
               )}
               <div className="ml-auto">
