@@ -104,6 +104,7 @@ function RouteComponent() {
             variant="ghost"
             size="sm"
             className="w-fit"
+            nativeButton={false}
             render={<Link to="/app/admin/suppliers" />}
           >
             <ArrowLeftIcon data-icon="inline-start" />
@@ -276,6 +277,7 @@ function SupplierSupplies({
                     <Button
                       variant="ghost"
                       size="sm"
+                      nativeButton={false}
                       render={<Link to="/app/inventory/$id" params={{ id: item._id }} />}
                     >
                       Open supply
