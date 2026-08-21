@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 
 import { Container } from "@/components/layouts/container";
-import { buttonVariants } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 
 export const Route = createFileRoute("/app/newdrive/file/$itemId")({
   component: FilePreviewPage,
@@ -67,13 +67,15 @@ function FilePreviewPage() {
           <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
             This file may have been moved, deleted, or restricted.
           </p>
-          <Link
-            to="/app/newdrive"
-            className={buttonVariants({ variant: "outline", className: "mt-6" })}
+          <Button
+            variant="outline"
+            className="mt-6"
+            nativeButton={false}
+            render={<Link to="/app/newdrive" />}
           >
             <ArrowLeftIcon data-icon="inline-start" />
             Back to New Drive
-          </Link>
+          </Button>
         </div>
       </Container>
     );
@@ -92,14 +94,17 @@ function FilePreviewPage() {
     >
       <main className="grid min-h-[calc(100svh-6.6rem)] gap-3 lg:grid-cols-[300px_minmax(0,1fr)] lg:gap-5">
         <aside className="flex flex-col rounded-xl border bg-card/70 p-4 shadow-[0_16px_48px_-32px_rgba(0,0,0,0.28)] lg:p-5">
-          <Link
-            to="/app/newdrive/$spaceId/{-$folderId}"
-            params={parentParams}
-            className={buttonVariants({ variant: "outline", className: "w-fit" })}
+          <Button
+            variant="outline"
+            className="w-fit"
+            nativeButton={false}
+            render={
+              <Link to="/app/newdrive/$spaceId/{-$folderId}" params={parentParams} />
+            }
           >
             <ArrowLeftIcon data-icon="inline-start" />
             Parent folder
-          </Link>
+          </Button>
 
           <div className="mt-6 flex min-w-0 items-start gap-3 lg:mt-10 lg:block">
             <FileMark kind={previewKind} />

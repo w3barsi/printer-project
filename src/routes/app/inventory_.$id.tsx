@@ -8,7 +8,7 @@ import { ArrowLeftIcon, PackageXIcon } from "lucide-react";
 import { DefaultCatchBoundary } from "@/components/default-catch-boundary";
 import { InventoryItemDetails } from "@/components/inventory/item-details";
 import { Container } from "@/components/layouts/container";
-import { buttonVariants } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/app/inventory_/$id")({
   component: InventoryItemPage,
@@ -56,13 +56,15 @@ function InventoryItemPage() {
           <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
             This item may have been deleted or is no longer available.
           </p>
-          <Link
-            to="/app/inventory"
-            className={buttonVariants({ variant: "outline", className: "mt-6" })}
+          <Button
+            variant="outline"
+            className="mt-6"
+            nativeButton={false}
+            render={<Link to="/app/inventory" />}
           >
             <ArrowLeftIcon data-icon="inline-start" />
             Back to inventory
-          </Link>
+          </Button>
         </div>
       </Container>
     );

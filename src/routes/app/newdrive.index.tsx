@@ -10,7 +10,7 @@ import { Container } from "@/components/layouts/container";
 import { CreateSpaceDialog } from "@/components/new-drive/create-space-dialog";
 import { NewDriveFileList } from "@/components/new-drive/file-list";
 import { Badge } from "@/components/ui/badge";
-import { buttonVariants } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardAction,
@@ -75,14 +75,20 @@ function NewDrivePage() {
                     {space.description || "No description"}
                   </CardDescription>
                   <CardAction>
-                    <Link
-                      to="/app/newdrive/$spaceId/{-$folderId}"
-                      params={{ spaceId: space._id }}
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      nativeButton={false}
                       aria-label={`Open ${space.name}`}
-                      className={buttonVariants({ variant: "ghost", size: "icon-sm" })}
+                      render={
+                        <Link
+                          to="/app/newdrive/$spaceId/{-$folderId}"
+                          params={{ spaceId: space._id }}
+                        />
+                      }
                     >
                       <ArrowRightIcon />
-                    </Link>
+                    </Button>
                   </CardAction>
                 </CardHeader>
                 <CardContent className="flex items-center gap-4 text-xs text-muted-foreground">
@@ -95,18 +101,21 @@ function NewDrivePage() {
                   </span>
                 </CardContent>
                 <CardFooter>
-                  <Link
-                    to="/app/newdrive/$spaceId/{-$folderId}"
-                    params={{ spaceId: space._id }}
-                    className={buttonVariants({
-                      variant: "outline",
-                      size: "sm",
-                      className: "w-full",
-                    })}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full"
+                    nativeButton={false}
+                    render={
+                      <Link
+                        to="/app/newdrive/$spaceId/{-$folderId}"
+                        params={{ spaceId: space._id }}
+                      />
+                    }
                   >
                     Open space
                     <ArrowRightIcon data-icon="inline-end" />
-                  </Link>
+                  </Button>
                 </CardFooter>
               </Card>
             ))}
