@@ -118,7 +118,7 @@ function NewDriveSidebarItem() {
       </SidebarMenuButton>
       <CollapsibleTrigger
         render={
-          <SidebarMenuAction className="border border-sidebar-border transition-[color,background-color,border-color,transform] peer-data-active/menu-button:hover:border-sidebar-primary peer-data-active/menu-button:hover:bg-sidebar-primary peer-data-active/menu-button:hover:text-sidebar-primary-foreground data-open:rotate-90" />
+          <SidebarMenuAction className="border border-sidebar-border transition-[color,background-color,border-color,transform] peer-data-active/menu-button:hover:border-sidebar-primary peer-data-active/menu-button:hover:bg-sidebar-primary peer-data-active/menu-button:hover:text-sidebar-primary-foreground data-panel-open:rotate-90" />
         }
       >
         <ChevronRightIcon />
