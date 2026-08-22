@@ -196,18 +196,7 @@ export default defineSchema({
     .index("by_onlineOrderItemId", ["onlineOrderItemId"]),
 
   users: defineTable({
+    authId: v.string(),
     name: v.string(),
-    username: v.optional(v.union(v.null(), v.string())),
-    displayUsername: v.optional(v.union(v.null(), v.string())),
-    email: v.string(),
-    emailVerified: v.boolean(),
-    image: v.optional(v.union(v.null(), v.string())),
-    role: v.optional(v.union(v.null(), v.string())),
-    banned: v.optional(v.union(v.null(), v.boolean())),
-    banReason: v.optional(v.union(v.null(), v.string())),
-    createdAt: v.optional(v.union(v.null(), v.float64())),
-  })
-    .index("email_name", ["email", "name"])
-    .index("name", ["name"])
-    .index("username", ["username"]),
+  }).index("by_authId", ["authId"]),
 });

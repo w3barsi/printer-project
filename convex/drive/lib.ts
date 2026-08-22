@@ -1,19 +1,16 @@
-import type { UserIdentity } from "convex/server";
 import { ConvexError } from "convex/values";
 
 import type { Id } from "../_generated/dataModel";
-import type { QueryCtx } from "../_generated/server";
+import type { AuthenticatedQueryCtx } from "../auth";
 
-type SpaceAccessCtx = Pick<QueryCtx, "db"> & {
-  user: UserIdentity;
-};
+type SpaceAccessCtx = Pick<AuthenticatedQueryCtx, "authUser" | "db">;
 
 export async function requireSpaceAccess(
   ctx: SpaceAccessCtx,
   spaceId: Id<"newDriveSpaces">,
 ) {
   const space = await ctx.db.get("newDriveSpaces", spaceId);
-  if (!space || (space.visibility === "admin" && ctx.user.role !== "admin")) {
+  if (!space || (space.visibility === "admin" && ctx.authUser.role !== "admin")) {
     throw new ConvexError("Space not found");
   }
   return space;

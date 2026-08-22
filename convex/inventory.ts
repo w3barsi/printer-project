@@ -3,7 +3,7 @@ import { v } from "convex/values";
 
 import type { Doc, Id } from "./_generated/dataModel";
 import type { MutationCtx, QueryCtx } from "./_generated/server";
-import { authedMutation, authedQuery, requireLocalUser } from "./auth";
+import { authedMutation, authedQuery, requireAppUser } from "./auth";
 import {
   normalizeOptionalReason,
   validateInventoryName,
@@ -161,6 +161,7 @@ export const createSupplier = authedMutation({
   },
   returns: v.id("inventorySuppliers"),
   handler: async (ctx, args) => {
+    const actor = await requireAppUser(ctx);
     const supplierName = validateInventoryName(args.name, "Supplier name");
 
     const existingSupplier = await ctx.db
@@ -176,7 +177,7 @@ export const createSupplier = authedMutation({
 
     return await ctx.db.insert("inventorySuppliers", {
       ...supplierName,
-      createdBy: ctx.user.userId as Id<"users">,
+      createdBy: actor._id,
     });
   },
 });
@@ -226,7 +227,7 @@ export const createItem = authedMutation({
   },
   returns: v.id("inventoryItems"),
   handler: async (ctx, args) => {
-    const actor = await requireLocalUser(ctx);
+    const actor = await requireAppUser(ctx);
     const { name } = validateInventoryName(args.name, "Item name");
     const initialQuantity = validateNonNegativeQuantity(args.initialQuantity);
     const reason = normalizeOptionalReason(args.reason);
@@ -273,7 +274,7 @@ export const addStock = authedMutation({
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    const actor = await requireLocalUser(ctx);
+    const actor = await requireAppUser(ctx);
     const addedQuantity = validatePositiveQuantity(args.quantity);
     const reason = normalizeOptionalReason(args.reason);
     const { item, supplier } = await getItemAndSupplier(ctx.db, args.inventoryItemId);
@@ -318,7 +319,7 @@ export const removeStock = authedMutation({
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    const actor = await requireLocalUser(ctx);
+    const actor = await requireAppUser(ctx);
     const removedQuantity = validatePositiveQuantity(args.quantity);
     const reason = normalizeOptionalReason(args.reason);
     const { item, supplier } = await getItemAndSupplier(ctx.db, args.inventoryItemId);
@@ -386,7 +387,7 @@ export const correctQuantity = authedMutation({
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    const actor = await requireLocalUser(ctx);
+    const actor = await requireAppUser(ctx);
     const correctedQuantity = validateNonNegativeQuantity(args.quantity);
     const reason = validateRequiredReason(args.reason);
     const { item, supplier } = await getItemAndSupplier(ctx.db, args.inventoryItemId);
@@ -434,7 +435,7 @@ export const updateItemDetails = authedMutation({
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    const actor = await requireLocalUser(ctx);
+    const actor = await requireAppUser(ctx);
     const { name } = validateInventoryName(args.name, "Item name");
     const reason = validateRequiredReason(args.reason);
     const { item, supplier: previousSupplier } = await getItemAndSupplier(
@@ -742,9 +743,7 @@ export const deleteActivity = authedMutation({
     activityId: v.id("inventoryActivities"),
   },
   handler: async (ctx, args) => {
-    const user = await requireLocalUser(ctx);
-
-    if (user.role !== "admin") {
+    if (ctx.authUser.role !== "admin") {
       throw new Error("Only admins can delete inventory activity");
     }
 

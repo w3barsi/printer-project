@@ -1,8 +1,7 @@
 import { v } from "convex/values";
 
-import { Id } from "./_generated/dataModel";
 import { mutation } from "./_generated/server";
-import { authedMutation } from "./auth";
+import { authedMutation, requireAppUser } from "./auth";
 
 export const deleteItem = mutation({
   args: {
@@ -25,13 +24,14 @@ export const createItem = authedMutation({
     price: v.number(),
   },
   handler: async (ctx, args) => {
+    const actor = await requireAppUser(ctx);
     const { joId, name, quantity, price } = args;
     const insertPromise = ctx.db.insert("items", {
       joId,
       name,
       quantity,
       price,
-      createdBy: ctx.user.userId as Id<"users">,
+      createdBy: actor._id,
     });
     const patchPromise = ctx.db.patch("jo", args.joId, {
       updatedAt: new Date().getTime(),

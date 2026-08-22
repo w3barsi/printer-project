@@ -1,6 +1,6 @@
 import { ConvexError, v } from "convex/values";
 
-import { authedMutation, authedQuery, requireLocalUser } from "../auth";
+import { authedMutation, authedQuery, requireAppUser } from "../auth";
 import { normalizeName } from "./lib";
 
 const visibilityValidator = v.union(v.literal("admin"), v.literal("everyone"));
@@ -9,7 +9,7 @@ export const list = authedQuery({
   args: {},
   handler: async (ctx) => {
     const spaces =
-      ctx.user.role === "admin"
+      ctx.authUser.role === "admin"
         ? await ctx.db.query("newDriveSpaces").order("desc").take(100)
         : (
             await Promise.all([
@@ -29,9 +29,15 @@ export const list = authedQuery({
             .sort((a, b) => b._creationTime - a._creationTime)
             .slice(0, 100);
 
-    return spaces.map(({ nameKey: _, rootItemId: __, ...space }) => ({
-      ...space,
+    return spaces.map((space) => ({
+      _id: space._id,
+      _creationTime: space._creationTime,
+      name: space.name,
+      description: space.description,
       visibility: space.visibility ?? "everyone",
+      createdBy: space.createdBy,
+      createdAt: space.createdAt,
+      updatedAt: space.updatedAt,
     }));
   },
 });
@@ -43,7 +49,7 @@ export const create = authedMutation({
     visibility: visibilityValidator,
   },
   handler: async (ctx, args) => {
-    if (ctx.user.role !== "admin") {
+    if (ctx.authUser.role !== "admin") {
       throw new ConvexError("Only administrators can create spaces");
     }
 
@@ -69,7 +75,7 @@ export const create = authedMutation({
       throw new ConvexError("A space with this name already exists");
     }
 
-    const user = await requireLocalUser(ctx);
+    const user = await requireAppUser(ctx);
     const now = Date.now();
     return await ctx.db.insert("newDriveSpaces", {
       name,

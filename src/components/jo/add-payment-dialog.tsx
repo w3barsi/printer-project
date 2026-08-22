@@ -1,14 +1,13 @@
 import { api } from "@convex/_generated/api";
 import type { Id } from "@convex/_generated/dataModel";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouteContext } from "@tanstack/react-router";
 import { useMutation } from "convex/react";
 import { PlusIcon } from "lucide-react";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useHotkeys } from "react-hotkeys-hook";
 import { z } from "zod";
-
-import { authClient } from "@/lib/auth-client";
 
 import { Button } from "../ui/button";
 import {
@@ -60,11 +59,9 @@ export function AddPaymentDialog({
   totalOrderValue: number;
 }) {
   const [open, setOpen] = useState(false);
-  const { data: session } = authClient.useSession();
-  const user = session?.user;
+  const { user } = useRouteContext({ from: "/app" });
   const createPayment = useMutation(api.payment.createPayment).withOptimisticUpdate(
     (localStore, args) => {
-      if (!user) return;
       const currentValue = localStore.getQuery(api.jo.getOneComplete, { id: joId });
       if (!currentValue) return;
 
@@ -79,7 +76,7 @@ export function AddPaymentDialog({
         amount: args.amount,
         full: args.full,
         mop: args.mop,
-        createdBy: user.id as Id<"users">,
+        createdBy: user.actorId,
         createdByName: user.name,
         note: args.note,
       };

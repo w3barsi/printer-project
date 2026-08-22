@@ -1,7 +1,6 @@
 import { v } from "convex/values";
 
-import { Id } from "./_generated/dataModel";
-import { authedMutation, authedQuery } from "./auth";
+import { authedMutation, authedQuery, requireAppUser } from "./auth";
 import { cashflowType } from "./schema";
 
 export const createCashOnHand = authedMutation({
@@ -11,6 +10,7 @@ export const createCashOnHand = authedMutation({
     date: v.number(),
   },
   handler: async (ctx, args) => {
+    const actor = await requireAppUser(ctx);
     const dateStart = args.date;
     const dateEnd = dateStart + 24 * 60 * 60 * 1000 - 1;
 
@@ -28,7 +28,7 @@ export const createCashOnHand = authedMutation({
     await ctx.db.insert("cashflow", {
       amount: args.amount,
       description: args.description,
-      createdBy: ctx.user.userId as Id<"users">,
+      createdBy: actor._id,
       createdAt: dateStart,
       cashflowType: "COH",
     });
@@ -43,13 +43,14 @@ export const createCashflow = authedMutation({
     date: v.number(),
   },
   handler: async (ctx, args) => {
+    const actor = await requireAppUser(ctx);
     if (args.amount > 5_000_000) {
       throw new Error("Cashflow amount cannot be greater than 5,000,000");
     }
     await ctx.db.insert("cashflow", {
       amount: args.amount,
       description: args.description,
-      createdBy: ctx.user.userId as Id<"users">,
+      createdBy: actor._id,
       createdAt: args.date,
       cashflowType: args.type ?? "Expense",
     });

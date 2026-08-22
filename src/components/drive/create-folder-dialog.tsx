@@ -1,6 +1,7 @@
 import { api } from "@convex/_generated/api";
 import type { Id } from "@convex/_generated/dataModel";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouteContext } from "@tanstack/react-router";
 import { useMutation } from "convex/react";
 import { useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
@@ -31,6 +32,7 @@ export function CreateFolderDialog({
   parent = "private" as const,
 }: CreateFolderDialogProps) {
   const [open, setOpen] = useState(false);
+  const { user } = useRouteContext({ from: "/app" });
 
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -61,8 +63,7 @@ export function CreateFolderDialog({
             toDelete: false,
             name,
             parent,
-            createdBy:
-              currentValue.currentFolder?.createdBy || ("default" as Id<"users">),
+            createdBy: user.actorId,
           },
         ].sort((a, b) => a.name.localeCompare(b.name));
 

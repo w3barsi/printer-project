@@ -1,43 +1,21 @@
 import type { AuthFunctions, GenericCtx } from "@convex-dev/better-auth";
 import { createClient } from "@convex-dev/better-auth";
 import { convex } from "@convex-dev/better-auth/plugins";
-import { betterAuth, BetterAuthOptions } from "better-auth";
+import { betterAuth, type BetterAuthOptions } from "better-auth";
 import { admin, username } from "better-auth/plugins";
 import {
-  CustomCtx,
   customCtx,
   customMutation,
   customQuery,
+  type CustomCtx,
 } from "convex-helpers/server/customFunctions";
-import type { UserIdentity } from "convex/server";
 
 import { ac, adminRole, basicRole } from "../src/lib/auth-utils";
 import { components, internal } from "./_generated/api";
-import type { DataModel, Doc, Id } from "./_generated/dataModel";
+import type { DataModel } from "./_generated/dataModel";
 import { mutation, query, env } from "./_generated/server";
 import authConfig from "./auth.config";
 import authSchema from "./betterAuth/schema";
-
-type LocalUserContext = {
-  user: UserIdentity;
-  db: {
-    get: (tableName: "users", userId: Id<"users">) => Promise<Doc<"users"> | null>;
-  };
-};
-
-export async function requireLocalUser(ctx: LocalUserContext) {
-  if (typeof ctx.user.userId !== "string") {
-    throw new Error("Authenticated user is not linked to a local user");
-  }
-
-  const user = await ctx.db.get("users", ctx.user.userId as Id<"users">);
-
-  if (!user) {
-    throw new Error("Authenticated user was not found");
-  }
-
-  return user;
-}
 
 // Typesafe way to pass Convex functions defined in this file
 const authFunctions: AuthFunctions = internal.auth;
@@ -54,41 +32,23 @@ export const authComponent = createClient<DataModel, typeof authSchema>(
     triggers: {
       user: {
         onCreate: async (ctx, authUser) => {
-          const userId = await ctx.db.insert("users", {
-            name: authUser.name,
-            username: authUser.username,
-            displayUsername: authUser.displayUsername,
-            email: authUser.email,
-            emailVerified: authUser.emailVerified,
-            image: authUser.image,
-            createdAt: authUser.createdAt,
-            role: authUser.role,
-            banned: authUser.banned,
-            banReason: authUser.banReason,
-          });
-
-          await ctx.runMutation(components.betterAuth.user.setUserId, {
+          await ctx.db.insert("users", {
             authId: authUser._id,
-            userId,
+            name: authUser.name,
           });
         },
 
-        onUpdate: async (ctx, newDoc, oldDoc) => {
-          return ctx.db.patch("users", oldDoc.userId as Id<"users">, {
-            name: newDoc.name,
-            username: newDoc.username,
-            displayUsername: newDoc.displayUsername,
-            email: newDoc.email,
-            emailVerified: newDoc.emailVerified,
-            image: newDoc.image,
-            createdAt: newDoc.createdAt,
-            role: newDoc.role,
-            banned: newDoc.banned,
-            banReason: newDoc.banReason,
-          });
+        onUpdate: async (ctx, authUser) => {
+          const user = await ctx.db
+            .query("users")
+            .withIndex("by_authId", (q) => q.eq("authId", authUser._id))
+            .unique();
+          if (!user) throw new Error("Application user not found");
+
+          return await ctx.db.patch("users", user._id, { name: authUser.name });
         },
-        onDelete: async (ctx, authUser) => {
-          await ctx.db.delete("users", authUser.userId as Id<"users">);
+        onDelete: async () => {
+          // Keep actor records so historical attribution remains available.
         },
       },
     },
@@ -103,20 +63,6 @@ export const createAuthOptions = (ctx: GenericCtx<DataModel>) => {
     (env.VERCEL_URL ? `https://${env.VERCEL_URL}` : "http://localhost:3000");
   return {
     database: authComponent.adapter(ctx),
-    user: {
-      additionalFields: {
-        userId: {
-          type: "string",
-          required: false,
-        },
-        role: {
-          type: "string",
-          required: false,
-          defaultValue: "user",
-          input: false, // prevent users from setting role themselves
-        },
-      },
-    },
     // All auth requests will be proxied through your TanStack Start server
     baseURL,
     session: {
@@ -160,26 +106,43 @@ export type SessionWithRole = ReturnType<typeof createAuth>["$Infer"]["Session"]
 export const getCurrentUser = query({
   args: {},
   handler: async (ctx) => {
-    return await authComponent.getAuthUser(ctx);
+    const authUser = await authComponent.getAuthUser(ctx);
+    const appUser = await ctx.db
+      .query("users")
+      .withIndex("by_authId", (q) => q.eq("authId", authUser._id))
+      .unique();
+    if (!appUser) throw new Error("Application user not found");
+
+    return { ...authUser, actorId: appUser._id };
   },
 });
 
 export const authedMutation = customMutation(
   mutation,
   customCtx(async (ctx) => {
-    const user = await ctx.auth.getUserIdentity();
-    if (!user) throw new Error("[Custom Mutation] Authentication required");
-    return { user };
+    const authUser = await authComponent.getAuthUser(ctx);
+    return { authUser };
   }),
 );
 
 export const authedQuery = customQuery(
   query,
   customCtx(async (ctx) => {
-    const user = await ctx.auth.getUserIdentity();
-    if (!user) throw new Error("[Custom Query] Authentication required");
-    return { user };
+    const authUser = await authComponent.getAuthUser(ctx);
+    return { authUser };
   }),
 );
 
 export type AuthenticatedQueryCtx = CustomCtx<typeof authedQuery>;
+
+export async function requireAppUser(
+  ctx: Pick<AuthenticatedQueryCtx, "authUser" | "db">,
+) {
+  const user = await ctx.db
+    .query("users")
+    .withIndex("by_authId", (q) => q.eq("authId", ctx.authUser._id))
+    .unique();
+
+  if (!user) throw new Error("Application user not found");
+  return user;
+}

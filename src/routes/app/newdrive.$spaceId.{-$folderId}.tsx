@@ -110,7 +110,7 @@ function SpaceBrowserPage() {
           : item.r2.contentType === "application/pdf" || item.name.endsWith(".pdf")
             ? "pdf"
             : "text",
-    owner: item.createdBy === user.userId ? "You" : item.ownerName,
+    owner: item.createdBy === user.actorId ? "You" : item.ownerName,
     updated: formatDistanceToNow(item.updatedAt, { addSuffix: true }),
     size: item.kind === "file" ? formatFileSize(item.r2.size) : "-",
     access:

@@ -1,14 +1,14 @@
 import { v } from "convex/values";
 
 import { internal } from "./_generated/api";
-import { Id } from "./_generated/dataModel";
+import type { Id } from "./_generated/dataModel";
 import {
   internalAction,
   internalMutation,
   internalQuery,
-  MutationCtx,
+  type MutationCtx,
 } from "./_generated/server";
-import { authedMutation, authedQuery } from "./auth";
+import { authedMutation, authedQuery, requireAppUser } from "./auth";
 import { r2 } from "./r2";
 
 export const getTotalSpaceUsed = authedQuery({
@@ -73,6 +73,7 @@ export const createFolder = authedMutation({
     name: v.string(),
   },
   handler: async (ctx, args) => {
+    const actor = await requireAppUser(ctx);
     const { parent, name } = args;
     const duplicate = await ctx.db
       .query("folder")
@@ -82,7 +83,7 @@ export const createFolder = authedMutation({
     else console.log(duplicate);
 
     await ctx.db.insert("folder", {
-      createdBy: ctx.user.userId as Id<"users">,
+      createdBy: actor._id,
       parent,
       name,
     });
@@ -275,7 +276,7 @@ export const saveFileToDb = authedMutation({
   },
   handler: async (ctx, args) => {
     const { files } = args;
-    const createdBy = ctx.user.userId as Id<"users">;
+    const createdBy = (await requireAppUser(ctx))._id;
     await Promise.all(
       files.map(async (file) => {
         await ctx.db.insert("file", {

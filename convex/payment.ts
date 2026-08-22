@@ -1,7 +1,6 @@
 import { v } from "convex/values";
 
-import { Id } from "./_generated/dataModel";
-import { authedMutation } from "./auth";
+import { authedMutation, requireAppUser } from "./auth";
 
 export const createPayment = authedMutation({
   args: {
@@ -12,10 +11,11 @@ export const createPayment = authedMutation({
     full: v.boolean(),
   },
   handler: async (ctx, args) => {
+    const actor = await requireAppUser(ctx);
     const { joId, amount, mop, full, note } = args;
     await ctx.db.insert("payment", {
       joId,
-      createdBy: ctx.user.userId as Id<"users">,
+      createdBy: actor._id,
       createdAt: new Date().getTime(),
 
       amount,

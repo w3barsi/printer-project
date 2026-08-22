@@ -1,7 +1,7 @@
 import { paginationOptsValidator } from "convex/server";
 import { v } from "convex/values";
 
-import { authedMutation, authedQuery, requireLocalUser } from "./auth";
+import { authedMutation, authedQuery, requireAppUser } from "./auth";
 
 const MAX_CUSTOMER_NAME_LENGTH = 120;
 const MAX_HANDLER_LENGTH = 120;
@@ -55,7 +55,7 @@ export const create = authedMutation({
   },
   returns: v.id("customer"),
   handler: async (ctx, args) => {
-    const actor = await requireLocalUser(ctx);
+    const actor = await requireAppUser(ctx);
     const name = normalizeRequiredText(
       args.name,
       "Customer name",
@@ -99,8 +99,7 @@ export const update = authedMutation({
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    const actor = await requireLocalUser(ctx);
-    if (actor.role !== "admin") throw new Error("Admin access required");
+    if (ctx.authUser.role !== "admin") throw new Error("Admin access required");
 
     const customer = await ctx.db.get("customer", args.customerId);
     if (!customer) throw new Error("Customer not found");
@@ -145,8 +144,7 @@ export const update = authedMutation({
 export const list = authedQuery({
   args: { paginationOpts: paginationOptsValidator },
   handler: async (ctx, args) => {
-    const actor = await requireLocalUser(ctx);
-    if (actor.role !== "admin") throw new Error("Admin access required");
+    if (ctx.authUser.role !== "admin") throw new Error("Admin access required");
     validatePaginationSize(args.paginationOpts.numItems);
 
     const result = await ctx.db
@@ -167,8 +165,7 @@ export const list = authedQuery({
 export const get = authedQuery({
   args: { customerId: v.id("customer") },
   handler: async (ctx, args) => {
-    const actor = await requireLocalUser(ctx);
-    if (actor.role !== "admin") throw new Error("Admin access required");
+    if (ctx.authUser.role !== "admin") throw new Error("Admin access required");
 
     const customer = await ctx.db.get("customer", args.customerId);
     if (!customer) return null;
@@ -184,8 +181,7 @@ export const listJobOrders = authedQuery({
     paginationOpts: paginationOptsValidator,
   },
   handler: async (ctx, args) => {
-    const actor = await requireLocalUser(ctx);
-    if (actor.role !== "admin") throw new Error("Admin access required");
+    if (ctx.authUser.role !== "admin") throw new Error("Admin access required");
     validatePaginationSize(args.paginationOpts.numItems);
 
     return await ctx.db

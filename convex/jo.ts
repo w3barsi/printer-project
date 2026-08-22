@@ -5,7 +5,7 @@ import { internal } from "./_generated/api";
 import type { Doc, Id } from "./_generated/dataModel";
 import type { QueryCtx } from "./_generated/server";
 import { internalMutation, internalQuery } from "./_generated/server";
-import { authedMutation, authedQuery } from "./auth";
+import { authedMutation, authedQuery, requireAppUser } from "./auth";
 
 const selectableJobOrderStatus = v.union(
   v.literal("pending"),
@@ -151,6 +151,7 @@ export const createJo = authedMutation({
     pickupTime: v.optional(v.string()),
   }),
   handler: async (ctx, args) => {
+    const actor = await requireAppUser(ctx);
     const { customerId, pickupDate, contactNumber, pickupTime } = args;
     const customer = await ctx.db.get("customer", customerId);
 
@@ -171,7 +172,7 @@ export const createJo = authedMutation({
       pickupTime,
       contactNumber,
       status: "pending",
-      createdBy: ctx.user.userId as Id<"users">,
+      createdBy: actor._id,
       updatedAt: new Date().getTime(),
     });
 

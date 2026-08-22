@@ -1,6 +1,7 @@
 import { api } from "@convex/_generated/api";
 import type { Id } from "@convex/_generated/dataModel";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouteContext } from "@tanstack/react-router";
 import { useMutation } from "convex/react";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
@@ -16,7 +17,6 @@ import {
 } from "@/components/ui/dialog";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { authClient } from "@/lib/auth-client";
 import type { GetCashflowQueryType } from "@/types/convex";
 
 const formSchema = z.object({
@@ -28,18 +28,17 @@ type FormData = z.infer<typeof formSchema>;
 export function AddCoh({ start }: { start: number }) {
   const [open, setOpen] = useState(false);
 
-  const { data: session } = authClient.useSession();
-  const user = session?.user;
+  const { user } = useRouteContext({ from: "/app" });
 
   const createCashOnHand = useMutation(api.cashier.createCashOnHand).withOptimisticUpdate(
     (localStore, args) => {
-      if (!user) return;
-
       const currentValue = localStore.getQuery(api.cashier.getCashflow, {
         dayStart: start,
       });
 
       if (!currentValue) return;
+      // eslint-disable-next-line react-hooks/purity
+      const now = Date.now();
 
       const newData: GetCashflowQueryType = {
         ...currentValue,
@@ -50,7 +49,7 @@ export function AddCoh({ start }: { start: number }) {
           description: args.description,
           type: "Cashflow" as const,
           cashflowType: "COH",
-          createdBy: user.id as Id<"users">,
+          createdBy: user.actorId,
           createdByName: user.name,
           createdAt: start,
         },

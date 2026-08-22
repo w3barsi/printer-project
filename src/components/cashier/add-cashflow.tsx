@@ -1,7 +1,7 @@
 import { api } from "@convex/_generated/api";
 import type { Id } from "@convex/_generated/dataModel";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useSearch } from "@tanstack/react-router";
+import { useRouteContext, useSearch } from "@tanstack/react-router";
 import { useMutation } from "convex/react";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
@@ -18,7 +18,6 @@ import {
 } from "@/components/ui/dialog";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { authClient } from "@/lib/auth-client";
 import { todayZero } from "@/routes/app/_cashier/cashflow";
 
 const formSchema = z.object({
@@ -34,8 +33,7 @@ export function AddCashflow({ date }: { date?: number }) {
   const { start } = useSearch({ from: "/app/_cashier/cashflow" });
   const dayStart = start ?? todayZero().getTime();
 
-  const { data: session } = authClient.useSession();
-  const user = session?.user;
+  const { user } = useRouteContext({ from: "/app" });
 
   const mutate = useMutation(api.cashier.createCashflow).withOptimisticUpdate(
     (localStore, args) => {
@@ -43,15 +41,13 @@ export function AddCashflow({ date }: { date?: number }) {
 
       const currentValue = localStore.getQuery(api.cashier.getCashflow, { dayStart });
       if (!currentValue) return;
-      if (!user) return;
-
       // eslint-disable-next-line react-hooks/purity
       const now = Date.now();
 
       const newCashflow = {
         type: "Cashflow" as const,
         cashflowType: type,
-        createdBy: user.id as Id<"users">,
+        createdBy: user.actorId,
         createdByName: user.name,
         description,
         amount,

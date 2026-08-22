@@ -9,7 +9,7 @@ import {
   internalQuery,
   type MutationCtx,
 } from "../_generated/server";
-import { authedMutation, authedQuery, requireLocalUser } from "../auth";
+import { authComponent, authedMutation, authedQuery, requireAppUser } from "../auth";
 import { r2 } from "../r2";
 import {
   assertItemName,
@@ -41,6 +41,7 @@ type UploadTicketResult = {
   declaredContentType: string;
   declaredSize: number;
   expiresAt: number;
+  uploaderAuthId?: string;
 };
 
 export const listItems = authedQuery({
@@ -261,7 +262,7 @@ export const createFolder = authedMutation({
   handler: async (ctx, args) => {
     await requireSpaceAccess(ctx, args.spaceId);
     await requireParentFolder(ctx, args.spaceId, args.parentId);
-    const user = await requireLocalUser(ctx);
+    const user = await requireAppUser(ctx);
     const name = assertItemName(args.name);
     const nameKey = normalizeName(name);
     const existing = await ctx.db
@@ -430,7 +431,7 @@ export const createUploadTicket = authedMutation({
   handler: async (ctx, args) => {
     await requireSpaceAccess(ctx, args.spaceId);
     await requireParentFolder(ctx, args.spaceId, args.parentId);
-    const user = await requireLocalUser(ctx);
+    const user = await requireAppUser(ctx);
     const name = assertItemName(args.name);
     if (!Number.isInteger(args.size) || args.size < 0 || args.size > MAX_FILE_SIZE) {
       throw new ConvexError("File size is invalid or exceeds 5 GB");
@@ -464,6 +465,8 @@ export const getUploadTicket = internalQuery({
   handler: async (ctx, args) => {
     const ticket = await ctx.db.get("newDriveUploadTickets", args.ticketId);
     if (!ticket) return null;
+    const uploader =
+      ticket.uploadedBy === "guest" ? null : await ctx.db.get("users", ticket.uploadedBy);
     return {
       _id: ticket._id,
       key: ticket.key,
@@ -476,6 +479,7 @@ export const getUploadTicket = internalQuery({
       declaredContentType: ticket.declaredContentType,
       declaredSize: ticket.declaredSize,
       expiresAt: ticket.expiresAt,
+      uploaderAuthId: uploader?.authId,
     };
   },
 });
@@ -540,15 +544,12 @@ export const finalizeUpload = action({
   args: { ticketId: v.id("newDriveUploadTickets") },
   returns: v.id("newDriveItems"),
   handler: async (ctx, args): Promise<Id<"newDriveItems">> => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity || typeof identity.userId !== "string") {
-      throw new ConvexError("Authentication required");
-    }
+    const authUser = await authComponent.getAuthUser(ctx);
     const ticket: UploadTicketResult | null = await ctx.runQuery(
       internal.drive.items.getUploadTicket,
       args,
     );
-    if (!ticket || ticket.uploadedBy !== identity.userId) {
+    if (!ticket || ticket.uploaderAuthId !== authUser._id) {
       throw new ConvexError("Upload ticket not found");
     }
 
@@ -579,15 +580,12 @@ export const cancelUpload = action({
   args: { ticketId: v.id("newDriveUploadTickets") },
   returns: v.null(),
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity || typeof identity.userId !== "string") {
-      throw new ConvexError("Authentication required");
-    }
+    const authUser = await authComponent.getAuthUser(ctx);
     const ticket: UploadTicketResult | null = await ctx.runQuery(
       internal.drive.items.getUploadTicket,
       args,
     );
-    if (!ticket || ticket.uploadedBy !== identity.userId) return null;
+    if (!ticket || ticket.uploaderAuthId !== authUser._id) return null;
     await r2.deleteObject(ctx, ticket.key);
     await ctx.runMutation(internal.drive.items.removeUploadTicket, args);
     return null;
