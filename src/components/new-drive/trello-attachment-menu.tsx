@@ -117,7 +117,13 @@ function TrelloListMenu({
   );
 }
 
-export function TrelloAttachmentMenu({ item }: { item: NewDriveItem }) {
+export function TrelloAttachmentMenu({
+  item,
+  onDetachStart,
+}: {
+  item: NewDriveItem;
+  onDetachStart: () => void;
+}) {
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const [detachRequest, setDetachRequest] = useState<Attachment | null>(null);
@@ -266,6 +272,7 @@ export function TrelloAttachmentMenu({ item }: { item: NewDriveItem }) {
                 if (!detachRequest) return;
                 const attachmentId = detachRequest._id;
                 setDetachRequest(null);
+                onDetachStart();
                 void runAction("Removing Trello attachment", () =>
                   detach({ attachmentId }),
                 );

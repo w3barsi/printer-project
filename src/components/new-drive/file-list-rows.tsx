@@ -12,7 +12,7 @@ import {
   Share2Icon,
   Trash2Icon,
 } from "lucide-react";
-import { useCallback, type KeyboardEvent, type MouseEvent } from "react";
+import { useCallback, useState, type KeyboardEvent, type MouseEvent } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -71,6 +71,7 @@ export function NewDriveFileRow({
   publicSafe: boolean;
   enableTrelloAttachments: boolean;
 }) {
+  const [actionsOpen, setActionsOpen] = useState(false);
   const {
     attributes,
     listeners,
@@ -180,7 +181,7 @@ export function NewDriveFileRow({
           onDoubleClick={(event) => event.stopPropagation()}
           onKeyDown={(event) => event.stopPropagation()}
         >
-          <DropdownMenu>
+          <DropdownMenu open={actionsOpen} onOpenChange={setActionsOpen}>
             <DropdownMenuTrigger
               render={
                 <Button
@@ -219,7 +220,12 @@ export function NewDriveFileRow({
                     Share
                   </DropdownMenuItem>
                 )}
-                {enableTrelloAttachments && <TrelloAttachmentMenu item={item} />}
+                {enableTrelloAttachments && (
+                  <TrelloAttachmentMenu
+                    item={item}
+                    onDetachStart={() => setActionsOpen(true)}
+                  />
+                )}
                 {canDelete && (
                   <DropdownMenuItem variant="destructive" onClick={onDelete}>
                     <Trash2Icon />
