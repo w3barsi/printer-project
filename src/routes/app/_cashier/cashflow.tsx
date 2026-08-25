@@ -133,7 +133,7 @@ function CashflowTable() {
   return (
     <TableWrapper>
       <Table className="min-w-md">
-        <TableHeader className="bg-muted">
+        <TableHeader className="">
           <TableRow>
             <TableHead className="w-1/11 md:pl-4">Time</TableHead>
             <TableHead className="w-1/11">Type</TableHead>

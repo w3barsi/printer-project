@@ -291,7 +291,7 @@ function UserTableSkeleton() {
   return (
     <TableWrapper>
       <Table>
-        <TableHeader className="sticky top-0 z-10 bg-muted">
+        <TableHeader className="sticky top-0 z-10">
           <TableRow>
             <TableHead>Name</TableHead>
             <TableHead>Email</TableHead>

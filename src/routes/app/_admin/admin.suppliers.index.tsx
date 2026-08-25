@@ -3,7 +3,7 @@ import { api } from "@convex/_generated/api";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { ArrowLeftIcon, ArrowRightIcon, ChevronRightIcon, PlusIcon } from "lucide-react";
+import { ChevronRightIcon, PlusIcon } from "lucide-react";
 import { Suspense, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -34,7 +34,7 @@ import {
   TableWrapper,
 } from "@/components/ui/table";
 
-const PAGE_SIZE = 12;
+const PAGE_SIZE = 50;
 
 const supplierSchema = z.object({
   name: z.string().trim().min(1, "Supplier name is required").max(120),
@@ -77,95 +77,83 @@ function RouteComponent() {
 
 function SupplierTable() {
   const navigate = useNavigate();
-  const [cursorHistory, setCursorHistory] = useState<string[]>([]);
-  const cursor = cursorHistory.at(-1) ?? null;
-  const { data, isFetching } = useSuspenseQuery(
+  const { data } = useSuspenseQuery(
     convexQuery(api.inventory.listSuppliers, {
-      paginationOpts: { numItems: PAGE_SIZE, cursor },
+      paginationOpts: { numItems: PAGE_SIZE, cursor: null },
     }),
   );
 
   return (
-    <div className="flex flex-col gap-4">
-      <TableWrapper>
-        <Table>
-          <TableHeader className="sticky top-0 z-10">
-            <TableRow>
-              <TableHead className="md:pl-4">Name</TableHead>
-              <TableHead>Added by</TableHead>
-              <TableHead>Created</TableHead>
-              <TableHead className="w-0 md:pr-4" />
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {data.page.length ? (
-              data.page.map((supplier) => (
-                <TableRow
-                  key={supplier._id}
-                  className="cursor-pointer"
-                  onClick={(event) => {
-                    if (
-                      event.target instanceof Element &&
-                      event.target.closest("a, button")
-                    ) {
-                      return;
+    <TableWrapper>
+      <Table>
+        <TableHeader className="sticky top-0 z-10">
+          <TableRow>
+            <TableHead className="md:pl-4">Name</TableHead>
+            <TableHead>Added by</TableHead>
+            <TableHead>Created</TableHead>
+            <TableHead className="w-0 md:pr-4" />
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {data.page.length ? (
+            data.page.map((supplier) => (
+              <TableRow
+                key={supplier._id}
+                className="cursor-pointer"
+                onClick={(event) => {
+                  if (
+                    event.target instanceof Element &&
+                    event.target.closest("a, button")
+                  ) {
+                    return;
+                  }
+                  navigate({
+                    to: "/app/admin/suppliers/$supplierId",
+                    params: { supplierId: supplier._id },
+                  });
+                }}
+              >
+                <TableCell className="pl-4 font-medium">
+                  <Link
+                    to="/app/admin/suppliers/$supplierId"
+                    params={{ supplierId: supplier._id }}
+                    className="underline-offset-4 hover:underline"
+                  >
+                    {supplier.name}
+                  </Link>
+                </TableCell>
+                <TableCell>{supplier.createdByName}</TableCell>
+                <TableCell>
+                  {new Date(supplier._creationTime).toLocaleDateString()}
+                </TableCell>
+                <TableCell className="pr-4 text-right">
+                  <Button
+                    variant="ghost"
+                    size="icon-sm"
+                    nativeButton={false}
+                    render={
+                      <Link
+                        to="/app/admin/suppliers/$supplierId"
+                        params={{ supplierId: supplier._id }}
+                      />
                     }
-                    navigate({
-                      to: "/app/admin/suppliers/$supplierId",
-                      params: { supplierId: supplier._id },
-                    });
-                  }}
-                >
-                  <TableCell className="pl-4 font-medium">
-                    <Link
-                      to="/app/admin/suppliers/$supplierId"
-                      params={{ supplierId: supplier._id }}
-                      className="underline-offset-4 hover:underline"
-                    >
-                      {supplier.name}
-                    </Link>
-                  </TableCell>
-                  <TableCell>{supplier.createdByName}</TableCell>
-                  <TableCell>
-                    {new Date(supplier._creationTime).toLocaleDateString()}
-                  </TableCell>
-                  <TableCell className="pr-4 text-right">
-                    <Button
-                      variant="ghost"
-                      size="icon-sm"
-                      nativeButton={false}
-                      render={
-                        <Link
-                          to="/app/admin/suppliers/$supplierId"
-                          params={{ supplierId: supplier._id }}
-                        />
-                      }
-                    >
-                      <ChevronRightIcon />
-                      <span className="sr-only">View {supplier.name}</span>
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={4} className="h-40 text-center text-muted-foreground">
-                  No suppliers yet.
+                  >
+                    <ChevronRightIcon />
+                    <span className="sr-only">View {supplier.name}</span>
+                  </Button>
                 </TableCell>
               </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </TableWrapper>
-      <PaginationControls
-        page={cursorHistory.length + 1}
-        isFetching={isFetching}
-        canGoBack={cursorHistory.length > 0}
-        canGoForward={!data.isDone}
-        onBack={() => setCursorHistory((history) => history.slice(0, -1))}
-        onForward={() => setCursorHistory((history) => [...history, data.continueCursor])}
-      />
-    </div>
+            ))
+          ) : (
+            <TableRow>
+              <TableCell colSpan={4} className="h-40 text-center text-muted-foreground">
+                No suppliers yet.
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
+    </TableWrapper>
   );
 }
 
@@ -231,50 +219,6 @@ function SupplierFormDialog() {
         </form>
       </DialogContent>
     </Dialog>
-  );
-}
-
-function PaginationControls({
-  page,
-  isFetching,
-  canGoBack,
-  canGoForward,
-  onBack,
-  onForward,
-}: {
-  page: number;
-  isFetching: boolean;
-  canGoBack: boolean;
-  canGoForward: boolean;
-  onBack: () => void;
-  onForward: () => void;
-}) {
-  return (
-    <div className="flex items-center justify-between gap-3">
-      <span className="text-xs text-muted-foreground">Page {page}</span>
-      <div className="flex gap-2">
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          disabled={isFetching || !canGoBack}
-          onClick={onBack}
-        >
-          <ArrowLeftIcon data-icon="inline-start" />
-          Previous
-        </Button>
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          disabled={isFetching || !canGoForward}
-          onClick={onForward}
-        >
-          Next
-          <ArrowRightIcon data-icon="inline-end" />
-        </Button>
-      </div>
-    </div>
   );
 }
 
