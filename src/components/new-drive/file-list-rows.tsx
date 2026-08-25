@@ -26,6 +26,8 @@ import {
 import type { NewDriveItem } from "@/lib/new-drive-items";
 import { cn } from "@/lib/utils";
 
+import { TrelloAttachmentMenu } from "./trello-attachment-menu";
+
 export type NewDriveParentPath = {
   spaceId: string;
   name: string;
@@ -49,6 +51,7 @@ export function NewDriveFileRow({
   onMove,
   canDelete,
   publicSafe,
+  enableTrelloAttachments,
 }: {
   item: NewDriveItem;
   interactive: boolean;
@@ -66,6 +69,7 @@ export function NewDriveFileRow({
   onMove?: () => void;
   canDelete: boolean;
   publicSafe: boolean;
+  enableTrelloAttachments: boolean;
 }) {
   const {
     attributes,
@@ -89,7 +93,13 @@ export function NewDriveFileRow({
     },
     [setDraggableRef, setDroppableRef],
   );
-  const hasActions = !!onDownload || !!onRename || !!onMove || !!onShare || canDelete;
+  const hasActions =
+    !!onDownload ||
+    !!onRename ||
+    !!onMove ||
+    !!onShare ||
+    canDelete ||
+    enableTrelloAttachments;
 
   return (
     <div
@@ -209,6 +219,7 @@ export function NewDriveFileRow({
                     Share
                   </DropdownMenuItem>
                 )}
+                {enableTrelloAttachments && <TrelloAttachmentMenu item={item} />}
                 {canDelete && (
                   <DropdownMenuItem variant="destructive" onClick={onDelete}>
                     <Trash2Icon />

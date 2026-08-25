@@ -134,6 +134,7 @@ export function NewDriveFileList({
   publicSafe = false,
   moveDestinations = [],
   deleteDescription,
+  enableTrelloAttachments = false,
 }: {
   items: NewDriveItem[];
   title: string;
@@ -154,6 +155,7 @@ export function NewDriveFileList({
   publicSafe?: boolean;
   moveDestinations?: Array<{ id: string; name: string }>;
   deleteDescription?: string;
+  enableTrelloAttachments?: boolean;
 }) {
   const dndContextId = useId();
   const cardRef = useRef<HTMLDivElement>(null);
@@ -678,6 +680,7 @@ export function NewDriveFileList({
                   }
                   canDelete={!!onDeleteItems}
                   publicSafe={publicSafe}
+                  enableTrelloAttachments={enableTrelloAttachments}
                 />
               ))}
             </div>

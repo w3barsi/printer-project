@@ -193,6 +193,7 @@ function SpaceBrowserPage() {
             />
           }
           interactive
+          enableTrelloAttachments
           parentPath={
             folder
               ? {

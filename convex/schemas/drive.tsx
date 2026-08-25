@@ -97,4 +97,22 @@ export const driveSchema = {
   })
     .index("by_key", ["key"])
     .index("by_expiresAt", ["expiresAt"]),
+
+  newDriveTrelloAttachments: defineTable({
+    newDriveItemId: v.id("newDriveItems"),
+    trelloCardId: v.string(),
+    trelloCardName: v.string(),
+    attachedBy: v.id("users"),
+    desiredState: v.union(v.literal("attached"), v.literal("detached")),
+    syncStatus: v.union(v.literal("pending"), v.literal("synced"), v.literal("error")),
+    lastSyncError: v.optional(v.string()),
+    lastSyncAttemptAt: v.optional(v.number()),
+    retryCount: v.optional(v.number()),
+    nextRetryAt: v.optional(v.number()),
+    detachRequestedBy: v.optional(v.id("users")),
+    detachRequestedAt: v.optional(v.number()),
+  })
+    .index("by_newDriveItemId", ["newDriveItemId"])
+    .index("by_trelloCardId", ["trelloCardId"])
+    .index("by_newDriveItemId_and_trelloCardId", ["newDriveItemId", "trelloCardId"]),
 };

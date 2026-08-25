@@ -18,6 +18,8 @@ import type * as drive_lib from "../drive/lib.js";
 import type * as drive_sharedUploads from "../drive/sharedUploads.js";
 import type * as drive_shares from "../drive/shares.js";
 import type * as drive_spaces from "../drive/spaces.js";
+import type * as drive_trelloAttachments from "../drive/trelloAttachments.js";
+import type * as drive_trelloSync from "../drive/trelloSync.js";
 import type * as http from "../http.js";
 import type * as inventory from "../inventory.js";
 import type * as inventoryHelpers from "../inventoryHelpers.js";
@@ -52,6 +54,8 @@ declare const fullApi: ApiFromModules<{
   "drive/sharedUploads": typeof drive_sharedUploads;
   "drive/shares": typeof drive_shares;
   "drive/spaces": typeof drive_spaces;
+  "drive/trelloAttachments": typeof drive_trelloAttachments;
+  "drive/trelloSync": typeof drive_trelloSync;
   http: typeof http;
   inventory: typeof inventory;
   inventoryHelpers: typeof inventoryHelpers;

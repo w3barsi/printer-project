@@ -17,6 +17,7 @@ import {
   requireParentFolder,
   requireSpaceAccess,
 } from "./lib";
+import { markItemAttachmentsPending } from "./trelloAttachments";
 
 export const MAX_FILE_SIZE = 5 * 1024 * 1024 * 1024;
 export const MAX_DELETE_ITEMS = 500;
@@ -28,7 +29,6 @@ export const UPLOAD_TICKET_TTL = 15 * 60 * 1000;
 const SIGNED_URL_TTL_SECONDS = 15 * 60;
 
 const parentIdValidator = v.optional(v.id("newDriveItems"));
-
 type UploadTicketResult = {
   _id: Id<"newDriveUploadTickets">;
   key: string;
@@ -330,6 +330,7 @@ export const renameItem = authedMutation({
     const updatedAt = Date.now();
     await ctx.db.patch("newDriveItems", item._id, { name, nameKey, updatedAt });
     await ctx.db.patch("newDriveSpaces", args.spaceId, { updatedAt });
+    await markItemAttachmentsPending(ctx, item._id);
     return null;
   },
 });
@@ -639,6 +640,16 @@ export const deleteItems = authedMutation({
     const keys = items.flatMap((item) => (item.kind === "file" ? [item.r2.key] : []));
     if (keys.length > 0) {
       await ctx.scheduler.runAfter(0, internal.drive.items.deleteObjects, { keys });
+    }
+    if (items.length > 0) {
+      await ctx.scheduler.runAfter(
+        0,
+        internal.drive.trelloAttachments.cleanupDeletedItems,
+        {
+          itemIds: items.map((item) => item._id),
+          itemIndex: 0,
+        },
+      );
     }
     return items.length;
   },

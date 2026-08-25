@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import z from "zod";
 
 import { env } from "@/env/server";
+import { getToken } from "@/lib/auth-server";
 
 const LIST_ID = "63d49870f3b7593a548ff9cf";
 const BOARD_ID = "1ELaQNZb";
@@ -11,6 +12,7 @@ async function trelloFetch<T>(
   schema: z.ZodType<T>,
   init?: RequestInit,
 ): Promise<T> {
+  if (!(await getToken())) throw new Error("Unauthorized");
   const url = `https://api.trello.com/1${path}${path.includes("?") ? "&" : "?"}key=${env.TRELLO_KEY}&token=${env.TRELLO_TOKEN}`;
   const response = await fetch(url, {
     headers: { Accept: "application/json" },
@@ -74,7 +76,15 @@ const getTrelloCardValidator = z.object({ listId: z.string() });
 export const getListCards = createServerFn({ method: "GET" })
   .validator(getTrelloCardValidator)
   .handler(async ({ data }) => {
-    return trelloFetch(`/lists/${data.listId}/cards`, trelloCardsSchema);
+    const listId = encodeURIComponent(data.listId);
+    const lists = await trelloFetch(
+      `/boards/${BOARD_ID}/lists`,
+      z.array(trelloListSchema),
+    );
+    if (!lists.some((list) => list.id === data.listId)) {
+      throw new Error("Trello list not found");
+    }
+    return trelloFetch(`/lists/${listId}/cards`, trelloCardsSchema);
   });
 
 export const getTrelloLists = createServerFn({ method: "GET" }).handler(async () => {
@@ -90,6 +100,7 @@ export const getCardAttachmentsServerFn = createServerFn({ method: "POST" })
 export const downloadCardAttachmentsServerFn = createServerFn({ method: "POST" })
   .validator(z.array(z.object({ url: z.string(), name: z.string() })))
   .handler(async ({ data }) => {
+    if (!(await getToken())) throw new Error("Unauthorized");
     const fetchImage = async ({ url, name }: { url: string; name: string }) => {
       try {
         const response = await fetch(url, {
