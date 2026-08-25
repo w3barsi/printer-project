@@ -29,6 +29,8 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 
+import { TrelloSidebar } from "./trello-sidebar";
+
 export function MainNavGroup() {
   return (
     <SidebarGroup>
@@ -37,6 +39,7 @@ export function MainNavGroup() {
         <InventorySidebarItem />
         <DriveSidebarItem />
         <NewDriveSidebarItem />
+        <TrelloSidebar />
       </SidebarMenu>
     </SidebarGroup>
   );

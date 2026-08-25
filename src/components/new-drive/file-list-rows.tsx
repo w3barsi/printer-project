@@ -183,7 +183,7 @@ export function NewDriveFileRow({
             >
               <MoreHorizontalIcon />
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
+            <DropdownMenuContent align="end" className="w-max">
               <DropdownMenuGroup>
                 {onDownload && (
                   <DropdownMenuItem onClick={onDownload}>

@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link, useMatch } from "@tanstack/react-router";
 import { ChevronRight, TrelloIcon } from "lucide-react";
+import { useEffect } from "react";
 
 import {
   SidebarMenuAction,
@@ -22,6 +23,7 @@ export function TrelloSidebar() {
   const [isOpen, setIsOpen] = useLocalStorage("trello-lists-open", false);
   const {
     data: lists,
+    error,
     isError,
     isLoading,
   } = useQuery({
@@ -31,6 +33,12 @@ export function TrelloSidebar() {
   const { isMobile, setOpenMobile } = useSidebar();
   const match = useMatch({ from: "/app/trello/", shouldThrow: false });
   const listMatch = useMatch({ from: "/app/trello/$listId", shouldThrow: false });
+
+  useEffect(() => {
+    if (isError) {
+      console.error("Trello API Error:", error);
+    }
+  }, [error, isError]);
 
   if (isLoading) {
     return (
