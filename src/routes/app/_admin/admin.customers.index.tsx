@@ -13,13 +13,6 @@ import { z } from "zod";
 import { Container } from "@/components/layouts/container";
 import { Button } from "@/components/ui/button";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -45,6 +38,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
+  TableWrapper,
 } from "@/components/ui/table";
 
 const PAGE_SIZE = 12;
@@ -86,12 +80,8 @@ function RouteComponent() {
   return (
     <Container className="flex flex-col gap-4">
       <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Manage Customers</h1>
-          <p className="text-sm text-muted-foreground">
-            Maintain customer contacts and review their Job Orders.
-          </p>
-        </div>
+        <h1 className="text-3xl font-bold tracking-tight">Manage Customers</h1>
+
         <CustomerFormDialog />
       </div>
       <Suspense fallback={<CustomerTableSkeleton />}>
@@ -112,20 +102,16 @@ function CustomerTable() {
   );
 
   return (
-    <Card className="pt-6 pb-0">
-      <CardHeader>
-        <CardTitle>Customers</CardTitle>
-        <CardDescription>Most recently created customers appear first.</CardDescription>
-      </CardHeader>
-      <CardContent className="flex flex-col gap-4 p-0">
+    <div className="flex flex-col gap-4">
+      <TableWrapper>
         <Table>
-          <TableHeader>
+          <TableHeader className="sticky top-0 z-10">
             <TableRow>
-              <TableHead className="pl-6">Name</TableHead>
+              <TableHead className="md:pl-4">Name</TableHead>
               <TableHead>Handler</TableHead>
               <TableHead>Contact numbers</TableHead>
               <TableHead className="hidden md:table-cell">Created</TableHead>
-              <TableHead className="w-0 pr-6 text-right">Actions</TableHead>
+              <TableHead className="w-0 md:pr-4" />
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -147,7 +133,7 @@ function CustomerTable() {
                     });
                   }}
                 >
-                  <TableCell className="pl-6 font-medium">
+                  <TableCell className="pl-4 font-medium">
                     <Link
                       to="/app/admin/customers/$customerId"
                       params={{ customerId: customer._id }}
@@ -170,7 +156,7 @@ function CustomerTable() {
                       </span>
                     </div>
                   </TableCell>
-                  <TableCell className="pr-6 text-right">
+                  <TableCell className="pr-4 text-right">
                     <Button
                       variant="ghost"
                       size="icon-sm"
@@ -197,20 +183,16 @@ function CustomerTable() {
             )}
           </TableBody>
         </Table>
-        <div className="px-6 pb-6">
-          <PaginationControls
-            page={cursorHistory.length + 1}
-            isFetching={isFetching}
-            canGoBack={cursorHistory.length > 0}
-            canGoForward={!data.isDone}
-            onBack={() => setCursorHistory((history) => history.slice(0, -1))}
-            onForward={() =>
-              setCursorHistory((history) => [...history, data.continueCursor])
-            }
-          />
-        </div>
-      </CardContent>
-    </Card>
+      </TableWrapper>
+      <PaginationControls
+        page={cursorHistory.length + 1}
+        isFetching={isFetching}
+        canGoBack={cursorHistory.length > 0}
+        canGoForward={!data.isDone}
+        onBack={() => setCursorHistory((history) => history.slice(0, -1))}
+        onForward={() => setCursorHistory((history) => [...history, data.continueCursor])}
+      />
+    </div>
   );
 }
 
@@ -372,17 +354,40 @@ function PaginationControls({
 
 function CustomerTableSkeleton() {
   return (
-    <Card>
-      <CardHeader>
-        <Skeleton className="h-6 w-32" />
-        <Skeleton className="h-4 w-64" />
-      </CardHeader>
-      <CardContent className="flex flex-col gap-3">
-        {Array.from({ length: 6 }).map((_, index) => (
-          <Skeleton key={index} className="h-10 w-full" />
-        ))}
-      </CardContent>
-    </Card>
+    <TableWrapper>
+      <Table>
+        <TableHeader className="sticky top-0 z-10 bg-muted">
+          <TableRow>
+            <TableHead className="md:pl-4">Name</TableHead>
+            <TableHead>Handler</TableHead>
+            <TableHead>Contact numbers</TableHead>
+            <TableHead className="hidden md:table-cell">Created</TableHead>
+            <TableHead className="w-0 md:pr-4" />
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {Array.from({ length: 6 }).map((_, index) => (
+            <TableRow key={index}>
+              <TableCell className="pl-4">
+                <Skeleton className="h-4 w-24" />
+              </TableCell>
+              <TableCell>
+                <Skeleton className="h-4 w-28" />
+              </TableCell>
+              <TableCell>
+                <Skeleton className="h-4 w-32" />
+              </TableCell>
+              <TableCell className="hidden md:table-cell">
+                <Skeleton className="h-8 w-28" />
+              </TableCell>
+              <TableCell className="pr-4">
+                <Skeleton className="h-8 w-8 rounded-full" />
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </TableWrapper>
   );
 }
 

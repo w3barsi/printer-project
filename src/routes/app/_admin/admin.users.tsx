@@ -66,7 +66,7 @@ function RouteComponent() {
   return (
     <Container className="flex flex-col">
       <div className="flex justify-between">
-        <h1 className="text-3xl font-bold tracking-tight">User Management</h1>
+        <h1 className="text-3xl font-bold tracking-tight">Manage Users</h1>
         <CreateUserDialog />
       </div>
 
@@ -110,7 +110,7 @@ function UserManagementTable() {
   return (
     <TableWrapper>
       <Table>
-        <TableHeader className="sticky top-0 z-10 bg-muted">
+        <TableHeader className="sticky top-0 z-10">
           <TableRow>
             <TableHead className="md:pl-4">Name</TableHead>
             <TableHead>Email</TableHead>

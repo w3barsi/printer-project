@@ -18,7 +18,7 @@ function TableHeader({ className, ...props }: React.ComponentProps<"thead">) {
   return (
     <thead
       data-slot="table-header"
-      className={cn("bg-muted [&_tr]:border-b", className)}
+      className={cn("bg-background [&_tr]:border-b", className)}
       {...props}
     />
   );
@@ -97,7 +97,7 @@ function TableWrapper({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="table-wrapper"
-      className={cn("w-full overflow-hidden rounded-md border", className)}
+      className={cn("w-full overflow-hidden rounded-md border bg-card", className)}
       {...props}
     />
   );
