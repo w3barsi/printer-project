@@ -50,7 +50,7 @@ export const Route = createFileRoute("/app/_admin/admin/users")({
   loader: ({ context }) => {
     context.queryClient.ensureQueryData(convexQuery(api.admin.users.listUsers, {}));
     return {
-      crumb: [{ value: "User Management", href: "/app/admin/", type: "static" }],
+      crumb: [{ value: "Manage Users", href: "/app/admin/", type: "static" }],
     };
   },
   head: () => ({
@@ -159,7 +159,7 @@ function UserManagementTable() {
                     >
                       <MoreVerticalIcon className="size-4" />
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
+                    <DropdownMenuContent align="end" className="w-max">
                       <DropdownMenuItem
                         onClick={() => banHandler(u.id, u.banned ?? false)}
                       >

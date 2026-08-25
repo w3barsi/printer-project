@@ -41,7 +41,7 @@ export function AdminSidebarGroup() {
                 }
               >
                 <ShieldUserIcon />
-                <span>User Management</span>
+                <span>Manage Users</span>
               </SidebarMenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>

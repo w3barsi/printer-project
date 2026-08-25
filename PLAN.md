@@ -21,7 +21,9 @@ This document is an implementation runbook. Complete the steps in order and leav
 - Host login and the Better Auth proxy only on `system.darcygraphix.com`.
 - Change system URLs from `/app/*` to root paths such as `/jo` and `/inventory`.
 - Add compatibility redirects for existing `/app/*` and `cfsystem.darcygraphix.com` URLs.
-- Do not introduce a broad shared UI package. Share only code that both applications actually require.
+- Keep all generated shadcn primitives and their base design tokens in one `@dg/ui` workspace package.
+- Keep composed, product-specific UI in the owning application's `src/components` directory.
+- Use standard pnpm workspace scripts and app-local Vite configurations; do not adopt Vite+.
 
 ## Repository Constraints
 
@@ -62,6 +64,15 @@ Important existing coupling:
 - The current root mounts `ConvexBetterAuthProvider`, device support, system PWA behavior, and authentication for every route.
 - The login callback defaults to `/app/jo` and accepts a `redirectUrl` query value.
 
+Important authentication and attribution behavior that must survive the move:
+
+- Better Auth users and application actor records are separate models.
+- `convex/auth.ts` creates an application `users` record containing `authId` and `name` when a Better Auth user is created.
+- The application `users` table is indexed by `by_authId` and its document IDs are used for `createdBy` and other historical attribution fields.
+- `getCurrentUser` returns Better Auth user data plus the application user's `actorId`.
+- Authenticated backend operations use `requireAppUser` when they need the application actor document.
+- Deleting a Better Auth user intentionally retains the application actor record so historical attribution remains resolvable.
+
 ## Target Structure
 
 Use this structure unless an installed framework tool requires a minor configuration-specific adjustment:
@@ -92,9 +103,18 @@ printer-project/
 │   ├── backend/
 │   │   ├── convex/
 │   │   └── package.json
-│   └── drive/
-│       ├── src/
-│       └── package.json
+│   ├── drive/
+│   │   ├── src/
+│   │   └── package.json
+│   └── ui/
+│       ├── components/
+│       ├── hooks/
+│       ├── lib/
+│       ├── styles/
+│       │   └── base.css
+│       ├── components.json
+│       ├── package.json
+│       └── tsconfig.json
 ├── package.json
 ├── pnpm-workspace.yaml
 ├── tsconfig.base.json
@@ -108,8 +128,9 @@ Package responsibilities:
 - `packages/backend`: the existing Convex application and generated API types.
 - `packages/auth`: Better Auth access-control and role definitions used by Convex and the system client.
 - `packages/drive`: the smallest dependency closure genuinely shared by the public share browser and internal drive UI.
+- `packages/ui`: all generated shadcn primitives, shared shadcn hooks and utilities, and the base semantic design tokens consumed by both apps.
 
-Do not move generic shop UI or system UI into `packages/drive`. If a primitive is only needed by one application, it belongs to that application.
+All shadcn primitives belong to `packages/ui`, even when only one app currently consumes a primitive. Composed UI such as `ShopButton`, `AppSidebar`, job-order cards, inventory dialogs, and feature layouts belongs in the relevant app's `src/components` directory. Do not move product-specific components into `packages/ui`, and do not place generic UI primitives in `packages/drive`.
 
 ## Final Route Ownership
 
@@ -161,8 +182,8 @@ Checkpoint: domain ownership, environment names, route references, and asset own
 
 - [ ] Add `pnpm-workspace.yaml` with `apps/*` and `packages/*`.
 - [ ] Add a strict shared `tsconfig.base.json` containing only compiler options that apply to every package.
-- [ ] Create `apps/public`, `apps/system`, `packages/auth`, `packages/backend`, and `packages/drive` package directories.
-- [ ] Give every workspace project a unique private package name such as `@darcy/public`, `@darcy/system`, `@darcy/auth`, `@darcy/backend`, and `@darcy/drive`.
+- [ ] Create `apps/public`, `apps/system`, `packages/auth`, `packages/backend`, `packages/drive`, and `packages/ui` package directories.
+- [ ] Give every workspace project a unique private package name: `@dg/public`, `@dg/system`, `@dg/auth`, `@dg/backend`, `@dg/drive`, and `@dg/ui`.
 - [ ] Keep the root package private and convert its scripts into workspace orchestration commands.
 - [ ] Preserve a single root lockfile.
 - [ ] Add root scripts for independent builds and deployments. Use pnpm filters rather than changing directories inside scripts where practical.
@@ -172,8 +193,8 @@ Recommended root script responsibilities:
 
 ```text
 build              build backend types as needed, then both frontends
-build:public       build only @darcy/public
-build:system       build only @darcy/system
+build:public       build only @dg/public
+build:system       build only @dg/system
 deploy:backend     deploy the shared Convex application once
 deploy:public      build and deploy only the public Worker
 deploy:system      build and deploy only the system Worker
@@ -191,7 +212,8 @@ Do this before moving Convex because `convex/auth.ts` currently reaches into the
 - [ ] Move the access-control object and `admin`, `user`, and `cashier` role definitions from `src/lib/auth-utils.ts` into `packages/auth/src/`.
 - [ ] Export only the definitions needed by the Convex Better Auth setup and system auth client.
 - [ ] Add the narrow Better Auth dependencies required by this package.
-- [ ] Update the existing `convex/auth.ts` and `src/lib/auth-client.ts` imports to use `@darcy/auth`.
+- [ ] Update the existing `convex/auth.ts` and `src/lib/auth-client.ts` imports to use `@dg/auth`.
+- [ ] Keep `authComponent`, `getCurrentUser`, `requireAppUser`, auth triggers, and application-user lookup logic in `@dg/backend`; `@dg/auth` owns only reusable Better Auth access-control and role definitions.
 - [ ] Avoid browser-only or server-only initialization at package module scope so the definitions remain safe in both environments.
 - [ ] Build the current application to confirm the extraction did not alter authentication behavior.
 
@@ -203,9 +225,14 @@ Checkpoint: Convex no longer imports anything from the root `src/` tree.
 - [ ] Do not manually edit generated files during the move. Configure the backend package and use Convex tooling to regenerate `_generated` output at its new location.
 - [ ] Ensure the Better Auth component, migrations component, R2 component, schema modules, HTTP routes, and all nested domain modules remain under the same Convex application.
 - [ ] Add `packages/backend/package.json` scripts for Convex code generation, deployment, and other non-server workflows required by the project.
-- [ ] Configure application imports to consume generated references through `@darcy/backend` exports or a documented backend package subpath. Remove the root `@convex/*` path alias.
+- [ ] Configure application imports to consume generated references through `@dg/backend` exports or a documented backend package subpath. Remove the root `@convex/*` path alias.
 - [ ] Ensure both frontend TypeScript and Vite resolution can consume generated API and data-model types without copying them.
 - [ ] Keep `schema.ts` as the assembled main schema and preserve domain schema locations.
+- [ ] Preserve the `users.authId` field and `by_authId` index exactly; do not replace application actor IDs with Better Auth IDs.
+- [ ] Preserve the Better Auth user triggers: create the application actor on auth-user creation, update its name through `by_authId`, and retain the actor on auth-user deletion.
+- [ ] Preserve `getCurrentUser` returning `actorId` and preserve `requireAppUser` for resolving the stable application actor used by `createdBy` fields.
+- [ ] Preserve the current authorization context name `authUser` in custom authenticated queries and mutations so role checks continue to use Better Auth role data.
+- [ ] Treat this as a source relocation, not an auth schema migration. Do not backfill, recreate, or delete application `users` records as part of the monorepo work.
 - [ ] Preserve the existing Convex deployment selection. Do not create a new production deployment.
 - [ ] Update environment synchronization scripts so they execute against `packages/backend` and still distinguish local and production deployments.
 - [ ] Run the appropriate Convex code-generation command, not a Convex dev server.
@@ -213,7 +240,41 @@ Checkpoint: Convex no longer imports anything from the root `src/` tree.
 
 Checkpoint: the same backend functions and schema build from `packages/backend`, and no frontend package owns backend source.
 
-## Step 4: Create Independent TanStack Start Shells
+## Step 4: Create The Shared UI Package
+
+Follow the useful package boundary from `mugnavo/tanstarter-monorepo` without adopting Vite+.
+
+- [ ] Create `packages/ui` with package name `@dg/ui`.
+- [ ] Move every generated shadcn primitive from `src/components/ui/**` into `packages/ui/components/`.
+- [ ] Move `cn` into `packages/ui/lib/utils.ts`.
+- [ ] Move shared shadcn hooks such as `use-mobile` into `packages/ui/hooks/`.
+- [ ] Move a theme provider into `packages/ui/lib/` only if both applications use the same behavior. Keep application-specific providers in their app.
+- [ ] Create `packages/ui/styles/base.css` containing Tailwind CSS initialization, shadcn styles, shared semantic tokens, dark-mode tokens, and a source directive covering `packages/ui` source files.
+- [ ] Keep public shop effects, typography, and product-specific tokens out of the shared base stylesheet.
+- [ ] Keep system-only PWA, printer, and authenticated-layout styles out of the shared base stylesheet.
+- [ ] Add `packages/ui/components.json` as the canonical shadcn installation configuration. Point its `components`, `ui`, `hooks`, `lib`, and `utils` aliases into `packages/ui`.
+- [ ] Export component, hook, utility, provider, and stylesheet subpaths from `@dg/ui/package.json` so consumers use imports such as `@dg/ui/components/button`, `@dg/ui/hooks/use-mobile`, `@dg/ui/lib/utils`, and `@dg/ui/styles/base.css`.
+- [ ] Put shadcn implementation dependencies such as `@base-ui/react`, `class-variance-authority`, `tw-animate-css`, and `shadcn` in `@dg/ui`.
+- [ ] Keep React and React DOM as peer dependencies of `@dg/ui`, with development types available to the package.
+- [ ] Add a standard pnpm script in `@dg/ui` for `pnpm dlx shadcn@latest`; do not use `vp`, `vpx`, Vite+, or a root Vite configuration.
+- [ ] Configure the root `ui` script to invoke the `@dg/ui` script with a pnpm workspace filter.
+- [ ] Update existing imports from `@/components/ui/*` to `@dg/ui/components/*` and imports of the old `cn` helper to `@dg/ui/lib/utils`.
+- [ ] Keep composed components in their owner, for example `apps/public/src/components/shop/**` and `apps/system/src/components/jo/**`.
+
+Use this ownership model:
+
+```text
+packages/ui/components/*             generated shadcn primitives
+packages/ui/hooks/*                  hooks shipped with shadcn components
+packages/ui/lib/*                    shared primitive-level utilities
+packages/ui/styles/base.css          shared Tailwind and semantic tokens
+apps/public/src/components/*         public feature and composition components
+apps/system/src/components/*         system feature and composition components
+```
+
+Checkpoint: the current application can consume all existing shadcn primitives through `@dg/ui`, and no generated primitive remains under an app-specific `components/ui` directory.
+
+## Step 5: Create Independent TanStack Start Shells
 
 Create both application shells before moving feature routes.
 
@@ -221,7 +282,8 @@ Create both application shells before moving feature routes.
 - [ ] Configure each Vite instance to discover only its own route directory and generate only its own route tree.
 - [ ] Configure each app's `@/*` alias to point to that app's `src/`.
 - [ ] Configure workspace package imports explicitly rather than using aliases that reach into another app.
-- [ ] Give each app its own `components.json` with aliases rooted in that app.
+- [ ] Give each app its own `components.json`. Point `components` at the app's `src/components`; point `ui`, shadcn hooks, and shadcn utilities at `@dg/ui`; and point `tailwind.css` to the relative filesystem path for `packages/ui/styles/base.css` as required by the shadcn CLI.
+- [ ] Add `@dg/ui`, `@dg/backend`, and other consumed workspace packages to each app explicitly with `workspace:*`.
 - [ ] Keep the Cloudflare/Nitro conditional build behavior only if non-Cloudflare local production builds are still useful. Otherwise use one clear Cloudflare production path consistently in both apps.
 - [ ] Preserve plugin ordering required by TanStack Start.
 
@@ -242,19 +304,21 @@ Create deliberately different root responsibilities:
 - [ ] Preserve the current Convex Query and React Query SSR integration.
 - [ ] Preserve server-side token loading and setting auth on the server HTTP client.
 - [ ] Mount `ConvexBetterAuthProvider` with the system auth client.
+- [ ] Preserve the current-user result including `actorId` in authenticated route context; do not reduce it to the Better Auth user shape.
 - [ ] Preserve the PWA, theme, device, printer, tooltip, and toast behavior needed by internal routes.
 - [ ] Use system-specific title and description metadata.
 - [ ] Keep production bundles free of TanStack devtool panels.
 
 Checkpoint: both empty application shells build independently before feature files are moved.
 
-## Step 5: Move The Public Shop
+## Step 6: Move The Public Shop
 
 - [ ] Move the `_shop` routes into `apps/public/src/routes/_shop/` while preserving their visible URLs.
 - [ ] Move `src/components/shop/**` into `apps/public/src/components/shop/`.
 - [ ] Move shop-only modules such as `lib/services.ts` and `lib/shop-order.ts` into `apps/public`.
 - [ ] Move the local-storage hook and other utilities used only by the shop into `apps/public`.
-- [ ] Move or recreate only the small UI primitives the public shop actually uses, currently including utilities such as `cn` and the badge used by order selection.
+- [ ] Import shadcn primitives such as `Badge` and primitive-level utilities such as `cn` from `@dg/ui`; do not recreate them in the public app.
+- [ ] Keep custom public compositions such as `ShopButton` in `apps/public/src/components/shop/`.
 - [ ] Move Turnstile client validation into the public app's environment module.
 - [ ] Preserve Convex calls to `api.shop.orders`, `api.shop.uploads`, and `api.shop.telegram` through the backend package import.
 - [ ] Preserve `/`, `/showcase`, `/showcase/$service`, and `/order` URL behavior and search parameters.
@@ -263,7 +327,7 @@ Checkpoint: both empty application shells build independently before feature fil
 
 Checkpoint: the public app builds and owns the marketing site and online-order flow without importing from `apps/system`.
 
-## Step 6: Extract Shared Drive Code And Move Public Shares
+## Step 7: Extract Shared Drive Code And Move Public Shares
 
 The public share route currently depends on internal drive UI. Extract this dependency carefully rather than copying the entire system component tree.
 
@@ -273,16 +337,17 @@ The public share route currently depends on internal drive UI. Extract this depe
 - [ ] Keep the public route component and public metadata in `apps/public`.
 - [ ] Keep authenticated drive layouts, system navigation, admin controls, and system-only mutations in `apps/system`.
 - [ ] Avoid making `packages/drive` depend on either application.
+- [ ] Add `@dg/ui` as an explicit dependency of `@dg/drive` for shared shadcn primitives.
 - [ ] Pass application-specific navigation, styling wrappers, or permissions into shared components through narrow props where necessary.
-- [ ] If shared components need common primitives, place only those primitives in `packages/drive`; do not create a catch-all UI library.
+- [ ] Import all generic primitives used by shared drive components from `@dg/ui`; do not place copies in `packages/drive`.
 - [ ] Ensure the public app's Tailwind CSS source discovery includes package files so shared component classes are emitted.
 - [ ] Move `share.$token.{-$itemId}.tsx` into the public app and retain `/share/$token/{-$itemId}`.
 - [ ] Preserve SSR preloading for shared roots, folders, and file previews.
 - [ ] Preserve anonymous uploads and downloads supported by the existing share APIs.
 
-Checkpoint: `darcygraphix.com/share/*` builds from the public app, and both apps consume shared drive code only through `@darcy/drive`.
+Checkpoint: `darcygraphix.com/share/*` builds from the public app, both apps consume shared drive code through `@dg/drive`, and shared drive UI consumes primitives through `@dg/ui`.
 
-## Step 7: Move Authentication Into The System App
+## Step 8: Move Authentication Into The System App
 
 - [ ] Move `_auth/login.tsx`, `_auth/signup.tsx`, and `_auth/route.tsx` into `apps/system`.
 - [ ] Move `/api/auth/$`, `auth-server.ts`, and `auth-client.ts` into `apps/system`.
@@ -297,7 +362,7 @@ Checkpoint: `darcygraphix.com/share/*` builds from the public app, and both apps
 
 Checkpoint: authentication is entirely owned by the system app and requires no cross-origin cookie or API request from the public app.
 
-## Step 8: Move System Features Behind A Pathless Layout
+## Step 9: Move System Features Behind A Pathless Layout
 
 - [ ] Create `apps/system/src/routes/_authenticated/route.tsx` from the current `src/routes/app/route.tsx`.
 - [ ] Keep its authentication check, current-user query, sidebar, breadcrumbs, printer handler, and outlet.
@@ -341,7 +406,7 @@ The final `app.index.tsx` and `app.$.tsx` entries are compatibility redirects, n
 
 Checkpoint: all internal features build under their new root URLs and still inherit authentication and role authorization.
 
-## Step 9: Add URL Compatibility Redirects
+## Step 10: Add URL Compatibility Redirects
 
 - [ ] Add a redirect for `/app` to `/jo`.
 - [ ] Add a catch-all redirect from `/app/*` to the equivalent root path while preserving the query string.
@@ -354,12 +419,13 @@ Checkpoint: all internal features build under their new root URLs and still inhe
 
 Checkpoint: bookmarks to old internal URLs reach the equivalent new system page without a redirect loop.
 
-## Step 10: Split Styling And Assets
+## Step 11: Split Styling And Assets
 
-- [ ] Create independent public and system stylesheet entries.
+- [ ] Create independent public and system stylesheet entries that each import `@dg/ui/styles/base.css` and add a Tailwind source directive for the app's source tree.
 - [ ] Move shop-specific custom properties, grain effects, typography, and layout styles into the public stylesheet.
-- [ ] Keep shadcn/system variables, printer styles, and authenticated layout styles in the system stylesheet.
-- [ ] Duplicate only foundational tokens when that is simpler and safer than coupling the applications through a style package.
+- [ ] Keep shared shadcn semantic variables and base styles in `packages/ui/styles/base.css`.
+- [ ] Keep printer styles and authenticated layout styles in the system stylesheet.
+- [ ] Allow either app to override shared semantic variables after importing the base stylesheet when its visual language requires different values.
 - [ ] Move `manifest.json`, `sw.js`, PWA icons, and printer/system assets into `apps/system/public`.
 - [ ] Move marketing images and public metadata assets into `apps/public/public`.
 - [ ] Ensure service-worker scope cannot affect `darcygraphix.com` because the service worker is served only from the system Worker.
@@ -367,7 +433,7 @@ Checkpoint: bookmarks to old internal URLs reach the equivalent new system page 
 
 Checkpoint: each app builds its own complete CSS and static asset bundle with no runtime dependency on the other app's domain.
 
-## Step 11: Separate Environment Ownership
+## Step 12: Separate Environment Ownership
 
 Create explicit environment schemas for each application and retain Convex environment validation in `packages/backend/convex/convex.config.ts`.
 
@@ -411,7 +477,7 @@ existing R2 and Better Auth values
 
 Checkpoint: each frontend receives only its required variables, and Better Auth identifies the system domain as its production base URL.
 
-## Step 12: Create Independent Cloudflare Workers
+## Step 13: Create Independent Cloudflare Workers
 
 Create an app-local `wrangler.jsonc` for each frontend.
 
@@ -442,7 +508,7 @@ entry: @tanstack/react-start/server-entry
 
 Checkpoint: each Worker can be built and dry-run independently, and their names and custom domains do not overlap.
 
-## Step 13: Handle Development-Only Routes
+## Step 14: Handle Development-Only Routes
 
 - [ ] Classify `/convex`, `/testfruits`, `/testdnd`, and `/app/testtrello` before moving them.
 - [ ] Remove them if they are disposable experiments.
@@ -451,7 +517,7 @@ Checkpoint: each Worker can be built and dry-run independently, and their names 
 
 Checkpoint: neither production application unintentionally exposes experimental pages.
 
-## Step 14: Build And Static Verification
+## Step 15: Build And Static Verification
 
 Do not run lint or automated test commands.
 
@@ -465,11 +531,15 @@ Do not run lint or automated test commands.
 - [ ] Search system output/source for shop routes and public-only Turnstile client configuration.
 - [ ] Search the repository for stale `/app/*` links, allowing only compatibility redirect code and migration documentation.
 - [ ] Search for imports crossing directly between `apps/public` and `apps/system`; there should be none.
+- [ ] Search for generated shadcn primitives under either app; all should live in `packages/ui`.
+- [ ] Confirm app-specific composed components remain under their owning app and are not exported from `@dg/ui`.
+- [ ] Confirm backend code that writes `createdBy` resolves the application actor through `requireAppUser` rather than storing a Better Auth user ID.
+- [ ] Confirm `getCurrentUser` still exposes the stable application `actorId` used by system forms and mutations.
 - [ ] Confirm generated route trees contain only routes owned by their corresponding application.
 
 Checkpoint: all packages build and both Worker dry-runs complete without relying on the old combined app.
 
-## Step 15: Production Cutover
+## Step 16: Production Cutover
 
 Perform rollout in this order to minimize downtime:
 
@@ -488,7 +558,7 @@ Perform rollout in this order to minimize downtime:
 
 Checkpoint: production traffic is served by two Workers using one unchanged Convex dataset.
 
-## Step 16: Remove The Combined Application
+## Step 17: Remove The Combined Application
 
 Only perform cleanup after both production domains are stable.
 
@@ -512,10 +582,13 @@ The migration is complete when all of the following are true:
 - `/api/auth/*` exists only on the system domain.
 - Public requests do not perform Better Auth token loading.
 - Both apps use the same existing Convex deployment and data.
+- Better Auth identities remain linked to stable application actor records through `users.authId`.
+- Historical `createdBy` attribution remains valid when an auth user is deleted.
 - Both apps build and deploy independently.
 - Deploying either frontend does not deploy or replace the other frontend or Convex.
 - Existing `/app/*` and `cfsystem.darcygraphix.com` links redirect safely.
 - No app imports source directly from the other app.
+- All generated shadcn primitives live in `@dg/ui`, while composed public and system components remain in their owning app.
 - Generated TanStack and Convex files are produced by tooling rather than hand-edited.
 - System PWA, printer, admin, and cashier behavior remains owned by the system app.
 - Online ordering, Turnstile, Telegram notifications, and public drive shares remain owned by the public app and shared backend.
