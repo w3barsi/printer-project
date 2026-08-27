@@ -9,15 +9,11 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as TestfruitsRouteImport } from './routes/testfruits'
-import { Route as TestdndRouteImport } from './routes/testdnd'
-import { Route as ConvexRouteImport } from './routes/convex'
 import { Route as AppRouteRouteImport } from './routes/app/route'
 import { Route as ShopRouteRouteImport } from './routes/_shop/route'
 import { Route as AuthRouteRouteImport } from './routes/_auth/route'
 import { Route as AppIndexRouteImport } from './routes/app/index'
 import { Route as ShopIndexRouteImport } from './routes/_shop/index'
-import { Route as AppTesttrelloRouteImport } from './routes/app/testtrello'
 import { Route as AppNewdriveRouteImport } from './routes/app/newdrive'
 import { Route as AppInventoryRouteImport } from './routes/app/inventory'
 import { Route as ShopOrderRouteImport } from './routes/_shop/order'
@@ -47,21 +43,6 @@ import { Route as AppAdminAdminCustomersIndexRouteImport } from './routes/app/_a
 import { Route as AppAdminAdminSuppliersSupplierIdRouteImport } from './routes/app/_admin/admin.suppliers.$supplierId'
 import { Route as AppAdminAdminCustomersCustomerIdRouteImport } from './routes/app/_admin/admin.customers.$customerId'
 
-const TestfruitsRoute = TestfruitsRouteImport.update({
-  id: '/testfruits',
-  path: '/testfruits',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const TestdndRoute = TestdndRouteImport.update({
-  id: '/testdnd',
-  path: '/testdnd',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ConvexRoute = ConvexRouteImport.update({
-  id: '/convex',
-  path: '/convex',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AppRouteRoute = AppRouteRouteImport.update({
   id: '/app',
   path: '/app',
@@ -84,11 +65,6 @@ const ShopIndexRoute = ShopIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => ShopRouteRoute,
-} as any)
-const AppTesttrelloRoute = AppTesttrelloRouteImport.update({
-  id: '/testtrello',
-  path: '/testtrello',
-  getParentRoute: () => AppRouteRoute,
 } as any)
 const AppNewdriveRoute = AppNewdriveRouteImport.update({
   id: '/newdrive',
@@ -238,15 +214,11 @@ const AppAdminAdminCustomersCustomerIdRoute =
 export interface FileRoutesByFullPath {
   '/': typeof ShopIndexRoute
   '/app': typeof AppRouteRouteWithChildren
-  '/convex': typeof ConvexRoute
-  '/testdnd': typeof TestdndRoute
-  '/testfruits': typeof TestfruitsRoute
   '/login': typeof AuthLoginRoute
   '/signup': typeof AuthSignupRoute
   '/order': typeof ShopOrderRoute
   '/app/inventory': typeof AppInventoryRoute
   '/app/newdrive': typeof AppNewdriveRouteWithChildren
-  '/app/testtrello': typeof AppTesttrelloRoute
   '/app/': typeof AppIndexRoute
   '/showcase/$service': typeof ShopShowcaseServiceRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -272,15 +244,11 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof ShopIndexRoute
-  '/convex': typeof ConvexRoute
-  '/testdnd': typeof TestdndRoute
-  '/testfruits': typeof TestfruitsRoute
   '/app': typeof AppIndexRoute
   '/login': typeof AuthLoginRoute
   '/signup': typeof AuthSignupRoute
   '/order': typeof ShopOrderRoute
   '/app/inventory': typeof AppInventoryRoute
-  '/app/testtrello': typeof AppTesttrelloRoute
   '/showcase/$service': typeof ShopShowcaseServiceRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/app/cashflow': typeof AppCashierCashflowRoute
@@ -306,9 +274,6 @@ export interface FileRoutesById {
   '/_auth': typeof AuthRouteRouteWithChildren
   '/_shop': typeof ShopRouteRouteWithChildren
   '/app': typeof AppRouteRouteWithChildren
-  '/convex': typeof ConvexRoute
-  '/testdnd': typeof TestdndRoute
-  '/testfruits': typeof TestfruitsRoute
   '/app/_admin': typeof AppAdminRouteRouteWithChildren
   '/app/_cashier': typeof AppCashierRouteRouteWithChildren
   '/_auth/login': typeof AuthLoginRoute
@@ -316,7 +281,6 @@ export interface FileRoutesById {
   '/_shop/order': typeof ShopOrderRoute
   '/app/inventory': typeof AppInventoryRoute
   '/app/newdrive': typeof AppNewdriveRouteWithChildren
-  '/app/testtrello': typeof AppTesttrelloRoute
   '/_shop/': typeof ShopIndexRoute
   '/app/': typeof AppIndexRoute
   '/_shop/showcase/$service': typeof ShopShowcaseServiceRoute
@@ -346,15 +310,11 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/app'
-    | '/convex'
-    | '/testdnd'
-    | '/testfruits'
     | '/login'
     | '/signup'
     | '/order'
     | '/app/inventory'
     | '/app/newdrive'
-    | '/app/testtrello'
     | '/app/'
     | '/showcase/$service'
     | '/api/auth/$'
@@ -380,15 +340,11 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/convex'
-    | '/testdnd'
-    | '/testfruits'
     | '/app'
     | '/login'
     | '/signup'
     | '/order'
     | '/app/inventory'
-    | '/app/testtrello'
     | '/showcase/$service'
     | '/api/auth/$'
     | '/app/cashflow'
@@ -413,9 +369,6 @@ export interface FileRouteTypes {
     | '/_auth'
     | '/_shop'
     | '/app'
-    | '/convex'
-    | '/testdnd'
-    | '/testfruits'
     | '/app/_admin'
     | '/app/_cashier'
     | '/_auth/login'
@@ -423,7 +376,6 @@ export interface FileRouteTypes {
     | '/_shop/order'
     | '/app/inventory'
     | '/app/newdrive'
-    | '/app/testtrello'
     | '/_shop/'
     | '/app/'
     | '/_shop/showcase/$service'
@@ -453,35 +405,11 @@ export interface RootRouteChildren {
   AuthRouteRoute: typeof AuthRouteRouteWithChildren
   ShopRouteRoute: typeof ShopRouteRouteWithChildren
   AppRouteRoute: typeof AppRouteRouteWithChildren
-  ConvexRoute: typeof ConvexRoute
-  TestdndRoute: typeof TestdndRoute
-  TestfruitsRoute: typeof TestfruitsRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/testfruits': {
-      id: '/testfruits'
-      path: '/testfruits'
-      fullPath: '/testfruits'
-      preLoaderRoute: typeof TestfruitsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/testdnd': {
-      id: '/testdnd'
-      path: '/testdnd'
-      fullPath: '/testdnd'
-      preLoaderRoute: typeof TestdndRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/convex': {
-      id: '/convex'
-      path: '/convex'
-      fullPath: '/convex'
-      preLoaderRoute: typeof ConvexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/app': {
       id: '/app'
       path: '/app'
@@ -516,13 +444,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof ShopIndexRouteImport
       parentRoute: typeof ShopRouteRoute
-    }
-    '/app/testtrello': {
-      id: '/app/testtrello'
-      path: '/testtrello'
-      fullPath: '/app/testtrello'
-      preLoaderRoute: typeof AppTesttrelloRouteImport
-      parentRoute: typeof AppRouteRoute
     }
     '/app/newdrive': {
       id: '/app/newdrive'
@@ -841,7 +762,6 @@ interface AppRouteRouteChildren {
   AppCashierRouteRoute: typeof AppCashierRouteRouteWithChildren
   AppInventoryRoute: typeof AppInventoryRoute
   AppNewdriveRoute: typeof AppNewdriveRouteWithChildren
-  AppTesttrelloRoute: typeof AppTesttrelloRoute
   AppIndexRoute: typeof AppIndexRoute
   AppDriveChar123DriveChar125Route: typeof AppDriveChar123DriveChar125Route
   AppInventoryIdRoute: typeof AppInventoryIdRoute
@@ -856,7 +776,6 @@ const AppRouteRouteChildren: AppRouteRouteChildren = {
   AppCashierRouteRoute: AppCashierRouteRouteWithChildren,
   AppInventoryRoute: AppInventoryRoute,
   AppNewdriveRoute: AppNewdriveRouteWithChildren,
-  AppTesttrelloRoute: AppTesttrelloRoute,
   AppIndexRoute: AppIndexRoute,
   AppDriveChar123DriveChar125Route: AppDriveChar123DriveChar125Route,
   AppInventoryIdRoute: AppInventoryIdRoute,
@@ -874,9 +793,6 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRouteRoute: AuthRouteRouteWithChildren,
   ShopRouteRoute: ShopRouteRouteWithChildren,
   AppRouteRoute: AppRouteRouteWithChildren,
-  ConvexRoute: ConvexRoute,
-  TestdndRoute: TestdndRoute,
-  TestfruitsRoute: TestfruitsRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
 }
 export const routeTree = rootRouteImport

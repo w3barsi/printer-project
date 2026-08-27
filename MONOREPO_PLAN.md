@@ -497,23 +497,23 @@ custom domain: system.darcygraphix.com
 entry: @tanstack/react-start/server-entry
 ```
 
-- [ ] Preserve the required compatibility date and `nodejs_compat` flag in both configurations.
-- [ ] Preserve observability intentionally for both Workers.
-- [ ] Keep app-specific variables and secrets in the corresponding Worker configuration.
-- [ ] Generate app-specific Worker types rather than retaining one root `worker-configuration.d.ts`.
-- [ ] Give each app independent build, preview, dry-run, tail, and deploy scripts where those commands are still needed.
-- [ ] Ensure no app-local deploy command invokes `convex deploy`.
-- [ ] Disable or remove the obsolete single root Worker configuration after both app configurations are operational.
-- [ ] Keep Vercel deployment disabled unless hosting strategy changes explicitly.
+- [x] Preserve the required compatibility date and `nodejs_compat` flag in both configurations.
+- [x] Preserve observability intentionally for both Workers.
+- [x] Keep app-specific variables and secrets in the corresponding Worker configuration.
+- [x] Generate app-specific Worker types rather than retaining one root `worker-configuration.d.ts`.
+- [x] Give each app independent build, preview, dry-run, tail, and deploy scripts where those commands are still needed.
+- [x] Ensure no app-local deploy command invokes `convex deploy`.
+- [x] Disable or remove the obsolete single root Worker configuration after both app configurations are operational (root config retained while legacy remains the production Worker for rollback; removed by Step 17).
+- [x] Keep Vercel deployment disabled unless hosting strategy changes explicitly.
 
 Checkpoint: each Worker can be built and dry-run independently, and their names and custom domains do not overlap.
 
 ## Step 14: Handle Development-Only Routes
 
-- [ ] Classify `/convex`, `/testfruits`, `/testdnd`, and `/app/testtrello` before moving them.
-- [ ] Remove them if they are disposable experiments.
-- [ ] If one is still operationally useful, place it only in the owning app and guard it from production routing.
-- [ ] Do not let temporary routes block the separation of production route trees.
+- [x] Classify `/convex`, `/testfruits`, `/testdnd`, and `/app/testtrello` before moving them.
+- [x] Remove them if they are disposable experiments.
+- [x] If one is still operationally useful, place it only in the owning app and guard it from production routing (all four classified disposable; none retained).
+- [x] Do not let temporary routes block the separation of production route trees.
 
 Checkpoint: neither production application unintentionally exposes experimental pages.
 

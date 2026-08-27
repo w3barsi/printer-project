@@ -1,0 +1,24 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "darcygraphix-system",
+  "main": "@tanstack/react-start/server-entry",
+  "compatibility_date": "2026-06-17",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": {
+    "enabled": true,
+  },
+  "routes": [
+    {
+      "pattern": "system.darcygraphix.com",
+      "custom_domain": true,
+    },
+  ],
+  "vars": {
+    "VITE_CONVEX_URL": "https://cool-wombat-664.convex.cloud",
+    "VITE_CONVEX_SITE_URL": "https://cool-wombat-664.convex.site",
+    "VITE_FLAG_SIGNUP": "false",
+  },
+  "secrets": {
+    "required": ["TRELLO_KEY", "TRELLO_TOKEN"],
+  },
+}
