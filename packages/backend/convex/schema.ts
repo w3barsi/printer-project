@@ -23,30 +23,6 @@ export default defineSchema({
       searchField: "name",
     }),
 
-  file: defineTable({
-    createdBy: v.id("users"),
-    parent: v.union(v.literal("private"), v.literal("public"), v.id("folder")),
-    name: v.string(),
-    key: v.string(),
-    type: v.string(),
-    size: v.number(),
-
-    toDelete: v.optional(v.boolean()),
-  })
-    .index("by_parent", ["parent"])
-    .index("by_toDelete", ["toDelete"]),
-
-  folder: defineTable({
-    createdBy: v.id("users"),
-    parent: v.union(v.literal("private"), v.literal("public"), v.id("folder")),
-    name: v.string(),
-
-    toDelete: v.optional(v.boolean()),
-  })
-    .index("by_parent", ["parent"])
-    .index("by_toDelete", ["toDelete"])
-    .index("by_parent_name", ["parent", "name"]),
-
   products: defineTable({
     title: v.string(),
     quantity: v.optional(v.string()),

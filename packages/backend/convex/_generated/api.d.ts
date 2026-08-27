@@ -12,7 +12,6 @@ import type * as admin_users from "../admin/users.js";
 import type * as auth from "../auth.js";
 import type * as cashier from "../cashier.js";
 import type * as customer from "../customer.js";
-import type * as drive from "../drive.js";
 import type * as drive_items from "../drive/items.js";
 import type * as drive_lib from "../drive/lib.js";
 import type * as drive_sharedUploads from "../drive/sharedUploads.js";
@@ -48,7 +47,6 @@ declare const fullApi: ApiFromModules<{
   auth: typeof auth;
   cashier: typeof cashier;
   customer: typeof customer;
-  drive: typeof drive;
   "drive/items": typeof drive_items;
   "drive/lib": typeof drive_lib;
   "drive/sharedUploads": typeof drive_sharedUploads;
