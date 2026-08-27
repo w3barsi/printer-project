@@ -9,13 +9,31 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as IndexRouteImport } from './routes/index'
+import { Route as ShopRouteRouteImport } from './routes/_shop/route'
+import { Route as ShopIndexRouteImport } from './routes/_shop/index'
+import { Route as ShopOrderRouteImport } from './routes/_shop/order'
+import { Route as ShopShowcaseIndexRouteImport } from './routes/_shop/showcase.index'
 import { Route as ShareTokenChar123ItemIdChar125RouteImport } from './routes/share.$token.{-$itemId}'
+import { Route as ShopShowcaseServiceRouteImport } from './routes/_shop/showcase.$service'
 
-const IndexRoute = IndexRouteImport.update({
+const ShopRouteRoute = ShopRouteRouteImport.update({
+  id: '/_shop',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ShopIndexRoute = ShopIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => ShopRouteRoute,
+} as any)
+const ShopOrderRoute = ShopOrderRouteImport.update({
+  id: '/order',
+  path: '/order',
+  getParentRoute: () => ShopRouteRoute,
+} as any)
+const ShopShowcaseIndexRoute = ShopShowcaseIndexRouteImport.update({
+  id: '/showcase/',
+  path: '/showcase/',
+  getParentRoute: () => ShopRouteRoute,
 } as any)
 const ShareTokenChar123ItemIdChar125Route =
   ShareTokenChar123ItemIdChar125RouteImport.update({
@@ -23,41 +41,94 @@ const ShareTokenChar123ItemIdChar125Route =
     path: '/share/$token/{-$itemId}',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ShopShowcaseServiceRoute = ShopShowcaseServiceRouteImport.update({
+  id: '/showcase/$service',
+  path: '/showcase/$service',
+  getParentRoute: () => ShopRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
+  '/': typeof ShopIndexRoute
+  '/order': typeof ShopOrderRoute
+  '/showcase/$service': typeof ShopShowcaseServiceRoute
   '/share/$token/{-$itemId}': typeof ShareTokenChar123ItemIdChar125Route
+  '/showcase/': typeof ShopShowcaseIndexRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
+  '/order': typeof ShopOrderRoute
+  '/': typeof ShopIndexRoute
+  '/showcase/$service': typeof ShopShowcaseServiceRoute
   '/share/$token/{-$itemId}': typeof ShareTokenChar123ItemIdChar125Route
+  '/showcase': typeof ShopShowcaseIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
+  '/_shop': typeof ShopRouteRouteWithChildren
+  '/_shop/order': typeof ShopOrderRoute
+  '/_shop/': typeof ShopIndexRoute
+  '/_shop/showcase/$service': typeof ShopShowcaseServiceRoute
   '/share/$token/{-$itemId}': typeof ShareTokenChar123ItemIdChar125Route
+  '/_shop/showcase/': typeof ShopShowcaseIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/share/$token/{-$itemId}'
+  fullPaths:
+    | '/'
+    | '/order'
+    | '/showcase/$service'
+    | '/share/$token/{-$itemId}'
+    | '/showcase/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/share/$token/{-$itemId}'
-  id: '__root__' | '/' | '/share/$token/{-$itemId}'
+  to:
+    | '/order'
+    | '/'
+    | '/showcase/$service'
+    | '/share/$token/{-$itemId}'
+    | '/showcase'
+  id:
+    | '__root__'
+    | '/_shop'
+    | '/_shop/order'
+    | '/_shop/'
+    | '/_shop/showcase/$service'
+    | '/share/$token/{-$itemId}'
+    | '/_shop/showcase/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
+  ShopRouteRoute: typeof ShopRouteRouteWithChildren
   ShareTokenChar123ItemIdChar125Route: typeof ShareTokenChar123ItemIdChar125Route
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
+    '/_shop': {
+      id: '/_shop'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof ShopRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_shop/': {
+      id: '/_shop/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof ShopIndexRouteImport
+      parentRoute: typeof ShopRouteRoute
+    }
+    '/_shop/order': {
+      id: '/_shop/order'
+      path: '/order'
+      fullPath: '/order'
+      preLoaderRoute: typeof ShopOrderRouteImport
+      parentRoute: typeof ShopRouteRoute
+    }
+    '/_shop/showcase/': {
+      id: '/_shop/showcase/'
+      path: '/showcase'
+      fullPath: '/showcase/'
+      preLoaderRoute: typeof ShopShowcaseIndexRouteImport
+      parentRoute: typeof ShopRouteRoute
     }
     '/share/$token/{-$itemId}': {
       id: '/share/$token/{-$itemId}'
@@ -66,11 +137,36 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ShareTokenChar123ItemIdChar125RouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_shop/showcase/$service': {
+      id: '/_shop/showcase/$service'
+      path: '/showcase/$service'
+      fullPath: '/showcase/$service'
+      preLoaderRoute: typeof ShopShowcaseServiceRouteImport
+      parentRoute: typeof ShopRouteRoute
+    }
   }
 }
 
+interface ShopRouteRouteChildren {
+  ShopOrderRoute: typeof ShopOrderRoute
+  ShopIndexRoute: typeof ShopIndexRoute
+  ShopShowcaseServiceRoute: typeof ShopShowcaseServiceRoute
+  ShopShowcaseIndexRoute: typeof ShopShowcaseIndexRoute
+}
+
+const ShopRouteRouteChildren: ShopRouteRouteChildren = {
+  ShopOrderRoute: ShopOrderRoute,
+  ShopIndexRoute: ShopIndexRoute,
+  ShopShowcaseServiceRoute: ShopShowcaseServiceRoute,
+  ShopShowcaseIndexRoute: ShopShowcaseIndexRoute,
+}
+
+const ShopRouteRouteWithChildren = ShopRouteRoute._addFileChildren(
+  ShopRouteRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
+  ShopRouteRoute: ShopRouteRouteWithChildren,
   ShareTokenChar123ItemIdChar125Route: ShareTokenChar123ItemIdChar125Route,
 }
 export const routeTree = rootRouteImport

@@ -313,17 +313,17 @@ Checkpoint: both empty application shells build independently before feature fil
 
 ## Step 6: Move The Public Shop
 
-- [ ] Move the `_shop` routes into `apps/public/src/routes/_shop/` while preserving their visible URLs.
-- [ ] Move `src/components/shop/**` into `apps/public/src/components/shop/`.
-- [ ] Move shop-only modules such as `lib/services.ts` and `lib/shop-order.ts` into `apps/public`.
-- [ ] Move the local-storage hook and other utilities used only by the shop into `apps/public`.
-- [ ] Import shadcn primitives such as `Badge` and primitive-level utilities such as `cn` from `@dg/ui`; do not recreate them in the public app.
-- [ ] Keep custom public compositions such as `ShopButton` in `apps/public/src/components/shop/`.
-- [ ] Move Turnstile client validation into the public app's environment module.
-- [ ] Preserve Convex calls to `api.shop.orders`, `api.shop.uploads`, and `api.shop.telegram` through the backend package import.
-- [ ] Preserve `/`, `/showcase`, `/showcase/$service`, and `/order` URL behavior and search parameters.
-- [ ] Move public marketing assets and fonts into `apps/public/public` or app-owned source directories.
-- [ ] Remove shop imports from the system app after public extraction is complete.
+- [x] Move the `_shop` routes into `apps/public/src/routes/_shop/` while preserving their visible URLs.
+- [x] Move `src/components/shop/**` into `apps/public/src/components/shop/`.
+- [x] Move shop-only modules such as `lib/services.ts` and `lib/shop-order.ts` into `apps/public`.
+- [x] Move the local-storage hook and other utilities used only by the shop into `apps/public`.
+- [x] Import shadcn primitives such as `Badge` and primitive-level utilities such as `cn` from `@dg/ui`; do not recreate them in the public app.
+- [x] Keep custom public compositions such as `ShopButton` in `apps/public/src/components/shop/`.
+- [x] Move Turnstile client validation into the public app's environment module.
+- [x] Preserve Convex calls to `api.shop.orders`, `api.shop.uploads`, and `api.shop.telegram` through the backend package import.
+- [x] Preserve `/`, `/showcase`, `/showcase/$service`, and `/order` URL behavior and search parameters.
+- [x] Move public marketing assets and fonts into `apps/public/public` or app-owned source directories.
+- [x] Remove shop imports from the system app after public extraction is complete.
 
 Checkpoint: the public app builds and owns the marketing site and online-order flow without importing from `apps/system`.
 
@@ -562,13 +562,13 @@ Checkpoint: production traffic is served by two Workers using one unchanged Conv
 
 Only perform cleanup after both production domains are stable.
 
-- [ ] Delete the old root `src/`, root frontend `public/`, root Vite config, root Wrangler config, root component config, and other files superseded by app-local versions.
-- [ ] Remove dependencies from the root package that now belong to workspace packages.
-- [ ] Remove obsolete single-app scripts and environment handling.
-- [ ] Remove temporary aliases that reach from apps into old root paths.
-- [ ] Remove old build artifacts locally without touching source changes.
-- [ ] Refresh setup and deployment documentation with the final workspace commands and domain ownership.
-- [ ] Run the independent builds, aggregate build, and both Cloudflare dry-runs once more.
+- [x] Delete the old root `src/`, root frontend `public/`, root Vite config, root Wrangler config, root component config, and other files superseded by app-local versions.
+- [x] Remove dependencies from the root package that now belong to workspace packages.
+- [x] Remove obsolete single-app scripts and environment handling.
+- [x] Remove temporary aliases that reach from apps into old root paths.
+- [x] Remove old build artifacts locally without touching source changes.
+- [x] Refresh setup and deployment documentation with the final workspace commands and domain ownership.
+- [x] Run the independent builds, aggregate build, and both Cloudflare dry-runs once more.
 
 Final checkpoint: the repository has no remaining combined frontend, either frontend can be changed and deployed independently, and backend deployment remains an explicit separate action.
 

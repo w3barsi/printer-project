@@ -1,8 +1,47 @@
+# DARCYGRAPHiX — Printer/Signage Business System
+
+Monorepo (pnpm workspaces) with two independently deployable TanStack Start frontends, one shared Convex backend, and a transient redirect Worker.
+
+## Domains
+
+| Surface                                    | URL                                 | Worker                | Backend                           |
+| ------------------------------------------ | ----------------------------------- | --------------------- | --------------------------------- |
+| Public site, online ordering, drive shares | `https://darcygraphix.com`          | `darcygraphix-public` | shared Convex (`cool-wombat-664`) |
+| Login, auth proxy, internal system         | `https://system.darcygraphix.com`   | `darcygraphix-system` | shared Convex (`cool-wombat-664`) |
+| Legacy redirect (migration window)         | `https://cfsystem.darcygraphix.com` | `cfsystem-redirect`   | —                                 |
+
+Internal URLs are root-level (no `/app`): `/jo`, `/inventory`, `/cashflow`, `/drive`, `/newdrive`, `/trello`, `/admin`. Old `/app/*` and `cfsystem.darcygraphix.com` links redirect. Public shares live at `/share/$token/{-$itemId}` on the public domain. Development Convex deployment: `rosy-rabbit-645`.
+
+## Packages
+
+- `apps/public` — `@dg/public`: marketing site, shop/order flow, public shares.
+- `apps/system` — `@dg/system`: Better Auth proxy, login/signup, authenticated system + PWA.
+- `packages/backend` — `@dg/backend`: the Convex application (`convex/`) and generated API types.
+- `packages/auth` — `@dg/auth`: Better Auth access-control/role definitions.
+- `packages/drive` — `@dg/drive`: shared drive implementation (public shares + system drive).
+- `packages/ui` — `@dg/ui`: shadcn primitives, hooks, base design tokens.
+- `workers/cfsystem-redirect` — `@dg/cfsystem-redirect`: legacy-domain redirect Worker.
+
+## Commands (root)
+
+- `pnpm build` — backend codegen, then both frontend builds
+- `pnpm build:public` / `pnpm build:system` — build one frontend (Nitro output in `.output/`)
+- `pnpm deploy:backend` — deploy the shared Convex backend
+- `pnpm deploy:public` / `pnpm deploy:system` — Cloudflare build + deploy one Worker
+- `pnpm deploy:cfsystem` — deploy the redirect Worker
+- `pnpm cf:typegen` — regenerate per-app Worker types
+- `pnpm env` / `pnpm env:prod` — sync `.env.local`/`.env.prod` vars to the dev/production Convex deployments (`sync-env.js` targets `@dg/backend`)
+- `pnpm dryrun` — Convex deploy dry-run
+- `pnpm --filter @dg/ui ui` — shadcn CLI for `@dg/ui`
+- `pnpm --filter @dg/system dev` / `--filter @dg/public dev` — local dev servers (ports 3001 / 3000)
+
+Local env lives in `.env.local` (dev) and `.env.prod` (production) — both gitignored. `vite build --mode prod` loads `.env.prod` for Worker builds; plain `vite build` loads `.env.local` for local previews. Secrets (Trello, Telegram, Turnstile) are set via Worker/Convex secret mechanisms, never committed.
+
 ## Todos
 
 ### Implement Favorites Feature
 
-- [ ] Define favorites schema in convex/schema.ts (e.g., table linking users to products)
+- [ ] Define favorites schema in packages/backend/convex/schema.ts (e.g., table linking users to products)
 - [ ] Create convex mutations for adding/removing favorites (addFavorite, removeFavorite)
 - [ ] Create convex query to fetch user's favorites
 - [ ] Add favorite toggle button to product components
