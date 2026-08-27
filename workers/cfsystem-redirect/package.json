@@ -1,0 +1,14 @@
+{
+  "name": "@dg/cfsystem-redirect",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "deploy": "wrangler deploy --config wrangler.jsonc",
+    "dry-run": "wrangler deploy --dry-run --config wrangler.jsonc"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260625.1",
+    "typescript": "^5.9.3",
+    "wrangler": "^4.105.0"
+  }
+}

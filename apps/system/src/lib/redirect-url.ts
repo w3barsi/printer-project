@@ -30,6 +30,19 @@ export function normalizeSystemRedirectUrl(value: unknown) {
   }
 }
 
+export function normalizeLegacyAppPath(splat: string | undefined) {
+  const base = (splat ?? "").replace(/^\/+/, "");
+  if (base.startsWith("//") || /^[a-z][a-z0-9+.-]*:/i.test(base) || base.includes("\\")) {
+    return defaultSystemRedirectUrl;
+  }
+  const target = normalizeSystemRedirectUrl(base ? `/${base}` : "/");
+  return target === "/" ? defaultSystemRedirectUrl : target;
+}
+
+export function hashSuffix(hash: string) {
+  return hash ? `#${hash}` : "";
+}
+
 export const redirectSearchSchema = z
   .object({ redirectUrl: z.string().optional() })
   .transform(({ redirectUrl }) => ({

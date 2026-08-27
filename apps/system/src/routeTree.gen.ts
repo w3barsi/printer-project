@@ -11,7 +11,9 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteRouteImport } from './routes/_auth/route'
+import { Route as AppIndexRouteImport } from './routes/app.index'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
+import { Route as AppSplatRouteImport } from './routes/app.$'
 import { Route as AuthenticatedNewdriveRouteImport } from './routes/_authenticated/newdrive'
 import { Route as AuthenticatedInventoryRouteImport } from './routes/_authenticated/inventory'
 import { Route as AuthSignupRouteImport } from './routes/_auth/signup'
@@ -46,10 +48,20 @@ const AuthRouteRoute = AuthRouteRouteImport.update({
   id: '/_auth',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppIndexRoute = AppIndexRouteImport.update({
+  id: '/app/',
+  path: '/app/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AppSplatRoute = AppSplatRouteImport.update({
+  id: '/app/$',
+  path: '/app/$',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedNewdriveRoute = AuthenticatedNewdriveRouteImport.update({
   id: '/newdrive',
@@ -198,6 +210,8 @@ export interface FileRoutesByFullPath {
   '/signup': typeof AuthSignupRoute
   '/inventory': typeof AuthenticatedInventoryRoute
   '/newdrive': typeof AuthenticatedNewdriveRouteWithChildren
+  '/app/$': typeof AppSplatRoute
+  '/app/': typeof AppIndexRoute
   '/cashflow': typeof AuthenticatedCashierCashflowRoute
   '/drive/{-$drive}': typeof AuthenticatedDriveChar123DriveChar125Route
   '/inventory/$id': typeof AuthenticatedInventoryIdRoute
@@ -223,6 +237,8 @@ export interface FileRoutesByTo {
   '/login': typeof AuthLoginRoute
   '/signup': typeof AuthSignupRoute
   '/inventory': typeof AuthenticatedInventoryRoute
+  '/app/$': typeof AppSplatRoute
+  '/app': typeof AppIndexRoute
   '/cashflow': typeof AuthenticatedCashierCashflowRoute
   '/drive/{-$drive}': typeof AuthenticatedDriveChar123DriveChar125Route
   '/inventory/$id': typeof AuthenticatedInventoryIdRoute
@@ -251,7 +267,9 @@ export interface FileRoutesById {
   '/_auth/signup': typeof AuthSignupRoute
   '/_authenticated/inventory': typeof AuthenticatedInventoryRoute
   '/_authenticated/newdrive': typeof AuthenticatedNewdriveRouteWithChildren
+  '/app/$': typeof AppSplatRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
+  '/app/': typeof AppIndexRoute
   '/_authenticated/_cashier/cashflow': typeof AuthenticatedCashierCashflowRoute
   '/_authenticated/drive/{-$drive}': typeof AuthenticatedDriveChar123DriveChar125Route
   '/_authenticated/inventory_/$id': typeof AuthenticatedInventoryIdRoute
@@ -280,6 +298,8 @@ export interface FileRouteTypes {
     | '/signup'
     | '/inventory'
     | '/newdrive'
+    | '/app/$'
+    | '/app/'
     | '/cashflow'
     | '/drive/{-$drive}'
     | '/inventory/$id'
@@ -305,6 +325,8 @@ export interface FileRouteTypes {
     | '/login'
     | '/signup'
     | '/inventory'
+    | '/app/$'
+    | '/app'
     | '/cashflow'
     | '/drive/{-$drive}'
     | '/inventory/$id'
@@ -332,7 +354,9 @@ export interface FileRouteTypes {
     | '/_auth/signup'
     | '/_authenticated/inventory'
     | '/_authenticated/newdrive'
+    | '/app/$'
     | '/_authenticated/'
+    | '/app/'
     | '/_authenticated/_cashier/cashflow'
     | '/_authenticated/drive/{-$drive}'
     | '/_authenticated/inventory_/$id'
@@ -357,6 +381,8 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   AuthRouteRoute: typeof AuthRouteRouteWithChildren
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AppSplatRoute: typeof AppSplatRoute
+  AppIndexRoute: typeof AppIndexRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
 }
 
@@ -376,12 +402,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/app/': {
+      id: '/app/'
+      path: '/app'
+      fullPath: '/app/'
+      preLoaderRoute: typeof AppIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/': {
       id: '/_authenticated/'
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof AuthenticatedIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/app/$': {
+      id: '/app/$'
+      path: '/app/$'
+      fullPath: '/app/$'
+      preLoaderRoute: typeof AppSplatRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_authenticated/newdrive': {
       id: '/_authenticated/newdrive'
@@ -700,6 +740,8 @@ const AuthenticatedRouteRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   AuthRouteRoute: AuthRouteRouteWithChildren,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AppSplatRoute: AppSplatRoute,
+  AppIndexRoute: AppIndexRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
 }
 export const routeTree = rootRouteImport

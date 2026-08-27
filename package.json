@@ -23,6 +23,7 @@
     "deploy:legacy": "convex deploy --cmd 'pnpm build:cf:legacy' && wrangler deploy",
     "deploy:cf:dry:legacy": "convex deploy --cmd 'pnpm build:cf:legacy' && wrangler deploy --dry-run",
     "deploy:backend": "pnpm --filter @dg/backend deploy",
+    "deploy:cfsystem": "pnpm --filter @dg/cfsystem-redirect deploy",
     "deploy:public": "pnpm --filter @dg/public deploy",
     "deploy:system": "pnpm --filter @dg/system deploy",
     "cf:typegen": "pnpm --filter @dg/public --filter @dg/system cf:typegen",

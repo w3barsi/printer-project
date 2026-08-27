@@ -408,14 +408,14 @@ Checkpoint: all internal features build under their new root URLs and still inhe
 
 ## Step 10: Add URL Compatibility Redirects
 
-- [ ] Add a redirect for `/app` to `/jo`.
-- [ ] Add a catch-all redirect from `/app/*` to the equivalent root path while preserving the query string.
-- [ ] Ensure redirect path handling cannot create a protocol-relative or external URL.
-- [ ] Use permanent redirects only after the new paths are verified; temporary redirects are acceptable during initial rollout.
-- [ ] Keep a lightweight Worker or equivalent Cloudflare redirect on `cfsystem.darcygraphix.com` during the migration window.
-- [ ] Redirect `cfsystem.darcygraphix.com/app/*` to `https://system.darcygraphix.com/*`.
-- [ ] Redirect login and other non-`/app` system URLs from `cfsystem.darcygraphix.com` to the same path on `system.darcygraphix.com`.
-- [ ] Do not redirect old public `/share/*` links to the system domain; their canonical home is the public domain.
+- [x] Add a redirect for `/app` to `/jo`.
+- [x] Add a catch-all redirect from `/app/*` to the equivalent root path while preserving the query string.
+- [x] Ensure redirect path handling cannot create a protocol-relative or external URL.
+- [x] Use permanent redirects only after the new paths are verified; temporary redirects are acceptable during initial rollout.
+- [x] Keep a lightweight Worker or equivalent Cloudflare redirect on `cfsystem.darcygraphix.com` during the migration window.
+- [x] Redirect `cfsystem.darcygraphix.com/app/*` to `https://system.darcygraphix.com/*`.
+- [x] Redirect login and other non-`/app` system URLs from `cfsystem.darcygraphix.com` to the same path on `system.darcygraphix.com`.
+- [x] Do not redirect old public `/share/*` links to the system domain; their canonical home is the public domain.
 
 Checkpoint: bookmarks to old internal URLs reach the equivalent new system page without a redirect loop.
 
