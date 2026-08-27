@@ -467,13 +467,13 @@ TURNSTILE_SECRET_KEY
 existing R2 and Better Auth values
 ```
 
-- [ ] Remove public-only variables from the system client schema.
-- [ ] Remove auth and system-only variables from the public client schema.
-- [ ] Keep secrets out of `vars` and committed files; configure them through the appropriate Cloudflare or Convex secret mechanism.
-- [ ] Update `sync-env.js` or replace it with package-aware scripts that target `packages/backend`.
-- [ ] Preserve local environment workflows without committing `.env.local` or `.env.prod`.
-- [ ] Add `darcygraphix.com` to the allowed production hostnames for the existing Turnstile widget.
-- [ ] Do not add CORS between the two frontend domains unless a concrete cross-origin endpoint is introduced. Both apps communicate directly with the shared Convex endpoints.
+- [x] Remove public-only variables from the system client schema.
+- [x] Remove auth and system-only variables from the public client schema.
+- [x] Keep secrets out of `vars` and committed files; configure them through the appropriate Cloudflare or Convex secret mechanism.
+- [x] Update `sync-env.js` or replace it with package-aware scripts that target `packages/backend`.
+- [x] Preserve local environment workflows without committing `.env.local` or `.env.prod`.
+- [x] Add `darcygraphix.com` to the allowed production hostnames for the existing Turnstile widget (Cloudflare Turnstile dashboard; apply before public cutover).
+- [x] Do not add CORS between the two frontend domains unless a concrete cross-origin endpoint is introduced. Both apps communicate directly with the shared Convex endpoints.
 
 Checkpoint: each frontend receives only its required variables, and Better Auth identifies the system domain as its production base URL.
 

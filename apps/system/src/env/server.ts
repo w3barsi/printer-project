@@ -7,7 +7,6 @@ export const serverEnv = createEnv({
     TRELLO_TOKEN: z.string().min(1),
     VITE_CONVEX_URL: z.url(),
     VITE_CONVEX_SITE_URL: z.url(),
-    SERVER_URL: z.url().optional(),
   },
   runtimeEnv: process.env,
   emptyStringAsUndefined: true,
