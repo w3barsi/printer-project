@@ -27,7 +27,6 @@ import { Route as ApiAuthSplatRouteImport } from './routes/api/auth.$'
 import { Route as AuthenticatedTrelloListIdRouteImport } from './routes/_authenticated/trello.$listId'
 import { Route as AuthenticatedJoJoIdRouteImport } from './routes/_authenticated/jo.$joId'
 import { Route as AuthenticatedInventoryIdRouteImport } from './routes/_authenticated/inventory_.$id'
-import { Route as AuthenticatedDriveChar123DriveChar125RouteImport } from './routes/_authenticated/drive.{-$drive}'
 import { Route as AuthenticatedCashierCashflowRouteImport } from './routes/_authenticated/_cashier/cashflow'
 import { Route as AuthenticatedAdminAdminIndexRouteImport } from './routes/_authenticated/_admin/admin.index'
 import { Route as AuthenticatedNewdriveFileItemIdRouteImport } from './routes/_authenticated/newdrive.file.$itemId'
@@ -131,12 +130,6 @@ const AuthenticatedInventoryIdRoute =
     path: '/inventory/$id',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
-const AuthenticatedDriveChar123DriveChar125Route =
-  AuthenticatedDriveChar123DriveChar125RouteImport.update({
-    id: '/drive/{-$drive}',
-    path: '/drive/{-$drive}',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
 const AuthenticatedCashierCashflowRoute =
   AuthenticatedCashierCashflowRouteImport.update({
     id: '/cashflow',
@@ -213,7 +206,6 @@ export interface FileRoutesByFullPath {
   '/app/$': typeof AppSplatRoute
   '/app/': typeof AppIndexRoute
   '/cashflow': typeof AuthenticatedCashierCashflowRoute
-  '/drive/{-$drive}': typeof AuthenticatedDriveChar123DriveChar125Route
   '/inventory/$id': typeof AuthenticatedInventoryIdRoute
   '/jo/$joId': typeof AuthenticatedJoJoIdRoute
   '/trello/$listId': typeof AuthenticatedTrelloListIdRoute
@@ -240,7 +232,6 @@ export interface FileRoutesByTo {
   '/app/$': typeof AppSplatRoute
   '/app': typeof AppIndexRoute
   '/cashflow': typeof AuthenticatedCashierCashflowRoute
-  '/drive/{-$drive}': typeof AuthenticatedDriveChar123DriveChar125Route
   '/inventory/$id': typeof AuthenticatedInventoryIdRoute
   '/jo/$joId': typeof AuthenticatedJoJoIdRoute
   '/trello/$listId': typeof AuthenticatedTrelloListIdRoute
@@ -271,7 +262,6 @@ export interface FileRoutesById {
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/app/': typeof AppIndexRoute
   '/_authenticated/_cashier/cashflow': typeof AuthenticatedCashierCashflowRoute
-  '/_authenticated/drive/{-$drive}': typeof AuthenticatedDriveChar123DriveChar125Route
   '/_authenticated/inventory_/$id': typeof AuthenticatedInventoryIdRoute
   '/_authenticated/jo/$joId': typeof AuthenticatedJoJoIdRoute
   '/_authenticated/trello/$listId': typeof AuthenticatedTrelloListIdRoute
@@ -301,7 +291,6 @@ export interface FileRouteTypes {
     | '/app/$'
     | '/app/'
     | '/cashflow'
-    | '/drive/{-$drive}'
     | '/inventory/$id'
     | '/jo/$joId'
     | '/trello/$listId'
@@ -328,7 +317,6 @@ export interface FileRouteTypes {
     | '/app/$'
     | '/app'
     | '/cashflow'
-    | '/drive/{-$drive}'
     | '/inventory/$id'
     | '/jo/$joId'
     | '/trello/$listId'
@@ -358,7 +346,6 @@ export interface FileRouteTypes {
     | '/_authenticated/'
     | '/app/'
     | '/_authenticated/_cashier/cashflow'
-    | '/_authenticated/drive/{-$drive}'
     | '/_authenticated/inventory_/$id'
     | '/_authenticated/jo/$joId'
     | '/_authenticated/trello/$listId'
@@ -512,13 +499,6 @@ declare module '@tanstack/react-router' {
       path: '/inventory/$id'
       fullPath: '/inventory/$id'
       preLoaderRoute: typeof AuthenticatedInventoryIdRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/drive/{-$drive}': {
-      id: '/_authenticated/drive/{-$drive}'
-      path: '/drive/{-$drive}'
-      fullPath: '/drive/{-$drive}'
-      preLoaderRoute: typeof AuthenticatedDriveChar123DriveChar125RouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/_cashier/cashflow': {
@@ -711,7 +691,6 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedInventoryRoute: typeof AuthenticatedInventoryRoute
   AuthenticatedNewdriveRoute: typeof AuthenticatedNewdriveRouteWithChildren
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
-  AuthenticatedDriveChar123DriveChar125Route: typeof AuthenticatedDriveChar123DriveChar125Route
   AuthenticatedInventoryIdRoute: typeof AuthenticatedInventoryIdRoute
   AuthenticatedJoJoIdRoute: typeof AuthenticatedJoJoIdRoute
   AuthenticatedTrelloListIdRoute: typeof AuthenticatedTrelloListIdRoute
@@ -725,8 +704,6 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedInventoryRoute: AuthenticatedInventoryRoute,
   AuthenticatedNewdriveRoute: AuthenticatedNewdriveRouteWithChildren,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
-  AuthenticatedDriveChar123DriveChar125Route:
-    AuthenticatedDriveChar123DriveChar125Route,
   AuthenticatedInventoryIdRoute: AuthenticatedInventoryIdRoute,
   AuthenticatedJoJoIdRoute: AuthenticatedJoJoIdRoute,
   AuthenticatedTrelloListIdRoute: AuthenticatedTrelloListIdRoute,

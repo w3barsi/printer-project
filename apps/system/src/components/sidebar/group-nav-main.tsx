@@ -23,7 +23,6 @@ import {
   ChevronRightIcon,
   FolderIcon,
   FolderPlusIcon,
-  HardDriveIcon,
   PiggyBankIcon,
 } from "lucide-react";
 
@@ -37,7 +36,6 @@ export function MainNavGroup() {
       <SidebarMenu>
         <CashflowSidebarItem />
         <InventorySidebarItem />
-        <DriveSidebarItem />
         <NewDriveSidebarItem />
         <TrelloSidebar />
       </SidebarMenu>
@@ -64,30 +62,6 @@ function InventorySidebarItem() {
       >
         <BoxesIcon />
         <span>Inventory</span>
-      </SidebarMenuButton>
-    </SidebarMenuItem>
-  );
-}
-
-function DriveSidebarItem() {
-  const { isMobile, setOpenMobile } = useSidebar();
-  const match = useMatch({ from: "/_authenticated/drive/{-$drive}", shouldThrow: false });
-
-  return (
-    <SidebarMenuItem>
-      <SidebarMenuButton
-        tooltip="Drive"
-        isActive={!!match}
-        render={
-          <Link
-            to="/drive/{-$drive}"
-            onClick={() => isMobile && setOpenMobile(false)}
-            tabIndex={0}
-          />
-        }
-      >
-        <HardDriveIcon />
-        <span>Drive</span>
       </SidebarMenuButton>
     </SidebarMenuItem>
   );

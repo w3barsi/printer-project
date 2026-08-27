@@ -9,24 +9,20 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@dg/ui/components/breadcrumb";
-import { Skeleton } from "@dg/ui/components/skeleton";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { isMatch, Link, useMatches } from "@tanstack/react-router";
-import { Suspense } from "react";
 import z from "zod";
-
-import type { Parent } from "@/types/drive";
 
 type CrumbType = {
   value: string;
   href: string;
-  type: "static" | "jo" | "drive";
+  type: "static" | "jo";
 };
 
 const crumbValidator = z.object({
   value: z.string(),
   href: z.string(),
-  type: z.enum(["static", "jo", "drive"]),
+  type: z.enum(["static", "jo"]),
 });
 const crumbsValidator = z.array(crumbValidator);
 
@@ -63,21 +59,6 @@ function Crumb({ idx, crumb }: { idx: number; crumb: CrumbType }) {
       ) : null}
 
       {crumb.type === "jo" ? <JoCrumb crumb={crumb} /> : null}
-      <Suspense fallback={<Skeleton className="h-4 w-8" />}>
-        {crumb.type === "drive" ? <DriveCrumb crumb={crumb} /> : null}
-      </Suspense>
-    </>
-  );
-}
-
-function DriveCrumb({ crumb }: { crumb: CrumbType }) {
-  const parent: Parent = crumb.value ? (crumb.value as Id<"folder">) : "private";
-  const { data } = useSuspenseQuery(convexQuery(api.drive.getDrive, { parent }));
-  return (
-    <>
-      <BreadcrumbItem>
-        <BreadcrumbPage>{data?.currentFolder?.name}</BreadcrumbPage>
-      </BreadcrumbItem>
     </>
   );
 }
