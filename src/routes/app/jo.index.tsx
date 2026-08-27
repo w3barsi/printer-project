@@ -1,16 +1,8 @@
 import { convexQuery } from "@convex-dev/react-query";
-import { api } from "@convex/_generated/api";
-import { useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute, useNavigate, useRouter } from "@tanstack/react-router";
-import { ArrowLeftIcon, ArrowRightIcon, ChevronRightIcon, HashIcon } from "lucide-react";
-import { Suspense, useRef, useState } from "react";
-import { useHotkeys } from "react-hotkeys-hook";
-
-import { CreateJoDialog } from "@/components/jo/create-jo";
-import { Container } from "@/components/layouts/container";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
+import { api } from "@dg/backend/api";
+import { Badge } from "@dg/ui/components/badge";
+import { Button } from "@dg/ui/components/button";
+import { Skeleton } from "@dg/ui/components/skeleton";
 import {
   Table,
   TableBody,
@@ -19,7 +11,15 @@ import {
   TableHeader,
   TableRow,
   TableWrapper,
-} from "@/components/ui/table";
+} from "@dg/ui/components/table";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { createFileRoute, useNavigate, useRouter } from "@tanstack/react-router";
+import { ArrowLeftIcon, ArrowRightIcon, ChevronRightIcon, HashIcon } from "lucide-react";
+import { Suspense, useRef, useState } from "react";
+import { useHotkeys } from "react-hotkeys-hook";
+
+import { CreateJoDialog } from "@/components/jo/create-jo";
+import { Container } from "@/components/layouts/container";
 import type { JoWithItems } from "@/types/convex";
 
 export const Route = createFileRoute("/app/jo/")({

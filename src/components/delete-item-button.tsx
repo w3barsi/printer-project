@@ -1,5 +1,5 @@
-import { api } from "@convex/_generated/api";
-import type { Id } from "@convex/_generated/dataModel";
+import { api } from "@dg/backend/api";
+import type { Id } from "@dg/backend/dataModel";
 import { useParams } from "@tanstack/react-router";
 import { useMutation } from "convex/react";
 

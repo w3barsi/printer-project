@@ -1,16 +1,15 @@
-import { api } from "@convex/_generated/api";
+import { api } from "@dg/backend/api";
+import { Button } from "@dg/ui/components/button";
+import { Kbd } from "@dg/ui/components/kbd";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@dg/ui/components/tooltip";
 import { useMutation } from "convex/react";
 import { PrinterIcon } from "lucide-react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { toast } from "sonner";
 
-import { Button } from "@/components/ui/button";
 import { useDevice } from "@/contexts/DeviceContext";
 import { printReceipt } from "@/lib/printer";
 import type { GetOneComplete } from "@/types/convex";
-
-import { Kbd } from "../ui/kbd";
-import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
 export function PrintJoButton({ jo }: { jo: GetOneComplete }) {
   const { device, isConnected } = useDevice();

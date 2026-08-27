@@ -1,4 +1,4 @@
-import type { Id } from "@convex/_generated/dataModel";
+import type { Id } from "@dg/backend/dataModel";
 import { useParams } from "@tanstack/react-router";
 
 import type { Parent } from "@/types/drive";

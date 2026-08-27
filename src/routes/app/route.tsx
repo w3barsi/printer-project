@@ -1,5 +1,7 @@
 import { convexQuery } from "@convex-dev/react-query";
-import { api } from "@convex/_generated/api";
+import { api } from "@dg/backend/api";
+import { Separator } from "@dg/ui/components/separator";
+import { SidebarInset, SidebarProvider, SidebarTrigger } from "@dg/ui/components/sidebar";
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 
 import { MainBreadcrumbs } from "@/components/breadcrumbs";
@@ -7,8 +9,6 @@ import { Container } from "@/components/layouts/container";
 import { PrinterModeHandler } from "@/components/printer-mode-handler";
 import { AppSidebar } from "@/components/sidebar/app-sidebar";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { Separator } from "@/components/ui/separator";
-import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 
 export const Route = createFileRoute("/app")({
   component: RouteComponent,

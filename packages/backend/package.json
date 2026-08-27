@@ -1,0 +1,32 @@
+{
+  "name": "@dg/backend",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./api": {
+      "types": "./convex/_generated/api.d.ts",
+      "default": "./convex/_generated/api.js"
+    },
+    "./dataModel": "./convex/_generated/dataModel.d.ts",
+    "./schema": "./convex/schema.ts"
+  },
+  "scripts": {
+    "codegen": "pnpm --dir ../.. exec convex codegen",
+    "codegen:component": "pnpm --dir ../.. exec convex codegen --component-dir packages/backend/convex/betterAuth",
+    "deploy": "pnpm --dir ../.. exec convex deploy",
+    "dry-run": "pnpm --dir ../.. exec convex deploy --dry-run",
+    "convex:env": "pnpm --dir ../.. exec convex env"
+  },
+  "dependencies": {
+    "@convex-dev/better-auth": "^0.12.4",
+    "@convex-dev/migrations": "^0.3.5",
+    "@convex-dev/r2": "^0.10.2",
+    "@dg/auth": "workspace:*",
+    "better-auth": "~1.6.19",
+    "convex": "^1.42.0",
+    "convex-helpers": "^0.1.119"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  }
+}

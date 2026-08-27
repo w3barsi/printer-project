@@ -1,5 +1,28 @@
 import { convexQuery, useConvexMutation } from "@convex-dev/react-query";
-import { api } from "@convex/_generated/api";
+import { api } from "@dg/backend/api";
+import { Button } from "@dg/ui/components/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@dg/ui/components/dialog";
+import { Field, FieldError, FieldGroup, FieldLabel } from "@dg/ui/components/field";
+import { Input } from "@dg/ui/components/input";
+import { Skeleton } from "@dg/ui/components/skeleton";
+import { Spinner } from "@dg/ui/components/spinner";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+  TableWrapper,
+} from "@dg/ui/components/table";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
@@ -10,29 +33,6 @@ import { toast } from "sonner";
 import { z } from "zod";
 
 import { Container } from "@/components/layouts/container";
-import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Spinner } from "@/components/ui/spinner";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-  TableWrapper,
-} from "@/components/ui/table";
 
 const PAGE_SIZE = 50;
 

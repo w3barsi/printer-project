@@ -1,15 +1,6 @@
-import { api } from "@convex/_generated/api";
-import type { Id } from "@convex/_generated/dataModel";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouteContext } from "@tanstack/react-router";
-import { useMutation } from "convex/react";
-import { PlusIcon } from "lucide-react";
-import { useState } from "react";
-import { Controller, useForm } from "react-hook-form";
-import { useHotkeys } from "react-hotkeys-hook";
-import { z } from "zod";
-
-import { Button } from "../ui/button";
+import { api } from "@dg/backend/api";
+import type { Id } from "@dg/backend/dataModel";
+import { Button } from "@dg/ui/components/button";
 import {
   Dialog,
   DialogContent,
@@ -18,10 +9,10 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "../ui/dialog";
-import { Field, FieldError, FieldLabel } from "../ui/field";
-import { Input } from "../ui/input";
-import { Kbd } from "../ui/kbd";
+} from "@dg/ui/components/dialog";
+import { Field, FieldError, FieldLabel } from "@dg/ui/components/field";
+import { Input } from "@dg/ui/components/input";
+import { Kbd } from "@dg/ui/components/kbd";
 import {
   Select,
   SelectContent,
@@ -29,9 +20,17 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../ui/select";
-import { Textarea } from "../ui/textarea";
-import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
+} from "@dg/ui/components/select";
+import { Textarea } from "@dg/ui/components/textarea";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@dg/ui/components/tooltip";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouteContext } from "@tanstack/react-router";
+import { useMutation } from "convex/react";
+import { PlusIcon } from "lucide-react";
+import { useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import { useHotkeys } from "react-hotkeys-hook";
+import { z } from "zod";
 
 const formSchema = z.object({
   amount: z.number().min(0.01, "Amount must be greater than 0"),

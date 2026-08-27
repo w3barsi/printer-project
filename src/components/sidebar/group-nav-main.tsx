@@ -1,5 +1,21 @@
 import { convexQuery } from "@convex-dev/react-query";
-import { api } from "@convex/_generated/api";
+import { api } from "@dg/backend/api";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@dg/ui/components/collapsible";
+import {
+  SidebarGroup,
+  SidebarMenu,
+  SidebarMenuAction,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
+  useSidebar,
+} from "@dg/ui/components/sidebar";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, useMatch, useRouteContext } from "@tanstack/react-router";
 import {
@@ -12,22 +28,6 @@ import {
 } from "lucide-react";
 
 import { CreateSpaceDialog } from "@/components/new-drive/create-space-dialog";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
-import {
-  SidebarGroup,
-  SidebarMenu,
-  SidebarMenuAction,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarMenuSub,
-  SidebarMenuSubButton,
-  SidebarMenuSubItem,
-  useSidebar,
-} from "@/components/ui/sidebar";
 
 import { TrelloSidebar } from "./trello-sidebar";
 

@@ -1,8 +1,7 @@
+import { DropdownMenuItem } from "@dg/ui/components/dropdown-menu";
 import { Check, PrinterIcon } from "lucide-react";
 
 import { useDevice } from "@/contexts/DeviceContext";
-
-import { DropdownMenuItem } from "./ui/dropdown-menu";
 
 export function PrinterModeToggle() {
   const { isConnected, isPrinterMode, setIsPrinterMode } = useDevice();

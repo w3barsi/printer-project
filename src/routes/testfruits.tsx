@@ -1,9 +1,9 @@
+import { Button } from "@dg/ui/components/button";
 import { useAutoAnimate } from "@formkit/auto-animate/react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 
 import { Container } from "@/components/layouts/container";
-import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/testfruits")({
   component: RouteComponent,

@@ -1,11 +1,11 @@
+import { Button } from "@dg/ui/components/button";
+import { Input } from "@dg/ui/components/input";
+import { Label } from "@dg/ui/components/label";
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, redirect, useNavigate } from "@tanstack/react-router";
 import { GalleryVerticalEnd, LoaderCircle } from "lucide-react";
 import { useState } from "react";
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { env } from "@/env/client";
 import { authClient } from "@/lib/auth-client";
 

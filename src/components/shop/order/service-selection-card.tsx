@@ -1,6 +1,6 @@
+import { Badge } from "@dg/ui/components/badge";
 import { ArrowRightIcon } from "lucide-react";
 
-import { Badge } from "@/components/ui/badge";
 import { SERVICES } from "@/lib/services";
 import { SHOP_ORDER_SUPPORTED_SERVICE_SLUG, getShopOrderHref } from "@/lib/shop-order";
 

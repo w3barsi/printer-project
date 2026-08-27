@@ -1,8 +1,8 @@
+import { Skeleton } from "@dg/ui/components/skeleton";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 
 import { Container } from "@/components/layouts/container";
-import { Skeleton } from "@/components/ui/skeleton";
 import { getTrelloLists } from "@/server/trello";
 
 export const Route = createFileRoute("/app/trello/")({

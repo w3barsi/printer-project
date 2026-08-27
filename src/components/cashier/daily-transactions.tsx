@@ -1,14 +1,14 @@
 import { convexQuery } from "@convex-dev/react-query";
-import { api } from "@convex/_generated/api";
+import { api } from "@dg/backend/api";
+import { Button } from "@dg/ui/components/button";
+import { Card, CardContent, CardHeader } from "@dg/ui/components/card";
+import { cn } from "@dg/ui/lib/utils";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { FilterIcon, PhilippinePesoIcon } from "lucide-react";
 import { type JSX } from "react";
 
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { useLocalStorage } from "@/hooks/use-local-storage";
-import { cn } from "@/lib/utils";
 
 export function DailyTransactions({
   dayStart,

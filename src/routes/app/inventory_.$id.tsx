@@ -1,6 +1,7 @@
 import { convexQuery } from "@convex-dev/react-query";
-import { api } from "@convex/_generated/api";
-import type { Id } from "@convex/_generated/dataModel";
+import { api } from "@dg/backend/api";
+import type { Id } from "@dg/backend/dataModel";
+import { Button } from "@dg/ui/components/button";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeftIcon, PackageXIcon } from "lucide-react";
@@ -8,7 +9,6 @@ import { ArrowLeftIcon, PackageXIcon } from "lucide-react";
 import { DefaultCatchBoundary } from "@/components/default-catch-boundary";
 import { InventoryItemDetails } from "@/components/inventory/item-details";
 import { Container } from "@/components/layouts/container";
-import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/app/inventory_/$id")({
   component: InventoryItemPage,

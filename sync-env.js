@@ -1,12 +1,12 @@
-import { execSync } from "child_process";
+import { spawnSync } from "child_process";
 import fs from "fs";
 import path from "path";
+import { fileURLToPath } from "url";
 
 const isProd = process.argv.includes("--prod");
-const envFlag = isProd ? "--prod" : "";
-
 const envFile = isProd ? ".env.prod" : ".env.local";
-const envPath = path.join(process.cwd(), envFile);
+const rootDir = path.dirname(fileURLToPath(import.meta.url));
+const envPath = path.join(rootDir, envFile);
 
 if (!fs.existsSync(envPath)) {
   console.error(`${envFile} not found`);
@@ -23,12 +23,24 @@ lines.forEach((line) => {
     if (left && rightParts.length > 0) {
       const key = left.trim();
       const value = rightParts.join("=").trim();
-      const command = `pnpm convex env ${envFlag} set ${key} ${value}`.trim();
-      console.log(`Running: ${command}`);
-      try {
-        execSync(command, { stdio: "inherit" });
-      } catch (error) {
-        console.error(`Failed to set ${key}:`, error.message);
+      const args = [
+        "--filter",
+        "@dg/backend",
+        "convex:env",
+        ...(isProd ? ["--prod"] : []),
+        "set",
+        key,
+        value,
+      ];
+      console.log(
+        `Setting ${key} on the ${isProd ? "production" : "development"} deployment`,
+      );
+      const result = spawnSync("pnpm", args, {
+        cwd: rootDir,
+        stdio: "inherit",
+      });
+      if (result.status !== 0) {
+        console.error(`Failed to set ${key}`);
       }
     }
   }

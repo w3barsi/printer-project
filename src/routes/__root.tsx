@@ -1,5 +1,6 @@
 import { ConvexBetterAuthProvider } from "@convex-dev/better-auth/react";
 import type { ConvexQueryClient } from "@convex-dev/react-query";
+import { TooltipProvider } from "@dg/ui/components/tooltip";
 import { TanStackDevtools } from "@tanstack/react-devtools";
 import { queryOptions, type QueryClient } from "@tanstack/react-query";
 import { ReactQueryDevtoolsPanel } from "@tanstack/react-query-devtools";
@@ -14,8 +15,7 @@ import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import { createServerFn } from "@tanstack/react-start";
 import { useEffect } from "react";
 
-import { Toaster } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
+import { ThemedToaster } from "@/components/themed-toaster";
 import { DeviceProvider } from "@/contexts/DeviceContext";
 import { ThemeProvider } from "@/contexts/theme-context";
 import { authClient } from "@/lib/auth-client.ts";
@@ -160,7 +160,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       <body>
         <ThemeProvider>
           {children}
-          <Toaster richColors position="top-center" />
+          <ThemedToaster richColors position="top-center" />
         </ThemeProvider>
         <TanStackDevtools
           plugins={[

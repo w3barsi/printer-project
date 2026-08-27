@@ -1,11 +1,4 @@
-import type { ClassValue } from "clsx";
-import { clsx } from "clsx";
 import { ConvexError } from "convex/values";
-import { twMerge } from "tailwind-merge";
-
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
-}
 
 // taken from is-standalone-pwa
 export function isStandalonePWA(): boolean {

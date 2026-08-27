@@ -1,5 +1,6 @@
 import { useConvexMutation } from "@convex-dev/react-query";
-import { api } from "@convex/_generated/api";
+import { api } from "@dg/backend/api";
+import { cn } from "@dg/ui/lib/utils";
 import { useMutation } from "@tanstack/react-query";
 import { Loader2, Upload } from "lucide-react";
 import { useId, useState } from "react";
@@ -8,7 +9,6 @@ import { toast } from "sonner";
 
 import { UploadToast } from "@/components/ui-custom/upload-toast";
 import { useUploadFile } from "@/lib/drive/use-upload-file";
-import { cn } from "@/lib/utils";
 import type { Parent } from "@/types/drive";
 
 type UploadDropzoneProps = {

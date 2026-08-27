@@ -1,6 +1,10 @@
 import { convexQuery } from "@convex-dev/react-query";
-import { api } from "@convex/_generated/api";
-import type { Doc } from "@convex/_generated/dataModel";
+import { api } from "@dg/backend/api";
+import type { Doc } from "@dg/backend/dataModel";
+import { Badge } from "@dg/ui/components/badge";
+import { Button } from "@dg/ui/components/button";
+import { Skeleton } from "@dg/ui/components/skeleton";
+import { cn } from "@dg/ui/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useRouteContext } from "@tanstack/react-router";
 import {
@@ -24,10 +28,6 @@ import {
   InventoryStockActions,
   type InventoryListItem,
 } from "@/components/inventory/item-dialogs";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
-import { cn } from "@/lib/utils";
 
 const ACTIVITY_PAGE_SIZE = 10;
 

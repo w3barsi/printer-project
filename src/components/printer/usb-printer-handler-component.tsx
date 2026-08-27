@@ -1,5 +1,6 @@
-import { Button } from "@/components/ui/button";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { Button } from "@dg/ui/components/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@dg/ui/components/tooltip";
+
 import { useDevice } from "@/contexts/DeviceContext";
 
 export function UsbPrinterHandlerComponent() {

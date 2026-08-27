@@ -1,6 +1,8 @@
 import { convexQuery } from "@convex-dev/react-query";
-import { api } from "@convex/_generated/api";
-import type { Id } from "@convex/_generated/dataModel";
+import { api } from "@dg/backend/api";
+import type { Id } from "@dg/backend/dataModel";
+import { Badge } from "@dg/ui/components/badge";
+import { Button } from "@dg/ui/components/button";
 import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation } from "convex/react";
@@ -18,8 +20,6 @@ import { OrderSummaryCard } from "@/components/jo/order-summary-card";
 import { PaymentsCard } from "@/components/jo/payment-card";
 import { Container } from "@/components/layouts/container";
 import { PrintJoButton } from "@/components/printer/print-jo-button";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/app/jo/$joId")({
   component: JoDetailComponent,

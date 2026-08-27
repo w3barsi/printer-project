@@ -1,9 +1,6 @@
 "use client";
 
-import { useRouteContext } from "@tanstack/react-router";
-import { ChevronsUpDown, LogOut } from "lucide-react";
-
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@dg/ui/components/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,8 +8,15 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
+} from "@dg/ui/components/dropdown-menu";
+import {
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+} from "@dg/ui/components/sidebar";
+import { useRouteContext } from "@tanstack/react-router";
+import { ChevronsUpDown, LogOut } from "lucide-react";
+
 import { authClient } from "@/lib/auth-client";
 
 import { PrinterModeToggle } from "../printer-mode-toggle";

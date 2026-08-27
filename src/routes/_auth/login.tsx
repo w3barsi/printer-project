@@ -1,17 +1,17 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { EyeClosedIcon, EyeIcon, LoaderCircle } from "lucide-react";
-import { useState } from "react";
-import z from "zod";
-
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Button } from "@dg/ui/components/button";
+import { Input } from "@dg/ui/components/input";
 import {
   InputGroup,
   InputGroupAddon,
   InputGroupButton,
   InputGroupInput,
-} from "@/components/ui/input-group";
-import { Label } from "@/components/ui/label";
+} from "@dg/ui/components/input-group";
+import { Label } from "@dg/ui/components/label";
+import { createFileRoute } from "@tanstack/react-router";
+import { EyeClosedIcon, EyeIcon, LoaderCircle } from "lucide-react";
+import { useState } from "react";
+import z from "zod";
+
 import { authClient } from "@/lib/auth-client";
 
 export const Route = createFileRoute("/_auth/login")({

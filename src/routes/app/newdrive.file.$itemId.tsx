@@ -1,6 +1,7 @@
 import { convexQuery } from "@convex-dev/react-query";
-import { api } from "@convex/_generated/api";
-import type { Id } from "@convex/_generated/dataModel";
+import { api } from "@dg/backend/api";
+import type { Id } from "@dg/backend/dataModel";
+import { Button, buttonVariants } from "@dg/ui/components/button";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { format } from "date-fns";
@@ -15,7 +16,6 @@ import {
 } from "lucide-react";
 
 import { Container } from "@/components/layouts/container";
-import { Button, buttonVariants } from "@/components/ui/button";
 
 export const Route = createFileRoute("/app/newdrive/file/$itemId")({
   component: FilePreviewPage,

@@ -1,0 +1,98 @@
+import { convexQuery } from "@convex-dev/react-query";
+import { api } from "@dg/backend/api";
+import {
+  SidebarGroup,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarMenuSkeleton,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
+  useSidebar,
+} from "@dg/ui/components/sidebar";
+import { useAutoAnimate } from "@formkit/auto-animate/react";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { Link, useMatch } from "@tanstack/react-router";
+import { FileTextIcon } from "lucide-react";
+import { Suspense } from "react";
+
+export function RecentJobOrdersGroup() {
+  const { isMobile, setOpenMobile } = useSidebar();
+  const match = useMatch({ from: "/_authenticated/jo/", shouldThrow: false });
+
+  return (
+    <SidebarGroup>
+      <SidebarMenu>
+        <SidebarMenuItem>
+          <SidebarMenuButton
+            tooltip="Job Order"
+            isActive={!!match}
+            render={
+              <Link
+                to="/jo"
+                preload="render"
+                onClick={() => isMobile && setOpenMobile(false)}
+              />
+            }
+          >
+            <FileTextIcon />
+            <span>Job Orders</span>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+        <Suspense fallback={<RecentSubMenuSkeleton />}>
+          <RecentSubMenu />
+        </Suspense>
+      </SidebarMenu>
+    </SidebarGroup>
+  );
+}
+
+function RecentSubMenu() {
+  const { data: recent } = useSuspenseQuery(convexQuery(api.jo.getRecent, {}));
+  const [parent] = useAutoAnimate(/* optional config */);
+  const { isMobile, setOpenMobile } = useSidebar();
+  const match = useMatch({ from: "/_authenticated/jo/$joId", shouldThrow: false });
+
+  return (
+    <div ref={parent}>
+      {recent.map((item) => (
+        <SidebarMenuItem key={item.id}>
+          <SidebarMenuSub>
+            <SidebarMenuSubItem className="truncate">
+              <SidebarMenuSubButton
+                isActive={match?.params?.joId === item.id}
+                render={
+                  <Link
+                    to={`/jo/$joId`}
+                    params={{ joId: item.id }}
+                    onClick={() => isMobile && setOpenMobile(false)}
+                    tabIndex={0}
+                  />
+                }
+              >
+                {item.name}
+              </SidebarMenuSubButton>
+            </SidebarMenuSubItem>
+          </SidebarMenuSub>
+        </SidebarMenuItem>
+      ))}
+    </div>
+  );
+}
+
+function RecentSubMenuSkeleton() {
+  return (
+    <>
+      {Array.from({ length: 5 }).map((_, idx) => (
+        <SidebarMenuItem key={idx}>
+          <SidebarMenuSub>
+            <SidebarMenuSubItem>
+              <SidebarMenuSubButton render={<SidebarMenuSkeleton />} />
+            </SidebarMenuSubItem>
+          </SidebarMenuSub>
+        </SidebarMenuItem>
+      ))}
+    </>
+  );
+}

@@ -1,0 +1,236 @@
+import { api } from "@dg/backend/api";
+import type { Id } from "@dg/backend/dataModel";
+import { Button } from "@dg/ui/components/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@dg/ui/components/dialog";
+import { Field, FieldError, FieldLabel } from "@dg/ui/components/field";
+import { Input } from "@dg/ui/components/input";
+import { Kbd } from "@dg/ui/components/kbd";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@dg/ui/components/select";
+import { Textarea } from "@dg/ui/components/textarea";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@dg/ui/components/tooltip";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouteContext } from "@tanstack/react-router";
+import { useMutation } from "convex/react";
+import { PlusIcon } from "lucide-react";
+import { useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import { useHotkeys } from "react-hotkeys-hook";
+import { z } from "zod";
+
+const formSchema = z.object({
+  amount: z.number().min(0.01, "Amount must be greater than 0"),
+  paymentType: z.enum(["cash", "bank"]),
+  note: z.string(),
+});
+
+type FormData = z.infer<typeof formSchema>;
+
+const paymentTypeItems: Array<{
+  label: string;
+  value: FormData["paymentType"];
+}> = [
+  { label: "Cash", value: "cash" },
+  { label: "Bank", value: "bank" },
+];
+
+export function AddPaymentDialog({
+  joId,
+  totalPayments,
+  totalOrderValue,
+}: {
+  joId: Id<"jo">;
+  totalPayments: number;
+  totalOrderValue: number;
+}) {
+  const [open, setOpen] = useState(false);
+  const { user } = useRouteContext({ from: "/_authenticated" });
+  const createPayment = useMutation(api.payment.createPayment).withOptimisticUpdate(
+    (localStore, args) => {
+      const currentValue = localStore.getQuery(api.jo.getOneComplete, { id: joId });
+      if (!currentValue) return;
+
+      // eslint-disable-next-line react-hooks/purity
+      const now = Date.now();
+
+      const newPayment = {
+        _id: `optimistic-${now}` as Id<"payment">,
+        _creationTime: now,
+        createdAt: now,
+        joId: args.joId,
+        amount: args.amount,
+        full: args.full,
+        mop: args.mop,
+        createdBy: user.actorId,
+        createdByName: user.name,
+        note: args.note,
+      };
+
+      const updatedTotalPayments = currentValue.totalPayments + args.amount;
+
+      localStore.setQuery(
+        api.jo.getOneComplete,
+        { id: joId },
+        {
+          ...currentValue,
+          totalPayments: updatedTotalPayments,
+          payments: [newPayment, ...currentValue.payments],
+        },
+      );
+    },
+  );
+
+  useHotkeys("p", () => {
+    setOpen(true);
+  });
+
+  const form = useForm<FormData>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      amount: 0,
+      paymentType: "cash",
+      note: "",
+    },
+  });
+
+  const onSubmit = async (data: FormData) => {
+    const full = data.amount >= totalOrderValue - totalPayments;
+    createPayment({
+      joId,
+      amount: data.amount,
+      full,
+      mop: data.paymentType,
+      note: data.note,
+    });
+    setOpen(false);
+    form.reset();
+  };
+
+  const handleTotalPayment = async () => {
+    form.setValue("amount", totalOrderValue - totalPayments);
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <Tooltip>
+        <TooltipTrigger render={<DialogTrigger render={<Button size="lg" />} />}>
+          <PlusIcon /> Add Payment
+        </TooltipTrigger>
+        <TooltipContent>
+          <div className="flex items-center gap-2">
+            Add Payment <Kbd>P</Kbd>
+          </div>
+        </TooltipContent>
+      </Tooltip>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Add New Payment</DialogTitle>
+          <DialogDescription>
+            Fill in the details below to add a new payment to the job order.
+          </DialogDescription>
+        </DialogHeader>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <Controller
+            name="amount"
+            control={form.control}
+            render={({ field, fieldState }) => (
+              <Field data-invalid={fieldState.invalid}>
+                <FieldLabel htmlFor="payment-amount">Amount</FieldLabel>
+                <div className="flex gap-2">
+                  <Input
+                    {...field}
+                    id="payment-amount"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    placeholder="0.00"
+                    aria-invalid={fieldState.invalid}
+                    onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleTotalPayment}
+                    className="whitespace-nowrap"
+                  >
+                    Full Payment
+                  </Button>
+                </div>
+                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+              </Field>
+            )}
+          />
+          <Controller
+            name="paymentType"
+            control={form.control}
+            render={({ field, fieldState }) => (
+              <Field data-invalid={fieldState.invalid}>
+                <FieldLabel htmlFor="payment-type">Payment Type</FieldLabel>
+                <Select
+                  items={paymentTypeItems}
+                  name={field.name}
+                  value={field.value}
+                  onValueChange={field.onChange}
+                >
+                  <SelectTrigger id="payment-type" aria-invalid={fieldState.invalid}>
+                    <SelectValue placeholder="Select payment type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      {paymentTypeItems.map((item) => (
+                        <SelectItem key={item.value} value={item.value}>
+                          {item.label}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+              </Field>
+            )}
+          />
+          <Controller
+            name="note"
+            control={form.control}
+            render={({ field, fieldState }) => (
+              <Field data-invalid={fieldState.invalid}>
+                <FieldLabel htmlFor="payment-note">Note (optional)</FieldLabel>
+                <Textarea
+                  {...field}
+                  id="payment-note"
+                  placeholder="Add any notes..."
+                  className="resize-none"
+                  aria-invalid={fieldState.invalid}
+                />
+                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+              </Field>
+            )}
+          />
+          <DialogFooter>
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={form.formState.isSubmitting}
+            >
+              {form.formState.isSubmitting ? "Adding..." : "Add Payment"}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}

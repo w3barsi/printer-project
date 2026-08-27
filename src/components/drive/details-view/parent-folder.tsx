@@ -1,9 +1,9 @@
+import { cn } from "@dg/ui/lib/utils";
 import { useDroppable } from "@dnd-kit/core";
 import { useNavigate } from "@tanstack/react-router";
 import { CornerLeftUpIcon } from "lucide-react";
 
 import { createDropId, extractId } from "@/lib/drive/drag-utils";
-import { cn } from "@/lib/utils";
 import type { GetDriveParentFolderType } from "@/types/convex";
 
 interface ParentFolderProps {

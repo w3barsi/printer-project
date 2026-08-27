@@ -1,3 +1,6 @@
+import { Button } from "@dg/ui/components/button";
+import { Card, CardContent, CardFooter } from "@dg/ui/components/card";
+import { Skeleton } from "@dg/ui/components/skeleton";
 import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import fileSaver from "file-saver";
@@ -7,9 +10,6 @@ import { Suspense } from "react";
 import { toast } from "sonner";
 
 import { Container } from "@/components/layouts/container";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
 import {
   downloadCardAttachmentsServerFn,
   getCardAttachmentsServerFn,

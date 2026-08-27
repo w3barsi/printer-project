@@ -1,7 +1,6 @@
+import { Button } from "@dg/ui/components/button";
 import type { ErrorComponentProps } from "@tanstack/react-router";
 import { ErrorComponent, Link, rootRouteId, useMatch } from "@tanstack/react-router";
-
-import { Button } from "./ui/button";
 
 export function DefaultCatchBoundary({ error }: Readonly<ErrorComponentProps>) {
   const isRoot = useMatch({

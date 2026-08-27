@@ -1,0 +1,14 @@
+{
+  "name": "@dg/auth",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "better-auth": "~1.6.19"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  }
+}

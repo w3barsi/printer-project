@@ -1,12 +1,10 @@
 import { convexQuery } from "@convex-dev/react-query";
+import { api } from "@dg/backend/api";
+import { Button } from "@dg/ui/components/button";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation } from "convex/react";
 import { Suspense, useRef } from "react";
-
-import { Button } from "@/components/ui/button";
-
-import { api } from "../../convex/_generated/api";
 
 export const Route = createFileRoute("/convex")({
   component: App,

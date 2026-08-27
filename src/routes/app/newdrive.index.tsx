@@ -1,16 +1,8 @@
 import { convexQuery } from "@convex-dev/react-query";
-import { api } from "@convex/_generated/api";
-import { useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { formatDistanceToNow } from "date-fns";
-import { ArrowRightIcon, Clock3Icon, FolderKanbanIcon, SearchIcon } from "lucide-react";
-import { useDeferredValue, useState } from "react";
-
-import { Container } from "@/components/layouts/container";
-import { CreateSpaceDialog } from "@/components/new-drive/create-space-dialog";
-import { NewDriveFileList } from "@/components/new-drive/file-list";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { api } from "@dg/backend/api";
+import { NewDriveFileList } from "@dg/drive/components/file-list";
+import { Badge } from "@dg/ui/components/badge";
+import { Button } from "@dg/ui/components/button";
 import {
   Card,
   CardAction,
@@ -19,8 +11,16 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+} from "@dg/ui/components/card";
+import { Input } from "@dg/ui/components/input";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { formatDistanceToNow } from "date-fns";
+import { ArrowRightIcon, Clock3Icon, FolderKanbanIcon, SearchIcon } from "lucide-react";
+import { useDeferredValue, useState } from "react";
+
+import { Container } from "@/components/layouts/container";
+import { CreateSpaceDialog } from "@/components/new-drive/create-space-dialog";
 import { useNewDrive } from "@/contexts/new-drive-context";
 
 export const Route = createFileRoute("/app/newdrive/")({
@@ -34,6 +34,7 @@ export const Route = createFileRoute("/app/newdrive/")({
 });
 
 function NewDrivePage() {
+  const navigate = useNavigate();
   const { items } = useNewDrive();
   const { data: spaces } = useSuspenseQuery(convexQuery(api.drive.spaces.list, {}));
   const [query, setQuery] = useState("");
@@ -43,6 +44,20 @@ function NewDrivePage() {
   const visibleItems = deferredQuery
     ? searchableItems.filter((item) => item.name.toLowerCase().includes(deferredQuery))
     : searchableItems.slice(0, 6);
+
+  function openItem(item: (typeof items)[number]) {
+    if (item.kind === "folder") {
+      void navigate({
+        to: "/app/newdrive/$spaceId/{-$folderId}",
+        params: { spaceId: item.spaceId, folderId: item.id },
+      });
+      return;
+    }
+    void navigate({
+      to: "/app/newdrive/file/$itemId",
+      params: { itemId: item.id },
+    });
+  }
 
   return (
     <main className="min-h-[calc(100svh-4.1rem)] bg-muted/25">
@@ -140,6 +155,7 @@ function NewDrivePage() {
           <NewDriveFileList
             items={visibleItems}
             title={deferredQuery ? "Search results" : "Recently updated"}
+            onOpenItem={openItem}
           />
         </section>
       </Container>

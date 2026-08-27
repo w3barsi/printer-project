@@ -1,12 +1,7 @@
 import { convexQuery, useConvexMutation } from "@convex-dev/react-query";
-import { api } from "@convex/_generated/api";
-import type { Id } from "@convex/_generated/dataModel";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { PlusIcon } from "lucide-react";
-import { type FormEvent, useId, useState } from "react";
-import { toast } from "sonner";
-
-import { Button } from "@/components/ui/button";
+import { api } from "@dg/backend/api";
+import type { Id } from "@dg/backend/dataModel";
+import { Button } from "@dg/ui/components/button";
 import {
   Combobox,
   ComboboxContent,
@@ -14,7 +9,7 @@ import {
   ComboboxInput,
   ComboboxItem,
   ComboboxList,
-} from "@/components/ui/combobox";
+} from "@dg/ui/components/combobox";
 import {
   Dialog,
   DialogContent,
@@ -22,10 +17,14 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
-import { Spinner } from "@/components/ui/spinner";
+} from "@dg/ui/components/dialog";
+import { Field, FieldDescription, FieldGroup, FieldLabel } from "@dg/ui/components/field";
+import { Input } from "@dg/ui/components/input";
+import { Spinner } from "@dg/ui/components/spinner";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { PlusIcon } from "lucide-react";
+import { type FormEvent, useId, useState } from "react";
+import { toast } from "sonner";
 
 const MAX_CUSTOMER_NAME_LENGTH = 120;
 

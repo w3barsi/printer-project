@@ -1,8 +1,8 @@
-import { useQuery } from "@tanstack/react-query";
-import { Link, useMatch } from "@tanstack/react-router";
-import { ChevronRight, TrelloIcon } from "lucide-react";
-import { useEffect } from "react";
-
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@dg/ui/components/collapsible";
 import {
   SidebarMenuAction,
   SidebarMenuButton,
@@ -11,13 +11,16 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
   useSidebar,
-} from "@/components/ui/sidebar";
+} from "@dg/ui/components/sidebar";
+import { Spinner } from "@dg/ui/components/spinner";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@dg/ui/components/tooltip";
+import { useQuery } from "@tanstack/react-query";
+import { Link, useMatch } from "@tanstack/react-router";
+import { ChevronRight, TrelloIcon } from "lucide-react";
+import { useEffect } from "react";
+
 import { useLocalStorage } from "@/hooks/use-local-storage";
 import { getTrelloLists } from "@/server/trello";
-
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../ui/collapsible";
-import { Spinner } from "../ui/spinner";
-import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
 export function TrelloSidebar() {
   const [isOpen, setIsOpen] = useLocalStorage("trello-lists-open", false);

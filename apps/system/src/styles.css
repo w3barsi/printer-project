@@ -1,0 +1,36 @@
+@import "@dg/ui/styles/base.css";
+
+@source "./";
+@source "../../../packages/drive/src";
+
+@layer utilities {
+  @keyframes dot-appear {
+    0% {
+      opacity: 0;
+    }
+    33.33%,
+    100% {
+      opacity: 1;
+    }
+  }
+
+  .animate-dot-appear {
+    animation: dot-appear 1.5s ease-in-out infinite;
+  }
+
+  .delay-500 {
+    animation-delay: 0.5s;
+  }
+
+  .delay-1000 {
+    animation-delay: 1s;
+  }
+}
+
+@media all and (display-mode: standalone),
+  all and (display-mode: minimal-ui),
+  all and (display-mode: fullscreen) {
+  .pwa-padding {
+    padding-bottom: calc(var(--spacing) * 15);
+  }
+}

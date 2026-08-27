@@ -1,4 +1,19 @@
-import type { Id } from "@convex/_generated/dataModel";
+import type { Id } from "@dg/backend/dataModel";
+import { Button } from "@dg/ui/components/button";
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuSeparator,
+  ContextMenuTrigger,
+} from "@dg/ui/components/context-menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@dg/ui/components/dropdown-menu";
+import { cn } from "@dg/ui/lib/utils";
 import { useNavigate, useParams } from "@tanstack/react-router";
 import fileSaver from "file-saver";
 import {
@@ -19,27 +34,12 @@ import type { ComponentPropsWithRef } from "react";
 import { useState } from "react";
 import { toast } from "sonner";
 
-import { Button } from "@/components/ui/button";
 import { type SelectedItem, useSelected } from "@/contexts/SelectedContext";
 import { useDeleteFilesOrFolders } from "@/lib/convex/optimistic-mutations";
 import { useGetParentFolder } from "@/lib/get-parent-folder";
-import { cn } from "@/lib/utils";
 import type { GetDriveType } from "@/types/convex";
 
 import type { Parent } from "../ui-custom/upload-dropzone";
-import {
-  ContextMenu,
-  ContextMenuContent,
-  ContextMenuItem,
-  ContextMenuSeparator,
-  ContextMenuTrigger,
-} from "../ui/context-menu";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "../ui/dropdown-menu";
 import { RenameDialog } from "./rename-dialog";
 
 export function EntryWrapper({

@@ -1,12 +1,5 @@
-import { api } from "@convex/_generated/api";
-import type { Id } from "@convex/_generated/dataModel";
-import { useNavigate } from "@tanstack/react-router";
-import { useMutation } from "convex/react";
-import { Trash2Icon } from "lucide-react";
-import { useRef, useState } from "react";
-import { useHotkeys } from "react-hotkeys-hook";
-import { toast } from "sonner";
-
+import { api } from "@dg/backend/api";
+import type { Id } from "@dg/backend/dataModel";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -17,11 +10,16 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
-
-import { Kbd } from "../ui/kbd";
-import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
+} from "@dg/ui/components/alert-dialog";
+import { Button } from "@dg/ui/components/button";
+import { Kbd } from "@dg/ui/components/kbd";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@dg/ui/components/tooltip";
+import { useNavigate } from "@tanstack/react-router";
+import { useMutation } from "convex/react";
+import { Trash2Icon } from "lucide-react";
+import { useRef, useState } from "react";
+import { useHotkeys } from "react-hotkeys-hook";
+import { toast } from "sonner";
 
 export function DeleteJoAlertDialog({
   joId,

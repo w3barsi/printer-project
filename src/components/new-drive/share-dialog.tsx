@@ -1,10 +1,7 @@
-import type { Id } from "@convex/_generated/dataModel";
-import { useMutation, useQuery } from "convex/react";
-import { CopyIcon, LinkIcon, Share2Icon, Trash2Icon } from "lucide-react";
-import { useEffect, useState } from "react";
-import { toast } from "sonner";
-
-import { Button } from "@/components/ui/button";
+import type { Id } from "@dg/backend/dataModel";
+import { shareApi } from "@dg/drive/share-api";
+import type { NewDriveShareItem } from "@dg/drive/types";
+import { Button } from "@dg/ui/components/button";
 import {
   Dialog,
   DialogContent,
@@ -12,9 +9,9 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
+} from "@dg/ui/components/dialog";
+import { Field, FieldGroup, FieldLabel } from "@dg/ui/components/field";
+import { Input } from "@dg/ui/components/input";
 import {
   Select,
   SelectContent,
@@ -22,10 +19,12 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Spinner } from "@/components/ui/spinner";
-import type { NewDriveShareItem } from "@/lib/new-drive-items";
-import { shareApi } from "@/lib/share-api";
+} from "@dg/ui/components/select";
+import { Spinner } from "@dg/ui/components/spinner";
+import { useMutation, useQuery } from "convex/react";
+import { CopyIcon, LinkIcon, Share2Icon, Trash2Icon } from "lucide-react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 type Expiration = "never" | "day" | "week" | "month" | "custom";
 type Access = "restricted" | "read" | "edit";

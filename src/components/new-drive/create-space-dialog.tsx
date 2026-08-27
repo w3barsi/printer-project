@@ -1,15 +1,6 @@
 import { convexQuery, useConvexMutation } from "@convex-dev/react-query";
-import { api } from "@convex/_generated/api";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useRouteContext } from "@tanstack/react-router";
-import { PlusIcon } from "lucide-react";
-import { useId, useState } from "react";
-import { Controller, useForm } from "react-hook-form";
-import { toast } from "sonner";
-import { z } from "zod";
-
-import { Button } from "@/components/ui/button";
+import { api } from "@dg/backend/api";
+import { Button } from "@dg/ui/components/button";
 import {
   Dialog,
   DialogContent,
@@ -18,15 +9,15 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
+} from "@dg/ui/components/dialog";
 import {
   Field,
   FieldDescription,
   FieldError,
   FieldGroup,
   FieldLabel,
-} from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
+} from "@dg/ui/components/field";
+import { Input } from "@dg/ui/components/input";
 import {
   Select,
   SelectContent,
@@ -34,9 +25,17 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { SidebarMenuSubButton } from "@/components/ui/sidebar";
-import { Spinner } from "@/components/ui/spinner";
+} from "@dg/ui/components/select";
+import { SidebarMenuSubButton } from "@dg/ui/components/sidebar";
+import { Spinner } from "@dg/ui/components/spinner";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useRouteContext } from "@tanstack/react-router";
+import { PlusIcon } from "lucide-react";
+import { useId, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { z } from "zod";
 
 const visibilityOptions = [
   { label: "Everyone", value: "everyone" },

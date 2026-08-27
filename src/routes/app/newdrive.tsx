@@ -1,5 +1,5 @@
 import { convexQuery } from "@convex-dev/react-query";
-import { api } from "@convex/_generated/api";
+import { api } from "@dg/backend/api";
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 
 import { NewDriveProvider } from "@/contexts/new-drive-context";

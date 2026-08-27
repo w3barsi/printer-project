@@ -1,13 +1,6 @@
-import { api } from "@convex/_generated/api";
-import type { Id } from "@convex/_generated/dataModel";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouteContext, useSearch } from "@tanstack/react-router";
-import { useMutation } from "convex/react";
-import { useState } from "react";
-import { Controller, useForm } from "react-hook-form";
-import { z } from "zod";
-
-import { Button } from "@/components/ui/button";
+import { api } from "@dg/backend/api";
+import type { Id } from "@dg/backend/dataModel";
+import { Button } from "@dg/ui/components/button";
 import {
   Dialog,
   DialogContent,
@@ -15,9 +8,16 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
-import { Field, FieldError, FieldLabel } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
+} from "@dg/ui/components/dialog";
+import { Field, FieldError, FieldLabel } from "@dg/ui/components/field";
+import { Input } from "@dg/ui/components/input";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouteContext, useSearch } from "@tanstack/react-router";
+import { useMutation } from "convex/react";
+import { useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import { z } from "zod";
+
 import { todayZero } from "@/routes/app/_cashier/cashflow";
 
 const formSchema = z.object({

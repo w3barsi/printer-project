@@ -1,21 +1,15 @@
 import { convexQuery } from "@convex-dev/react-query";
-import { api } from "@convex/_generated/api";
-import type { Doc, Id } from "@convex/_generated/dataModel";
-import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
-import { Link, useRouteContext } from "@tanstack/react-router";
-import { ArrowLeftIcon, ArrowRightIcon, HistoryIcon, Trash2Icon } from "lucide-react";
-import { useState } from "react";
-
-import { DeleteInventoryActivityDialog } from "@/components/inventory/delete-activity-dialog";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { api } from "@dg/backend/api";
+import type { Doc, Id } from "@dg/backend/dataModel";
+import { Badge } from "@dg/ui/components/badge";
+import { Button } from "@dg/ui/components/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from "@dg/ui/components/card";
 import {
   Combobox,
   ComboboxContent,
@@ -24,14 +18,14 @@ import {
   ComboboxItem,
   ComboboxList,
   ComboboxTrigger,
-} from "@/components/ui/combobox";
+} from "@dg/ui/components/combobox";
 import {
   Empty,
   EmptyDescription,
   EmptyHeader,
   EmptyMedia,
   EmptyTitle,
-} from "@/components/ui/empty";
+} from "@dg/ui/components/empty";
 import {
   Select,
   SelectContent,
@@ -39,8 +33,8 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Skeleton } from "@/components/ui/skeleton";
+} from "@dg/ui/components/select";
+import { Skeleton } from "@dg/ui/components/skeleton";
 import {
   Table,
   TableBody,
@@ -49,8 +43,14 @@ import {
   TableHeader,
   TableRow,
   TableWrapper,
-} from "@/components/ui/table";
-import { cn } from "@/lib/utils";
+} from "@dg/ui/components/table";
+import { cn } from "@dg/ui/lib/utils";
+import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
+import { Link, useRouteContext } from "@tanstack/react-router";
+import { ArrowLeftIcon, ArrowRightIcon, HistoryIcon, Trash2Icon } from "lucide-react";
+import { useState } from "react";
+
+import { DeleteInventoryActivityDialog } from "@/components/inventory/delete-activity-dialog";
 
 const PAGE_SIZE = 25;
 

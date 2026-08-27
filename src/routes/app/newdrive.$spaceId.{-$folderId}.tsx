@@ -1,8 +1,13 @@
 import { convexQuery } from "@convex-dev/react-query";
-import { api } from "@convex/_generated/api";
-import type { Id } from "@convex/_generated/dataModel";
+import { api } from "@dg/backend/api";
+import type { Id } from "@dg/backend/dataModel";
+import { AddItemsMenu } from "@dg/drive/components/add-items-menu";
+import { NewDriveFileList } from "@dg/drive/components/file-list";
+import { NewDriveUploadDropzone } from "@dg/drive/components/upload-dropzone";
+import { downloadDriveItems } from "@dg/drive/download-drive-item";
+import type { NewDriveItem, NewDriveShareItem } from "@dg/drive/types";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute, useRouteContext } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, useRouteContext } from "@tanstack/react-router";
 import { useConvex, useMutation } from "convex/react";
 import { formatDistanceToNow } from "date-fns";
 import { FolderOpenIcon } from "lucide-react";
@@ -10,13 +15,9 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 import { Container } from "@/components/layouts/container";
-import { AddItemsMenu } from "@/components/new-drive/add-items-menu";
-import { NewDriveFileList } from "@/components/new-drive/file-list";
 import { ShareDialog } from "@/components/new-drive/share-dialog";
-import { NewDriveUploadDropzone } from "@/components/new-drive/upload-dropzone";
+import { TrelloAttachmentMenu } from "@/components/new-drive/trello-attachment-menu";
 import { useNewDriveUpload } from "@/hooks/use-new-drive-upload";
-import { downloadDriveItems } from "@/lib/download-drive-item";
-import type { NewDriveItem, NewDriveShareItem } from "@/lib/new-drive-items";
 
 export const Route = createFileRoute("/app/newdrive/$spaceId/{-$folderId}")({
   component: SpaceBrowserPage,
@@ -82,6 +83,7 @@ export const Route = createFileRoute("/app/newdrive/$spaceId/{-$folderId}")({
 
 function SpaceBrowserPage() {
   const { user } = useRouteContext({ from: "/app" });
+  const navigate = useNavigate();
   const { spaceId, folderId } = Route.useParams();
   const { space, folder, parentFolder } = Route.useLoaderData();
   const convex = useConvex();
@@ -146,6 +148,20 @@ function SpaceBrowserPage() {
     return downloadItems([item]);
   }
 
+  function openItem(item: NewDriveItem) {
+    if (item.kind === "folder") {
+      void navigate({
+        to: "/app/newdrive/$spaceId/{-$folderId}",
+        params: { spaceId: item.spaceId, folderId: item.id },
+      });
+      return;
+    }
+    void navigate({
+      to: "/app/newdrive/file/$itemId",
+      params: { itemId: item.id },
+    });
+  }
+
   return (
     <NewDriveUploadDropzone upload={upload}>
       <Container className="flex min-h-[calc(100svh-4.1rem)] max-w-7xl flex-col gap-6 px-3 py-5 md:px-6 md:py-7">
@@ -193,7 +209,7 @@ function SpaceBrowserPage() {
             />
           }
           interactive
-          enableTrelloAttachments
+          onOpenItem={openItem}
           parentPath={
             folder
               ? {
@@ -201,6 +217,18 @@ function SpaceBrowserPage() {
                   name: parentFolder?.name ?? space?.name ?? "Space",
                   folderId: folder.parentId ?? null,
                 }
+              : undefined
+          }
+          onOpenParent={
+            folder
+              ? () =>
+                  void navigate({
+                    to: "/app/newdrive/$spaceId/{-$folderId}",
+                    params: {
+                      spaceId,
+                      folderId: folder.parentId ?? undefined,
+                    },
+                  })
               : undefined
           }
           onDeleteItems={(itemIds) =>
@@ -226,6 +254,9 @@ function SpaceBrowserPage() {
             }).then(() => undefined)
           }
           onShareItem={setShareItem}
+          renderItemActions={(item, { keepMenuOpen }) => (
+            <TrelloAttachmentMenu item={item} onDetachStart={keepMenuOpen} />
+          )}
         />
         <ShareDialog
           item={shareItem}

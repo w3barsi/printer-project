@@ -1,0 +1,36 @@
+{
+  "name": "@dg/drive",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./components/*": "./src/components/*.tsx",
+    "./download-drive-item": "./src/download-drive-item.ts",
+    "./download-shared-folder": "./src/download-shared-folder.ts",
+    "./share-api": "./src/share-api.ts",
+    "./types": "./src/types.ts",
+    "./use-upload": "./src/use-upload.tsx"
+  },
+  "dependencies": {
+    "@dg/backend": "workspace:*",
+    "@dg/ui": "workspace:*",
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/modifiers": "^9.0.0",
+    "convex": "^1.42.0",
+    "file-saver": "^2.0.5",
+    "jszip": "^3.10.1",
+    "lucide-react": "^0.525.0",
+    "sonner": "^2.0.7"
+  },
+  "devDependencies": {
+    "@types/file-saver": "^2.0.7",
+    "@types/react": "^19.2.2",
+    "@types/react-dom": "^19.2.2",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "typescript": "^5.9.3"
+  },
+  "peerDependencies": {
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
+  }
+}

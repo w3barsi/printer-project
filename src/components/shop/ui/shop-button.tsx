@@ -1,9 +1,8 @@
 import { mergeProps } from "@base-ui/react/merge-props";
 import { useRender } from "@base-ui/react/use-render";
+import { cn } from "@dg/ui/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
 import * as React from "react";
-
-import { cn } from "@/lib/utils";
 
 const shopButtonVariants = cva(
   "relative inline-flex items-center gap-[0.6rem] rounded-full font-shop-wide text-[0.78rem] font-bold tracking-[0.18em] whitespace-nowrap uppercase transition-all duration-[250ms] ease-out outline-none select-none focus-visible:ring-[3px] focus-visible:ring-(--shop-red)/50 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",

@@ -1,7 +1,7 @@
-import { useDevice } from "@/contexts/DeviceContext";
+import { Button } from "@dg/ui/components/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@dg/ui/components/tooltip";
 
-import { Button } from "../ui/button";
-import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
+import { useDevice } from "@/contexts/DeviceContext";
 
 export function PrinterButton() {
   const { device, connectDevice, disconnectDevice } = useDevice();
