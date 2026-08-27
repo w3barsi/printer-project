@@ -13,6 +13,7 @@
   "scripts": {
     "codegen": "pnpm --dir ../.. exec convex codegen",
     "codegen:component": "pnpm --dir ../.. exec convex codegen --component-dir packages/backend/convex/betterAuth",
+    "dev": "pnpm --dir ../.. exec convex dev",
     "deploy": "pnpm --dir ../.. exec convex deploy",
     "dry-run": "pnpm --dir ../.. exec convex deploy --dry-run",
     "convex:env": "pnpm --dir ../.. exec convex env"

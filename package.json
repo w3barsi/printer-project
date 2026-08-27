@@ -3,6 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "dev": "concurrently -n backend,public,system -c blue,green,magenta \"pnpm --filter @dg/backend dev\" \"pnpm --filter @dg/public dev\" \"pnpm --filter @dg/system dev\"",
     "build": "pnpm build:backend && pnpm build:public && pnpm build:system",
     "build:backend": "pnpm --filter @dg/backend codegen",
     "build:public": "pnpm --filter @dg/public build",

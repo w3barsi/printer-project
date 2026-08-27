@@ -33,7 +33,8 @@ Internal URLs are root-level (no `/app`): `/jo`, `/inventory`, `/cashflow`, `/dr
 - `pnpm env` / `pnpm env:prod` — sync `.env.local`/`.env.prod` vars to the dev/production Convex deployments (`sync-env.js` targets `@dg/backend`)
 - `pnpm dryrun` — Convex deploy dry-run
 - `pnpm --filter @dg/ui ui` — shadcn CLI for `@dg/ui`
-- `pnpm --filter @dg/system dev` / `--filter @dg/public dev` — local dev servers (ports 3001 / 3000)
+- `pnpm --filter @dg/backend dev` — Convex dev watcher (pushes function changes to the dev deployment `rosy-rabbit-645` as you edit; reads `.env.local`). Run it bare, or combined with a frontend: `convex dev --start 'pnpm --filter @dg/system dev'` (or `--filter @dg/public dev` for port 3000).
+- `pnpm --filter @dg/system dev` / `--filter @dg/public dev` — local frontend dev servers (ports 3001 / 3000); the system dev server loads `../../.env.local` into its process so server-side vars (`TRELLO_KEY`, `TRELLO_TOKEN`, `VITE_CONVEX_URL`, `VITE_CONVEX_SITE_URL`) are available in addition to Vite's `import.meta.env`. Without the watcher, push backend changes once with `pnpm build:backend` (codegen).
 
 Local env lives in `.env.local` (dev) and `.env.prod` (production) — both gitignored. `vite build --mode prod` loads `.env.prod` for Worker builds; plain `vite build` loads `.env.local` for local previews. Secrets (Trello, Telegram, Turnstile) are set via Worker/Convex secret mechanisms, never committed.
 
