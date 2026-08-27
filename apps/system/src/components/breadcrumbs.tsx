@@ -41,8 +41,6 @@ export function MainBreadcrumbs() {
   const parsedData = crumbsValidator.safeParse(matchesWithCrumbs);
   if (parsedData.error) return null;
 
-  console.log(parsedData);
-
   return (
     <Breadcrumb>
       <BreadcrumbList>

@@ -165,7 +165,6 @@ function JobOrderListBody({ jos }: { jos: JoWithItems[] }) {
             }
             timeoutRef.current = setTimeout(() => {
               preloadRoute({ to: "/jo/$joId", params: { joId: jo._id } });
-              console.log("preloading ", jo.name);
             }, 250);
           }}
           onMouseLeave={() => {

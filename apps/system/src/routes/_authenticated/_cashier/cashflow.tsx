@@ -46,7 +46,6 @@ export const Route = createFileRoute("/_authenticated/_cashier/cashflow")({
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const d = search && today.getTime();
-    console.log(d);
     return {
       search: {
         start: d,

@@ -80,7 +80,6 @@ export const createFolder = authedMutation({
       .withIndex("by_parent_name", (q) => q.eq("parent", parent).eq("name", name))
       .unique();
     if (duplicate) throw new Error();
-    else console.log(duplicate);
 
     await ctx.db.insert("folder", {
       createdBy: actor._id,

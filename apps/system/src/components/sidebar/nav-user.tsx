@@ -79,7 +79,6 @@ export function NavUser() {
             <PrinterModeToggle />
             <DropdownMenuItem
               onClick={async () => {
-                console.log("Logging out");
                 await handleSignOut();
               }}
             >

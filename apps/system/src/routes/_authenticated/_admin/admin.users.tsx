@@ -97,7 +97,6 @@ function UserManagementTable() {
   }
 
   async function banHandler(userId: string, isBanned: boolean) {
-    console.log(userId, isBanned);
     try {
       await banOrUnbanUser({ userId, isBanned });
       toast.success("User deleted");

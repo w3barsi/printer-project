@@ -113,9 +113,8 @@ function CardList() {
           if (!res.ok) throw new Error(`Attachment download failed: ${res.status}`);
           const blob = await res.blob();
           zip.file(image.name, blob);
-          console.log(zip);
         } catch (e) {
-          console.log(e);
+          console.error(e);
         }
       }),
     );

@@ -26,7 +26,6 @@ function lineBuilder(arrString: string[]) {
       (str.length - 1 === i ? "" : "\n");
   });
 
-  console.log(final);
   return final;
 }
 
@@ -135,8 +134,6 @@ export async function printReceipt({
       .newline(2)
       .encode();
     await device.transferOut(endpoint.endpointNumber, footer);
-
-    console.log("Receipt sent to printer.");
   } catch (error) {
     console.error("Error printing receipt:", error);
   } finally {
