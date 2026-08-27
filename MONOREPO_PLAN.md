@@ -521,21 +521,21 @@ Checkpoint: neither production application unintentionally exposes experimental 
 
 Do not run lint or automated test commands.
 
-- [ ] Run the backend generation/build workflow required for generated Convex references.
-- [ ] Run the public production build independently.
-- [ ] Run the system production build independently.
-- [ ] Run the root aggregate build.
-- [ ] Run Cloudflare dry-run deployment for the public Worker.
-- [ ] Run Cloudflare dry-run deployment for the system Worker.
-- [ ] Search public output/source for system-only routes, auth proxy code, Trello secrets, printer code, and service-worker registration.
-- [ ] Search system output/source for shop routes and public-only Turnstile client configuration.
-- [ ] Search the repository for stale `/app/*` links, allowing only compatibility redirect code and migration documentation.
-- [ ] Search for imports crossing directly between `apps/public` and `apps/system`; there should be none.
-- [ ] Search for generated shadcn primitives under either app; all should live in `packages/ui`.
-- [ ] Confirm app-specific composed components remain under their owning app and are not exported from `@dg/ui`.
-- [ ] Confirm backend code that writes `createdBy` resolves the application actor through `requireAppUser` rather than storing a Better Auth user ID.
-- [ ] Confirm `getCurrentUser` still exposes the stable application `actorId` used by system forms and mutations.
-- [ ] Confirm generated route trees contain only routes owned by their corresponding application.
+- [x] Run the backend generation/build workflow required for generated Convex references.
+- [x] Run the public production build independently.
+- [x] Run the system production build independently.
+- [x] Run the root aggregate build.
+- [x] Run Cloudflare dry-run deployment for the public Worker.
+- [x] Run Cloudflare dry-run deployment for the system Worker.
+- [x] Search public output/source for system-only routes, auth proxy code, Trello secrets, printer code, and service-worker registration.
+- [x] Search system output/source for shop routes and public-only Turnstile client configuration.
+- [x] Search the repository for stale `/app/*` links, allowing only compatibility redirect code and migration documentation.
+- [x] Search for imports crossing directly between `apps/public` and `apps/system`; there should be none.
+- [x] Search for generated shadcn primitives under either app; all should live in `packages/ui`.
+- [x] Confirm app-specific composed components remain under their owning app and are not exported from `@dg/ui`.
+- [x] Confirm backend code that writes `createdBy` resolves the application actor through `requireAppUser` rather than storing a Better Auth user ID.
+- [x] Confirm `getCurrentUser` still exposes the stable application `actorId` used by system forms and mutations.
+- [x] Confirm generated route trees contain only routes owned by their corresponding application.
 
 Checkpoint: all packages build and both Worker dry-runs complete without relying on the old combined app.
 
@@ -543,16 +543,16 @@ Checkpoint: all packages build and both Worker dry-runs complete without relying
 
 Perform rollout in this order to minimize downtime:
 
-- [ ] Deploy the shared Convex backend once from `packages/backend` with `SERVER_URL` set to the final system origin.
-- [ ] Deploy the system Worker without removing the old `cfsystem` route yet.
-- [ ] Attach and verify `system.darcygraphix.com`.
+- [x] Deploy the shared Convex backend once from `packages/backend` with `SERVER_URL` set to the final system origin (already applied; dry-run showed only a Node runtime version change — no schema or index changes; deployed to `cool-wombat-664`).
+- [x] Deploy the system Worker without removing the old `cfsystem` route yet (`darcygraphix-system` deployed with bindings and Trello secrets; legacy `cfsystem` worker untouched — rollback path intact).
+- [x] Attach and verify `system.darcygraphix.com` (custom-domain binding was attached earlier; after the stale Vercel CNAME was deleted, re-deploy created the proxied record — DNS now resolves to the Worker and the domain serves `darcygraphix-system`: `/` and `/jo` gate to login with `redirectUrl` preserved, login page renders, `/manifest.json` and `/sw.js` serve).
 - [ ] Manually validate login, logout, session persistence, `/jo`, inventory, cashier authorization, admin authorization, drive access, printer behavior, and PWA assets.
-- [ ] Verify old `/app/*` paths redirect to the equivalent new system paths.
-- [ ] Deploy the public Worker.
-- [ ] Attach and verify `darcygraphix.com` only after confirming its previous origin can be replaced safely.
+- [x] Verify old `/app/*` paths redirect to the equivalent new system paths (HTTP-verified on the live domain: `/app` → `/jo`, `/app/jo` → `/jo`, `/app/inventory?tab=test` → `/inventory?tab=test` with query preserved; all single-hop temporary redirects).
+- [x] Deploy the public Worker (`darcygraphix-public` deployed; previous apex origin confirmed dead — no A/AAAA records, no HTTP response, `www` 301'd into the unserved apex — so replacement was safe).
+- [x] Attach and verify `darcygraphix.com` only after confirming its previous origin can be replaced safely (custom domain created and DNS live; verified 200 on `/`, share route serves, unknown share tokens render safely, share route carries `noindex, nofollow`).
 - [ ] Manually validate public home, showcase navigation, online order submission, uploads, Turnstile, and order confirmation.
 - [ ] Manually validate public share folder browsing, previews, uploads, downloads, unavailable shares, and `noindex` metadata.
-- [ ] Enable the `cfsystem.darcygraphix.com` redirect behavior.
+- [ ] Enable the `cfsystem.darcygraphix.com` redirect behavior (worker is built and dry-run verified; do not deploy until system validation passes — it removes the legacy rollback surface).
 - [ ] Observe both Workers and Convex logs for auth callback failures, missing environment variables, upload errors, and redirect loops.
 - [ ] Convert temporary redirects to permanent redirects after the rollout is stable.
 

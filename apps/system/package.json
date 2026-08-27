@@ -5,10 +5,10 @@
   "scripts": {
     "dev": "vite dev --port 3001 --host",
     "build": "vite build",
-    "build:cf": "CLOUDFLARE_DEPLOY=true vite build",
+    "build:cf": "CLOUDFLARE_DEPLOY=true vite build --mode prod",
     "start": "node .output/server/index.mjs",
-    "deploy": "CLOUDFLARE_DEPLOY=true vite build && wrangler deploy",
-    "dry-run": "CLOUDFLARE_DEPLOY=true vite build && wrangler deploy --dry-run",
+    "deploy": "CLOUDFLARE_DEPLOY=true vite build --mode prod && wrangler deploy",
+    "dry-run": "CLOUDFLARE_DEPLOY=true vite build --mode prod && wrangler deploy --dry-run",
     "cf:tail": "wrangler tail --config wrangler.jsonc",
     "cf:typegen": "wrangler types --config wrangler.jsonc"
   },
