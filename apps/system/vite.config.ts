@@ -11,7 +11,7 @@ const isCloudflare = process.env.CLOUDFLARE_DEPLOY === "true";
 
 export default defineConfig({
   envDir: "../..",
-  publicDir: "../../public",
+  publicDir: "public",
   server: {
     host: true,
   },

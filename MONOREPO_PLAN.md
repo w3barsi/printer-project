@@ -421,15 +421,15 @@ Checkpoint: bookmarks to old internal URLs reach the equivalent new system page 
 
 ## Step 11: Split Styling And Assets
 
-- [ ] Create independent public and system stylesheet entries that each import `@dg/ui/styles/base.css` and add a Tailwind source directive for the app's source tree.
-- [ ] Move shop-specific custom properties, grain effects, typography, and layout styles into the public stylesheet.
-- [ ] Keep shared shadcn semantic variables and base styles in `packages/ui/styles/base.css`.
-- [ ] Keep printer styles and authenticated layout styles in the system stylesheet.
-- [ ] Allow either app to override shared semantic variables after importing the base stylesheet when its visual language requires different values.
-- [ ] Move `manifest.json`, `sw.js`, PWA icons, and printer/system assets into `apps/system/public`.
-- [ ] Move marketing images and public metadata assets into `apps/public/public`.
-- [ ] Ensure service-worker scope cannot affect `darcygraphix.com` because the service worker is served only from the system Worker.
-- [ ] Check that each app references only assets it owns.
+- [x] Create independent public and system stylesheet entries that each import `@dg/ui/styles/base.css` and add a Tailwind source directive for the app's source tree.
+- [x] Move shop-specific custom properties, grain effects, typography, and layout styles into the public stylesheet.
+- [x] Keep shared shadcn semantic variables and base styles in `packages/ui/styles/base.css`.
+- [x] Keep printer styles and authenticated layout styles in the system stylesheet.
+- [x] Allow either app to override shared semantic variables after importing the base stylesheet when its visual language requires different values.
+- [x] Move `manifest.json`, `sw.js`, PWA icons, and printer/system assets into `apps/system/public`.
+- [x] Move marketing images and public metadata assets into `apps/public/public`.
+- [x] Ensure service-worker scope cannot affect `darcygraphix.com` because the service worker is served only from the system Worker.
+- [x] Check that each app references only assets it owns.
 
 Checkpoint: each app builds its own complete CSS and static asset bundle with no runtime dependency on the other app's domain.
 
