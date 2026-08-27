@@ -10,7 +10,7 @@ export async function requireSpaceAccess(
   spaceId: Id<"newDriveSpaces">,
 ) {
   const space = await ctx.db.get("newDriveSpaces", spaceId);
-  if (!space || (space.visibility === "admin" && ctx.authUser.role !== "admin")) {
+  if (!space || (space.visibility === "admin" && ctx.authUser?.role !== "admin")) {
     throw new ConvexError("Space not found");
   }
   return space;

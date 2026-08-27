@@ -8,8 +8,6 @@
  * @module
  */
 
-import type { ApiFromModules, FilterApi, FunctionReference } from "convex/server";
-
 import type * as admin_users from "../admin/users.js";
 import type * as auth from "../auth.js";
 import type * as cashier from "../cashier.js";
@@ -38,6 +36,12 @@ import type * as shop_orders from "../shop/orders.js";
 import type * as shop_telegram from "../shop/telegram.js";
 import type * as shop_uploads from "../shop/uploads.js";
 import type * as trello from "../trello.js";
+
+import type {
+  ApiFromModules,
+  FilterApi,
+  FunctionReference,
+} from "convex/server";
 
 declare const fullApi: ApiFromModules<{
   "admin/users": typeof admin_users;
@@ -78,7 +82,10 @@ declare const fullApi: ApiFromModules<{
  * const myFunctionReference = api.myModule.myFunction;
  * ```
  */
-export declare const api: FilterApi<typeof fullApi, FunctionReference<any, "public">>;
+export declare const api: FilterApi<
+  typeof fullApi,
+  FunctionReference<any, "public">
+>;
 
 /**
  * A utility for referencing Convex functions in your app's internal API.

@@ -9,7 +9,7 @@ export const list = authedQuery({
   args: {},
   handler: async (ctx) => {
     const spaces =
-      ctx.authUser.role === "admin"
+      ctx.authUser?.role === "admin"
         ? await ctx.db.query("newDriveSpaces").order("desc").take(100)
         : (
             await Promise.all([

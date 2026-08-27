@@ -121,7 +121,7 @@ export const getCurrentUser = query({
 export const authedMutation = customMutation(
   mutation,
   customCtx(async (ctx) => {
-    const authUser = await authComponent.getAuthUser(ctx);
+    const authUser = await authComponent.safeGetAuthUser(ctx);
     return { authUser };
   }),
 );
@@ -129,7 +129,7 @@ export const authedMutation = customMutation(
 export const authedQuery = customQuery(
   query,
   customCtx(async (ctx) => {
-    const authUser = await authComponent.getAuthUser(ctx);
+    const authUser = await authComponent.safeGetAuthUser(ctx);
     return { authUser };
   }),
 );
@@ -139,9 +139,11 @@ export type AuthenticatedQueryCtx = CustomCtx<typeof authedQuery>;
 export async function requireAppUser(
   ctx: Pick<AuthenticatedQueryCtx, "authUser" | "db">,
 ) {
+  if (!ctx.authUser) throw new Error("Not authenticated");
+
   const user = await ctx.db
     .query("users")
-    .withIndex("by_authId", (q) => q.eq("authId", ctx.authUser._id))
+    .withIndex("by_authId", (q) => q.eq("authId", ctx.authUser!._id))
     .unique();
 
   if (!user) throw new Error("Application user not found");
