@@ -5,13 +5,16 @@ import {
 import { convexQuery, type ConvexQueryClient } from "@convex-dev/react-query";
 import { api } from "@dg/backend/api";
 import { TooltipProvider } from "@dg/ui/components/tooltip";
+import { TanStackDevtools } from "@tanstack/react-devtools";
 import { queryOptions, type QueryClient } from "@tanstack/react-query";
+import { ReactQueryDevtoolsPanel } from "@tanstack/react-query-devtools";
 import {
   createRootRouteWithContext,
   HeadContent,
   Outlet,
   Scripts,
 } from "@tanstack/react-router";
+import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import { createServerFn } from "@tanstack/react-start";
 import type { ReactNode } from "react";
 import { useEffect } from "react";
@@ -116,6 +119,18 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
           {children}
           <ThemedToaster richColors position="top-center" />
         </ThemeProvider>
+        <TanStackDevtools
+          plugins={[
+            {
+              name: "TanStack Query",
+              render: <ReactQueryDevtoolsPanel />,
+            },
+            {
+              name: "TanStack Router",
+              render: <TanStackRouterDevtoolsPanel />,
+            },
+          ]}
+        />
         <Scripts />
       </body>
     </html>

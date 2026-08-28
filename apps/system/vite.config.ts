@@ -1,6 +1,7 @@
 import { cloudflare } from "@cloudflare/vite-plugin";
 import babel from "@rolldown/plugin-babel";
 import tailwindcss from "@tailwindcss/vite";
+import { devtools } from "@tanstack/devtools-vite";
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import viteReact, { reactCompilerPreset } from "@vitejs/plugin-react";
 import { nitro } from "nitro/vite";
@@ -19,6 +20,7 @@ export default defineConfig({
     noExternal: ["@convex-dev/better-auth"],
   },
   plugins: [
+    devtools(),
     tsConfigPaths({ projects: ["./tsconfig.json"] }),
     ...(isCloudflare ? [cloudflare({ viteEnvironment: { name: "ssr" } })] : [nitro()]),
     tanstackStart(),

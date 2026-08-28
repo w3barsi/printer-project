@@ -81,9 +81,6 @@ function InventoryPage() {
             <BoxesIcon className="text-muted-foreground" />
             <h1 className="text-3xl font-bold tracking-tight">Inventory</h1>
           </div>
-          <p className="max-w-2xl text-sm text-muted-foreground">
-            A live ledger of materials, supplies, and current stock on hand.
-          </p>
         </div>
         <div className="flex flex-wrap gap-2">
           <SupplierManagerDialog />
