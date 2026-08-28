@@ -6,9 +6,9 @@ import { action } from "../_generated/server";
 import { r2 } from "../r2";
 
 export const finalizeSharedUpload = action({
-  args: { token: v.string(), ticketId: v.id("newDriveUploadTickets") },
-  returns: v.id("newDriveItems"),
-  handler: async (ctx, args): Promise<Id<"newDriveItems">> => {
+  args: { token: v.string(), ticketId: v.id("driveUploadTickets") },
+  returns: v.id("driveItems"),
+  handler: async (ctx, args): Promise<Id<"driveItems">> => {
     const ticket = await ctx.runQuery(
       internal.drive.shares.getAuthorizedGuestUploadTicket,
       args,
@@ -28,7 +28,7 @@ export const finalizeSharedUpload = action({
 });
 
 export const cancelSharedUpload = action({
-  args: { token: v.string(), ticketId: v.id("newDriveUploadTickets") },
+  args: { token: v.string(), ticketId: v.id("driveUploadTickets") },
   returns: v.null(),
   handler: async (ctx, args) => {
     const key = await ctx.runMutation(

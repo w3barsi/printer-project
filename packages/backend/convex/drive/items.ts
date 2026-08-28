@@ -28,13 +28,13 @@ export const UPLOAD_TICKET_TTL = 15 * 60 * 1000;
 
 const SIGNED_URL_TTL_SECONDS = 15 * 60;
 
-const parentIdValidator = v.optional(v.id("newDriveItems"));
+const parentIdValidator = v.optional(v.id("driveItems"));
 type UploadTicketResult = {
-  _id: Id<"newDriveUploadTickets">;
+  _id: Id<"driveUploadTickets">;
   key: string;
-  spaceId: Id<"newDriveSpaces">;
-  parentId?: Id<"newDriveItems">;
-  shareRootId?: Id<"newDriveItems">;
+  spaceId: Id<"driveSpaces">;
+  parentId?: Id<"driveItems">;
+  shareRootId?: Id<"driveItems">;
   uploadedBy: Id<"users"> | "guest";
   name: string;
   nameKey: string;
@@ -46,7 +46,7 @@ type UploadTicketResult = {
 
 export const listItems = authedQuery({
   args: {
-    spaceId: v.id("newDriveSpaces"),
+    spaceId: v.id("driveSpaces"),
     parentId: parentIdValidator,
   },
   handler: async (ctx, args) => {
@@ -54,7 +54,7 @@ export const listItems = authedQuery({
     await requireParentFolder(ctx, args.spaceId, args.parentId);
 
     const items = await ctx.db
-      .query("newDriveItems")
+      .query("driveItems")
       .withIndex("by_spaceId_and_parentId_and_deletedAt_and_kindSort_and_nameKey", (q) =>
         q
           .eq("spaceId", args.spaceId)
@@ -95,12 +95,12 @@ export const listItems = authedQuery({
 
 export const getFolder = authedQuery({
   args: {
-    spaceId: v.id("newDriveSpaces"),
-    folderId: v.id("newDriveItems"),
+    spaceId: v.id("driveSpaces"),
+    folderId: v.id("driveItems"),
   },
   handler: async (ctx, args) => {
     await requireSpaceAccess(ctx, args.spaceId);
-    const folder = await ctx.db.get("newDriveItems", args.folderId);
+    const folder = await ctx.db.get("driveItems", args.folderId);
     if (
       !folder ||
       folder.spaceId !== args.spaceId ||
@@ -119,9 +119,9 @@ export const getFolder = authedQuery({
 });
 
 export const getFilePreview = authedQuery({
-  args: { itemId: v.id("newDriveItems") },
+  args: { itemId: v.id("driveItems") },
   handler: async (ctx, args) => {
-    const item = await ctx.db.get("newDriveItems", args.itemId);
+    const item = await ctx.db.get("driveItems", args.itemId);
     if (!item || item.kind !== "file" || item.deletedAt !== undefined) return null;
 
     const space = await requireSpaceAccess(ctx, item.spaceId);
@@ -157,9 +157,9 @@ function safeArchiveSegment(name: string) {
 }
 
 export const getDownloadManifest = authedQuery({
-  args: { itemId: v.id("newDriveItems") },
+  args: { itemId: v.id("driveItems") },
   handler: async (ctx, args) => {
-    const root = await ctx.db.get("newDriveItems", args.itemId);
+    const root = await ctx.db.get("driveItems", args.itemId);
     if (!root || root.deletedAt !== undefined || !safeArchiveSegment(root.name)) {
       throw new ConvexError("Item not found");
     }
@@ -177,13 +177,13 @@ export const getDownloadManifest = authedQuery({
       };
     }
 
-    const queue: Array<{ folder: Doc<"newDriveItems">; path: string }> = [
+    const queue: Array<{ folder: Doc<"driveItems">; path: string }> = [
       { folder: root, path: root.name },
     ];
-    const visited = new Set<Id<"newDriveItems">>();
+    const visited = new Set<Id<"driveItems">>();
     const folders: string[] = [];
     const files: Array<{
-      item: Doc<"newDriveItems"> & { kind: "file" };
+      item: Doc<"driveItems"> & { kind: "file" };
       path: string;
     }> = [];
     let totalSize = 0;
@@ -198,7 +198,7 @@ export const getDownloadManifest = authedQuery({
       folders.push(current.path);
 
       const children = await ctx.db
-        .query("newDriveItems")
+        .query("driveItems")
         .withIndex(
           "by_spaceId_and_parentId_and_deletedAt_and_kindSort_and_nameKey",
           (q) =>
@@ -255,7 +255,7 @@ export const getDownloadManifest = authedQuery({
 
 export const createFolder = authedMutation({
   args: {
-    spaceId: v.id("newDriveSpaces"),
+    spaceId: v.id("driveSpaces"),
     parentId: parentIdValidator,
     name: v.string(),
   },
@@ -266,7 +266,7 @@ export const createFolder = authedMutation({
     const name = assertItemName(args.name);
     const nameKey = normalizeName(name);
     const existing = await ctx.db
-      .query("newDriveItems")
+      .query("driveItems")
       .withIndex("by_spaceId_and_parentId_and_deletedAt_and_nameKey", (q) =>
         q
           .eq("spaceId", args.spaceId)
@@ -281,7 +281,7 @@ export const createFolder = authedMutation({
     }
 
     const now = Date.now();
-    const folderId = await ctx.db.insert("newDriveItems", {
+    const folderId = await ctx.db.insert("driveItems", {
       spaceId: args.spaceId,
       ...(args.parentId ? { parentId: args.parentId } : {}),
       name,
@@ -292,20 +292,20 @@ export const createFolder = authedMutation({
       createdAt: now,
       updatedAt: now,
     });
-    await ctx.db.patch("newDriveSpaces", args.spaceId, { updatedAt: now });
+    await ctx.db.patch("driveSpaces", args.spaceId, { updatedAt: now });
     return folderId;
   },
 });
 
 export const renameItem = authedMutation({
   args: {
-    spaceId: v.id("newDriveSpaces"),
-    itemId: v.id("newDriveItems"),
+    spaceId: v.id("driveSpaces"),
+    itemId: v.id("driveItems"),
     name: v.string(),
   },
   handler: async (ctx, args) => {
     await requireSpaceAccess(ctx, args.spaceId);
-    const item = await ctx.db.get("newDriveItems", args.itemId);
+    const item = await ctx.db.get("driveItems", args.itemId);
     if (!item || item.spaceId !== args.spaceId || item.deletedAt !== undefined) {
       throw new ConvexError("Item not found");
     }
@@ -313,7 +313,7 @@ export const renameItem = authedMutation({
     const name = assertItemName(args.name);
     const nameKey = normalizeName(name);
     const conflict = await ctx.db
-      .query("newDriveItems")
+      .query("driveItems")
       .withIndex("by_spaceId_and_parentId_and_deletedAt_and_nameKey", (q) =>
         q
           .eq("spaceId", args.spaceId)
@@ -328,8 +328,8 @@ export const renameItem = authedMutation({
     if (item.name === name) return null;
 
     const updatedAt = Date.now();
-    await ctx.db.patch("newDriveItems", item._id, { name, nameKey, updatedAt });
-    await ctx.db.patch("newDriveSpaces", args.spaceId, { updatedAt });
+    await ctx.db.patch("driveItems", item._id, { name, nameKey, updatedAt });
+    await ctx.db.patch("driveSpaces", args.spaceId, { updatedAt });
     await markItemAttachmentsPending(ctx, item._id);
     return null;
   },
@@ -337,9 +337,9 @@ export const renameItem = authedMutation({
 
 export const moveItems = authedMutation({
   args: {
-    spaceId: v.id("newDriveSpaces"),
-    itemIds: v.array(v.id("newDriveItems")),
-    destinationFolderId: v.union(v.id("newDriveItems"), v.null()),
+    spaceId: v.id("driveSpaces"),
+    itemIds: v.array(v.id("driveItems")),
+    destinationFolderId: v.union(v.id("driveItems"), v.null()),
   },
   handler: async (ctx, args) => {
     await requireSpaceAccess(ctx, args.spaceId);
@@ -349,7 +349,7 @@ export const moveItems = authedMutation({
 
     const itemIds = [...new Set(args.itemIds)];
     const items = await Promise.all(
-      itemIds.map((itemId) => ctx.db.get("newDriveItems", itemId)),
+      itemIds.map((itemId) => ctx.db.get("driveItems", itemId)),
     );
     if (
       items.some(
@@ -365,7 +365,7 @@ export const moveItems = authedMutation({
     }
 
     const destination = args.destinationFolderId
-      ? await ctx.db.get("newDriveItems", args.destinationFolderId)
+      ? await ctx.db.get("driveItems", args.destinationFolderId)
       : null;
     if (
       (args.destinationFolderId !== null && !destination) ||
@@ -379,20 +379,20 @@ export const moveItems = authedMutation({
     const destinationParentId = destination?._id;
     if (sourceParentId === destinationParentId) return true;
 
-    const movingIds = new Set<Id<"newDriveItems">>(itemIds);
-    let ancestor: Doc<"newDriveItems"> | null = destination;
+    const movingIds = new Set<Id<"driveItems">>(itemIds);
+    let ancestor: Doc<"driveItems"> | null = destination;
     while (ancestor) {
       if (movingIds.has(ancestor._id)) {
         throw new ConvexError("A folder cannot be moved into itself or a descendant");
       }
       ancestor = ancestor.parentId
-        ? await ctx.db.get("newDriveItems", ancestor.parentId)
+        ? await ctx.db.get("driveItems", ancestor.parentId)
         : null;
     }
 
     for (const item of existingItems) {
       const conflict = await ctx.db
-        .query("newDriveItems")
+        .query("driveItems")
         .withIndex("by_spaceId_and_parentId_and_deletedAt_and_nameKey", (q) =>
           q
             .eq("spaceId", args.spaceId)
@@ -408,22 +408,22 @@ export const moveItems = authedMutation({
 
     const now = Date.now();
     for (const item of existingItems) {
-      await ctx.db.patch("newDriveItems", item._id, {
+      await ctx.db.patch("driveItems", item._id, {
         parentId: destinationParentId,
         updatedAt: now,
       });
     }
     if (destination) {
-      await ctx.db.patch("newDriveItems", destination._id, { updatedAt: now });
+      await ctx.db.patch("driveItems", destination._id, { updatedAt: now });
     }
-    await ctx.db.patch("newDriveSpaces", args.spaceId, { updatedAt: now });
+    await ctx.db.patch("driveSpaces", args.spaceId, { updatedAt: now });
     return true;
   },
 });
 
 export const createUploadTicket = authedMutation({
   args: {
-    spaceId: v.id("newDriveSpaces"),
+    spaceId: v.id("driveSpaces"),
     parentId: parentIdValidator,
     name: v.string(),
     contentType: v.string(),
@@ -445,7 +445,7 @@ export const createUploadTicket = authedMutation({
         .replace(/^-+|-+$/g, "") || "upload";
     const key = `new-drive/${args.spaceId}/${crypto.randomUUID()}-${safeName}`;
     const { url } = await r2.generateUploadUrl(key);
-    const ticketId = await ctx.db.insert("newDriveUploadTickets", {
+    const ticketId = await ctx.db.insert("driveUploadTickets", {
       key,
       spaceId: args.spaceId,
       ...(args.parentId ? { parentId: args.parentId } : {}),
@@ -462,9 +462,9 @@ export const createUploadTicket = authedMutation({
 });
 
 export const getUploadTicket = internalQuery({
-  args: { ticketId: v.id("newDriveUploadTickets") },
+  args: { ticketId: v.id("driveUploadTickets") },
   handler: async (ctx, args) => {
-    const ticket = await ctx.db.get("newDriveUploadTickets", args.ticketId);
+    const ticket = await ctx.db.get("driveUploadTickets", args.ticketId);
     if (!ticket) return null;
     const uploader =
       ticket.uploadedBy === "guest" ? null : await ctx.db.get("users", ticket.uploadedBy);
@@ -487,13 +487,13 @@ export const getUploadTicket = internalQuery({
 
 export const completeUpload = internalMutation({
   args: {
-    ticketId: v.id("newDriveUploadTickets"),
+    ticketId: v.id("driveUploadTickets"),
     contentType: v.string(),
     size: v.number(),
     sha256: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const ticket = await ctx.db.get("newDriveUploadTickets", args.ticketId);
+    const ticket = await ctx.db.get("driveUploadTickets", args.ticketId);
     if (
       !ticket ||
       ticket.expiresAt < Date.now() ||
@@ -506,7 +506,7 @@ export const completeUpload = internalMutation({
       throw new ConvexError("Uploaded file size does not match the selected file");
     }
     const duplicate = await ctx.db
-      .query("newDriveItems")
+      .query("driveItems")
       .withIndex("by_spaceId_and_parentId_and_deletedAt_and_nameKey", (q) =>
         q
           .eq("spaceId", ticket.spaceId)
@@ -518,7 +518,7 @@ export const completeUpload = internalMutation({
     if (duplicate) throw new ConvexError("An item with this name already exists");
 
     const now = Date.now();
-    const itemId = await ctx.db.insert("newDriveItems", {
+    const itemId = await ctx.db.insert("driveItems", {
       spaceId: ticket.spaceId,
       ...(ticket.parentId ? { parentId: ticket.parentId } : {}),
       name: ticket.name,
@@ -535,16 +535,16 @@ export const completeUpload = internalMutation({
         ...(args.sha256 ? { sha256: args.sha256 } : {}),
       },
     });
-    await ctx.db.delete("newDriveUploadTickets", ticket._id);
-    await ctx.db.patch("newDriveSpaces", ticket.spaceId, { updatedAt: now });
+    await ctx.db.delete("driveUploadTickets", ticket._id);
+    await ctx.db.patch("driveSpaces", ticket.spaceId, { updatedAt: now });
     return itemId;
   },
 });
 
 export const finalizeUpload = action({
-  args: { ticketId: v.id("newDriveUploadTickets") },
-  returns: v.id("newDriveItems"),
-  handler: async (ctx, args): Promise<Id<"newDriveItems">> => {
+  args: { ticketId: v.id("driveUploadTickets") },
+  returns: v.id("driveItems"),
+  handler: async (ctx, args): Promise<Id<"driveItems">> => {
     const authUser = await authComponent.getAuthUser(ctx);
     const ticket: UploadTicketResult | null = await ctx.runQuery(
       internal.drive.items.getUploadTicket,
@@ -569,16 +569,16 @@ export const finalizeUpload = action({
 });
 
 export const removeUploadTicket = internalMutation({
-  args: { ticketId: v.id("newDriveUploadTickets") },
+  args: { ticketId: v.id("driveUploadTickets") },
   handler: async (ctx, args) => {
-    const ticket = await ctx.db.get("newDriveUploadTickets", args.ticketId);
-    if (ticket) await ctx.db.delete("newDriveUploadTickets", ticket._id);
+    const ticket = await ctx.db.get("driveUploadTickets", args.ticketId);
+    if (ticket) await ctx.db.delete("driveUploadTickets", ticket._id);
     return null;
   },
 });
 
 export const cancelUpload = action({
-  args: { ticketId: v.id("newDriveUploadTickets") },
+  args: { ticketId: v.id("driveUploadTickets") },
   returns: v.null(),
   handler: async (ctx, args) => {
     const authUser = await authComponent.getAuthUser(ctx);
@@ -595,15 +595,15 @@ export const cancelUpload = action({
 
 export async function collectDeletedItems(
   ctx: MutationCtx,
-  spaceId: Id<"newDriveSpaces">,
-  initialIds: Id<"newDriveItems">[],
+  spaceId: Id<"driveSpaces">,
+  initialIds: Id<"driveItems">[],
 ) {
-  const found = new Map<Id<"newDriveItems">, Doc<"newDriveItems">>();
+  const found = new Map<Id<"driveItems">, Doc<"driveItems">>();
   const queue = [...initialIds];
   while (queue.length > 0) {
     const id = queue.shift()!;
     if (found.has(id)) continue;
-    const item = await ctx.db.get("newDriveItems", id);
+    const item = await ctx.db.get("driveItems", id);
     if (!item || item.spaceId !== spaceId || item.deletedAt !== undefined) continue;
     found.set(id, item);
     if (found.size > MAX_DELETE_ITEMS) {
@@ -611,7 +611,7 @@ export async function collectDeletedItems(
     }
     if (item.kind === "folder") {
       const children = await ctx.db
-        .query("newDriveItems")
+        .query("driveItems")
         .withIndex(
           "by_spaceId_and_parentId_and_deletedAt_and_kindSort_and_nameKey",
           (q) =>
@@ -626,17 +626,17 @@ export async function collectDeletedItems(
 
 export const deleteItems = authedMutation({
   args: {
-    spaceId: v.id("newDriveSpaces"),
-    itemIds: v.array(v.id("newDriveItems")),
+    spaceId: v.id("driveSpaces"),
+    itemIds: v.array(v.id("driveItems")),
   },
   handler: async (ctx, args) => {
     await requireSpaceAccess(ctx, args.spaceId);
     const items = await collectDeletedItems(ctx, args.spaceId, args.itemIds);
     const deletedAt = Date.now();
     for (const item of items) {
-      await ctx.db.patch("newDriveItems", item._id, { deletedAt, updatedAt: deletedAt });
+      await ctx.db.patch("driveItems", item._id, { deletedAt, updatedAt: deletedAt });
     }
-    await ctx.db.patch("newDriveSpaces", args.spaceId, { updatedAt: deletedAt });
+    await ctx.db.patch("driveSpaces", args.spaceId, { updatedAt: deletedAt });
     const keys = items.flatMap((item) => (item.kind === "file" ? [item.r2.key] : []));
     if (keys.length > 0) {
       await ctx.scheduler.runAfter(0, internal.drive.items.deleteObjects, { keys });

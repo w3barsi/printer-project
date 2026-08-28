@@ -46,7 +46,7 @@ export function ShareDialog({
   item: NewDriveShareItem | null;
   onOpenChange: (open: boolean) => void;
 }) {
-  const itemId = item?.id as Id<"newDriveItems"> | undefined;
+  const itemId = item?.id as Id<"driveItems"> | undefined;
   const settings = useQuery(shareApi.getShareSettings, itemId ? { itemId } : "skip");
   const setShare = useMutation(shareApi.setShare);
   const disableShare = useMutation(shareApi.disableShare);

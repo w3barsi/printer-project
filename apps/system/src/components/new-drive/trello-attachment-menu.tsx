@@ -35,7 +35,7 @@ import { toast } from "sonner";
 import { getListCards, getTrelloLists } from "@/server/trello";
 
 type Attachment = {
-  _id: Id<"newDriveTrelloAttachments">;
+  _id: Id<"driveTrelloAttachments">;
   trelloCardId: string;
   trelloCardName: string;
   desiredState: "attached" | "detached";
@@ -129,7 +129,7 @@ export function TrelloAttachmentMenu({
   const [detachRequest, setDetachRequest] = useState<Attachment | null>(null);
   const attachmentsQuery = useQuery({
     ...convexQuery(api.drive.trelloAttachments.listForItem, {
-      itemId: item.id as Id<"newDriveItems">,
+      itemId: item.id as Id<"driveItems">,
     }),
     enabled: open,
   });
@@ -187,7 +187,7 @@ export function TrelloAttachmentMenu({
     }
     void runAction("Attaching to Trello card", () =>
       attach({
-        itemId: item.id as Id<"newDriveItems">,
+        itemId: item.id as Id<"driveItems">,
         trelloCardId: card.id,
         trelloCardName: card.name,
       }),

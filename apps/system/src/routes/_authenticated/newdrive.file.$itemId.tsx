@@ -22,7 +22,7 @@ export const Route = createFileRoute("/_authenticated/newdrive/file/$itemId")({
   loader: async ({ context: { queryClient: qc }, params }) => {
     const file = await qc.ensureQueryData(
       convexQuery(api.drive.items.getFilePreview, {
-        itemId: params.itemId as Id<"newDriveItems">,
+        itemId: params.itemId as Id<"driveItems">,
       }),
     );
 
@@ -52,7 +52,7 @@ function FilePreviewPage() {
   const { itemId } = Route.useParams();
   const { data: file } = useSuspenseQuery(
     convexQuery(api.drive.items.getFilePreview, {
-      itemId: itemId as Id<"newDriveItems">,
+      itemId: itemId as Id<"driveItems">,
     }),
   );
 

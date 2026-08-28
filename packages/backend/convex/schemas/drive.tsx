@@ -1,20 +1,20 @@
 import { defineTable } from "convex/server";
 import { v } from "convex/values";
 
-export const newDriveFolderPublicAccess = v.optional(
+export const driveFolderPublicAccess = v.optional(
   v.union(v.literal("read"), v.literal("edit")),
 );
 
-export const newDriveFilePublicAccess = v.optional(v.literal("read"));
+export const driveFilePublicAccess = v.optional(v.literal("read"));
 
-export const newDriveItemCreator = v.union(v.id("users"), v.literal("guest"));
+export const driveItemCreator = v.union(v.id("users"), v.literal("guest"));
 
-const commonNewDriveItemFields = {
-  spaceId: v.id("newDriveSpaces"),
-  parentId: v.optional(v.id("newDriveItems")),
+const commonDriveItemFields = {
+  spaceId: v.id("driveSpaces"),
+  parentId: v.optional(v.id("driveItems")),
   name: v.string(),
   nameKey: v.string(),
-  createdBy: newDriveItemCreator,
+  createdBy: driveItemCreator,
   createdAt: v.number(),
   updatedAt: v.number(),
   deletedAt: v.optional(v.number()),
@@ -23,12 +23,12 @@ const commonNewDriveItemFields = {
 };
 
 export const driveSchema = {
-  newDriveSpaces: defineTable({
+  driveSpaces: defineTable({
     name: v.string(),
     nameKey: v.optional(v.string()),
     description: v.optional(v.string()),
     visibility: v.optional(v.union(v.literal("admin"), v.literal("everyone"))),
-    rootItemId: v.optional(v.id("newDriveItems")),
+    rootItemId: v.optional(v.id("driveItems")),
     createdBy: v.id("users"),
     createdAt: v.number(),
     updatedAt: v.number(),
@@ -38,19 +38,19 @@ export const driveSchema = {
     .index("by_visibility", ["visibility"])
     .index("by_rootItemId", ["rootItemId"]),
 
-  newDriveItems: defineTable(
+  driveItems: defineTable(
     v.union(
       v.object({
-        ...commonNewDriveItemFields,
+        ...commonDriveItemFields,
         kind: v.literal("folder"),
         kindSort: v.literal("0-folder"),
-        publicAccess: newDriveFolderPublicAccess,
+        publicAccess: driveFolderPublicAccess,
       }),
       v.object({
-        ...commonNewDriveItemFields,
+        ...commonDriveItemFields,
         kind: v.literal("file"),
         kindSort: v.literal("1-file"),
-        publicAccess: newDriveFilePublicAccess,
+        publicAccess: driveFilePublicAccess,
         r2: v.object({
           key: v.string(),
           contentType: v.string(),
@@ -81,12 +81,12 @@ export const driveSchema = {
       filterFields: ["spaceId", "kind"],
     }),
 
-  newDriveUploadTickets: defineTable({
+  driveUploadTickets: defineTable({
     key: v.string(),
-    spaceId: v.id("newDriveSpaces"),
-    parentId: v.optional(v.id("newDriveItems")),
-    shareRootId: v.optional(v.id("newDriveItems")),
-    uploadedBy: newDriveItemCreator,
+    spaceId: v.id("driveSpaces"),
+    parentId: v.optional(v.id("driveItems")),
+    shareRootId: v.optional(v.id("driveItems")),
+    uploadedBy: driveItemCreator,
     name: v.string(),
     nameKey: v.string(),
     declaredContentType: v.string(),
@@ -98,8 +98,8 @@ export const driveSchema = {
     .index("by_key", ["key"])
     .index("by_expiresAt", ["expiresAt"]),
 
-  newDriveTrelloAttachments: defineTable({
-    newDriveItemId: v.id("newDriveItems"),
+  driveTrelloAttachments: defineTable({
+    driveItemId: v.id("driveItems"),
     trelloCardId: v.string(),
     trelloCardName: v.string(),
     attachedBy: v.id("users"),
@@ -112,7 +112,7 @@ export const driveSchema = {
     detachRequestedBy: v.optional(v.id("users")),
     detachRequestedAt: v.optional(v.number()),
   })
-    .index("by_newDriveItemId", ["newDriveItemId"])
+    .index("by_driveItemId", ["driveItemId"])
     .index("by_trelloCardId", ["trelloCardId"])
-    .index("by_newDriveItemId_and_trelloCardId", ["newDriveItemId", "trelloCardId"]),
+    .index("by_driveItemId_and_trelloCardId", ["driveItemId", "trelloCardId"]),
 };

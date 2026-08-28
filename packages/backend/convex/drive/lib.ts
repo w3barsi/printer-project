@@ -7,9 +7,9 @@ type SpaceAccessCtx = Pick<AuthenticatedQueryCtx, "authUser" | "db">;
 
 export async function requireSpaceAccess(
   ctx: SpaceAccessCtx,
-  spaceId: Id<"newDriveSpaces">,
+  spaceId: Id<"driveSpaces">,
 ) {
-  const space = await ctx.db.get("newDriveSpaces", spaceId);
+  const space = await ctx.db.get("driveSpaces", spaceId);
   if (!space || (space.visibility === "admin" && ctx.authUser?.role !== "admin")) {
     throw new ConvexError("Space not found");
   }
@@ -18,11 +18,11 @@ export async function requireSpaceAccess(
 
 export async function requireParentFolder(
   ctx: SpaceAccessCtx,
-  spaceId: Id<"newDriveSpaces">,
-  parentId?: Id<"newDriveItems">,
+  spaceId: Id<"driveSpaces">,
+  parentId?: Id<"driveItems">,
 ) {
   if (!parentId) return;
-  const parent = await ctx.db.get("newDriveItems", parentId);
+  const parent = await ctx.db.get("driveItems", parentId);
   if (
     !parent ||
     parent.kind !== "folder" ||

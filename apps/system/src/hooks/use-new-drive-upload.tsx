@@ -4,8 +4,8 @@ import { useNewDriveUploadWithOperations } from "@dg/drive/use-upload";
 import { useAction, useMutation } from "convex/react";
 
 export function useNewDriveUpload(
-  spaceId: Id<"newDriveSpaces">,
-  parentId?: Id<"newDriveItems">,
+  spaceId: Id<"driveSpaces">,
+  parentId?: Id<"driveItems">,
 ) {
   const createFolder = useMutation(api.drive.items.createFolder);
   const createUploadTicket = useMutation(api.drive.items.createUploadTicket);

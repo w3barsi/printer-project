@@ -16,17 +16,17 @@ export type NewDriveUploadSelection = {
 
 export type NewDriveUploadOperations = {
   createFolder: (args: {
-    parentId?: Id<"newDriveItems">;
+    parentId?: Id<"driveItems">;
     name: string;
-  }) => Promise<Id<"newDriveItems">>;
+  }) => Promise<Id<"driveItems">>;
   createUploadTicket: (args: {
-    parentId?: Id<"newDriveItems">;
+    parentId?: Id<"driveItems">;
     name: string;
     contentType: string;
     size: number;
-  }) => Promise<{ ticketId: Id<"newDriveUploadTickets">; url: string }>;
-  finalizeUpload: (args: { ticketId: Id<"newDriveUploadTickets"> }) => Promise<unknown>;
-  cancelUpload: (args: { ticketId: Id<"newDriveUploadTickets"> }) => Promise<unknown>;
+  }) => Promise<{ ticketId: Id<"driveUploadTickets">; url: string }>;
+  finalizeUpload: (args: { ticketId: Id<"driveUploadTickets"> }) => Promise<unknown>;
+  cancelUpload: (args: { ticketId: Id<"driveUploadTickets"> }) => Promise<unknown>;
 };
 
 function pathSegments(path: string) {
@@ -53,7 +53,7 @@ function putFile(url: string, file: File, onProgress: (progress: number) => void
 }
 
 export function useNewDriveUploadWithOperations(
-  parentId: Id<"newDriveItems"> | undefined,
+  parentId: Id<"driveItems"> | undefined,
   operations: NewDriveUploadOperations,
 ) {
   const { createFolder, createUploadTicket, finalizeUpload, cancelUpload } = operations;
@@ -63,7 +63,7 @@ export function useNewDriveUploadWithOperations(
     async ({ files, folderPaths }: NewDriveUploadSelection) => {
       if (isUploading || (files.length === 0 && folderPaths.length === 0)) return;
       setIsUploading(true);
-      const folders = new Map<string, Id<"newDriveItems">>();
+      const folders = new Map<string, Id<"driveItems">>();
 
       async function ensureFolder(path: string) {
         const segments = pathSegments(path);
@@ -101,7 +101,7 @@ export function useNewDriveUploadWithOperations(
           const segments = pathSegments(uploadFile.relativePath);
           const name = segments.at(-1) ?? uploadFile.file.name;
           const targetParent = await ensureFolder(segments.slice(0, -1).join("/"));
-          let ticketId: Id<"newDriveUploadTickets"> | undefined;
+          let ticketId: Id<"driveUploadTickets"> | undefined;
           let progress = 0;
           const toastId = toast.custom(
             () => (

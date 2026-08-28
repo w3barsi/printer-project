@@ -14,11 +14,11 @@ import { requireSpaceAccess } from "./lib";
 export const MAX_ATTACHMENTS_PER_ITEM = 500;
 export const MAX_ATTACHMENTS_PER_CARD = 200;
 
-type Attachment = Doc<"newDriveTrelloAttachments">;
+type Attachment = Doc<"driveTrelloAttachments">;
 
 function assertActionAccess(
-  item: Doc<"newDriveItems"> | null,
-  space: Doc<"newDriveSpaces"> | null,
+  item: Doc<"driveItems"> | null,
+  space: Doc<"driveSpaces"> | null,
   role?: string,
 ) {
   if (
@@ -33,7 +33,7 @@ function assertActionAccess(
 
 async function cardRows(ctx: QueryCtx | MutationCtx, trelloCardId: string) {
   return await ctx.db
-    .query("newDriveTrelloAttachments")
+    .query("driveTrelloAttachments")
     .withIndex("by_trelloCardId", (q) => q.eq("trelloCardId", trelloCardId))
     .take(MAX_ATTACHMENTS_PER_CARD + 1);
 }
@@ -42,17 +42,17 @@ async function requireMutationAccess(
   ctx: MutationCtx,
   authId: string,
   role: string | undefined,
-  itemId: Id<"newDriveItems">,
+  itemId: Id<"driveItems">,
 ) {
   const [item, actor] = await Promise.all([
-    ctx.db.get("newDriveItems", itemId),
+    ctx.db.get("driveItems", itemId),
     ctx.db
       .query("users")
       .withIndex("by_authId", (q) => q.eq("authId", authId))
       .unique(),
   ]);
   if (!actor) throw new ConvexError("Application user not found");
-  const space = item ? await ctx.db.get("newDriveSpaces", item.spaceId) : null;
+  const space = item ? await ctx.db.get("driveSpaces", item.spaceId) : null;
   assertActionAccess(item, space, role);
   return actor;
 }
@@ -61,7 +61,7 @@ async function snapshotFromRows(ctx: QueryCtx | MutationCtx, rows: Attachment[])
   const ordered = [...rows].sort((a, b) => a._creationTime - b._creationTime);
   const entries = [];
   for (const row of ordered) {
-    const item = await ctx.db.get("newDriveItems", row.newDriveItemId);
+    const item = await ctx.db.get("driveItems", row.driveItemId);
     if (row.desiredState === "attached" && item && item.deletedAt === undefined) {
       entries.push({
         attachmentId: row._id,
@@ -77,14 +77,14 @@ async function snapshotFromRows(ctx: QueryCtx | MutationCtx, rows: Attachment[])
 }
 
 export const listForItem = authedQuery({
-  args: { itemId: v.id("newDriveItems") },
+  args: { itemId: v.id("driveItems") },
   handler: async (ctx, args) => {
-    const item = await ctx.db.get("newDriveItems", args.itemId);
+    const item = await ctx.db.get("driveItems", args.itemId);
     if (!item || item.deletedAt !== undefined) throw new ConvexError("Item not found");
     await requireSpaceAccess(ctx, item.spaceId);
     const rows = await ctx.db
-      .query("newDriveTrelloAttachments")
-      .withIndex("by_newDriveItemId", (q) => q.eq("newDriveItemId", args.itemId))
+      .query("driveTrelloAttachments")
+      .withIndex("by_driveItemId", (q) => q.eq("driveItemId", args.itemId))
       .order("asc")
       .take(MAX_ATTACHMENTS_PER_ITEM + 1);
     if (rows.length > MAX_ATTACHMENTS_PER_ITEM) {
@@ -116,7 +116,7 @@ export const getCardSnapshot = internalQuery({
 
 export const createAssociation = internalMutation({
   args: {
-    itemId: v.id("newDriveItems"),
+    itemId: v.id("driveItems"),
     trelloCardId: v.string(),
     trelloCardName: v.string(),
     authId: v.string(),
@@ -125,9 +125,9 @@ export const createAssociation = internalMutation({
   handler: async (ctx, args) => {
     const actor = await requireMutationAccess(ctx, args.authId, args.role, args.itemId);
     const existing = await ctx.db
-      .query("newDriveTrelloAttachments")
-      .withIndex("by_newDriveItemId_and_trelloCardId", (q) =>
-        q.eq("newDriveItemId", args.itemId).eq("trelloCardId", args.trelloCardId),
+      .query("driveTrelloAttachments")
+      .withIndex("by_driveItemId_and_trelloCardId", (q) =>
+        q.eq("driveItemId", args.itemId).eq("trelloCardId", args.trelloCardId),
       )
       .unique();
     if (existing) {
@@ -138,8 +138,8 @@ export const createAssociation = internalMutation({
     }
     const [itemRows, cardAssociations] = await Promise.all([
       ctx.db
-        .query("newDriveTrelloAttachments")
-        .withIndex("by_newDriveItemId", (q) => q.eq("newDriveItemId", args.itemId))
+        .query("driveTrelloAttachments")
+        .withIndex("by_driveItemId", (q) => q.eq("driveItemId", args.itemId))
         .take(MAX_ATTACHMENTS_PER_ITEM),
       cardRows(ctx, args.trelloCardId),
     ]);
@@ -151,8 +151,8 @@ export const createAssociation = internalMutation({
     if (cardAssociations.length >= MAX_ATTACHMENTS_PER_CARD) {
       throw new ConvexError("This Trello card has too many Drive attachments");
     }
-    const attachmentId = await ctx.db.insert("newDriveTrelloAttachments", {
-      newDriveItemId: args.itemId,
+    const attachmentId = await ctx.db.insert("driveTrelloAttachments", {
+      driveItemId: args.itemId,
       trelloCardId: args.trelloCardId,
       trelloCardName: args.trelloCardName,
       attachedBy: actor._id,
@@ -165,20 +165,20 @@ export const createAssociation = internalMutation({
 
 export const requestDetach = internalMutation({
   args: {
-    attachmentId: v.id("newDriveTrelloAttachments"),
+    attachmentId: v.id("driveTrelloAttachments"),
     authId: v.string(),
     role: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const row = await ctx.db.get("newDriveTrelloAttachments", args.attachmentId);
+    const row = await ctx.db.get("driveTrelloAttachments", args.attachmentId);
     if (!row) return null;
     const actor = await requireMutationAccess(
       ctx,
       args.authId,
       args.role,
-      row.newDriveItemId,
+      row.driveItemId,
     );
-    await ctx.db.patch("newDriveTrelloAttachments", row._id, {
+    await ctx.db.patch("driveTrelloAttachments", row._id, {
       desiredState: "detached",
       syncStatus: "pending",
       detachRequestedBy: actor._id,
@@ -191,15 +191,15 @@ export const requestDetach = internalMutation({
 
 export const resetForRetry = internalMutation({
   args: {
-    attachmentId: v.id("newDriveTrelloAttachments"),
+    attachmentId: v.id("driveTrelloAttachments"),
     authId: v.string(),
     role: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const row = await ctx.db.get("newDriveTrelloAttachments", args.attachmentId);
+    const row = await ctx.db.get("driveTrelloAttachments", args.attachmentId);
     if (!row) return null;
-    await requireMutationAccess(ctx, args.authId, args.role, row.newDriveItemId);
-    await ctx.db.patch("newDriveTrelloAttachments", row._id, {
+    await requireMutationAccess(ctx, args.authId, args.role, row.driveItemId);
+    await ctx.db.patch("driveTrelloAttachments", row._id, {
       syncStatus: "pending",
       lastSyncError: undefined,
       lastSyncAttemptAt: undefined,
@@ -210,18 +210,18 @@ export const resetForRetry = internalMutation({
 
 export async function markItemAttachmentsPending(
   ctx: MutationCtx,
-  itemId: Id<"newDriveItems">,
+  itemId: Id<"driveItems">,
 ) {
   const rows = await ctx.db
-    .query("newDriveTrelloAttachments")
-    .withIndex("by_newDriveItemId", (q) => q.eq("newDriveItemId", itemId))
+    .query("driveTrelloAttachments")
+    .withIndex("by_driveItemId", (q) => q.eq("driveItemId", itemId))
     .take(MAX_ATTACHMENTS_PER_ITEM + 1);
   if (rows.length > MAX_ATTACHMENTS_PER_ITEM) {
     throw new ConvexError("This item has too many Trello attachments");
   }
   const cardIds = [...new Set(rows.map((row) => row.trelloCardId))];
   for (const row of rows) {
-    await ctx.db.patch("newDriveTrelloAttachments", row._id, {
+    await ctx.db.patch("driveTrelloAttachments", row._id, {
       syncStatus: "pending",
       lastSyncError: undefined,
     });
@@ -241,9 +241,9 @@ export const completeCardSync = internalMutation({
     const rows = await cardRows(ctx, args.trelloCardId);
     for (const row of rows) {
       if (row.desiredState === "detached") {
-        await ctx.db.delete("newDriveTrelloAttachments", row._id);
+        await ctx.db.delete("driveTrelloAttachments", row._id);
       } else {
-        await ctx.db.patch("newDriveTrelloAttachments", row._id, {
+        await ctx.db.patch("driveTrelloAttachments", row._id, {
           trelloCardName: args.trelloCardName,
           syncStatus: "synced",
           lastSyncError: undefined,
@@ -263,7 +263,7 @@ export const failCardSync = internalMutation({
   handler: async (ctx, args) => {
     const rows = await cardRows(ctx, args.trelloCardId);
     for (const row of rows) {
-      await ctx.db.patch("newDriveTrelloAttachments", row._id, {
+      await ctx.db.patch("driveTrelloAttachments", row._id, {
         syncStatus: "error",
         lastSyncError: args.message.slice(0, 240),
         lastSyncAttemptAt: Date.now(),
@@ -274,18 +274,18 @@ export const failCardSync = internalMutation({
 });
 
 export const cleanupDeletedItems = internalMutation({
-  args: { itemIds: v.array(v.id("newDriveItems")), itemIndex: v.number() },
+  args: { itemIds: v.array(v.id("driveItems")), itemIndex: v.number() },
   handler: async (ctx, args): Promise<null> => {
     const itemId = args.itemIds[args.itemIndex];
     if (!itemId) return null;
     const rows = await ctx.db
-      .query("newDriveTrelloAttachments")
-      .withIndex("by_newDriveItemId", (q) => q.eq("newDriveItemId", itemId))
+      .query("driveTrelloAttachments")
+      .withIndex("by_driveItemId", (q) => q.eq("driveItemId", itemId))
       .take(MAX_ATTACHMENTS_PER_ITEM);
     if (rows.length >= MAX_ATTACHMENTS_PER_ITEM) {
       const overflow = await ctx.db
-        .query("newDriveTrelloAttachments")
-        .withIndex("by_newDriveItemId", (q) => q.eq("newDriveItemId", itemId))
+        .query("driveTrelloAttachments")
+        .withIndex("by_driveItemId", (q) => q.eq("driveItemId", itemId))
         .take(MAX_ATTACHMENTS_PER_ITEM + 1);
       if (overflow.length > MAX_ATTACHMENTS_PER_ITEM) {
         throw new ConvexError("This item has too many Trello attachments");
@@ -293,7 +293,7 @@ export const cleanupDeletedItems = internalMutation({
     }
     const cardIds = [...new Set(rows.map((row) => row.trelloCardId))];
     for (const row of rows) {
-      await ctx.db.patch("newDriveTrelloAttachments", row._id, {
+      await ctx.db.patch("driveTrelloAttachments", row._id, {
         desiredState: "detached",
         syncStatus: "pending",
         lastSyncError: undefined,

@@ -10,10 +10,10 @@ export const DRIVE_ITEMS_END = "<!-- drive-items-end -->";
 export const TRELLO_DESCRIPTION_LIMIT = 16_384;
 
 type ProjectionEntry = {
-  attachmentId: Id<"newDriveTrelloAttachments">;
+  attachmentId: Id<"driveTrelloAttachments">;
   creationTime: number;
-  itemId: Id<"newDriveItems">;
-  spaceId: Id<"newDriveSpaces">;
+  itemId: Id<"driveItems">;
+  spaceId: Id<"driveSpaces">;
   name: string;
   kind: "file" | "folder";
 };
@@ -229,7 +229,7 @@ async function actionIdentity(ctx: ActionCtx) {
 
 export const attach = action({
   args: {
-    itemId: v.id("newDriveItems"),
+    itemId: v.id("driveItems"),
     trelloCardId: v.string(),
     trelloCardName: v.string(),
   },
@@ -250,7 +250,7 @@ export const attach = action({
 });
 
 export const detach = action({
-  args: { attachmentId: v.id("newDriveTrelloAttachments") },
+  args: { attachmentId: v.id("driveTrelloAttachments") },
   handler: async (ctx, args): Promise<SyncResult> => {
     const identity = await actionIdentity(ctx);
     const cardId: string | null = await ctx.runMutation(
@@ -265,7 +265,7 @@ export const detach = action({
 });
 
 export const retry = action({
-  args: { attachmentId: v.id("newDriveTrelloAttachments") },
+  args: { attachmentId: v.id("driveTrelloAttachments") },
   handler: async (ctx, args): Promise<SyncResult> => {
     const identity = await actionIdentity(ctx);
     const cardId: string | null = await ctx.runMutation(

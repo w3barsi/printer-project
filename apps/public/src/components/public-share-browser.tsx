@@ -46,7 +46,7 @@ export function PublicShareBrowser({
   const navigate = useNavigate();
   const convex = useConvex();
   const root = useQuery(shareApi.getSharedRoot, { token });
-  const requestedId = itemId as Id<"newDriveItems"> | undefined;
+  const requestedId = itemId as Id<"driveItems"> | undefined;
   const rootItemId = root?.status === "available" ? root.item._id : undefined;
   const currentId = requestedId ?? rootItemId;
   const folder = useQuery(
@@ -279,7 +279,7 @@ export function PublicShareBrowser({
         onRenameItem={
           canEdit
             ? (id, name) =>
-                renameItem({ token, itemId: id as Id<"newDriveItems">, name }).then(
+                renameItem({ token, itemId: id as Id<"driveItems">, name }).then(
                   () => undefined,
                 )
             : undefined
@@ -290,8 +290,8 @@ export function PublicShareBrowser({
                 destinationFolderId
                   ? moveItems({
                       token,
-                      itemIds: ids as Id<"newDriveItems">[],
-                      destinationFolderId: destinationFolderId as Id<"newDriveItems">,
+                      itemIds: ids as Id<"driveItems">[],
+                      destinationFolderId: destinationFolderId as Id<"driveItems">,
                     })
                   : false
             : undefined
@@ -299,7 +299,7 @@ export function PublicShareBrowser({
         onDeleteItems={
           canEdit
             ? (ids) =>
-                deleteItems({ token, itemIds: ids as Id<"newDriveItems">[] }).then(
+                deleteItems({ token, itemIds: ids as Id<"driveItems">[] }).then(
                   () => undefined,
                 )
             : undefined

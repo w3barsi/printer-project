@@ -10,16 +10,16 @@ export const list = authedQuery({
   handler: async (ctx) => {
     const spaces =
       ctx.authUser?.role === "admin"
-        ? await ctx.db.query("newDriveSpaces").order("desc").take(100)
+        ? await ctx.db.query("driveSpaces").order("desc").take(100)
         : (
             await Promise.all([
               ctx.db
-                .query("newDriveSpaces")
+                .query("driveSpaces")
                 .withIndex("by_visibility", (q) => q.eq("visibility", "everyone"))
                 .order("desc")
                 .take(100),
               ctx.db
-                .query("newDriveSpaces")
+                .query("driveSpaces")
                 .withIndex("by_visibility", (q) => q.eq("visibility", undefined))
                 .order("desc")
                 .take(100),
@@ -64,11 +64,11 @@ export const create = authedMutation({
 
     const nameKey = normalizeName(name);
     const duplicate = await ctx.db
-      .query("newDriveSpaces")
+      .query("driveSpaces")
       .withIndex("by_nameKey", (q) => q.eq("nameKey", nameKey))
       .unique();
     const legacyDuplicate = await ctx.db
-      .query("newDriveSpaces")
+      .query("driveSpaces")
       .withIndex("by_name", (q) => q.eq("name", name))
       .unique();
     if (duplicate || legacyDuplicate) {
@@ -77,7 +77,7 @@ export const create = authedMutation({
 
     const user = await requireAppUser(ctx);
     const now = Date.now();
-    return await ctx.db.insert("newDriveSpaces", {
+    return await ctx.db.insert("driveSpaces", {
       name,
       nameKey,
       ...(description ? { description } : {}),

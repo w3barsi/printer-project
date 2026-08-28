@@ -29,7 +29,7 @@ const MAX_MOVE_ITEMS = 100;
 const SIGNED_URL_TTL_SECONDS = 15 * 60;
 
 type DbCtx = Pick<QueryCtx, "db"> | Pick<MutationCtx, "db">;
-type ShareRoot = Doc<"newDriveItems"> & { publicAccess: "read" | "edit" };
+type ShareRoot = Doc<"driveItems"> & { publicAccess: "read" | "edit" };
 
 const accessValidator = v.union(v.literal("read"), v.literal("edit"));
 
@@ -40,7 +40,7 @@ function shareError(): never {
 export async function resolveActiveShare(ctx: DbCtx, token: string): Promise<ShareRoot> {
   if (!token || token.length > 200) shareError();
   const root = await ctx.db
-    .query("newDriveItems")
+    .query("driveItems")
     .withIndex("by_publicToken", (q) => q.eq("publicToken", token))
     .unique();
   if (
@@ -58,10 +58,10 @@ export async function resolveActiveShare(ctx: DbCtx, token: string): Promise<Sha
 export async function requireSharedItem(
   ctx: DbCtx,
   root: ShareRoot,
-  itemId: Id<"newDriveItems">,
+  itemId: Id<"driveItems">,
   options: { strictDescendant?: boolean } = {},
 ) {
-  const item = await ctx.db.get("newDriveItems", itemId);
+  const item = await ctx.db.get("driveItems", itemId);
   if (!item || item.deletedAt !== undefined || item.spaceId !== root.spaceId)
     shareError();
   if (item._id === root._id) {
@@ -69,14 +69,14 @@ export async function requireSharedItem(
     return item;
   }
 
-  const visited = new Set<Id<"newDriveItems">>([item._id]);
+  const visited = new Set<Id<"driveItems">>([item._id]);
   let parentId = item.parentId;
   for (let depth = 0; depth < MAX_ANCESTRY_DEPTH; depth += 1) {
     if (!parentId) shareError();
     if (parentId === root._id) return item;
     if (visited.has(parentId)) shareError();
     visited.add(parentId);
-    const parent = await ctx.db.get("newDriveItems", parentId);
+    const parent = await ctx.db.get("driveItems", parentId);
     if (!parent || parent.deletedAt !== undefined || parent.spaceId !== root.spaceId)
       shareError();
     parentId = parent.parentId;
@@ -85,7 +85,7 @@ export async function requireSharedItem(
 }
 
 function normalizeItemId(ctx: DbCtx, itemId: string) {
-  const normalized = ctx.db.normalizeId("newDriveItems", itemId);
+  const normalized = ctx.db.normalizeId("driveItems", itemId);
   if (!normalized) shareError();
   return normalized;
 }
@@ -93,7 +93,7 @@ function normalizeItemId(ctx: DbCtx, itemId: string) {
 export async function requireSharedFolder(
   ctx: DbCtx,
   root: ShareRoot,
-  folderId: Id<"newDriveItems">,
+  folderId: Id<"driveItems">,
 ) {
   const folder = await requireSharedItem(ctx, root, folderId);
   if (folder.kind !== "folder") shareError();
@@ -106,7 +106,7 @@ async function requireEditShare(ctx: DbCtx, token: string) {
   return root;
 }
 
-function publicItem(item: Doc<"newDriveItems">, rootId: Id<"newDriveItems">) {
+function publicItem(item: Doc<"driveItems">, rootId: Id<"driveItems">) {
   const common = {
     _id: item._id,
     name: item.name,
@@ -135,12 +135,12 @@ function isPreviewable(contentType: string) {
 
 async function findNameConflict(
   ctx: DbCtx,
-  spaceId: Id<"newDriveSpaces">,
-  parentId: Id<"newDriveItems"> | undefined,
+  spaceId: Id<"driveSpaces">,
+  parentId: Id<"driveItems"> | undefined,
   nameKey: string,
 ) {
   return await ctx.db
-    .query("newDriveItems")
+    .query("driveItems")
     .withIndex("by_spaceId_and_parentId_and_deletedAt_and_nameKey", (q) =>
       q
         .eq("spaceId", spaceId)
@@ -152,9 +152,9 @@ async function findNameConflict(
 }
 
 export const getShareSettings = authedQuery({
-  args: { itemId: v.id("newDriveItems") },
+  args: { itemId: v.id("driveItems") },
   handler: async (ctx, args) => {
-    const item = await ctx.db.get("newDriveItems", args.itemId);
+    const item = await ctx.db.get("driveItems", args.itemId);
     if (!item || item.deletedAt !== undefined) throw new ConvexError("Item not found");
     await requireSpaceAccess(ctx, item.spaceId);
     if (!item.publicAccess || !item.publicToken) {
@@ -173,12 +173,12 @@ export const getShareSettings = authedQuery({
 
 export const setShare = authedMutation({
   args: {
-    itemId: v.id("newDriveItems"),
+    itemId: v.id("driveItems"),
     access: accessValidator,
     expiresAt: v.union(v.number(), v.null()),
   },
   handler: async (ctx, args) => {
-    const item = await ctx.db.get("newDriveItems", args.itemId);
+    const item = await ctx.db.get("driveItems", args.itemId);
     if (!item || item.deletedAt !== undefined) throw new ConvexError("Item not found");
     await requireSpaceAccess(ctx, item.spaceId);
     if (item.kind === "file" && args.access === "edit") {
@@ -195,12 +195,12 @@ export const setShare = authedMutation({
     while (!token) {
       const candidate = crypto.randomUUID();
       const collision = await ctx.db
-        .query("newDriveItems")
+        .query("driveItems")
         .withIndex("by_publicToken", (q) => q.eq("publicToken", candidate))
         .unique();
       if (!collision) token = candidate;
     }
-    await ctx.db.patch("newDriveItems", item._id, {
+    await ctx.db.patch("driveItems", item._id, {
       publicAccess: args.access,
       publicToken: token,
       publicExpiresAt: args.expiresAt === null ? undefined : args.expiresAt,
@@ -210,12 +210,12 @@ export const setShare = authedMutation({
 });
 
 export const disableShare = authedMutation({
-  args: { itemId: v.id("newDriveItems") },
+  args: { itemId: v.id("driveItems") },
   handler: async (ctx, args) => {
-    const item = await ctx.db.get("newDriveItems", args.itemId);
+    const item = await ctx.db.get("driveItems", args.itemId);
     if (!item || item.deletedAt !== undefined) throw new ConvexError("Item not found");
     await requireSpaceAccess(ctx, item.spaceId);
-    await ctx.db.patch("newDriveItems", item._id, {
+    await ctx.db.patch("driveItems", item._id, {
       publicAccess: undefined,
       publicToken: undefined,
       publicExpiresAt: undefined,
@@ -273,7 +273,7 @@ export const listSharedItems = query({
         args.parentId ? normalizeItemId(ctx, args.parentId) : root._id,
       );
       const items = await ctx.db
-        .query("newDriveItems")
+        .query("driveItems")
         .withIndex(
           "by_spaceId_and_parentId_and_deletedAt_and_kindSort_and_nameKey",
           (q) =>
@@ -284,14 +284,14 @@ export const listSharedItems = query({
         )
         .take(500);
 
-      const breadcrumbs: Doc<"newDriveItems">[] = [];
-      let breadcrumb: Doc<"newDriveItems"> = parent;
+      const breadcrumbs: Doc<"driveItems">[] = [];
+      let breadcrumb: Doc<"driveItems"> = parent;
       for (let depth = 0; depth < MAX_ANCESTRY_DEPTH; depth += 1) {
         breadcrumbs.push(breadcrumb);
         if (breadcrumb._id === root._id) break;
         if (!breadcrumb.parentId) shareError();
-        const next: Doc<"newDriveItems"> | null = await ctx.db.get(
-          "newDriveItems",
+        const next: Doc<"driveItems"> | null = await ctx.db.get(
+          "driveItems",
           breadcrumb.parentId,
         );
         if (
@@ -306,15 +306,15 @@ export const listSharedItems = query({
       }
       if (breadcrumbs[breadcrumbs.length - 1]?._id !== root._id) shareError();
 
-      const folders: Doc<"newDriveItems">[] = [root];
+      const folders: Doc<"driveItems">[] = [root];
       const folderQueue = [root._id];
-      const visitedFolders = new Set<Id<"newDriveItems">>();
+      const visitedFolders = new Set<Id<"driveItems">>();
       while (folderQueue.length > 0) {
         const folderId = folderQueue.shift()!;
         if (visitedFolders.has(folderId)) shareError();
         visitedFolders.add(folderId);
         const children = await ctx.db
-          .query("newDriveItems")
+          .query("driveItems")
           .withIndex(
             "by_spaceId_and_parentId_and_deletedAt_and_kindSort_and_nameKey",
             (q) =>
@@ -414,13 +414,13 @@ export const getSharedArchiveManifest = query({
         ? await requireSharedItem(ctx, shareRoot, normalizeItemId(ctx, args.itemId))
         : shareRoot;
       if (root.kind !== "folder" || !safeArchiveSegment(root.name)) shareError();
-      const queue: Array<{ folder: Doc<"newDriveItems">; path: string }> = [
+      const queue: Array<{ folder: Doc<"driveItems">; path: string }> = [
         { folder: root, path: root.name },
       ];
-      const visited = new Set<Id<"newDriveItems">>();
+      const visited = new Set<Id<"driveItems">>();
       const folders: string[] = [];
       const files: Array<{
-        item: Doc<"newDriveItems"> & { kind: "file" };
+        item: Doc<"driveItems"> & { kind: "file" };
         path: string;
       }> = [];
       let totalSize = 0;
@@ -431,7 +431,7 @@ export const getSharedArchiveManifest = query({
         visited.add(current.folder._id);
         folders.push(current.path);
         const children = await ctx.db
-          .query("newDriveItems")
+          .query("driveItems")
           .withIndex(
             "by_spaceId_and_parentId_and_deletedAt_and_kindSort_and_nameKey",
             (q) =>
@@ -482,7 +482,7 @@ export const getSharedArchiveManifest = query({
 });
 
 export const createSharedFolder = mutation({
-  args: { token: v.string(), parentId: v.id("newDriveItems"), name: v.string() },
+  args: { token: v.string(), parentId: v.id("driveItems"), name: v.string() },
   handler: async (ctx, args) => {
     const root = await requireEditShare(ctx, args.token);
     const parent = await requireSharedFolder(ctx, root, args.parentId);
@@ -494,7 +494,7 @@ export const createSharedFolder = mutation({
       throw new ConvexError("An item with this name already exists");
     }
     const now = Date.now();
-    const itemId = await ctx.db.insert("newDriveItems", {
+    const itemId = await ctx.db.insert("driveItems", {
       spaceId: root.spaceId,
       parentId: parent._id,
       name,
@@ -505,14 +505,14 @@ export const createSharedFolder = mutation({
       createdAt: now,
       updatedAt: now,
     });
-    await ctx.db.patch("newDriveItems", parent._id, { updatedAt: now });
-    await ctx.db.patch("newDriveSpaces", root.spaceId, { updatedAt: now });
+    await ctx.db.patch("driveItems", parent._id, { updatedAt: now });
+    await ctx.db.patch("driveSpaces", root.spaceId, { updatedAt: now });
     return itemId;
   },
 });
 
 export const renameSharedItem = mutation({
-  args: { token: v.string(), itemId: v.id("newDriveItems"), name: v.string() },
+  args: { token: v.string(), itemId: v.id("driveItems"), name: v.string() },
   handler: async (ctx, args) => {
     const root = await requireEditShare(ctx, args.token);
     const item = await requireSharedItem(ctx, root, args.itemId, {
@@ -525,8 +525,8 @@ export const renameSharedItem = mutation({
       throw new ConvexError("An item with this name already exists");
     if (item.name === name) return null;
     const now = Date.now();
-    await ctx.db.patch("newDriveItems", item._id, { name, nameKey, updatedAt: now });
-    await ctx.db.patch("newDriveSpaces", root.spaceId, { updatedAt: now });
+    await ctx.db.patch("driveItems", item._id, { name, nameKey, updatedAt: now });
+    await ctx.db.patch("driveSpaces", root.spaceId, { updatedAt: now });
     return null;
   },
 });
@@ -534,8 +534,8 @@ export const renameSharedItem = mutation({
 export const moveSharedItems = mutation({
   args: {
     token: v.string(),
-    itemIds: v.array(v.id("newDriveItems")),
-    destinationFolderId: v.id("newDriveItems"),
+    itemIds: v.array(v.id("driveItems")),
+    destinationFolderId: v.id("driveItems"),
   },
   handler: async (ctx, args) => {
     const root = await requireEditShare(ctx, args.token);
@@ -549,7 +549,7 @@ export const moveSharedItems = mutation({
     const destination = await requireSharedFolder(ctx, root, args.destinationFolderId);
     if (sourceParentId === destination._id) return true;
     const movingIds = new Set(itemIds);
-    let ancestor: Doc<"newDriveItems"> | null = destination;
+    let ancestor: Doc<"driveItems"> | null = destination;
     for (let depth = 0; ancestor && depth < MAX_ANCESTRY_DEPTH; depth += 1) {
       if (movingIds.has(ancestor._id)) shareError();
       if (ancestor._id === root._id) {
@@ -557,7 +557,7 @@ export const moveSharedItems = mutation({
         break;
       }
       ancestor = ancestor.parentId
-        ? await ctx.db.get("newDriveItems", ancestor.parentId)
+        ? await ctx.db.get("driveItems", ancestor.parentId)
         : null;
       if (
         !ancestor ||
@@ -579,18 +579,18 @@ export const moveSharedItems = mutation({
     }
     const now = Date.now();
     for (const item of items)
-      await ctx.db.patch("newDriveItems", item._id, {
+      await ctx.db.patch("driveItems", item._id, {
         parentId: destination._id,
         updatedAt: now,
       });
-    await ctx.db.patch("newDriveItems", destination._id, { updatedAt: now });
-    await ctx.db.patch("newDriveSpaces", root.spaceId, { updatedAt: now });
+    await ctx.db.patch("driveItems", destination._id, { updatedAt: now });
+    await ctx.db.patch("driveSpaces", root.spaceId, { updatedAt: now });
     return true;
   },
 });
 
 export const deleteSharedItems = mutation({
-  args: { token: v.string(), itemIds: v.array(v.id("newDriveItems")) },
+  args: { token: v.string(), itemIds: v.array(v.id("driveItems")) },
   handler: async (ctx, args) => {
     const root = await requireEditShare(ctx, args.token);
     if (args.itemIds.length === 0 || args.itemIds.length > MAX_DELETE_ITEMS) shareError();
@@ -601,8 +601,8 @@ export const deleteSharedItems = mutation({
     const items = await collectDeletedItems(ctx, root.spaceId, itemIds);
     const deletedAt = Date.now();
     for (const item of items)
-      await ctx.db.patch("newDriveItems", item._id, { deletedAt, updatedAt: deletedAt });
-    await ctx.db.patch("newDriveSpaces", root.spaceId, { updatedAt: deletedAt });
+      await ctx.db.patch("driveItems", item._id, { deletedAt, updatedAt: deletedAt });
+    await ctx.db.patch("driveSpaces", root.spaceId, { updatedAt: deletedAt });
     const keys = items.flatMap((item) => (item.kind === "file" ? [item.r2.key] : []));
     if (keys.length > 0)
       await ctx.scheduler.runAfter(0, internal.drive.items.deleteObjects, { keys });
@@ -613,7 +613,7 @@ export const deleteSharedItems = mutation({
 export const createSharedUploadTicket = mutation({
   args: {
     token: v.string(),
-    parentId: v.id("newDriveItems"),
+    parentId: v.id("driveItems"),
     name: v.string(),
     contentType: v.string(),
     size: v.number(),
@@ -633,7 +633,7 @@ export const createSharedUploadTicket = mutation({
     const key = `new-drive/${root.spaceId}/${crypto.randomUUID()}-${safeName}`;
     const { url } = await r2.generateUploadUrl(key);
     const now = Date.now();
-    const ticketId = await ctx.db.insert("newDriveUploadTickets", {
+    const ticketId = await ctx.db.insert("driveUploadTickets", {
       key,
       spaceId: root.spaceId,
       parentId: parent._id,
@@ -651,10 +651,10 @@ export const createSharedUploadTicket = mutation({
 });
 
 export const getAuthorizedGuestUploadTicket = internalQuery({
-  args: { token: v.string(), ticketId: v.id("newDriveUploadTickets") },
+  args: { token: v.string(), ticketId: v.id("driveUploadTickets") },
   handler: async (ctx, args) => {
     const root = await requireEditShare(ctx, args.token);
-    const ticket = await ctx.db.get("newDriveUploadTickets", args.ticketId);
+    const ticket = await ctx.db.get("driveUploadTickets", args.ticketId);
     if (
       !ticket ||
       ticket.uploadedBy !== "guest" ||
@@ -676,14 +676,14 @@ export const getAuthorizedGuestUploadTicket = internalQuery({
 export const completeSharedUpload = internalMutation({
   args: {
     token: v.string(),
-    ticketId: v.id("newDriveUploadTickets"),
+    ticketId: v.id("driveUploadTickets"),
     contentType: v.string(),
     size: v.number(),
     sha256: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const root = await requireEditShare(ctx, args.token);
-    const ticket = await ctx.db.get("newDriveUploadTickets", args.ticketId);
+    const ticket = await ctx.db.get("driveUploadTickets", args.ticketId);
     if (
       !ticket ||
       ticket.uploadedBy !== "guest" ||
@@ -703,7 +703,7 @@ export const completeSharedUpload = internalMutation({
     );
     if (duplicate) throw new ConvexError("An item with this name already exists");
     const now = Date.now();
-    const itemId = await ctx.db.insert("newDriveItems", {
+    const itemId = await ctx.db.insert("driveItems", {
       spaceId: root.spaceId,
       parentId: parent._id,
       name: ticket.name,
@@ -720,23 +720,23 @@ export const completeSharedUpload = internalMutation({
         ...(args.sha256 ? { sha256: args.sha256 } : {}),
       },
     });
-    await ctx.db.delete("newDriveUploadTickets", ticket._id);
-    await ctx.db.patch("newDriveItems", parent._id, { updatedAt: now });
-    await ctx.db.patch("newDriveSpaces", root.spaceId, { updatedAt: now });
+    await ctx.db.delete("driveUploadTickets", ticket._id);
+    await ctx.db.patch("driveItems", parent._id, { updatedAt: now });
+    await ctx.db.patch("driveSpaces", root.spaceId, { updatedAt: now });
     return itemId;
   },
 });
 
 export const removeAuthorizedSharedUploadTicket = internalMutation({
-  args: { token: v.string(), ticketId: v.id("newDriveUploadTickets") },
+  args: { token: v.string(), ticketId: v.id("driveUploadTickets") },
   handler: async (ctx, args) => {
     const root = await requireEditShare(ctx, args.token);
-    const ticket = await ctx.db.get("newDriveUploadTickets", args.ticketId);
+    const ticket = await ctx.db.get("driveUploadTickets", args.ticketId);
     if (!ticket || ticket.uploadedBy !== "guest" || ticket.shareRootId !== root._id)
       shareError();
     if (!ticket.parentId) shareError();
     await requireSharedFolder(ctx, root, ticket.parentId);
-    await ctx.db.delete("newDriveUploadTickets", ticket._id);
+    await ctx.db.delete("driveUploadTickets", ticket._id);
     return ticket.key;
   },
 });

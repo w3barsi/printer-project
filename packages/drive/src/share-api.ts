@@ -3,18 +3,18 @@ import { makeFunctionReference } from "convex/server";
 
 export type PublicShareItem =
   | {
-      _id: Id<"newDriveItems">;
+      _id: Id<"driveItems">;
       name: string;
       kind: "folder";
-      parentId?: Id<"newDriveItems">;
+      parentId?: Id<"driveItems">;
       updatedAt: number;
       isShareRoot: boolean;
     }
   | {
-      _id: Id<"newDriveItems">;
+      _id: Id<"driveItems">;
       name: string;
       kind: "file";
-      parentId?: Id<"newDriveItems">;
+      parentId?: Id<"driveItems">;
       updatedAt: number;
       contentType: string;
       size: number;
@@ -56,19 +56,19 @@ export type ShareSettings =
 export const shareApi = {
   getShareSettings: makeFunctionReference<
     "query",
-    { itemId: Id<"newDriveItems"> },
+    { itemId: Id<"driveItems"> },
     ShareSettings
   >("drive/shares:getShareSettings"),
   setShare: makeFunctionReference<
     "mutation",
     {
-      itemId: Id<"newDriveItems">;
+      itemId: Id<"driveItems">;
       access: "read" | "edit";
       expiresAt: number | null;
     },
     { token: string; access: "read" | "edit"; expiresAt: number | null }
   >("drive/shares:setShare"),
-  disableShare: makeFunctionReference<"mutation", { itemId: Id<"newDriveItems"> }, null>(
+  disableShare: makeFunctionReference<"mutation", { itemId: Id<"driveItems"> }, null>(
     "drive/shares:disableShare",
   ),
   getSharedRoot: makeFunctionReference<
@@ -117,47 +117,47 @@ export const shareApi = {
   >("drive/shares:getSharedArchiveManifest"),
   createSharedFolder: makeFunctionReference<
     "mutation",
-    { token: string; parentId: Id<"newDriveItems">; name: string },
-    Id<"newDriveItems">
+    { token: string; parentId: Id<"driveItems">; name: string },
+    Id<"driveItems">
   >("drive/shares:createSharedFolder"),
   renameSharedItem: makeFunctionReference<
     "mutation",
-    { token: string; itemId: Id<"newDriveItems">; name: string },
+    { token: string; itemId: Id<"driveItems">; name: string },
     null
   >("drive/shares:renameSharedItem"),
   moveSharedItems: makeFunctionReference<
     "mutation",
     {
       token: string;
-      itemIds: Id<"newDriveItems">[];
-      destinationFolderId: Id<"newDriveItems">;
+      itemIds: Id<"driveItems">[];
+      destinationFolderId: Id<"driveItems">;
     },
     boolean
   >("drive/shares:moveSharedItems"),
   deleteSharedItems: makeFunctionReference<
     "mutation",
-    { token: string; itemIds: Id<"newDriveItems">[] },
+    { token: string; itemIds: Id<"driveItems">[] },
     number
   >("drive/shares:deleteSharedItems"),
   createSharedUploadTicket: makeFunctionReference<
     "mutation",
     {
       token: string;
-      parentId: Id<"newDriveItems">;
+      parentId: Id<"driveItems">;
       name: string;
       contentType: string;
       size: number;
     },
-    { ticketId: Id<"newDriveUploadTickets">; url: string }
+    { ticketId: Id<"driveUploadTickets">; url: string }
   >("drive/shares:createSharedUploadTicket"),
   finalizeSharedUpload: makeFunctionReference<
     "action",
-    { token: string; ticketId: Id<"newDriveUploadTickets"> },
-    Id<"newDriveItems">
+    { token: string; ticketId: Id<"driveUploadTickets"> },
+    Id<"driveItems">
   >("drive/sharedUploads:finalizeSharedUpload"),
   cancelSharedUpload: makeFunctionReference<
     "action",
-    { token: string; ticketId: Id<"newDriveUploadTickets"> },
+    { token: string; ticketId: Id<"driveUploadTickets"> },
     null
   >("drive/sharedUploads:cancelSharedUpload"),
 };

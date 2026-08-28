@@ -22,8 +22,8 @@ import { useNewDriveUpload } from "@/hooks/use-new-drive-upload";
 export const Route = createFileRoute("/_authenticated/newdrive/$spaceId/{-$folderId}")({
   component: SpaceBrowserPage,
   loader: async ({ context: { queryClient: qc }, params }) => {
-    const spaceId = params.spaceId as Id<"newDriveSpaces">;
-    const folderId = params.folderId as Id<"newDriveItems"> | undefined;
+    const spaceId = params.spaceId as Id<"driveSpaces">;
+    const folderId = params.folderId as Id<"driveItems"> | undefined;
     const [spaces, folder] = await Promise.all([
       qc.ensureQueryData(convexQuery(api.drive.spaces.list, {})),
       folderId
@@ -87,8 +87,8 @@ function SpaceBrowserPage() {
   const { spaceId, folderId } = Route.useParams();
   const { space, folder, parentFolder } = Route.useLoaderData();
   const convex = useConvex();
-  const typedSpaceId = spaceId as Id<"newDriveSpaces">;
-  const typedFolderId = folderId as Id<"newDriveItems"> | undefined;
+  const typedSpaceId = spaceId as Id<"driveSpaces">;
+  const typedFolderId = folderId as Id<"driveItems"> | undefined;
   const { data } = useSuspenseQuery(
     convexQuery(api.drive.items.listItems, {
       spaceId: typedSpaceId,
@@ -132,7 +132,7 @@ function SpaceBrowserPage() {
       const manifests = await Promise.all(
         items.map((item) =>
           convex.query(api.drive.items.getDownloadManifest, {
-            itemId: item.id as Id<"newDriveItems">,
+            itemId: item.id as Id<"driveItems">,
           }),
         ),
       );
@@ -234,7 +234,7 @@ function SpaceBrowserPage() {
           onDeleteItems={(itemIds) =>
             deleteItems({
               spaceId: typedSpaceId,
-              itemIds: itemIds as Id<"newDriveItems">[],
+              itemIds: itemIds as Id<"driveItems">[],
             }).then(() => undefined)
           }
           onDownloadItem={downloadItem}
@@ -242,14 +242,14 @@ function SpaceBrowserPage() {
           onMoveItems={(itemIds, destinationFolderId) =>
             moveItems({
               spaceId: typedSpaceId,
-              itemIds: itemIds as Id<"newDriveItems">[],
-              destinationFolderId: destinationFolderId as Id<"newDriveItems"> | null,
+              itemIds: itemIds as Id<"driveItems">[],
+              destinationFolderId: destinationFolderId as Id<"driveItems"> | null,
             })
           }
           onRenameItem={(itemId, name) =>
             renameItem({
               spaceId: typedSpaceId,
-              itemId: itemId as Id<"newDriveItems">,
+              itemId: itemId as Id<"driveItems">,
               name,
             }).then(() => undefined)
           }
