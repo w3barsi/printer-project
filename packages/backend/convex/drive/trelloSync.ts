@@ -134,8 +134,8 @@ function renderBlock(entries: ProjectionEntry[]) {
     .map((entry) => {
       const url =
         entry.kind === "file"
-          ? `${origin}/newdrive/file/${entry.itemId}`
-          : `${origin}/newdrive/${entry.spaceId}/${entry.itemId}`;
+          ? `${origin}/drive/file/${entry.itemId}`
+          : `${origin}/drive/${entry.spaceId}/${entry.itemId}`;
       const icon = entry.kind === "file" ? "📄" : "📁";
       return `[${icon} *${escapeMarkdown(entry.name)}*](${url})`;
     });

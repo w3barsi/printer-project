@@ -3,7 +3,7 @@ import { cn } from "@dg/ui/lib/utils";
 import { useDroppable } from "@dnd-kit/core";
 import { Trash2Icon } from "lucide-react";
 
-import type { NewDriveItem } from "../types";
+import type { DriveItem } from "../types";
 import { ItemIcon } from "./file-list-rows";
 
 export function DeleteDropButton({
@@ -16,7 +16,7 @@ export function DeleteDropButton({
   onClick: () => void;
 }) {
   const { setNodeRef, isOver } = useDroppable({
-    id: "new-drive-trash",
+    id: "drive-trash",
     data: { isTrash: true },
     disabled: !dragEnabled,
   });
@@ -44,7 +44,7 @@ export function DeleteDropButton({
   );
 }
 
-export function DragPreview({ items }: { items: NewDriveItem[] }) {
+export function DragPreview({ items }: { items: DriveItem[] }) {
   return (
     <div className="pointer-events-none flex w-72 flex-col gap-1 rounded-xl bg-background/80 p-2 opacity-80 shadow-xl ring-1 ring-foreground/10">
       {items.slice(0, 3).map((item) => (

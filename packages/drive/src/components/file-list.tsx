@@ -51,10 +51,10 @@ import {
 } from "react";
 import { toast } from "sonner";
 
-import type { NewDriveItem } from "../types";
+import type { DriveItem } from "../types";
 import { DeleteItemsDialog, MoveItemDialog, RenameItemDialog } from "./file-list-dialogs";
 import { DeleteDropButton, DragPreview } from "./file-list-drag";
-import { NewDriveFileRow, type NewDriveParentPath } from "./file-list-rows";
+import { DriveFileRow, type DriveParentPath } from "./file-list-rows";
 
 const sortOptions = [
   { value: "name", label: "Name" },
@@ -115,7 +115,7 @@ function getModifiedTime(updated: string) {
   return Number.isNaN(timestamp) ? 0 : timestamp;
 }
 
-export function NewDriveFileList({
+export function DriveFileList({
   items,
   title,
   headerActions,
@@ -134,27 +134,27 @@ export function NewDriveFileList({
   deleteDescription,
   renderItemActions,
 }: {
-  items: NewDriveItem[];
+  items: DriveItem[];
   title: string;
   headerActions?: ReactNode;
   interactive?: boolean;
-  parentPath?: NewDriveParentPath;
+  parentPath?: DriveParentPath;
   onDeleteItems?: (itemIds: string[]) => void | Promise<void>;
   onMoveItems?: (
     itemIds: string[],
     destinationFolderId: string | null,
   ) => boolean | Promise<boolean>;
-  onDownloadItem?: (item: NewDriveItem) => void | Promise<void>;
-  onDownloadItems?: (items: NewDriveItem[]) => void | Promise<void>;
+  onDownloadItem?: (item: DriveItem) => void | Promise<void>;
+  onDownloadItems?: (items: DriveItem[]) => void | Promise<void>;
   onRenameItem?: (itemId: string, name: string) => void | Promise<void>;
-  onShareItem?: (item: NewDriveItem) => void;
-  onOpenItem?: (item: NewDriveItem) => void;
+  onShareItem?: (item: DriveItem) => void;
+  onOpenItem?: (item: DriveItem) => void;
   onOpenParent?: () => void;
   publicSafe?: boolean;
   moveDestinations?: Array<{ id: string; name: string }>;
   deleteDescription?: string;
   renderItemActions?: (
-    item: NewDriveItem,
+    item: DriveItem,
     controls: { keepMenuOpen: () => void },
   ) => ReactNode;
 }) {
@@ -166,11 +166,11 @@ export function NewDriveFileList({
   const [selectionAnchor, setSelectionAnchor] = useState<string | null>(null);
   const [activeDragId, setActiveDragId] = useState<string | null>(null);
   const [deleteRequest, setDeleteRequest] = useState<string[]>([]);
-  const [renameRequest, setRenameRequest] = useState<NewDriveItem | null>(null);
+  const [renameRequest, setRenameRequest] = useState<DriveItem | null>(null);
   const [renameValue, setRenameValue] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
   const [isRenaming, setIsRenaming] = useState(false);
-  const [moveRequest, setMoveRequest] = useState<NewDriveItem | null>(null);
+  const [moveRequest, setMoveRequest] = useState<DriveItem | null>(null);
   const [moveDestinationId, setMoveDestinationId] = useState("");
   const [isMoving, setIsMoving] = useState(false);
   const [sortBy, setSortBy] = useState<SortBy>("modified");
@@ -293,7 +293,7 @@ export function NewDriveFileList({
     }
   }
 
-  function requestRename(item: NewDriveItem) {
+  function requestRename(item: DriveItem) {
     setRenameValue(item.name);
     setRenameRequest(item);
   }
@@ -342,7 +342,7 @@ export function NewDriveFileList({
     setSelectionAnchor(itemId);
   }
 
-  function openItem(item: NewDriveItem) {
+  function openItem(item: DriveItem) {
     onOpenItem?.(item);
   }
 
@@ -351,7 +351,7 @@ export function NewDriveFileList({
     onOpenParent?.();
   }
 
-  function handleItemClick(event: MouseEvent<HTMLDivElement>, item: NewDriveItem) {
+  function handleItemClick(event: MouseEvent<HTMLDivElement>, item: DriveItem) {
     if (!interactive) {
       openItem(item);
       return;
@@ -376,7 +376,7 @@ export function NewDriveFileList({
     setSelectionAnchor(item.id);
   }
 
-  function handleItemKeyDown(event: KeyboardEvent<HTMLDivElement>, item: NewDriveItem) {
+  function handleItemKeyDown(event: KeyboardEvent<HTMLDivElement>, item: DriveItem) {
     if (!interactive) {
       if (event.key === "Enter") {
         event.preventDefault();
@@ -628,7 +628,7 @@ export function NewDriveFileList({
               </div>
 
               {displayedItems.map((item) => (
-                <NewDriveFileRow
+                <DriveFileRow
                   key={item.id}
                   item={item}
                   interactive={interactive || !!onOpenItem}

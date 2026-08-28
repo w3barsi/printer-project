@@ -16,6 +16,7 @@ import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/
 import { Route as AppSplatRouteImport } from './routes/app.$'
 import { Route as AuthenticatedNewdriveRouteImport } from './routes/_authenticated/newdrive'
 import { Route as AuthenticatedInventoryRouteImport } from './routes/_authenticated/inventory'
+import { Route as AuthenticatedDriveRouteImport } from './routes/_authenticated/drive'
 import { Route as AuthSignupRouteImport } from './routes/_auth/signup'
 import { Route as AuthLoginRouteImport } from './routes/_auth/login'
 import { Route as AuthenticatedCashierRouteRouteImport } from './routes/_authenticated/_cashier/route'
@@ -23,6 +24,7 @@ import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authentic
 import { Route as AuthenticatedTrelloIndexRouteImport } from './routes/_authenticated/trello.index'
 import { Route as AuthenticatedNewdriveIndexRouteImport } from './routes/_authenticated/newdrive.index'
 import { Route as AuthenticatedJoIndexRouteImport } from './routes/_authenticated/jo.index'
+import { Route as AuthenticatedDriveIndexRouteImport } from './routes/_authenticated/drive.index'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth.$'
 import { Route as AuthenticatedTrelloListIdRouteImport } from './routes/_authenticated/trello.$listId'
 import { Route as AuthenticatedJoJoIdRouteImport } from './routes/_authenticated/jo.$joId'
@@ -31,6 +33,8 @@ import { Route as AuthenticatedCashierCashflowRouteImport } from './routes/_auth
 import { Route as AuthenticatedAdminAdminIndexRouteImport } from './routes/_authenticated/_admin/admin.index'
 import { Route as AuthenticatedNewdriveFileItemIdRouteImport } from './routes/_authenticated/newdrive.file.$itemId'
 import { Route as AuthenticatedNewdriveSpaceIdChar123FolderIdChar125RouteImport } from './routes/_authenticated/newdrive.$spaceId.{-$folderId}'
+import { Route as AuthenticatedDriveFileItemIdRouteImport } from './routes/_authenticated/drive.file.$itemId'
+import { Route as AuthenticatedDriveSpaceIdChar123FolderIdChar125RouteImport } from './routes/_authenticated/drive.$spaceId.{-$folderId}'
 import { Route as AuthenticatedAdminAdminUsersRouteImport } from './routes/_authenticated/_admin/admin.users'
 import { Route as AuthenticatedAdminAdminSuppliersRouteImport } from './routes/_authenticated/_admin/admin.suppliers'
 import { Route as AuthenticatedAdminAdminCustomersRouteImport } from './routes/_authenticated/_admin/admin.customers'
@@ -72,6 +76,11 @@ const AuthenticatedInventoryRoute = AuthenticatedInventoryRouteImport.update({
   path: '/inventory',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedDriveRoute = AuthenticatedDriveRouteImport.update({
+  id: '/drive',
+  path: '/drive',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthSignupRoute = AuthSignupRouteImport.update({
   id: '/signup',
   path: '/signup',
@@ -107,6 +116,11 @@ const AuthenticatedJoIndexRoute = AuthenticatedJoIndexRouteImport.update({
   id: '/jo/',
   path: '/jo/',
   getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedDriveIndexRoute = AuthenticatedDriveIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthenticatedDriveRoute,
 } as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   id: '/api/auth/$',
@@ -153,6 +167,18 @@ const AuthenticatedNewdriveSpaceIdChar123FolderIdChar125Route =
     id: '/$spaceId/{-$folderId}',
     path: '/$spaceId/{-$folderId}',
     getParentRoute: () => AuthenticatedNewdriveRoute,
+  } as any)
+const AuthenticatedDriveFileItemIdRoute =
+  AuthenticatedDriveFileItemIdRouteImport.update({
+    id: '/file/$itemId',
+    path: '/file/$itemId',
+    getParentRoute: () => AuthenticatedDriveRoute,
+  } as any)
+const AuthenticatedDriveSpaceIdChar123FolderIdChar125Route =
+  AuthenticatedDriveSpaceIdChar123FolderIdChar125RouteImport.update({
+    id: '/$spaceId/{-$folderId}',
+    path: '/$spaceId/{-$folderId}',
+    getParentRoute: () => AuthenticatedDriveRoute,
   } as any)
 const AuthenticatedAdminAdminUsersRoute =
   AuthenticatedAdminAdminUsersRouteImport.update({
@@ -201,6 +227,7 @@ export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
   '/login': typeof AuthLoginRoute
   '/signup': typeof AuthSignupRoute
+  '/drive': typeof AuthenticatedDriveRouteWithChildren
   '/inventory': typeof AuthenticatedInventoryRoute
   '/newdrive': typeof AuthenticatedNewdriveRouteWithChildren
   '/app/$': typeof AppSplatRoute
@@ -210,12 +237,15 @@ export interface FileRoutesByFullPath {
   '/jo/$joId': typeof AuthenticatedJoJoIdRoute
   '/trello/$listId': typeof AuthenticatedTrelloListIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/drive/': typeof AuthenticatedDriveIndexRoute
   '/jo/': typeof AuthenticatedJoIndexRoute
   '/newdrive/': typeof AuthenticatedNewdriveIndexRoute
   '/trello/': typeof AuthenticatedTrelloIndexRoute
   '/admin/customers': typeof AuthenticatedAdminAdminCustomersRouteWithChildren
   '/admin/suppliers': typeof AuthenticatedAdminAdminSuppliersRouteWithChildren
   '/admin/users': typeof AuthenticatedAdminAdminUsersRoute
+  '/drive/$spaceId/{-$folderId}': typeof AuthenticatedDriveSpaceIdChar123FolderIdChar125Route
+  '/drive/file/$itemId': typeof AuthenticatedDriveFileItemIdRoute
   '/newdrive/$spaceId/{-$folderId}': typeof AuthenticatedNewdriveSpaceIdChar123FolderIdChar125Route
   '/newdrive/file/$itemId': typeof AuthenticatedNewdriveFileItemIdRoute
   '/admin/': typeof AuthenticatedAdminAdminIndexRoute
@@ -236,10 +266,13 @@ export interface FileRoutesByTo {
   '/jo/$joId': typeof AuthenticatedJoJoIdRoute
   '/trello/$listId': typeof AuthenticatedTrelloListIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/drive': typeof AuthenticatedDriveIndexRoute
   '/jo': typeof AuthenticatedJoIndexRoute
   '/newdrive': typeof AuthenticatedNewdriveIndexRoute
   '/trello': typeof AuthenticatedTrelloIndexRoute
   '/admin/users': typeof AuthenticatedAdminAdminUsersRoute
+  '/drive/$spaceId/{-$folderId}': typeof AuthenticatedDriveSpaceIdChar123FolderIdChar125Route
+  '/drive/file/$itemId': typeof AuthenticatedDriveFileItemIdRoute
   '/newdrive/$spaceId/{-$folderId}': typeof AuthenticatedNewdriveSpaceIdChar123FolderIdChar125Route
   '/newdrive/file/$itemId': typeof AuthenticatedNewdriveFileItemIdRoute
   '/admin': typeof AuthenticatedAdminAdminIndexRoute
@@ -256,6 +289,7 @@ export interface FileRoutesById {
   '/_authenticated/_cashier': typeof AuthenticatedCashierRouteRouteWithChildren
   '/_auth/login': typeof AuthLoginRoute
   '/_auth/signup': typeof AuthSignupRoute
+  '/_authenticated/drive': typeof AuthenticatedDriveRouteWithChildren
   '/_authenticated/inventory': typeof AuthenticatedInventoryRoute
   '/_authenticated/newdrive': typeof AuthenticatedNewdriveRouteWithChildren
   '/app/$': typeof AppSplatRoute
@@ -266,12 +300,15 @@ export interface FileRoutesById {
   '/_authenticated/jo/$joId': typeof AuthenticatedJoJoIdRoute
   '/_authenticated/trello/$listId': typeof AuthenticatedTrelloListIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/_authenticated/drive/': typeof AuthenticatedDriveIndexRoute
   '/_authenticated/jo/': typeof AuthenticatedJoIndexRoute
   '/_authenticated/newdrive/': typeof AuthenticatedNewdriveIndexRoute
   '/_authenticated/trello/': typeof AuthenticatedTrelloIndexRoute
   '/_authenticated/_admin/admin/customers': typeof AuthenticatedAdminAdminCustomersRouteWithChildren
   '/_authenticated/_admin/admin/suppliers': typeof AuthenticatedAdminAdminSuppliersRouteWithChildren
   '/_authenticated/_admin/admin/users': typeof AuthenticatedAdminAdminUsersRoute
+  '/_authenticated/drive/$spaceId/{-$folderId}': typeof AuthenticatedDriveSpaceIdChar123FolderIdChar125Route
+  '/_authenticated/drive/file/$itemId': typeof AuthenticatedDriveFileItemIdRoute
   '/_authenticated/newdrive/$spaceId/{-$folderId}': typeof AuthenticatedNewdriveSpaceIdChar123FolderIdChar125Route
   '/_authenticated/newdrive/file/$itemId': typeof AuthenticatedNewdriveFileItemIdRoute
   '/_authenticated/_admin/admin/': typeof AuthenticatedAdminAdminIndexRoute
@@ -286,6 +323,7 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/signup'
+    | '/drive'
     | '/inventory'
     | '/newdrive'
     | '/app/$'
@@ -295,12 +333,15 @@ export interface FileRouteTypes {
     | '/jo/$joId'
     | '/trello/$listId'
     | '/api/auth/$'
+    | '/drive/'
     | '/jo/'
     | '/newdrive/'
     | '/trello/'
     | '/admin/customers'
     | '/admin/suppliers'
     | '/admin/users'
+    | '/drive/$spaceId/{-$folderId}'
+    | '/drive/file/$itemId'
     | '/newdrive/$spaceId/{-$folderId}'
     | '/newdrive/file/$itemId'
     | '/admin/'
@@ -321,10 +362,13 @@ export interface FileRouteTypes {
     | '/jo/$joId'
     | '/trello/$listId'
     | '/api/auth/$'
+    | '/drive'
     | '/jo'
     | '/newdrive'
     | '/trello'
     | '/admin/users'
+    | '/drive/$spaceId/{-$folderId}'
+    | '/drive/file/$itemId'
     | '/newdrive/$spaceId/{-$folderId}'
     | '/newdrive/file/$itemId'
     | '/admin'
@@ -340,6 +384,7 @@ export interface FileRouteTypes {
     | '/_authenticated/_cashier'
     | '/_auth/login'
     | '/_auth/signup'
+    | '/_authenticated/drive'
     | '/_authenticated/inventory'
     | '/_authenticated/newdrive'
     | '/app/$'
@@ -350,12 +395,15 @@ export interface FileRouteTypes {
     | '/_authenticated/jo/$joId'
     | '/_authenticated/trello/$listId'
     | '/api/auth/$'
+    | '/_authenticated/drive/'
     | '/_authenticated/jo/'
     | '/_authenticated/newdrive/'
     | '/_authenticated/trello/'
     | '/_authenticated/_admin/admin/customers'
     | '/_authenticated/_admin/admin/suppliers'
     | '/_authenticated/_admin/admin/users'
+    | '/_authenticated/drive/$spaceId/{-$folderId}'
+    | '/_authenticated/drive/file/$itemId'
     | '/_authenticated/newdrive/$spaceId/{-$folderId}'
     | '/_authenticated/newdrive/file/$itemId'
     | '/_authenticated/_admin/admin/'
@@ -424,6 +472,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedInventoryRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/drive': {
+      id: '/_authenticated/drive'
+      path: '/drive'
+      fullPath: '/drive'
+      preLoaderRoute: typeof AuthenticatedDriveRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_auth/signup': {
       id: '/_auth/signup'
       path: '/signup'
@@ -472,6 +527,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/jo/'
       preLoaderRoute: typeof AuthenticatedJoIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/drive/': {
+      id: '/_authenticated/drive/'
+      path: '/'
+      fullPath: '/drive/'
+      preLoaderRoute: typeof AuthenticatedDriveIndexRouteImport
+      parentRoute: typeof AuthenticatedDriveRoute
     }
     '/api/auth/$': {
       id: '/api/auth/$'
@@ -528,6 +590,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/newdrive/$spaceId/{-$folderId}'
       preLoaderRoute: typeof AuthenticatedNewdriveSpaceIdChar123FolderIdChar125RouteImport
       parentRoute: typeof AuthenticatedNewdriveRoute
+    }
+    '/_authenticated/drive/file/$itemId': {
+      id: '/_authenticated/drive/file/$itemId'
+      path: '/file/$itemId'
+      fullPath: '/drive/file/$itemId'
+      preLoaderRoute: typeof AuthenticatedDriveFileItemIdRouteImport
+      parentRoute: typeof AuthenticatedDriveRoute
+    }
+    '/_authenticated/drive/$spaceId/{-$folderId}': {
+      id: '/_authenticated/drive/$spaceId/{-$folderId}'
+      path: '/$spaceId/{-$folderId}'
+      fullPath: '/drive/$spaceId/{-$folderId}'
+      preLoaderRoute: typeof AuthenticatedDriveSpaceIdChar123FolderIdChar125RouteImport
+      parentRoute: typeof AuthenticatedDriveRoute
     }
     '/_authenticated/_admin/admin/users': {
       id: '/_authenticated/_admin/admin/users'
@@ -667,6 +743,22 @@ const AuthenticatedCashierRouteRouteWithChildren =
     AuthenticatedCashierRouteRouteChildren,
   )
 
+interface AuthenticatedDriveRouteChildren {
+  AuthenticatedDriveIndexRoute: typeof AuthenticatedDriveIndexRoute
+  AuthenticatedDriveSpaceIdChar123FolderIdChar125Route: typeof AuthenticatedDriveSpaceIdChar123FolderIdChar125Route
+  AuthenticatedDriveFileItemIdRoute: typeof AuthenticatedDriveFileItemIdRoute
+}
+
+const AuthenticatedDriveRouteChildren: AuthenticatedDriveRouteChildren = {
+  AuthenticatedDriveIndexRoute: AuthenticatedDriveIndexRoute,
+  AuthenticatedDriveSpaceIdChar123FolderIdChar125Route:
+    AuthenticatedDriveSpaceIdChar123FolderIdChar125Route,
+  AuthenticatedDriveFileItemIdRoute: AuthenticatedDriveFileItemIdRoute,
+}
+
+const AuthenticatedDriveRouteWithChildren =
+  AuthenticatedDriveRoute._addFileChildren(AuthenticatedDriveRouteChildren)
+
 interface AuthenticatedNewdriveRouteChildren {
   AuthenticatedNewdriveIndexRoute: typeof AuthenticatedNewdriveIndexRoute
   AuthenticatedNewdriveSpaceIdChar123FolderIdChar125Route: typeof AuthenticatedNewdriveSpaceIdChar123FolderIdChar125Route
@@ -688,6 +780,7 @@ const AuthenticatedNewdriveRouteWithChildren =
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRouteRoute: typeof AuthenticatedAdminRouteRouteWithChildren
   AuthenticatedCashierRouteRoute: typeof AuthenticatedCashierRouteRouteWithChildren
+  AuthenticatedDriveRoute: typeof AuthenticatedDriveRouteWithChildren
   AuthenticatedInventoryRoute: typeof AuthenticatedInventoryRoute
   AuthenticatedNewdriveRoute: typeof AuthenticatedNewdriveRouteWithChildren
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
@@ -701,6 +794,7 @@ interface AuthenticatedRouteRouteChildren {
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRouteRoute: AuthenticatedAdminRouteRouteWithChildren,
   AuthenticatedCashierRouteRoute: AuthenticatedCashierRouteRouteWithChildren,
+  AuthenticatedDriveRoute: AuthenticatedDriveRouteWithChildren,
   AuthenticatedInventoryRoute: AuthenticatedInventoryRoute,
   AuthenticatedNewdriveRoute: AuthenticatedNewdriveRouteWithChildren,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,

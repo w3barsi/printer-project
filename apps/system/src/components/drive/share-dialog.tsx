@@ -1,6 +1,6 @@
 import type { Id } from "@dg/backend/dataModel";
 import { shareApi } from "@dg/drive/share-api";
-import type { NewDriveShareItem } from "@dg/drive/types";
+import type { DriveShareItem } from "@dg/drive/types";
 import { Button } from "@dg/ui/components/button";
 import {
   Dialog,
@@ -43,7 +43,7 @@ export function ShareDialog({
   item,
   onOpenChange,
 }: {
-  item: NewDriveShareItem | null;
+  item: DriveShareItem | null;
   onOpenChange: (open: boolean) => void;
 }) {
   const itemId = item?.id as Id<"driveItems"> | undefined;

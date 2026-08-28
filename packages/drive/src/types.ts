@@ -1,4 +1,4 @@
-export type NewDriveItem = {
+export type DriveItem = {
   id: string;
   name: string;
   kind: "folder" | "pdf" | "image" | "text";
@@ -10,4 +10,4 @@ export type NewDriveItem = {
   parentId: string | null;
 };
 
-export type NewDriveShareItem = Pick<NewDriveItem, "id" | "name" | "kind">;
+export type DriveShareItem = Pick<DriveItem, "id" | "name" | "kind">;

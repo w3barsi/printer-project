@@ -26,7 +26,7 @@ import {
   PiggyBankIcon,
 } from "lucide-react";
 
-import { CreateSpaceDialog } from "@/components/new-drive/create-space-dialog";
+import { CreateSpaceDialog } from "@/components/drive/create-space-dialog";
 
 import { TrelloSidebar } from "./trello-sidebar";
 
@@ -36,7 +36,7 @@ export function MainNavGroup() {
       <SidebarMenu>
         <CashflowSidebarItem />
         <InventorySidebarItem />
-        <NewDriveSidebarItem />
+        <DriveSidebarItem />
         <TrelloSidebar />
       </SidebarMenu>
     </SidebarGroup>
@@ -67,34 +67,34 @@ function InventorySidebarItem() {
   );
 }
 
-function NewDriveSidebarItem() {
+function DriveSidebarItem() {
   const { user } = useRouteContext({ from: "/_authenticated" });
   const { data: spaces } = useSuspenseQuery(convexQuery(api.drive.spaces.list, {}));
   const { isMobile, setOpenMobile } = useSidebar();
   const landingMatch = useMatch({
-    from: "/_authenticated/newdrive/",
+    from: "/_authenticated/drive/",
     shouldThrow: false,
   });
   const spaceMatch = useMatch({
-    from: "/_authenticated/newdrive/$spaceId/{-$folderId}",
+    from: "/_authenticated/drive/$spaceId/{-$folderId}",
     shouldThrow: false,
   });
 
   return (
     <Collapsible defaultOpen render={<SidebarMenuItem />}>
       <SidebarMenuButton
-        tooltip="New Drive"
+        tooltip="Drive"
         isActive={!!landingMatch || !!spaceMatch}
         render={
           <Link
-            to="/newdrive"
+            to="/drive"
             onClick={() => isMobile && setOpenMobile(false)}
             tabIndex={0}
           />
         }
       >
         <FolderPlusIcon />
-        <span>New Drive</span>
+        <span>Drive</span>
       </SidebarMenuButton>
       <CollapsibleTrigger
         render={
@@ -102,7 +102,7 @@ function NewDriveSidebarItem() {
         }
       >
         <ChevronRightIcon />
-        <span className="sr-only">Toggle New Drive spaces</span>
+        <span className="sr-only">Toggle Drive spaces</span>
       </CollapsibleTrigger>
       <CollapsibleContent>
         <SidebarMenuSub>
@@ -112,7 +112,7 @@ function NewDriveSidebarItem() {
                 isActive={spaceMatch?.params.spaceId === space._id}
                 render={
                   <Link
-                    to="/newdrive/$spaceId/{-$folderId}"
+                    to="/drive/$spaceId/{-$folderId}"
                     params={{ spaceId: space._id }}
                     onClick={() => isMobile && setOpenMobile(false)}
                     aria-label={`Open ${space.name}`}

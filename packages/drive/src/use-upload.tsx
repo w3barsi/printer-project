@@ -4,17 +4,17 @@ import { toast } from "sonner";
 
 import { UploadToast } from "./components/upload-toast";
 
-export type NewDriveUploadFile = {
+export type DriveUploadFile = {
   file: File;
   relativePath: string;
 };
 
-export type NewDriveUploadSelection = {
-  files: NewDriveUploadFile[];
+export type DriveUploadSelection = {
+  files: DriveUploadFile[];
   folderPaths: string[];
 };
 
-export type NewDriveUploadOperations = {
+export type DriveUploadOperations = {
   createFolder: (args: {
     parentId?: Id<"driveItems">;
     name: string;
@@ -52,15 +52,15 @@ function putFile(url: string, file: File, onProgress: (progress: number) => void
   });
 }
 
-export function useNewDriveUploadWithOperations(
+export function useDriveUploadWithOperations(
   parentId: Id<"driveItems"> | undefined,
-  operations: NewDriveUploadOperations,
+  operations: DriveUploadOperations,
 ) {
   const { createFolder, createUploadTicket, finalizeUpload, cancelUpload } = operations;
   const [isUploading, setIsUploading] = useState(false);
 
   const upload = useCallback(
-    async ({ files, folderPaths }: NewDriveUploadSelection) => {
+    async ({ files, folderPaths }: DriveUploadSelection) => {
       if (isUploading || (files.length === 0 && folderPaths.length === 0)) return;
       setIsUploading(true);
       const folders = new Map<string, Id<"driveItems">>();

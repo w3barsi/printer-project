@@ -7,18 +7,18 @@ import {
   useState,
 } from "react";
 
-import { newDriveItems, type NewDriveItem } from "@/lib/new-drive-items";
+import { driveItems, type DriveItem } from "@/lib/drive-items";
 
-type NewDriveContextValue = {
-  items: NewDriveItem[];
+type DriveContextValue = {
+  items: DriveItem[];
   deleteItems: (itemIds: string[]) => void;
   moveItems: (itemIds: string[], destinationFolderId: string) => boolean;
 };
 
-const NewDriveContext = createContext<NewDriveContextValue | null>(null);
+const DriveContext = createContext<DriveContextValue | null>(null);
 
-export function NewDriveProvider({ children }: { children: ReactNode }) {
-  const [items, setItems] = useState<NewDriveItem[]>(() => newDriveItems);
+export function DriveProvider({ children }: { children: ReactNode }) {
+  const [items, setItems] = useState<DriveItem[]>(() => driveItems);
 
   const deleteItems = useCallback((itemIds: string[]) => {
     setItems((current) => current.filter((item) => !itemIds.includes(item.id)));
@@ -59,11 +59,11 @@ export function NewDriveProvider({ children }: { children: ReactNode }) {
     [items, deleteItems, moveItems],
   );
 
-  return <NewDriveContext value={value}>{children}</NewDriveContext>;
+  return <DriveContext value={value}>{children}</DriveContext>;
 }
 
-export function useNewDrive() {
-  const context = use(NewDriveContext);
-  if (!context) throw new Error("useNewDrive must be used within NewDriveProvider");
+export function useDrive() {
+  const context = use(DriveContext);
+  if (!context) throw new Error("useDrive must be used within DriveProvider");
   return context;
 }

@@ -1,8 +1,8 @@
-import type { NewDriveItem } from "@dg/drive/types";
+import type { DriveItem } from "@dg/drive/types";
 
-export type { NewDriveItem, NewDriveShareItem } from "@dg/drive/types";
+export type { DriveItem, DriveShareItem } from "@dg/drive/types";
 
-export const newDriveItems: NewDriveItem[] = [
+export const driveItems: DriveItem[] = [
   {
     id: "brand-assets",
     name: "Brand assets",

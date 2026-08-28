@@ -1,7 +1,7 @@
 import type { Id } from "@dg/backend/dataModel";
 import { AddItemsMenu } from "@dg/drive/components/add-items-menu";
-import { NewDriveFileList } from "@dg/drive/components/file-list";
-import { NewDriveUploadDropzone } from "@dg/drive/components/upload-dropzone";
+import { DriveFileList } from "@dg/drive/components/file-list";
+import { DriveUploadDropzone } from "@dg/drive/components/upload-dropzone";
 import {
   downloadDriveItem,
   downloadDriveItems,
@@ -9,8 +9,8 @@ import {
 } from "@dg/drive/download-drive-item";
 import { downloadSharedFolder } from "@dg/drive/download-shared-folder";
 import { shareApi, type PublicShareItem } from "@dg/drive/share-api";
-import type { NewDriveItem } from "@dg/drive/types";
-import { useNewDriveUploadWithOperations } from "@dg/drive/use-upload";
+import type { DriveItem } from "@dg/drive/types";
+import { useDriveUploadWithOperations } from "@dg/drive/use-upload";
 import { Badge } from "@dg/ui/components/badge";
 import {
   Breadcrumb,
@@ -71,7 +71,7 @@ export function PublicShareBrowser({
   const moveItems = useMutation(shareApi.moveSharedItems);
   const deleteItems = useMutation(shareApi.deleteSharedItems);
   const uploadParent = folder?.status === "available" ? folder.parent._id : undefined;
-  const { upload, isUploading } = useNewDriveUploadWithOperations(uploadParent, {
+  const { upload, isUploading } = useDriveUploadWithOperations(uploadParent, {
     createFolder: ({ parentId, name }) => {
       if (!parentId) return Promise.reject(new Error("Shared folder unavailable"));
       return createFolder({ token, parentId, name });
@@ -84,7 +84,7 @@ export function PublicShareBrowser({
     cancelUpload: ({ ticketId }) => cancelUpload({ token, ticketId }),
   });
 
-  function openItem(item: NewDriveItem) {
+  function openItem(item: DriveItem) {
     void navigate({
       to: "/share/$token/{-$itemId}",
       params: { token, itemId: item.id },
@@ -92,7 +92,7 @@ export function PublicShareBrowser({
   }
 
   async function getDownloadManifest(
-    item: Pick<NewDriveItem, "id" | "kind">,
+    item: Pick<DriveItem, "id" | "kind">,
   ): Promise<DownloadManifest> {
     if (item.kind === "folder") {
       const manifest = await convex.query(shareApi.getSharedArchiveManifest, {
@@ -127,7 +127,7 @@ export function PublicShareBrowser({
     };
   }
 
-  async function downloadItems(items: Array<Pick<NewDriveItem, "id" | "kind">>) {
+  async function downloadItems(items: Array<Pick<DriveItem, "id" | "kind">>) {
     const toastId = toast.loading("Download in progress");
     try {
       const manifests = await Promise.all(items.map(getDownloadManifest));
@@ -139,7 +139,7 @@ export function PublicShareBrowser({
     }
   }
 
-  function downloadItem(item: Pick<NewDriveItem, "id" | "kind">) {
+  function downloadItem(item: Pick<DriveItem, "id" | "kind">) {
     return downloadItems([item]);
   }
 
@@ -235,7 +235,7 @@ export function PublicShareBrowser({
           ))}
         </BreadcrumbList>
       </Breadcrumb>
-      <NewDriveFileList
+      <DriveFileList
         key={parent._id}
         items={items}
         title="Shared files and folders"
@@ -312,7 +312,7 @@ export function PublicShareBrowser({
     </main>
   );
   return canEdit ? (
-    <NewDriveUploadDropzone upload={upload}>{content}</NewDriveUploadDropzone>
+    <DriveUploadDropzone upload={upload}>{content}</DriveUploadDropzone>
   ) : (
     content
   );
@@ -516,7 +516,7 @@ function UnavailableShare() {
   );
 }
 
-function toViewItem(item: PublicShareItem): NewDriveItem {
+function toViewItem(item: PublicShareItem): DriveItem {
   return {
     id: item._id,
     name: item.name,

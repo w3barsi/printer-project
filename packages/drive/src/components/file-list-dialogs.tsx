@@ -31,7 +31,7 @@ import { Spinner } from "@dg/ui/components/spinner";
 import { FolderInputIcon, Trash2Icon } from "lucide-react";
 import type { FormEventHandler } from "react";
 
-import type { NewDriveItem } from "../types";
+import type { DriveItem } from "../types";
 
 export function DeleteItemsDialog({
   itemIds,
@@ -101,7 +101,7 @@ export function RenameItemDialog({
   onValueChange,
   onSubmit,
 }: {
-  item: NewDriveItem | null;
+  item: DriveItem | null;
   value: string;
   isRenaming: boolean;
   onOpenChange: (open: boolean) => void;
@@ -155,7 +155,7 @@ export function MoveItemDialog({
   onDestinationChange,
   onConfirm,
 }: {
-  item: NewDriveItem | null;
+  item: DriveItem | null;
   destinationId: string;
   destinations: Array<{ id: string; name: string }>;
   isMoving: boolean;

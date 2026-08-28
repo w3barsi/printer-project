@@ -28,10 +28,10 @@ import {
 import { type ChangeEvent, useId, useRef, useState } from "react";
 import { toast } from "sonner";
 
-import type { NewDriveUploadSelection } from "../use-upload";
+import type { DriveUploadSelection } from "../use-upload";
 
 interface AddItemsMenuProps {
-  upload: (selection: NewDriveUploadSelection) => Promise<void>;
+  upload: (selection: DriveUploadSelection) => Promise<void>;
   isUploading: boolean;
   onCreateFolder: (name: string) => Promise<unknown>;
   onDownloadFolder?: () => void;

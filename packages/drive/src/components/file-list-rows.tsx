@@ -29,15 +29,15 @@ import {
   type ReactNode,
 } from "react";
 
-import type { NewDriveItem } from "../types";
+import type { DriveItem } from "../types";
 
-export type NewDriveParentPath = {
+export type DriveParentPath = {
   spaceId: string;
   name: string;
   folderId: string | null;
 };
 
-export function NewDriveFileRow({
+export function DriveFileRow({
   item,
   interactive,
   selectionEnabled,
@@ -56,7 +56,7 @@ export function NewDriveFileRow({
   publicSafe,
   renderItemActions,
 }: {
-  item: NewDriveItem;
+  item: DriveItem;
   interactive: boolean;
   selectionEnabled: boolean;
   dragEnabled: boolean;
@@ -73,7 +73,7 @@ export function NewDriveFileRow({
   canDelete: boolean;
   publicSafe: boolean;
   renderItemActions?: (
-    item: NewDriveItem,
+    item: DriveItem,
     controls: { keepMenuOpen: () => void },
   ) => ReactNode;
 }) {
@@ -84,12 +84,12 @@ export function NewDriveFileRow({
     setNodeRef: setDraggableRef,
     isDragging,
   } = useDraggable({
-    id: `new-drive-item:${item.id}`,
+    id: `drive-item:${item.id}`,
     data: { itemId: item.id },
     disabled: !dragEnabled,
   });
   const { setNodeRef: setDroppableRef, isOver } = useDroppable({
-    id: `new-drive-folder:${item.id}`,
+    id: `drive-folder:${item.id}`,
     data: { folderId: item.id },
     disabled: !dragEnabled || item.kind !== "folder" || isSelected,
   });
@@ -233,7 +233,7 @@ export function NewDriveFileRow({
   );
 }
 
-export function ItemIcon({ kind }: { kind: NewDriveItem["kind"] }) {
+export function ItemIcon({ kind }: { kind: DriveItem["kind"] }) {
   if (kind === "folder") {
     return (
       <span className="flex size-8 shrink-0 items-center justify-center rounded-md bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-400">

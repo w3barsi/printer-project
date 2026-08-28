@@ -1,7 +1,7 @@
 import { UploadCloudIcon } from "lucide-react";
 import { type DragEvent, type ReactNode, useRef, useState } from "react";
 
-import type { NewDriveUploadFile, NewDriveUploadSelection } from "../use-upload";
+import type { DriveUploadFile, DriveUploadSelection } from "../use-upload";
 
 type FileSystemEntry = {
   isFile: boolean;
@@ -41,7 +41,7 @@ async function readDirectoryEntries(entry: FileSystemDirectoryEntry) {
 async function walkEntry(
   entry: FileSystemEntry,
   parentPath: string,
-  files: NewDriveUploadFile[],
+  files: DriveUploadFile[],
   folderPaths: string[],
 ) {
   const relativePath = parentPath ? `${parentPath}/${entry.name}` : entry.name;
@@ -56,11 +56,11 @@ async function walkEntry(
 }
 
 interface UploadDropzoneProps {
-  upload: (selection: NewDriveUploadSelection) => Promise<void>;
+  upload: (selection: DriveUploadSelection) => Promise<void>;
   children: ReactNode;
 }
 
-export function NewDriveUploadDropzone({ upload, children }: UploadDropzoneProps) {
+export function DriveUploadDropzone({ upload, children }: UploadDropzoneProps) {
   const [isDraggingFiles, setIsDraggingFiles] = useState(false);
   const dragDepth = useRef(0);
 
@@ -97,7 +97,7 @@ export function NewDriveUploadDropzone({ upload, children }: UploadDropzoneProps
     dragDepth.current = 0;
     setIsDraggingFiles(false);
 
-    const files: NewDriveUploadFile[] = [];
+    const files: DriveUploadFile[] = [];
     const folderPaths: string[] = [];
     const entries = Array.from(event.dataTransfer.items).flatMap((item) => {
       const entry = (

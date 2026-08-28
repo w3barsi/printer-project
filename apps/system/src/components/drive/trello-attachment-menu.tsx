@@ -1,7 +1,7 @@
 import { convexQuery } from "@convex-dev/react-query";
 import { api } from "@dg/backend/api";
 import type { Id } from "@dg/backend/dataModel";
-import type { NewDriveItem } from "@dg/drive/types";
+import type { DriveItem } from "@dg/drive/types";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -121,7 +121,7 @@ export function TrelloAttachmentMenu({
   item,
   onDetachStart,
 }: {
-  item: NewDriveItem;
+  item: DriveItem;
   onDetachStart: () => void;
 }) {
   const [open, setOpen] = useState(false);
