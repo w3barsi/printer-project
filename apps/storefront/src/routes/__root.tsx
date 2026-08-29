@@ -12,12 +12,12 @@ import type { ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 
-interface PublicRouterContext {
+interface StorefrontRouterContext {
   queryClient: QueryClient;
   convexQueryClient: ConvexQueryClient;
 }
 
-export const Route = createRootRouteWithContext<PublicRouterContext>()({
+export const Route = createRootRouteWithContext<StorefrontRouterContext>()({
   head: () => ({
     meta: [
       { charSet: "utf-8" },

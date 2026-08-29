@@ -1,5 +1,5 @@
 {
-  "name": "@dg/public",
+  "name": "@dg/storefront",
   "private": true,
   "type": "module",
   "scripts": {

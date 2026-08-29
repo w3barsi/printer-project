@@ -1,6 +1,6 @@
 {
   "$schema": "../../node_modules/wrangler/config-schema.json",
-  "name": "darcygraphix-public",
+  "name": "darcygraphix-storefront",
   "main": "@tanstack/react-start/server-entry",
   "compatibility_date": "2026-06-17",
   "compatibility_flags": ["nodejs_compat"],

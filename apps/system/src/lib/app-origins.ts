@@ -1,4 +1,4 @@
-export const publicAppOrigin = import.meta.env.DEV
+export const storefrontOrigin = import.meta.env.DEV
   ? "http://localhost:3000"
   : "https://darcygraphix.com";
 

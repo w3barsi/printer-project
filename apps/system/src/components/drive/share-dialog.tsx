@@ -26,7 +26,7 @@ import { CopyIcon, LinkIcon, Share2Icon, Trash2Icon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
-import { publicAppOrigin } from "@/lib/app-origins";
+import { storefrontOrigin } from "@/lib/app-origins";
 
 type Expiration = "never" | "day" | "week" | "month" | "custom";
 type Access = "restricted" | "read" | "edit";
@@ -74,7 +74,7 @@ export function ShareDialog({
   }, [settings]);
 
   const url =
-    settings?.status === "shared" ? `${publicAppOrigin}/share/${settings.token}` : "";
+    settings?.status === "shared" ? `${storefrontOrigin}/share/${settings.token}` : "";
 
   function expiresAt() {
     if (expiration === "never") return null;

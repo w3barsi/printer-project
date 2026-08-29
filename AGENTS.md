@@ -27,11 +27,11 @@ We need to be on the same page with terminology. When communicating, use this la
 - **we, us, and maintainers** mean Barsi and the people building this app. These are who you are talking to now.
 - **user** means the person using this app.
 - **system** means the web app for employees.
-- **public** means the web page for customers.
+- **storefront** means the customer-facing web app.
 
 ## Where code lives
 
-- `apps/public` - Customer-facing TanStack Start app.
+- `apps/storefront` - Customer-facing TanStack Start app.
 - `apps/system` - Employee-facing TanStack Start app.
 - `packages/backend` - Convex schema, functions, auth integration, storage, and generated API types. Never edit `convex/_generated/`.
 - `packages/auth` - Shared Better Auth access-control roles and permissions.

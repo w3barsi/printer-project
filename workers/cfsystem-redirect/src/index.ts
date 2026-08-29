@@ -1,5 +1,5 @@
 interface Env {
-  PUBLIC_ORIGIN: string;
+  STOREFRONT_ORIGIN: string;
   SYSTEM_ORIGIN: string;
 }
 
@@ -37,7 +37,7 @@ export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const { pathname, search } = new URL(request.url);
     const systemPath = systemPathFor(pathname);
-    const origin = systemPath ? env.SYSTEM_ORIGIN : env.PUBLIC_ORIGIN;
+    const origin = systemPath ? env.SYSTEM_ORIGIN : env.STOREFRONT_ORIGIN;
     return Response.redirect(
       `${origin}${systemPath ?? pathname}${search}`,
       temporaryStatus,

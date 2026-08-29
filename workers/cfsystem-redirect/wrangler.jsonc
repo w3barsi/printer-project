@@ -13,7 +13,7 @@
     },
   ],
   "vars": {
-    "PUBLIC_ORIGIN": "https://darcygraphix.com",
+    "STOREFRONT_ORIGIN": "https://darcygraphix.com",
     "SYSTEM_ORIGIN": "https://system.darcygraphix.com",
   },
 }
