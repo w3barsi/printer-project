@@ -79,9 +79,7 @@ export function CreateJoDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <Tooltip>
-        <TooltipTrigger
-          render={<DialogTrigger render={<Button size="lg" className="px-4" />} />}
-        >
+        <TooltipTrigger render={<DialogTrigger render={<Button className="px-4" />} />}>
           <PlusIcon className="size-4" />
           Create Job Order
         </TooltipTrigger>
