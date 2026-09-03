@@ -410,8 +410,17 @@ function JobOrderListSkeleton() {
   return (
     <div className="flex flex-col gap-2 md:gap-4">
       <div className="flex items-center justify-between gap-2">
-        <Skeleton className="h-9 max-w-sm flex-1" />
-        <Skeleton className="h-9 w-40" />
+        <div className="relative max-w-sm flex-1">
+          <SearchIcon className="absolute top-1/2 left-2.5 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            placeholder="Search job orders..."
+            disabled
+            className="pl-9"
+            aria-label="Search job orders"
+          />
+        </div>
+
+        <CreateJoDialog />
       </div>
       <TableWrapper>
         <Table className="table-fixed">
