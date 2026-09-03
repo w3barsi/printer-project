@@ -415,44 +415,85 @@ function JobOrderDataTable({
 
 function JobOrderListSkeleton() {
   return (
-    <>
-      <div className="flex items-center justify-between">
-        <Skeleton className="h-9 w-48" />
-        <Skeleton className="h-9 w-32" />
+    <div className="flex flex-col gap-2 md:gap-4">
+      <div className="flex items-center justify-between gap-2">
+        <Skeleton className="h-9 max-w-sm flex-1" />
+        <Skeleton className="h-9 w-40" />
       </div>
-      <Skeleton className="h-9 w-full max-w-sm" />
       <TableWrapper>
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-16 text-xs font-semibold text-muted-foreground uppercase md:pl-4">
-                <HashIcon className="h-4 w-4" />
+              <TableHead className="w-12 md:pl-4">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  disabled
+                  className="-ml-2 h-8 px-2 text-muted-foreground"
+                  aria-hidden
+                  tabIndex={-1}
+                >
+                  <span className="relative">
+                    <HashIcon className="h-4 w-4" />
+                    <ArrowUpDownIcon className="absolute -right-1 -bottom-1 size-2" />
+                  </span>
+                </Button>
               </TableHead>
-              <TableHead className="text-xs font-semibold text-muted-foreground uppercase">
-                Name
+              <TableHead>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  disabled
+                  className="-ml-2 h-8 px-2 text-xs font-semibold text-muted-foreground uppercase"
+                  aria-hidden
+                  tabIndex={-1}
+                >
+                  Name
+                  <ArrowUpDownIcon className="ml-1 h-3 w-3" />
+                </Button>
               </TableHead>
-              <TableHead className="hidden text-xs font-semibold text-muted-foreground uppercase sm:table-cell">
-                Pickup Date
+              <TableHead className="hidden sm:table-cell">
+                <span className="text-xs font-semibold text-muted-foreground uppercase">
+                  Pickup Date
+                </span>
               </TableHead>
-              <TableHead className="hidden text-xs font-semibold text-muted-foreground uppercase sm:table-cell">
-                Pickup Time
+              <TableHead className="hidden sm:table-cell">
+                <span className="text-xs font-semibold text-muted-foreground uppercase">
+                  Pickup Time
+                </span>
               </TableHead>
-              <TableHead className="text-xs font-semibold text-muted-foreground uppercase">
-                Contact Number
+              <TableHead>
+                <span className="text-xs font-semibold text-muted-foreground uppercase">
+                  Contact Number
+                </span>
               </TableHead>
-              <TableHead className="text-right text-xs font-semibold text-muted-foreground uppercase">
-                Total Value
+              <TableHead className="text-right md:pr-4">
+                <div className="flex justify-end">
+                  <span className="text-xs font-semibold text-muted-foreground uppercase">
+                    Total Value
+                  </span>
+                </div>
               </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {Array.from({ length: PAGE_SIZE }).map((_, index) => (
               <TableRow key={index}>
-                <TableCell className="w-16 py-4.5 md:pl-4">
+                <TableCell className="w-12 md:pl-4">
                   <Skeleton className="h-4 w-5" />
                 </TableCell>
                 <TableCell>
-                  <Skeleton className="h-4 w-32" />
+                  <div className="flex items-center gap-2">
+                    <Skeleton
+                      className={cn(
+                        "h-4",
+                        index % 3 === 0 ? "w-40" : index % 3 === 1 ? "w-32" : "w-24",
+                      )}
+                    />
+                    {index % 4 === 0 ? (
+                      <Skeleton className="h-5 w-16 rounded-full" />
+                    ) : null}
+                  </div>
                 </TableCell>
                 <TableCell className="hidden sm:table-cell">
                   <Skeleton className="h-4 w-24" />
@@ -479,7 +520,7 @@ function JobOrderListSkeleton() {
           Next <ArrowRightIcon />
         </Button>
       </div>
-    </>
+    </div>
   );
 }
 
