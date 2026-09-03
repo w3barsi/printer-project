@@ -1,5 +1,4 @@
-import { cn } from "@dg/ui/lib/utils";
-import type { ClassValue } from "clsx";
+import { cn, type ClassValue } from "@dg/ui/lib/utils";
 import type { ComponentProps } from "react";
 
 /**
