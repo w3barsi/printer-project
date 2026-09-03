@@ -93,6 +93,119 @@ export const listItems = authedQuery({
   },
 });
 
+const MAX_SEARCH_QUERY_LENGTH = 200;
+const MAX_SEARCH_CANDIDATES = 1024;
+const MAX_SEARCH_RESULTS = 100;
+const MAX_SEARCH_ANCESTOR_DEPTH = 64;
+
+export const searchItems = authedQuery({
+  args: {
+    spaceId: v.id("driveSpaces"),
+    parentId: parentIdValidator,
+    query: v.string(),
+  },
+  handler: async (ctx, args) => {
+    await requireSpaceAccess(ctx, args.spaceId);
+    await requireParentFolder(ctx, args.spaceId, args.parentId);
+
+    const trimmed = args.query.trim();
+    if (!trimmed) return [];
+    if (trimmed.length > MAX_SEARCH_QUERY_LENGTH) {
+      throw new ConvexError("Search query is too long");
+    }
+    // Convex supports at most 16 search terms per query.
+    const boundedQuery = trimmed.split(/\s+/).slice(0, 16).join(" ");
+    if (!boundedQuery) return [];
+
+    // Convex text search scans at most 1,024 results. Ancestry is checked
+    // after searching the space; a materialized ancestor-scope search table
+    // is the future upgrade if this becomes insufficient.
+    const candidates = await ctx.db
+      .query("driveItems")
+      .withSearchIndex("search_name", (q) =>
+        q
+          .search("name", boundedQuery)
+          .eq("spaceId", args.spaceId)
+          .eq("deletedAt", undefined),
+      )
+      .take(MAX_SEARCH_CANDIDATES);
+
+    let scoped = candidates;
+    if (args.parentId) {
+      const targetId = args.parentId;
+      const cache = new Map<Id<"driveItems">, Doc<"driveItems"> | null>();
+      const accepted: typeof candidates = [];
+      for (const candidate of candidates) {
+        if (candidate._id === targetId) continue;
+        let currentParentId = candidate.parentId;
+        const visited = new Set<string>();
+        let depth = 0;
+        let isDescendant = false;
+        while (currentParentId) {
+          if (currentParentId === targetId) {
+            isDescendant = true;
+            break;
+          }
+          if (visited.has(currentParentId)) break;
+          visited.add(currentParentId);
+          depth += 1;
+          if (depth > MAX_SEARCH_ANCESTOR_DEPTH) break;
+          let ancestor = cache.get(currentParentId);
+          if (ancestor === undefined) {
+            ancestor = (await ctx.db.get("driveItems", currentParentId)) ?? null;
+            cache.set(currentParentId, ancestor);
+          }
+          if (
+            !ancestor ||
+            ancestor.spaceId !== args.spaceId ||
+            ancestor.deletedAt !== undefined ||
+            ancestor.kind !== "folder"
+          ) {
+            break;
+          }
+          currentParentId = ancestor.parentId;
+        }
+        if (isDescendant) {
+          accepted.push(candidate);
+          if (accepted.length >= MAX_SEARCH_RESULTS) break;
+        }
+      }
+      scoped = accepted;
+    } else {
+      scoped = scoped.slice(0, MAX_SEARCH_RESULTS);
+    }
+
+    const userIds = [
+      ...new Set(
+        scoped
+          .map((item) => item.createdBy)
+          .filter((id): id is Id<"users"> => id !== "guest"),
+      ),
+    ];
+    const users = await Promise.all(userIds.map((id) => ctx.db.get("users", id)));
+    const userNames = new Map(
+      users.filter((user) => user !== null).map((user) => [user._id, user.name]),
+    );
+
+    return scoped.map((item) => {
+      const common = {
+        _id: item._id,
+        name: item.name,
+        parentId: item.parentId,
+        createdBy: item.createdBy,
+        ownerName:
+          item.createdBy === "guest"
+            ? "Guest"
+            : (userNames.get(item.createdBy) ?? "User"),
+        updatedAt: item.updatedAt,
+      };
+      return item.kind === "file"
+        ? { ...common, kind: item.kind, publicAccess: item.publicAccess, r2: item.r2 }
+        : { ...common, kind: item.kind, publicAccess: item.publicAccess };
+    });
+  },
+});
+
 export const getFolder = authedQuery({
   args: {
     spaceId: v.id("driveSpaces"),

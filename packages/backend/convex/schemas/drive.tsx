@@ -78,7 +78,7 @@ export const driveSchema = {
     .index("by_publicToken", ["publicToken"])
     .searchIndex("search_name", {
       searchField: "name",
-      filterFields: ["spaceId", "kind"],
+      filterFields: ["spaceId", "kind", "deletedAt"],
     }),
 
   driveUploadTickets: defineTable({

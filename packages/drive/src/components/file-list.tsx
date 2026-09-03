@@ -16,6 +16,13 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@dg/ui/components/empty";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+} from "@dg/ui/components/input-group";
+import { Spinner } from "@dg/ui/components/spinner";
 import { useIsMobile } from "@dg/ui/hooks/use-mobile";
 import { cn } from "@dg/ui/lib/utils";
 // oxlint-disable jsx-a11y/click-events-have-key-events, jsx-a11y/no-noninteractive-element-interactions, jsx-a11y/no-static-element-interactions
@@ -31,12 +38,11 @@ import {
 } from "@dnd-kit/core";
 import { snapCenterToCursor } from "@dnd-kit/modifiers";
 import {
-  ArrowLeftIcon,
-  ArrowRightIcon,
   ArrowUpDownIcon,
   DownloadIcon,
   FolderOpenIcon,
   FolderUpIcon,
+  SearchIcon,
   XIcon,
 } from "lucide-react";
 import {
@@ -121,6 +127,12 @@ export function DriveFileList({
   headerActions,
   interactive = false,
   parentPath,
+  searchValue,
+  onSearchChange,
+  searchPlaceholder = "Search this folder",
+  searchMode = "local",
+  onSearchModeChange,
+  isSearchPending = false,
   onDeleteItems,
   onMoveItems,
   onDownloadItem,
@@ -139,6 +151,12 @@ export function DriveFileList({
   headerActions?: ReactNode;
   interactive?: boolean;
   parentPath?: DriveParentPath;
+  searchValue?: string;
+  onSearchChange?: (value: string) => void;
+  searchPlaceholder?: string;
+  searchMode?: "local" | "global";
+  onSearchModeChange?: (mode: "local" | "global") => void;
+  isSearchPending?: boolean;
   onDeleteItems?: (itemIds: string[]) => void | Promise<void>;
   onMoveItems?: (
     itemIds: string[],
@@ -519,17 +537,8 @@ export function DriveFileList({
               </div>
             </div>
           ) : (
-            <div className="flex min-h-9 flex-wrap items-center justify-between gap-3">
+            <div className="flex min-h-9 flex-wrap items-center gap-3">
               <div className="flex gap-2">
-                <ButtonGroup>
-                  <Button variant="outline">
-                    <ArrowLeftIcon />
-                  </Button>
-
-                  <Button variant="outline">
-                    <ArrowRightIcon />
-                  </Button>
-                </ButtonGroup>
                 <Button
                   type="button"
                   variant="outline"
@@ -570,6 +579,57 @@ export function DriveFileList({
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>
+              {onSearchChange && (
+                <div className="flex min-w-48 flex-1 basis-48 flex-wrap items-center gap-2">
+                  <InputGroup className="min-w-40 flex-1">
+                    <InputGroupAddon align="inline-start">
+                      {isSearchPending ? <Spinner /> : <SearchIcon />}
+                    </InputGroupAddon>
+                    <InputGroupInput
+                      value={searchValue ?? ""}
+                      onChange={(event) => onSearchChange(event.target.value)}
+                      placeholder={searchPlaceholder}
+                      aria-label="Search files and folders"
+                      maxLength={200}
+                    />
+                    {searchValue && (
+                      <InputGroupAddon align="inline-end">
+                        <InputGroupButton
+                          size="icon-xs"
+                          aria-label="Clear search"
+                          onClick={() => onSearchChange("")}
+                        >
+                          <XIcon />
+                        </InputGroupButton>
+                      </InputGroupAddon>
+                    )}
+                  </InputGroup>
+                  {onSearchModeChange && (
+                    <ButtonGroup aria-label="Search scope">
+                      <Button
+                        type="button"
+                        variant={searchMode === "local" ? "default" : "outline"}
+                        aria-pressed={searchMode === "local"}
+                        aria-description="Search only this folder."
+                        title="Search only this folder."
+                        onClick={() => onSearchModeChange("local")}
+                      >
+                        Local
+                      </Button>
+                      <Button
+                        type="button"
+                        variant={searchMode === "global" ? "default" : "outline"}
+                        aria-pressed={searchMode === "global"}
+                        aria-description="Search this folder and all nested folders."
+                        title="Search this folder and all nested folders."
+                        onClick={() => onSearchModeChange("global")}
+                      >
+                        Global
+                      </Button>
+                    </ButtonGroup>
+                  )}
+                </div>
+              )}
               {headerActions && <div className="ml-auto">{headerActions}</div>}
             </div>
           )}

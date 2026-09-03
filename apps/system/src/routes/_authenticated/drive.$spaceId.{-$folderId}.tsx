@@ -6,13 +6,14 @@ import { DriveFileList } from "@dg/drive/components/file-list";
 import { DriveUploadDropzone } from "@dg/drive/components/upload-dropzone";
 import { downloadDriveItems } from "@dg/drive/download-drive-item";
 import type { DriveItem, DriveShareItem } from "@dg/drive/types";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, useNavigate, useRouteContext } from "@tanstack/react-router";
 import { useConvex, useMutation } from "convex/react";
 import { formatDistanceToNow } from "date-fns";
 import { FolderOpenIcon } from "lucide-react";
-import { useState } from "react";
+import { useDeferredValue, useState } from "react";
 import { toast } from "sonner";
+import { z } from "zod";
 
 import { ShareDialog } from "@/components/drive/share-dialog";
 import { TrelloAttachmentMenu } from "@/components/drive/trello-attachment-menu";
@@ -21,6 +22,10 @@ import { useDriveUpload } from "@/hooks/use-drive-upload";
 
 export const Route = createFileRoute("/_authenticated/drive/$spaceId/{-$folderId}")({
   component: SpaceBrowserPage,
+  validateSearch: z.object({
+    q: z.string().optional(),
+    scope: z.enum(["local", "global"]).optional(),
+  }),
   loader: async ({ context: { queryClient: qc }, params }) => {
     const spaceId = params.spaceId as Id<"driveSpaces">;
     const folderId = params.folderId as Id<"driveItems"> | undefined;
@@ -85,6 +90,7 @@ function SpaceBrowserPage() {
   const { user } = useRouteContext({ from: "/_authenticated" });
   const navigate = useNavigate();
   const { spaceId, folderId } = Route.useParams();
+  const search = Route.useSearch();
   const { space, folder, parentFolder } = Route.useLoaderData();
   const convex = useConvex();
   const typedSpaceId = spaceId as Id<"driveSpaces">;
@@ -101,7 +107,48 @@ function SpaceBrowserPage() {
   const createFolder = useMutation(api.drive.items.createFolder);
   const { upload, isUploading } = useDriveUpload(typedSpaceId, typedFolderId);
   const [shareItem, setShareItem] = useState<DriveShareItem | null>(null);
-  const items: DriveItem[] = data.map((item) => ({
+  const searchText = search.q ?? "";
+  const searchMode = search.scope ?? "local";
+  function setSearchText(value: string) {
+    void navigate({
+      search: (previous) => ({ ...previous, q: value || undefined }),
+      replace: true,
+    });
+  }
+  function setSearchMode(mode: "local" | "global") {
+    void navigate({
+      search: (previous) => ({
+        ...previous,
+        scope: mode === "local" ? undefined : mode,
+      }),
+      replace: true,
+    });
+  }
+  const deferredSearch = useDeferredValue(searchText);
+  const trimmedSearch = searchText.trim();
+  const trimmedDeferredSearch = deferredSearch.trim();
+  const isGlobalMode = searchMode === "global";
+  const isGlobalSearchActive = isGlobalMode && trimmedDeferredSearch !== "";
+  const globalSearch = useQuery({
+    ...convexQuery(api.drive.items.searchItems, {
+      spaceId: typedSpaceId,
+      parentId: typedFolderId,
+      query: trimmedDeferredSearch,
+    }),
+    enabled: isGlobalSearchActive,
+    placeholderData: (previousData) => previousData,
+  });
+  // Local search filters the route's currently loaded items, presently capped
+  // at 500 by listItems. Paginate the folder listing and local search together
+  // if folders later need more than 500 immediate children.
+  const normalizedSearch = trimmedSearch.toLowerCase();
+  const localRows =
+    !isGlobalMode && trimmedSearch
+      ? data.filter((item) => item.name.toLowerCase().includes(normalizedSearch))
+      : data;
+  const displayedRows =
+    isGlobalSearchActive && globalSearch.data ? globalSearch.data : localRows;
+  const items: DriveItem[] = displayedRows.map((item) => ({
     id: item._id,
     name: item.name,
     kind:
@@ -180,6 +227,12 @@ function SpaceBrowserPage() {
           key={`${spaceId}:${folderId ?? "root"}`}
           items={items}
           title="Files and folders"
+          searchValue={searchText}
+          onSearchChange={setSearchText}
+          searchPlaceholder={typedFolderId ? "Search this folder" : "Search this space"}
+          searchMode={searchMode}
+          onSearchModeChange={setSearchMode}
+          isSearchPending={isGlobalSearchActive && globalSearch.isFetching}
           headerActions={
             <AddItemsMenu
               upload={upload}
