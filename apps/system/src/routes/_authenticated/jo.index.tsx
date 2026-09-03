@@ -233,29 +233,22 @@ const columns: ColumnDef<JoWithItems>[] = [
   },
 ];
 
-function headerClassName(columnId: string) {
+// Single source for column widths, shared by the data table and its skeleton
+// so columns hold still across pages and while loading. `name` stays flexible
+// and absorbs the remaining space; every other column gets an explicit width.
+// Requires `table-fixed` on the Table.
+function joColumnClassName(columnId: string) {
   switch (columnId) {
     case "joNumber":
-      return "w-12 md:pl-4";
+      return "w-14 md:pl-4";
     case "pickupDate":
+      return "w-32 hidden sm:table-cell";
     case "pickupTime":
-      return "hidden sm:table-cell";
+      return "w-28 hidden sm:table-cell";
+    case "contactNumber":
+      return "w-36";
     case "totalValue":
-      return "text-right md:pr-4";
-    default:
-      return undefined;
-  }
-}
-
-function cellClassName(columnId: string) {
-  switch (columnId) {
-    case "joNumber":
-      return "w-12 md:pl-4";
-    case "pickupDate":
-    case "pickupTime":
-      return "hidden sm:table-cell";
-    case "totalValue":
-      return "text-right md:pr-4";
+      return "w-32 text-right md:pr-4";
     default:
       return undefined;
   }
@@ -339,14 +332,14 @@ function JobOrderDataTable({
       </div>
 
       <TableWrapper>
-        <Table>
+        <Table className="table-fixed">
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
                   <TableHead
                     key={header.id}
-                    className={cn(headerClassName(header.column.id))}
+                    className={cn(joColumnClassName(header.column.id))}
                   >
                     {header.isPlaceholder
                       ? null
@@ -382,7 +375,7 @@ function JobOrderDataTable({
                     {row.getVisibleCells().map((cell) => (
                       <TableCell
                         key={cell.id}
-                        className={cn(cellClassName(cell.column.id))}
+                        className={cn(joColumnClassName(cell.column.id))}
                       >
                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </TableCell>
@@ -421,10 +414,10 @@ function JobOrderListSkeleton() {
         <Skeleton className="h-9 w-40" />
       </div>
       <TableWrapper>
-        <Table>
+        <Table className="table-fixed">
           <TableHeader>
             <TableRow>
-              <TableHead className="w-12 md:pl-4">
+              <TableHead className={cn(joColumnClassName("joNumber"))}>
                 <Button
                   variant="ghost"
                   size="sm"
@@ -439,7 +432,7 @@ function JobOrderListSkeleton() {
                   </span>
                 </Button>
               </TableHead>
-              <TableHead>
+              <TableHead className={cn(joColumnClassName("name"))}>
                 <Button
                   variant="ghost"
                   size="sm"
@@ -452,22 +445,22 @@ function JobOrderListSkeleton() {
                   <ArrowUpDownIcon className="ml-1 h-3 w-3" />
                 </Button>
               </TableHead>
-              <TableHead className="hidden sm:table-cell">
+              <TableHead className={cn(joColumnClassName("pickupDate"))}>
                 <span className="text-xs font-semibold text-muted-foreground uppercase">
                   Pickup Date
                 </span>
               </TableHead>
-              <TableHead className="hidden sm:table-cell">
+              <TableHead className={cn(joColumnClassName("pickupTime"))}>
                 <span className="text-xs font-semibold text-muted-foreground uppercase">
                   Pickup Time
                 </span>
               </TableHead>
-              <TableHead>
+              <TableHead className={cn(joColumnClassName("contactNumber"))}>
                 <span className="text-xs font-semibold text-muted-foreground uppercase">
                   Contact Number
                 </span>
               </TableHead>
-              <TableHead className="text-right md:pr-4">
+              <TableHead className={cn(joColumnClassName("totalValue"))}>
                 <div className="flex justify-end">
                   <span className="text-xs font-semibold text-muted-foreground uppercase">
                     Total Value
@@ -479,14 +472,14 @@ function JobOrderListSkeleton() {
           <TableBody>
             {Array.from({ length: PAGE_SIZE }).map((_, index) => (
               <TableRow key={index}>
-                <TableCell className="w-12 md:pl-4">
-                  <Skeleton className="h-4 w-5" />
+                <TableCell className={cn(joColumnClassName("joNumber"))}>
+                  <Skeleton className="h-5 w-5" />
                 </TableCell>
-                <TableCell>
+                <TableCell className={cn(joColumnClassName("name"))}>
                   <div className="flex items-center gap-2">
                     <Skeleton
                       className={cn(
-                        "h-4",
+                        "h-5",
                         index % 3 === 0 ? "w-40" : index % 3 === 1 ? "w-32" : "w-24",
                       )}
                     />
@@ -495,17 +488,17 @@ function JobOrderListSkeleton() {
                     ) : null}
                   </div>
                 </TableCell>
-                <TableCell className="hidden sm:table-cell">
-                  <Skeleton className="h-4 w-24" />
+                <TableCell className={cn(joColumnClassName("pickupDate"))}>
+                  <Skeleton className="h-5 w-24" />
                 </TableCell>
-                <TableCell className="hidden sm:table-cell">
-                  <Skeleton className="h-4 w-20" />
+                <TableCell className={cn(joColumnClassName("pickupTime"))}>
+                  <Skeleton className="h-5 w-20" />
                 </TableCell>
-                <TableCell>
-                  <Skeleton className="h-4 w-28" />
+                <TableCell className={cn(joColumnClassName("contactNumber"))}>
+                  <Skeleton className="h-5 w-28" />
                 </TableCell>
-                <TableCell className="text-right md:pr-4">
-                  <Skeleton className="ml-auto h-4 w-20" />
+                <TableCell className={cn(joColumnClassName("totalValue"))}>
+                  <Skeleton className="ml-auto h-5 w-20" />
                 </TableCell>
               </TableRow>
             ))}
