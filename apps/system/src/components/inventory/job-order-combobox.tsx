@@ -13,6 +13,8 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { useId, useState } from "react";
 
+import { useDebounce } from "@/hooks/use-debounce";
+
 export type JobOrderOption = {
   _id: Id<"jo"> | null;
   joNumber?: number;
@@ -48,8 +50,9 @@ export function JobOrderCombobox({
   const inputId = id ?? generatedId;
   const [search, setSearch] = useState("");
   const [selectedOption, setSelectedOption] = useState<JobOrderOption | null>(null);
+  const debouncedSearch = useDebounce(search, 200);
   const { data: jobOrders, isPending } = useQuery(
-    convexQuery(api.jo.searchOptions, { query: search }),
+    convexQuery(api.jo.searchOptions, { query: debouncedSearch }),
   );
   const options: JobOrderOption[] = jobOrders ? [...jobOrders] : [];
   const selected = value

@@ -15,6 +15,8 @@ import { PlusIcon } from "lucide-react";
 import { useId, useState } from "react";
 import { toast } from "sonner";
 
+import { useDebounce } from "@/hooks/use-debounce";
+
 const MAX_SUPPLIER_NAME_LENGTH = 120;
 
 type SupplierOption = {
@@ -52,9 +54,10 @@ export function SupplierCombobox({
   const [search, setSearch] = useState(initialLabel ?? "");
   const [selectedName, setSelectedName] = useState(initialLabel);
   const trimmedSearch = search.trim();
+  const debouncedSearch = useDebounce(search, 200);
   const { data: suppliers, isPending } = useQuery(
     convexQuery(api.inventory.searchSupplierOptions, {
-      query: search,
+      query: debouncedSearch,
     }),
   );
   const createSupplier = useConvexMutation(api.inventory.createSupplier);

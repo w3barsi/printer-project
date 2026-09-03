@@ -51,6 +51,7 @@ import { ArrowLeftIcon, ArrowRightIcon, HistoryIcon, Trash2Icon } from "lucide-r
 import { useState } from "react";
 
 import { DeleteInventoryActivityDialog } from "@/components/inventory/delete-activity-dialog";
+import { useDebounce } from "@/hooks/use-debounce";
 
 const PAGE_SIZE = 25;
 
@@ -437,9 +438,10 @@ function InventoryItemFilter({
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [selectedName, setSelectedName] = useState<string>();
+  const debouncedSearch = useDebounce(search, 200);
   const { data: items, isPending } = useQuery(
     convexQuery(api.inventory.searchItemOptions, {
-      query: search,
+      query: debouncedSearch,
     }),
   );
   const itemOptions: InventoryItemOption[] =
