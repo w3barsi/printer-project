@@ -11,7 +11,7 @@ import { createFileRoute, useNavigate, useRouteContext } from "@tanstack/react-r
 import { useConvex, useMutation } from "convex/react";
 import { formatDistanceToNow } from "date-fns";
 import { FolderOpenIcon } from "lucide-react";
-import { useDeferredValue, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -19,6 +19,7 @@ import { ShareDialog } from "@/components/drive/share-dialog";
 import { TrelloAttachmentMenu } from "@/components/drive/trello-attachment-menu";
 import { Container } from "@/components/layouts/container";
 import { useDriveUpload } from "@/hooks/use-drive-upload";
+import { useThrottle } from "@/hooks/use-throttle";
 
 export const Route = createFileRoute("/_authenticated/drive/$spaceId/{-$folderId}")({
   component: SpaceBrowserPage,
@@ -124,16 +125,16 @@ function SpaceBrowserPage() {
       replace: true,
     });
   }
-  const deferredSearch = useDeferredValue(searchText);
+  const throttledSearch = useThrottle(searchText, 1000);
   const trimmedSearch = searchText.trim();
-  const trimmedDeferredSearch = deferredSearch.trim();
+  const trimmedThrottledSearch = throttledSearch.trim();
   const isGlobalMode = searchMode === "global";
-  const isGlobalSearchActive = isGlobalMode && trimmedDeferredSearch !== "";
+  const isGlobalSearchActive = isGlobalMode && trimmedThrottledSearch !== "";
   const globalSearch = useQuery({
     ...convexQuery(api.drive.items.searchItems, {
       spaceId: typedSpaceId,
       parentId: typedFolderId,
-      query: trimmedDeferredSearch,
+      query: trimmedThrottledSearch,
     }),
     enabled: isGlobalSearchActive,
     placeholderData: (previousData) => previousData,
