@@ -94,7 +94,7 @@ function CardList() {
     mutationFn: downloadCardAttachmentsServerFn,
   });
 
-  const getAttachments = async (cardId: string) => {
+  const getAttachments = async (cardId: string, cardName: string) => {
     const data = await getCardAttachments.mutateAsync({ data: { id: cardId } });
     const i = data.map((d) => ({ url: d.url, name: d.name }));
     const results = await downloadCardAttachments.mutateAsync({ data: i });
@@ -121,7 +121,9 @@ function CardList() {
 
     zip.generateAsync({ type: "blob" }).then(function (content) {
       // Use FileSaver.js to trigger the download
-      fileSaver.saveAs(content, "attachments.zip");
+      const sanitizedName =
+        cardName.replace(/[\\/:*?"<>|]/g, "-").trim() || "attachments";
+      fileSaver.saveAs(content, `${sanitizedName}.zip`);
     });
   };
 
@@ -152,7 +154,7 @@ function CardList() {
                 <Button
                   className="w-full rounded-t-none"
                   onClick={() =>
-                    toast.promise(getAttachments(card.id), {
+                    toast.promise(getAttachments(card.id, card.name), {
                       loading: "Downloading attachments...",
                       success: "Attachments downloaded successfully!",
                       error: "Error downloading attachments!",

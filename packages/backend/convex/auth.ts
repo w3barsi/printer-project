@@ -60,7 +60,7 @@ export const { onCreate, onUpdate, onDelete } = authComponent.triggersApi();
 export const createAuthOptions = (ctx: GenericCtx<DataModel>) => {
   const baseURL =
     env.SERVER_URL ??
-    (env.VERCEL_URL ? `https://${env.VERCEL_URL}` : "http://localhost:3000");
+    (env.VERCEL_URL ? `https://${env.VERCEL_URL}` : "http://localhost:3001");
   return {
     database: authComponent.adapter(ctx),
     // All auth requests will be proxied through your TanStack Start server

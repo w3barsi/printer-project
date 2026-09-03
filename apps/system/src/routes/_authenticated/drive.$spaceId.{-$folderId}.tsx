@@ -164,7 +164,7 @@ function SpaceBrowserPage() {
 
   return (
     <DriveUploadDropzone upload={upload}>
-      <Container className="flex min-h-[calc(100svh-4.1rem)] max-w-7xl flex-col gap-6 px-3 py-5 md:px-6 md:py-7">
+      <Container className="flex flex-col">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div className="flex min-w-0 items-center gap-3">
             <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground">
