@@ -242,9 +242,9 @@ function joColumnClassName(columnId: string) {
     case "joNumber":
       return "w-14 md:pl-4";
     case "pickupDate":
-      return "w-32 hidden sm:table-cell";
+      return "w-32 hidden lg:table-cell";
     case "pickupTime":
-      return "w-28 hidden sm:table-cell";
+      return "w-28 hidden lg:table-cell";
     case "contactNumber":
       return "w-36";
     case "totalValue":
