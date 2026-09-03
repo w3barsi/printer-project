@@ -9,16 +9,13 @@ import type { ComponentProps } from "react";
 export function Container({
   children,
   className,
-  parentClassName,
 }: ComponentProps<"div"> & { parentClassName?: ClassValue }) {
   return (
-    <div className={cn("flex w-full justify-center", parentClassName)}>
-      <div
-        data-slot="container"
-        className={cn("container gap-2 p-2 md:gap-4 md:p-4", className)}
-      >
-        {children}
-      </div>
+    <div
+      data-slot="container"
+      className={cn("mx-auto w-full gap-2 p-2 md:container md:gap-4 md:p-4", className)}
+    >
+      {children}
     </div>
   );
 }

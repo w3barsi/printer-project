@@ -53,21 +53,20 @@ function RouteComponent() {
       <SidebarInset>
         <PrinterModeHandler />
 
-        <Container
-          className="flex h-16 items-center justify-center"
-          parentClassName="bg-card"
-        >
-          <header className="mx-auto flex w-full shrink-0 items-center justify-between">
-            <div className="flex items-center gap-2">
-              <SidebarTrigger className="-ml-1 size-9" />
-              <Separator orientation="vertical" className="mr-2 md:hidden" />
-              <MainBreadcrumbs />
-            </div>
-            <div>
-              <ThemeToggle />
-            </div>
-          </header>
-        </Container>
+        <div className="w-full bg-card">
+          <Container className="flex h-16 items-center justify-center">
+            <header className="mx-auto flex w-full shrink-0 items-center justify-between">
+              <div className="flex items-center gap-2">
+                <SidebarTrigger className="-ml-1 size-9" />
+                <Separator orientation="vertical" className="mr-2 md:hidden" />
+                <MainBreadcrumbs />
+              </div>
+              <div>
+                <ThemeToggle />
+              </div>
+            </header>
+          </Container>
+        </div>
 
         <Separator />
         <Outlet />
