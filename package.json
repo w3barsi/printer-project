@@ -8,10 +8,10 @@
     "build:backend": "pnpm --filter @dg/backend codegen",
     "build:storefront": "pnpm --filter @dg/storefront build",
     "build:system": "pnpm --filter @dg/system build",
-    "deploy:backend": "pnpm --filter @dg/backend run deploy",
-    "deploy:cfsystem": "pnpm --filter @dg/cfsystem-redirect run deploy",
-    "deploy:storefront": "pnpm --filter @dg/storefront run deploy",
-    "deploy:system": "pnpm --filter @dg/system run deploy",
+    "deploy:backend": "node scripts/deploy.mjs backend",
+    "deploy:cfsystem": "node scripts/deploy.mjs cfsystem",
+    "deploy:storefront": "node scripts/deploy.mjs storefront",
+    "deploy:system": "node scripts/deploy.mjs system",
     "cf:typegen": "pnpm --filter @dg/storefront --filter @dg/system cf:typegen",
     "lint": "oxlint --type-aware --type-check",
     "lint:fix": "oxlint --type-aware --type-check --fix",
@@ -36,6 +36,10 @@
   },
   "lint-staged": {
     "*": "oxfmt --no-error-on-unmatched-pattern"
+  },
+  "deployedAt": {
+    "backend": "a91ceff7ba717ec48dce559748a392bed7880746",
+    "system": "a91ceff7ba717ec48dce559748a392bed7880746"
   },
   "intent": {
     "skills": [
