@@ -3,6 +3,8 @@ import { shareApi } from "@dg/drive/share-api";
 import { createFileRoute } from "@tanstack/react-router";
 
 import { PublicShareBrowser } from "@/components/public-share-browser";
+import { ThemeToggle } from "@/components/theme-toggle";
+import { ThemeProvider } from "@/contexts/theme-context";
 
 export const Route = createFileRoute("/share/$token/{-$itemId}")({
   component: SharePage,
@@ -51,5 +53,12 @@ export const Route = createFileRoute("/share/$token/{-$itemId}")({
 
 function SharePage() {
   const params = Route.useParams();
-  return <PublicShareBrowser token={params.token} itemId={params.itemId} />;
+  return (
+    <ThemeProvider>
+      <PublicShareBrowser token={params.token} itemId={params.itemId} />
+      <div className="fixed bottom-4 left-4 z-50">
+        <ThemeToggle />
+      </div>
+    </ThemeProvider>
+  );
 }
