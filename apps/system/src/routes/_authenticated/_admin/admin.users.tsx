@@ -29,7 +29,7 @@ import {
 } from "@dg/ui/components/table";
 import { cn } from "@dg/ui/lib/utils";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import {
   DeleteIcon,
   GavelIcon,
@@ -78,6 +78,7 @@ function RouteComponent() {
 }
 
 function UserManagementTable() {
+  const navigate = useNavigate();
   const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
   const [user, setUser] = useState<{ name: string; id: string }>();
 
@@ -124,10 +125,31 @@ function UserManagementTable() {
             <span>No users</span>
           ) : (
             data.map((u) => (
-              <TableRow key={u.id}>
-                <TableCell className="pl-4">{u.name || "-"}</TableCell>
+              <TableRow
+                key={u.id}
+                className="cursor-pointer"
+                onClick={(event) => {
+                  if (!(event.target instanceof Element)) return;
+                  if (
+                    event.target.closest(
+                      "a, button, [role='menuitem'], [data-user-actions]",
+                    )
+                  )
+                    return;
+                  void navigate({ to: "/admin/users/$userId", params: { userId: u.id } });
+                }}
+              >
+                <TableCell className="pl-4">
+                  <Link
+                    to="/admin/users/$userId"
+                    params={{ userId: u.id }}
+                    className="font-medium hover:underline focus-visible:underline"
+                  >
+                    {u.name || u.email || "View user"}
+                  </Link>
+                </TableCell>
                 <TableCell>{u.email || "-"}</TableCell>
-                <TableCell>
+                <TableCell data-user-actions>
                   <DropdownMenu>
                     <DropdownMenuTrigger render={<Button variant="outline" size="sm" />}>
                       {u.role || "user"}
@@ -151,7 +173,7 @@ function UserManagementTable() {
                 <TableCell>
                   {u.createdAt ? new Date(u.createdAt).toLocaleString() : "-"}
                 </TableCell>
-                <TableCell className="pr-4 text-right">
+                <TableCell className="pr-4 text-right" data-user-actions>
                   <DropdownMenu>
                     <DropdownMenuTrigger
                       render={<Button variant="ghost" size="icon" aria-label="Actions" />}
