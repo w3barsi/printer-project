@@ -25,11 +25,13 @@ import { Route as AuthenticatedTrelloIndexRouteImport } from './routes/_authenti
 import { Route as AuthenticatedNewdriveIndexRouteImport } from './routes/_authenticated/newdrive.index'
 import { Route as AuthenticatedJoIndexRouteImport } from './routes/_authenticated/jo.index'
 import { Route as AuthenticatedDriveIndexRouteImport } from './routes/_authenticated/drive.index'
+import { Route as Authenticated3dIndexRouteImport } from './routes/_authenticated/3d.index'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth.$'
 import { Route as AuthenticatedTrelloListIdRouteImport } from './routes/_authenticated/trello.$listId'
 import { Route as AuthenticatedJoJoIdRouteImport } from './routes/_authenticated/jo.$joId'
 import { Route as AuthenticatedInventoryIdRouteImport } from './routes/_authenticated/inventory_.$id'
 import { Route as AuthenticatedCashierCashflowRouteImport } from './routes/_authenticated/_cashier/cashflow'
+import { Route as Authenticated3dKeychainRouteImport } from './routes/_authenticated/3d.keychain'
 import { Route as AuthenticatedAdminAdminIndexRouteImport } from './routes/_authenticated/_admin/admin.index'
 import { Route as AuthenticatedNewdriveFileItemIdRouteImport } from './routes/_authenticated/newdrive.file.$itemId'
 import { Route as AuthenticatedNewdriveSpaceIdChar123FolderIdChar125RouteImport } from './routes/_authenticated/newdrive.$spaceId.{-$folderId}'
@@ -123,6 +125,11 @@ const AuthenticatedDriveIndexRoute = AuthenticatedDriveIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedDriveRoute,
 } as any)
+const Authenticated3dIndexRoute = Authenticated3dIndexRouteImport.update({
+  id: '/3d/',
+  path: '/3d/',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   id: '/api/auth/$',
   path: '/api/auth/$',
@@ -151,6 +158,11 @@ const AuthenticatedCashierCashflowRoute =
     path: '/cashflow',
     getParentRoute: () => AuthenticatedCashierRouteRoute,
   } as any)
+const Authenticated3dKeychainRoute = Authenticated3dKeychainRouteImport.update({
+  id: '/3d/keychain',
+  path: '/3d/keychain',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedAdminAdminIndexRoute =
   AuthenticatedAdminAdminIndexRouteImport.update({
     id: '/admin/',
@@ -239,11 +251,13 @@ export interface FileRoutesByFullPath {
   '/newdrive': typeof AuthenticatedNewdriveRouteWithChildren
   '/app/$': typeof AppSplatRoute
   '/app/': typeof AppIndexRoute
+  '/3d/keychain': typeof Authenticated3dKeychainRoute
   '/cashflow': typeof AuthenticatedCashierCashflowRoute
   '/inventory/$id': typeof AuthenticatedInventoryIdRoute
   '/jo/$joId': typeof AuthenticatedJoJoIdRoute
   '/trello/$listId': typeof AuthenticatedTrelloListIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/3d/': typeof Authenticated3dIndexRoute
   '/drive/': typeof AuthenticatedDriveIndexRoute
   '/jo/': typeof AuthenticatedJoIndexRoute
   '/newdrive/': typeof AuthenticatedNewdriveIndexRoute
@@ -269,11 +283,13 @@ export interface FileRoutesByTo {
   '/inventory': typeof AuthenticatedInventoryRoute
   '/app/$': typeof AppSplatRoute
   '/app': typeof AppIndexRoute
+  '/3d/keychain': typeof Authenticated3dKeychainRoute
   '/cashflow': typeof AuthenticatedCashierCashflowRoute
   '/inventory/$id': typeof AuthenticatedInventoryIdRoute
   '/jo/$joId': typeof AuthenticatedJoJoIdRoute
   '/trello/$listId': typeof AuthenticatedTrelloListIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/3d': typeof Authenticated3dIndexRoute
   '/drive': typeof AuthenticatedDriveIndexRoute
   '/jo': typeof AuthenticatedJoIndexRoute
   '/newdrive': typeof AuthenticatedNewdriveIndexRoute
@@ -304,11 +320,13 @@ export interface FileRoutesById {
   '/app/$': typeof AppSplatRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/app/': typeof AppIndexRoute
+  '/_authenticated/3d/keychain': typeof Authenticated3dKeychainRoute
   '/_authenticated/_cashier/cashflow': typeof AuthenticatedCashierCashflowRoute
   '/_authenticated/inventory_/$id': typeof AuthenticatedInventoryIdRoute
   '/_authenticated/jo/$joId': typeof AuthenticatedJoJoIdRoute
   '/_authenticated/trello/$listId': typeof AuthenticatedTrelloListIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/_authenticated/3d/': typeof Authenticated3dIndexRoute
   '/_authenticated/drive/': typeof AuthenticatedDriveIndexRoute
   '/_authenticated/jo/': typeof AuthenticatedJoIndexRoute
   '/_authenticated/newdrive/': typeof AuthenticatedNewdriveIndexRoute
@@ -338,11 +356,13 @@ export interface FileRouteTypes {
     | '/newdrive'
     | '/app/$'
     | '/app/'
+    | '/3d/keychain'
     | '/cashflow'
     | '/inventory/$id'
     | '/jo/$joId'
     | '/trello/$listId'
     | '/api/auth/$'
+    | '/3d/'
     | '/drive/'
     | '/jo/'
     | '/newdrive/'
@@ -368,11 +388,13 @@ export interface FileRouteTypes {
     | '/inventory'
     | '/app/$'
     | '/app'
+    | '/3d/keychain'
     | '/cashflow'
     | '/inventory/$id'
     | '/jo/$joId'
     | '/trello/$listId'
     | '/api/auth/$'
+    | '/3d'
     | '/drive'
     | '/jo'
     | '/newdrive'
@@ -402,11 +424,13 @@ export interface FileRouteTypes {
     | '/app/$'
     | '/_authenticated/'
     | '/app/'
+    | '/_authenticated/3d/keychain'
     | '/_authenticated/_cashier/cashflow'
     | '/_authenticated/inventory_/$id'
     | '/_authenticated/jo/$joId'
     | '/_authenticated/trello/$listId'
     | '/api/auth/$'
+    | '/_authenticated/3d/'
     | '/_authenticated/drive/'
     | '/_authenticated/jo/'
     | '/_authenticated/newdrive/'
@@ -548,6 +572,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDriveIndexRouteImport
       parentRoute: typeof AuthenticatedDriveRoute
     }
+    '/_authenticated/3d/': {
+      id: '/_authenticated/3d/'
+      path: '/3d'
+      fullPath: '/3d/'
+      preLoaderRoute: typeof Authenticated3dIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/api/auth/$': {
       id: '/api/auth/$'
       path: '/api/auth/$'
@@ -582,6 +613,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/cashflow'
       preLoaderRoute: typeof AuthenticatedCashierCashflowRouteImport
       parentRoute: typeof AuthenticatedCashierRouteRoute
+    }
+    '/_authenticated/3d/keychain': {
+      id: '/_authenticated/3d/keychain'
+      path: '/3d/keychain'
+      fullPath: '/3d/keychain'
+      preLoaderRoute: typeof Authenticated3dKeychainRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/_admin/admin/': {
       id: '/_authenticated/_admin/admin/'
@@ -807,9 +845,11 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedInventoryRoute: typeof AuthenticatedInventoryRoute
   AuthenticatedNewdriveRoute: typeof AuthenticatedNewdriveRouteWithChildren
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
+  Authenticated3dKeychainRoute: typeof Authenticated3dKeychainRoute
   AuthenticatedInventoryIdRoute: typeof AuthenticatedInventoryIdRoute
   AuthenticatedJoJoIdRoute: typeof AuthenticatedJoJoIdRoute
   AuthenticatedTrelloListIdRoute: typeof AuthenticatedTrelloListIdRoute
+  Authenticated3dIndexRoute: typeof Authenticated3dIndexRoute
   AuthenticatedJoIndexRoute: typeof AuthenticatedJoIndexRoute
   AuthenticatedTrelloIndexRoute: typeof AuthenticatedTrelloIndexRoute
 }
@@ -821,9 +861,11 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedInventoryRoute: AuthenticatedInventoryRoute,
   AuthenticatedNewdriveRoute: AuthenticatedNewdriveRouteWithChildren,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
+  Authenticated3dKeychainRoute: Authenticated3dKeychainRoute,
   AuthenticatedInventoryIdRoute: AuthenticatedInventoryIdRoute,
   AuthenticatedJoJoIdRoute: AuthenticatedJoJoIdRoute,
   AuthenticatedTrelloListIdRoute: AuthenticatedTrelloListIdRoute,
+  Authenticated3dIndexRoute: Authenticated3dIndexRoute,
   AuthenticatedJoIndexRoute: AuthenticatedJoIndexRoute,
   AuthenticatedTrelloIndexRoute: AuthenticatedTrelloIndexRoute,
 }

@@ -21,6 +21,7 @@ import { Link, useMatch, useRouteContext } from "@tanstack/react-router";
 import {
   BoxesIcon,
   ChevronRightIcon,
+  CuboidIcon,
   FolderIcon,
   FolderPlusIcon,
   PiggyBankIcon,
@@ -36,6 +37,7 @@ export function MainNavGroup() {
       <SidebarMenu>
         <CashflowSidebarItem />
         <InventorySidebarItem />
+        <ThreeDSidebarItem />
         <DriveSidebarItem />
         <TrelloSidebar />
       </SidebarMenu>
@@ -62,6 +64,30 @@ function InventorySidebarItem() {
       >
         <BoxesIcon />
         <span>Inventory</span>
+      </SidebarMenuButton>
+    </SidebarMenuItem>
+  );
+}
+
+function ThreeDSidebarItem() {
+  const { isMobile, setOpenMobile } = useSidebar();
+  const indexMatch = useMatch({ from: "/_authenticated/3d/", shouldThrow: false });
+  const keychainMatch = useMatch({
+    from: "/_authenticated/3d/keychain",
+    shouldThrow: false,
+  });
+
+  return (
+    <SidebarMenuItem>
+      <SidebarMenuButton
+        tooltip="3D"
+        isActive={!!indexMatch || !!keychainMatch}
+        render={
+          <Link to="/3d" onClick={() => isMobile && setOpenMobile(false)} tabIndex={0} />
+        }
+      >
+        <CuboidIcon />
+        <span>3D</span>
       </SidebarMenuButton>
     </SidebarMenuItem>
   );
