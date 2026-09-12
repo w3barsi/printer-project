@@ -40,6 +40,10 @@ Local env lives in `.env.local` (dev) and `.env.prod` (production) — both giti
 
 ## Todos
 
+### 3D Tools
+
+- [ ] Keychain Maker: add a silhouette base style that follows the design outline (v1 uses an auto-fitted bounding box)
+
 ### Implement Favorites Feature
 
 - [ ] Define favorites schema in packages/backend/convex/schema.ts (e.g., table linking users to products)

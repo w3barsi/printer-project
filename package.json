@@ -38,8 +38,8 @@
     "*": "oxfmt --no-error-on-unmatched-pattern"
   },
   "deployedAt": {
-    "backend": "a91ceff7ba717ec48dce559748a392bed7880746",
-    "system": "a91ceff7ba717ec48dce559748a392bed7880746"
+    "backend": "bb946ffb768db723af9ef1dbed2b2b83a9511709",
+    "system": "bb946ffb768db723af9ef1dbed2b2b83a9511709"
   },
   "intent": {
     "skills": [
