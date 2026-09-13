@@ -21,13 +21,12 @@ v1: **Keychain Maker**, client-only, inside `apps/system`. Design language lives
 | Package                                  | Use                        |
 | ---------------------------------------- | -------------------------- |
 | `three`, `@react-three/fiber`            | viewport, extrusion, STL   |
-| `@react-three/drei`                      | `OrbitControls` only       |
 | `@types/three` (dev)                     | three typings              |
 | `martinez-polygon-clipping`              | 2D union/difference        |
 | `d3-contour` + `@types/d3-contour` (dev) | mask → contours with holes |
 | `simplify-js`                            | polygon decimation         |
 
-Already present: `jszip` (3MF zip), `file-saver` (download), `react-dropzone` (upload). Known-good versions as of Sep 2026: `three` 0.186, R3F 9.7, drei 10.7, `@types/three` 0.185.4, martinez 0.8.1 — verify at install.
+Already present: `jszip` (3MF zip), `file-saver` (download), `react-dropzone` (upload). Known-good versions as of Sep 2026: `three` 0.186, R3F 9.7, `@types/three` 0.186, martinez 0.8.1 — verify at install.
 
 ## Files
 
@@ -65,10 +64,10 @@ Verify: nav active states, breadcrumbs, launcher → tool navigation, LSP clean.
 
 ### M1 — Dependency spike
 
-- Install deps.
-- Hardcoded rounded-rect-with-ring-hole prism rendered in a `ClientOnly` canvas with `OrbitControls`, lighting, and fit-to-view.
+- Install deps. `OrbitControls` comes from `three/addons` through R3F `extend`; drei was dropped to keep the dependency surface and SSR import graph small.
+- Hardcoded rounded-rect-with-ring-hole prism rendered in a `ClientOnly` canvas with lighting and fit-to-view.
 
-Verify: page renders without SSR errors, orbit works, `pnpm build:system` shows `three` only in the keychain route chunk. Decide here: drei `OrbitControls` vs three addon directly.
+Verify: page renders without SSR errors, orbit works, `pnpm build:system` shows `three` only in the keychain route chunk.
 
 ### M2 — Image → palette
 
