@@ -5,8 +5,10 @@ import { ImagePlusIcon } from "lucide-react";
 import { useRef, useState } from "react";
 
 import { ImageDropzone } from "@/components/3d/image-dropzone";
+import { KeychainScene } from "@/components/3d/keychain-model";
 import { PalettePanel } from "@/components/3d/palette-panel";
 import { QuantizedPreview } from "@/components/3d/quantized-preview";
+import { Viewport } from "@/components/3d/viewport";
 import { Container } from "@/components/layouts/container";
 import { DEFAULT_LAYER_THICKNESS, type PaletteSwatch } from "@/lib/3d/design";
 import { decodePng, type DecodedPng } from "@/lib/3d/png";
@@ -38,6 +40,7 @@ function KeychainMakerPage() {
   const [colorCount, setColorCount] = useState(DEFAULT_COLOR_COUNT);
   const [quantized, setQuantized] = useState<QuantizedImage | null>(null);
   const [palette, setPalette] = useState<PaletteSwatch[]>([]);
+  const [modelVersion, setModelVersion] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -51,6 +54,7 @@ function KeychainMakerPage() {
         thickness: DEFAULT_LAYER_THICKNESS,
       })),
     );
+    setModelVersion((version) => version + 1);
   }
 
   async function handleFile(file: File) {
@@ -98,25 +102,30 @@ function KeychainMakerPage() {
         </div>
 
         <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_22rem]">
-          <section className="flex min-h-[60svh] items-center justify-center overflow-hidden rounded-lg border bg-card p-4">
-            {isLoading ? (
+          {isLoading ? (
+            <section className="flex min-h-[60svh] items-center justify-center overflow-hidden rounded-lg border bg-card p-4">
               <Spinner className="size-6 text-muted-foreground" />
-            ) : quantized && palette.length > 0 ? (
-              <QuantizedPreview
-                quantized={quantized}
-                colors={palette}
-                className="max-h-[70svh] max-w-full rounded-sm"
-              />
-            ) : source && quantized ? (
-              <p className="text-sm text-muted-foreground">
-                Nothing to preview — the image is fully transparent.
-              </p>
-            ) : (
-              <div className="w-full max-w-md">
-                <ImageDropzone onFile={handleFile} disabled={isLoading} />
-              </div>
-            )}
-          </section>
+            </section>
+          ) : quantized && palette.length > 0 ? (
+            <Viewport
+              fitKey={modelVersion}
+              className="h-[70svh] min-h-100 w-full overflow-hidden rounded-lg border bg-card"
+            >
+              <KeychainScene quantized={quantized} palette={palette} />
+            </Viewport>
+          ) : (
+            <section className="flex min-h-[60svh] items-center justify-center overflow-hidden rounded-lg border bg-card p-4">
+              {source && quantized ? (
+                <p className="text-sm text-muted-foreground">
+                  Nothing to preview — the image is fully transparent.
+                </p>
+              ) : (
+                <div className="w-full max-w-md">
+                  <ImageDropzone onFile={handleFile} disabled={isLoading} />
+                </div>
+              )}
+            </section>
+          )}
 
           <aside className="flex flex-col gap-4">
             <section className="flex flex-col gap-3 rounded-lg border bg-card p-4">
@@ -129,6 +138,13 @@ function KeychainMakerPage() {
 
               {source ? (
                 <div className="flex flex-col gap-2">
+                  {quantized ? (
+                    <QuantizedPreview
+                      quantized={quantized}
+                      colors={palette}
+                      className="max-h-24 w-auto max-w-full self-start rounded-sm border"
+                    />
+                  ) : null}
                   <div className="flex min-w-0 flex-col">
                     <span className="truncate text-sm">{source.fileName}</span>
                     <span className="text-xs text-muted-foreground">

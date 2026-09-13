@@ -1,15 +1,10 @@
 import { Button } from "@dg/ui/components/button";
 
+import { fromHex, toHex, type RgbColor } from "@/lib/3d/color";
 import type { PaletteSwatch } from "@/lib/3d/design";
 import { MAX_PALETTE_COLORS } from "@/lib/3d/quantize";
 
 const COLOR_COUNTS = Array.from({ length: MAX_PALETTE_COLORS }, (_, index) => index + 1);
-
-type RgbColor = {
-  r: number;
-  g: number;
-  b: number;
-};
 
 type PalettePanelProps = {
   colorCount: number;
@@ -19,18 +14,6 @@ type PalettePanelProps = {
   onColorChange: (index: number, color: RgbColor) => void;
   disabled?: boolean;
 };
-
-function toHex({ r, g, b }: RgbColor): string {
-  return `#${[r, g, b].map((value) => value.toString(16).padStart(2, "0")).join("")}`;
-}
-
-function fromHex(hex: string): RgbColor {
-  return {
-    r: Number.parseInt(hex.slice(1, 3), 16),
-    g: Number.parseInt(hex.slice(3, 5), 16),
-    b: Number.parseInt(hex.slice(5, 7), 16),
-  };
-}
 
 export function PalettePanel({
   colorCount,
