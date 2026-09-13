@@ -1,16 +1,18 @@
 import { ExtrudeGeometry, Path, Shape, type BufferGeometry } from "three";
 import { mergeVertices } from "three/addons/utils/BufferGeometryUtils.js";
 
-import { mergeSpecks } from "./cleanup";
-import { scaleRegions, traceRegions, type Polygon } from "./contours";
 import {
-  BASE_MARGIN_MM,
-  BASE_THICKNESS_MM,
-  DEFAULT_LAYER_THICKNESS,
-  LAYER_EMBED_MM,
-  TARGET_LONGEST_SIDE_MM,
-} from "./design";
+  applyAttachmentToOutline,
+  resolveAttachment,
+  subtractAttachmentFromPolygon,
+  type Attachment,
+  type ResolvedAttachment,
+} from "./attachment";
+import { mergeSpecks } from "./cleanup";
+import { scaleRegions, traceRegions, type Point2, type Polygon } from "./contours";
+import { DEFAULT_LAYER_THICKNESS, LAYER_EMBED_MM, type BaseSettings } from "./design";
 import { TRANSPARENT_INDEX, type QuantizedImage } from "./quantize";
+import { detectThinColors } from "./warnings";
 
 export type KeychainPart = {
   colorIndex: number;
@@ -24,8 +26,10 @@ export type KeychainGeometry = {
   width: number;
   height: number;
   baseThickness: number;
-  layerThickness: number;
+  baseOutline: Point2[];
+  attachment: ResolvedAttachment | null;
   specksMerged: number;
+  thinColorIndexes: number[];
   triangles: number;
 };
 
@@ -37,14 +41,20 @@ type Bounds = {
 };
 
 const WELD_TOLERANCE = 1e-4;
+const CORNER_SEGMENTS = 8;
 
-export function buildKeychain(quantized: QuantizedImage): KeychainGeometry | null {
+export function buildKeychain(
+  quantized: QuantizedImage,
+  base: BaseSettings,
+  thicknesses: number[],
+  attachment: Attachment | null,
+): KeychainGeometry | null {
   const bounds = contentBounds(quantized);
   if (!bounds) return null;
 
   const contentWidthPx = Math.max(bounds.maxX - bounds.minX, 1);
   const contentHeightPx = Math.max(bounds.maxY - bounds.minY, 1);
-  const targetContentMm = TARGET_LONGEST_SIDE_MM - BASE_MARGIN_MM * 2;
+  const targetContentMm = Math.max(base.longestSideMm - base.marginMm * 2, 1);
   const mmPerPixel = targetContentMm / Math.max(contentWidthPx, contentHeightPx);
   const centerX = (bounds.minX + bounds.maxX) / 2;
   const centerY = (bounds.minY + bounds.maxY) / 2;
@@ -53,50 +63,61 @@ export function buildKeychain(quantized: QuantizedImage): KeychainGeometry | nul
   const regions = traceRegions(indices, quantized.width, quantized.height);
   const mmRegions = scaleRegions(regions, mmPerPixel, centerX, centerY);
 
-  const contentWidth = contentWidthPx * mmPerPixel;
-  const contentHeight = contentHeightPx * mmPerPixel;
-  const width = contentWidth + BASE_MARGIN_MM * 2;
-  const height = contentHeight + BASE_MARGIN_MM * 2;
+  const width = contentWidthPx * mmPerPixel + base.marginMm * 2;
+  const height = contentHeightPx * mmPerPixel + base.marginMm * 2;
+  const radius = base.cornerRadiusMm ?? autoCornerRadius(width, height);
 
-  const base = weld(
-    new ExtrudeGeometry(roundedRectShape(width, height, cornerRadius(width, height)), {
-      depth: BASE_THICKNESS_MM,
-      bevelEnabled: false,
-    }),
-  );
+  const outline = roundedRectPolygon(width, height, radius);
+  const resolvedAttachment = attachment
+    ? resolveAttachment(outline, height, attachment)
+    : null;
+  const basePolygons = resolvedAttachment
+    ? applyAttachmentToOutline(outline, resolvedAttachment)
+    : [{ outer: outline, holes: [] }];
+  const baseGeometry = weld(extrudePolygons(basePolygons, base.thicknessMm, 0));
 
   const parts: KeychainPart[] = [];
   for (const [colorIndex, polygons] of mmRegions) {
-    const shapes = polygons.map(polygonToShape);
-    if (shapes.length === 0) continue;
+    const thickness = thicknesses[colorIndex] ?? DEFAULT_LAYER_THICKNESS;
+    if (thickness <= 0) continue;
 
-    const geometry = new ExtrudeGeometry(shapes, {
-      depth: DEFAULT_LAYER_THICKNESS,
-      bevelEnabled: false,
-    });
-    geometry.translate(0, 0, BASE_THICKNESS_MM - LAYER_EMBED_MM);
+    const finalPolygons = resolvedAttachment
+      ? polygons.flatMap((polygon) =>
+          subtractAttachmentFromPolygon(polygon, resolvedAttachment),
+        )
+      : polygons;
+    if (finalPolygons.length === 0) continue;
 
-    parts.push({
-      colorIndex,
-      geometry: weld(geometry),
-      thickness: DEFAULT_LAYER_THICKNESS,
-    });
+    const geometry = extrudePolygons(
+      finalPolygons,
+      thickness,
+      base.thicknessMm - LAYER_EMBED_MM,
+    );
+
+    parts.push({ colorIndex, geometry: weld(geometry), thickness });
   }
 
-  const meshes = [base, ...parts.map((part) => part.geometry)];
+  const meshes = [baseGeometry, ...parts.map((part) => part.geometry)];
   const triangles = meshes.reduce(
     (total, geometry) => total + triangleCount(geometry),
     0,
   );
 
   return {
-    base,
+    base: baseGeometry,
     parts,
     width,
     height,
-    baseThickness: BASE_THICKNESS_MM,
-    layerThickness: DEFAULT_LAYER_THICKNESS,
+    baseThickness: base.thicknessMm,
+    baseOutline: outline,
+    attachment: resolvedAttachment,
     specksMerged: mergedCount,
+    thinColorIndexes: detectThinColors(
+      indices,
+      quantized.width,
+      quantized.height,
+      mmPerPixel,
+    ),
     triangles,
   };
 }
@@ -122,27 +143,63 @@ function contentBounds(quantized: QuantizedImage): Bounds | null {
   return { minX, minY, maxX: maxX + 1, maxY: maxY + 1 };
 }
 
-function cornerRadius(width: number, height: number): number {
+function autoCornerRadius(width: number, height: number): number {
   return Math.min(3, width / 4, height / 4);
 }
 
-function roundedRectShape(width: number, height: number, radius: number): Shape {
-  const shape = new Shape();
+function roundedRectPolygon(width: number, height: number, radius: number): Point2[] {
   const x = -width / 2;
   const y = -height / 2;
   const r = Math.max(0, Math.min(radius, width / 2, height / 2));
 
-  shape.moveTo(x + r, y);
-  shape.lineTo(x + width - r, y);
-  shape.quadraticCurveTo(x + width, y, x + width, y + r);
-  shape.lineTo(x + width, y + height - r);
-  shape.quadraticCurveTo(x + width, y + height, x + width - r, y + height);
-  shape.lineTo(x + r, y + height);
-  shape.quadraticCurveTo(x, y + height, x, y + height - r);
-  shape.lineTo(x, y + r);
-  shape.quadraticCurveTo(x, y, x + r, y);
+  if (r < 0.01) {
+    return [
+      [x, y],
+      [x + width, y],
+      [x + width, y + height],
+      [x, y + height],
+    ];
+  }
 
-  return shape;
+  const points: Point2[] = [];
+  const corner = (start: Point2, control: Point2, end: Point2, includeEnd = true) => {
+    const last = includeEnd ? CORNER_SEGMENTS : CORNER_SEGMENTS - 1;
+    for (let index = 1; index <= last; index += 1) {
+      const t = index / CORNER_SEGMENTS;
+      const mt = 1 - t;
+      points.push([
+        mt * mt * start[0] + 2 * mt * t * control[0] + t * t * end[0],
+        mt * mt * start[1] + 2 * mt * t * control[1] + t * t * end[1],
+      ]);
+    }
+  };
+
+  points.push([x + r, y]);
+  points.push([x + width - r, y]);
+  corner([x + width - r, y], [x + width, y], [x + width, y + r]);
+  points.push([x + width, y + height - r]);
+  corner(
+    [x + width, y + height - r],
+    [x + width, y + height],
+    [x + width - r, y + height],
+  );
+  points.push([x + r, y + height]);
+  corner([x + r, y + height], [x, y + height], [x, y + height - r]);
+  points.push([x, y + r]);
+  corner([x, y + r], [x, y], [x + r, y], false);
+
+  return points;
+}
+
+function extrudePolygons(
+  polygons: Polygon[],
+  depth: number,
+  zOffset: number,
+): BufferGeometry {
+  const shapes = polygons.map(polygonToShape);
+  const geometry = new ExtrudeGeometry(shapes, { depth, bevelEnabled: false });
+  if (zOffset !== 0) geometry.translate(0, 0, zOffset);
+  return geometry;
 }
 
 function polygonToShape(polygon: Polygon): Shape {

@@ -1,7 +1,8 @@
 import { Button } from "@dg/ui/components/button";
+import { Input } from "@dg/ui/components/input";
 
 import { fromHex, toHex, type RgbColor } from "@/lib/3d/color";
-import type { PaletteSwatch } from "@/lib/3d/design";
+import { BASE_LIMITS, type PaletteSwatch } from "@/lib/3d/design";
 import { MAX_PALETTE_COLORS } from "@/lib/3d/quantize";
 
 const COLOR_COUNTS = Array.from({ length: MAX_PALETTE_COLORS }, (_, index) => index + 1);
@@ -10,8 +11,11 @@ type PalettePanelProps = {
   colorCount: number;
   palette: PaletteSwatch[];
   hasImage: boolean;
+  slots: number;
   onColorCountChange: (count: number) => void;
   onColorChange: (index: number, color: RgbColor) => void;
+  onThicknessChange: (index: number, thickness: number) => void;
+  onSlotsChange: (slots: number) => void;
   disabled?: boolean;
 };
 
@@ -19,8 +23,11 @@ export function PalettePanel({
   colorCount,
   palette,
   hasImage,
+  slots,
   onColorCountChange,
   onColorChange,
+  onThicknessChange,
+  onSlotsChange,
   disabled,
 }: PalettePanelProps) {
   const totalPixels = palette.reduce((total, swatch) => total + swatch.pixelCount, 0);
@@ -30,7 +37,7 @@ export function PalettePanel({
       <div className="flex flex-col gap-1">
         <h2 className="text-sm font-medium">Palette</h2>
         <p className="text-xs text-muted-foreground">
-          Up to five colors. Changing the count re-quantizes the image.
+          Up to five colors. Thickness is the height of each color layer.
         </p>
       </div>
 
@@ -58,7 +65,7 @@ export function PalettePanel({
         </p>
       ) : (
         <>
-          <ul className="flex flex-col gap-2">
+          <ul className="flex flex-col gap-2.5">
             {palette.map((swatch, index) => (
               <li key={swatch.id} className="flex items-center gap-3">
                 <input
@@ -77,9 +84,28 @@ export function PalettePanel({
                     % of image
                   </span>
                 </div>
+                <label className="flex shrink-0 items-center gap-1">
+                  <Input
+                    type="number"
+                    value={swatch.thickness}
+                    min={BASE_LIMITS.layerThicknessMm.min}
+                    max={BASE_LIMITS.layerThicknessMm.max}
+                    step={BASE_LIMITS.layerThicknessMm.step}
+                    disabled={disabled}
+                    onChange={(event) =>
+                      onThicknessChange(index, Number(event.target.value))
+                    }
+                    aria-label={`Color ${index + 1} thickness`}
+                    className="h-7 w-16 text-xs"
+                  />
+                  <span className="text-xs text-muted-foreground">mm</span>
+                </label>
               </li>
             ))}
           </ul>
+          <p className="text-xs text-muted-foreground">
+            Set a layer to 0 mm to hide that color.
+          </p>
           {palette.length < colorCount ? (
             <p className="text-xs text-muted-foreground">
               The image only has {palette.length} distinct{" "}
@@ -88,6 +114,19 @@ export function PalettePanel({
           ) : null}
         </>
       )}
+
+      <div className="flex items-center justify-between">
+        <span className="text-xs text-muted-foreground">AMS slots</span>
+        <Input
+          type="number"
+          value={slots}
+          min={1}
+          max={8}
+          onChange={(event) => onSlotsChange(Number(event.target.value))}
+          aria-label="AMS slots"
+          className="h-7 w-16 text-xs"
+        />
+      </div>
     </section>
   );
 }

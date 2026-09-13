@@ -1,18 +1,39 @@
 import { Button } from "@dg/ui/components/button";
 import { Spinner } from "@dg/ui/components/spinner";
 import { createFileRoute } from "@tanstack/react-router";
+import { format } from "date-fns";
+import fileSaver from "file-saver";
 import { ImagePlusIcon } from "lucide-react";
 import { useRef, useState } from "react";
+import type { OrbitControls } from "three/addons/controls/OrbitControls.js";
 
+import { AttachmentPanel } from "@/components/3d/attachment-panel";
+import { BasePanel } from "@/components/3d/base-panel";
+import { ExportPanel } from "@/components/3d/export-panel";
 import { ImageDropzone } from "@/components/3d/image-dropzone";
 import { KeychainScene } from "@/components/3d/keychain-model";
 import { PalettePanel } from "@/components/3d/palette-panel";
 import { QuantizedPreview } from "@/components/3d/quantized-preview";
 import { Viewport } from "@/components/3d/viewport";
+import { WarningsPanel } from "@/components/3d/warnings-panel";
 import { Container } from "@/components/layouts/container";
-import { DEFAULT_LAYER_THICKNESS, type PaletteSwatch } from "@/lib/3d/design";
+import { DEFAULT_ATTACHMENT, type Attachment } from "@/lib/3d/attachment";
+import type { RgbColor } from "@/lib/3d/color";
+import {
+  BASE_LIMITS,
+  DEFAULT_BASE_COLOR,
+  DEFAULT_BASE_SETTINGS,
+  DEFAULT_LAYER_THICKNESS,
+  type BaseSettings,
+  type KeychainModelInfo,
+  type PaletteSwatch,
+} from "@/lib/3d/design";
+import { build3mfBlob } from "@/lib/3d/export/3mf";
+import { buildStlBlob } from "@/lib/3d/export/stl";
+import type { KeychainGeometry } from "@/lib/3d/geometry";
 import { decodePng, type DecodedPng } from "@/lib/3d/png";
 import { quantize, type QuantizedImage } from "@/lib/3d/quantize";
+import { buildWarnings } from "@/lib/3d/warnings";
 
 export const Route = createFileRoute("/_authenticated/3d/keychain")({
   component: KeychainMakerPage,
@@ -28,6 +49,7 @@ export const Route = createFileRoute("/_authenticated/3d/keychain")({
 });
 
 const DEFAULT_COLOR_COUNT = 3;
+const DEFAULT_SLOTS = 4;
 
 type SourceImage = {
   fileName: string;
@@ -36,10 +58,17 @@ type SourceImage = {
 
 function KeychainMakerPage() {
   const replaceInputRef = useRef<HTMLInputElement>(null);
+  const geometryRef = useRef<KeychainGeometry | null>(null);
+  const controlsRef = useRef<OrbitControls | null>(null);
   const [source, setSource] = useState<SourceImage | null>(null);
   const [colorCount, setColorCount] = useState(DEFAULT_COLOR_COUNT);
   const [quantized, setQuantized] = useState<QuantizedImage | null>(null);
   const [palette, setPalette] = useState<PaletteSwatch[]>([]);
+  const [baseSettings, setBaseSettings] = useState<BaseSettings>(DEFAULT_BASE_SETTINGS);
+  const [baseColor, setBaseColor] = useState<RgbColor>(DEFAULT_BASE_COLOR);
+  const [attachment, setAttachment] = useState<Attachment | null>(DEFAULT_ATTACHMENT);
+  const [slots, setSlots] = useState(DEFAULT_SLOTS);
+  const [modelInfo, setModelInfo] = useState<KeychainModelInfo | null>(null);
   const [modelVersion, setModelVersion] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -78,10 +107,7 @@ function KeychainMakerPage() {
     applyQuantization(source.decoded, next);
   }
 
-  function handlePaletteColorChange(
-    index: number,
-    color: { r: number; g: number; b: number },
-  ) {
+  function handlePaletteColorChange(index: number, color: RgbColor) {
     setPalette((current) =>
       current.map((swatch, swatchIndex) =>
         swatchIndex === index ? { ...swatch, ...color } : swatch,
@@ -89,7 +115,58 @@ function KeychainMakerPage() {
     );
   }
 
-  const hasOpaqueBackground = source !== null && source.decoded.transparentPixels === 0;
+  function handlePaletteThicknessChange(index: number, thickness: number) {
+    if (!Number.isFinite(thickness)) return;
+    const clamped = Math.min(
+      BASE_LIMITS.layerThicknessMm.max,
+      Math.max(BASE_LIMITS.layerThicknessMm.min, thickness),
+    );
+    setPalette((current) =>
+      current.map((swatch, swatchIndex) =>
+        swatchIndex === index ? { ...swatch, thickness: clamped } : swatch,
+      ),
+    );
+  }
+
+  function handleBaseSettingsChange(next: BaseSettings) {
+    const footprintChanged =
+      next.longestSideMm !== baseSettings.longestSideMm ||
+      next.marginMm !== baseSettings.marginMm;
+    setBaseSettings(next);
+    if (footprintChanged) setModelVersion((version) => version + 1);
+  }
+
+  function handleSlotsChange(next: number) {
+    if (!Number.isFinite(next)) return;
+    setSlots(Math.min(8, Math.max(1, Math.round(next))));
+  }
+
+  async function handleExport3mf() {
+    const geometry = geometryRef.current;
+    if (!geometry) return;
+    const blob = await build3mfBlob(geometry, palette, baseColor);
+    fileSaver.saveAs(blob, `${exportBaseName()}.3mf`);
+  }
+
+  function handleExportStl() {
+    const geometry = geometryRef.current;
+    if (!geometry) return;
+    fileSaver.saveAs(buildStlBlob(geometry), `${exportBaseName()}.stl`);
+  }
+
+  const thicknesses = palette.map((swatch) => swatch.thickness);
+  const filamentCount = palette.filter((swatch) => swatch.thickness > 0).length + 1;
+  const warnings =
+    source && quantized
+      ? buildWarnings({
+          hasTransparency: source.decoded.transparentPixels > 0,
+          thinColorIndexes: modelInfo?.thinColorIndexes ?? [],
+          palette,
+          specksMerged: modelInfo?.specksMerged ?? 0,
+          filamentCount,
+          slots,
+        })
+      : [];
 
   return (
     <main className="min-h-[calc(100svh-4.1rem)] bg-muted/25">
@@ -109,9 +186,21 @@ function KeychainMakerPage() {
           ) : quantized && palette.length > 0 ? (
             <Viewport
               fitKey={modelVersion}
+              controlsRef={controlsRef}
               className="h-[70svh] min-h-100 w-full overflow-hidden rounded-lg border bg-card"
             >
-              <KeychainScene quantized={quantized} palette={palette} />
+              <KeychainScene
+                quantized={quantized}
+                base={baseSettings}
+                baseColor={baseColor}
+                thicknesses={thicknesses}
+                palette={palette}
+                attachment={attachment}
+                geometryRef={geometryRef}
+                controlsRef={controlsRef}
+                onModelInfo={setModelInfo}
+                onAttachmentChange={setAttachment}
+              />
             </Viewport>
           ) : (
             <section className="flex min-h-[60svh] items-center justify-center overflow-hidden rounded-lg border bg-card p-4">
@@ -175,13 +264,6 @@ function KeychainMakerPage() {
                 </div>
               ) : null}
 
-              {hasOpaqueBackground ? (
-                <p className="text-xs text-amber-600 dark:text-amber-500">
-                  This PNG has no transparency, so its background will become a color
-                  layer.
-                </p>
-              ) : null}
-
               {error ? <p className="text-xs text-destructive">{error}</p> : null}
             </section>
 
@@ -189,13 +271,42 @@ function KeychainMakerPage() {
               colorCount={colorCount}
               palette={palette}
               hasImage={source !== null}
+              slots={slots}
               onColorCountChange={handleColorCountChange}
               onColorChange={handlePaletteColorChange}
+              onThicknessChange={handlePaletteThicknessChange}
+              onSlotsChange={handleSlotsChange}
               disabled={isLoading}
+            />
+
+            <BasePanel
+              settings={baseSettings}
+              color={baseColor}
+              modelInfo={modelInfo}
+              onSettingsChange={handleBaseSettingsChange}
+              onColorChange={setBaseColor}
+            />
+
+            <AttachmentPanel
+              attachment={attachment}
+              onChange={setAttachment}
+              disabled={isLoading}
+            />
+
+            <WarningsPanel warnings={warnings} />
+
+            <ExportPanel
+              disabled={modelInfo === null}
+              onExport3mf={() => void handleExport3mf()}
+              onExportStl={handleExportStl}
             />
           </aside>
         </div>
       </Container>
     </main>
   );
+}
+
+function exportBaseName(): string {
+  return `keychain-${format(new Date(), "yyMMdd-HHmm")}`;
 }

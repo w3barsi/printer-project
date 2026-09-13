@@ -1,5 +1,7 @@
 # 3D Tools — Implementation Plan
 
+Status: implemented through M8 (2026-09-13).
+
 v1: **Keychain Maker**, client-only, inside `apps/system`. Design language lives in `CONTEXT.md`; decisions in `docs/adr/0001-3d-tools-client-only.md` and `docs/adr/0002-product-is-a-scoping-boundary.md`.
 
 ## Non-goals (v1)

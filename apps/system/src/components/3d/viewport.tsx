@@ -25,10 +25,18 @@ type ViewportProps = {
   className?: string;
   /** Change to refit the camera on the current scene. */
   fitKey?: string | number;
+  /** External ref to the orbit controls, e.g. to disable them while dragging. */
+  controlsRef?: RefObject<OrbitControls | null>;
 };
 
-export function Viewport({ children, className, fitKey }: ViewportProps) {
-  const controlsRef = useRef<OrbitControls>(null);
+export function Viewport({
+  children,
+  className,
+  fitKey,
+  controlsRef: externalControlsRef,
+}: ViewportProps) {
+  const internalControlsRef = useRef<OrbitControls>(null);
+  const controlsRef = externalControlsRef ?? internalControlsRef;
 
   return (
     <div className={className}>
@@ -83,6 +91,7 @@ function FitToView({
 }) {
   const camera = useThree((state) => state.camera);
   const scene = useThree((state) => state.scene);
+  const hasFramed = useRef(false);
 
   useEffect(() => {
     const box = new Box3().setFromObject(scene);
@@ -93,16 +102,26 @@ function FitToView({
     const fov = MathUtils.degToRad(perspective.fov);
     const distance = (sphere.radius / Math.sin(fov / 2)) * 1.25;
 
-    camera.position.copy(sphere.center).addScaledVector(VIEW_DIRECTION, distance);
+    const controls = controlsRef.current;
+    const direction = new Vector3();
+    if (hasFramed.current && controls) {
+      direction.subVectors(camera.position, controls.target);
+      if (direction.lengthSq() === 0) direction.copy(VIEW_DIRECTION);
+      else direction.normalize();
+    } else {
+      direction.copy(VIEW_DIRECTION);
+    }
+
+    camera.position.copy(sphere.center).addScaledVector(direction, distance);
     perspective.near = Math.max(distance / 100, 0.1);
     perspective.far = distance * 50;
     perspective.updateProjectionMatrix();
 
-    const controls = controlsRef.current;
     if (controls) {
       controls.target.copy(sphere.center);
       controls.update();
     }
+    hasFramed.current = true;
   }, [camera, scene, controlsRef, fitKey]);
 
   return null;
