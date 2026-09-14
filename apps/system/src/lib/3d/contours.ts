@@ -1,4 +1,4 @@
-import { contours } from "d3-contour";
+import { contours, type ContourMultiPolygon } from "d3-contour";
 import simplify from "simplify-js";
 
 import { TRANSPARENT_INDEX } from "./quantize";
@@ -29,6 +29,33 @@ function simplifyRing(ring: number[][]): Point2[] {
   return simplified.map(({ x, y }): Point2 => [x, y]);
 }
 
+function multiPolygonToPolygons(multiPolygon: ContourMultiPolygon): Polygon[] {
+  const polygons: Polygon[] = [];
+  for (const rings of multiPolygon.coordinates) {
+    const simplified = rings.map(simplifyRing).filter((ring) => ring.length >= 3);
+    const [outer, ...holes] = simplified;
+    if (!outer) continue;
+    polygons.push({ outer, holes });
+  }
+  return polygons;
+}
+
+/**
+ * Traces a single numeric field into polygons in grid space; the region inside
+ * is where value >= threshold.
+ */
+export function traceField(
+  values: ArrayLike<number>,
+  width: number,
+  height: number,
+  threshold: number,
+): Polygon[] {
+  const multiPolygon = contours()
+    .size([width, height])
+    .contour(values as unknown as number[], threshold);
+  return multiPolygonToPolygons(multiPolygon);
+}
+
 /**
  * Traces each palette colour from the index grid into polygons in grid space
  * (x right, y down, range 0..width / 0..height, aligned with pixel cells).
@@ -51,18 +78,7 @@ export function traceRegions(
       values[index] = indices[index] === colorIndex ? 1 : 0;
     }
 
-    const multiPolygon = contours()
-      .size([width, height])
-      .contour(values as unknown as number[], CONTOUR_THRESHOLD);
-
-    const polygons: Polygon[] = [];
-    for (const rings of multiPolygon.coordinates) {
-      const simplified = rings.map(simplifyRing).filter((ring) => ring.length >= 3);
-      const [outer, ...holes] = simplified;
-      if (!outer) continue;
-      polygons.push({ outer, holes });
-    }
-
+    const polygons = traceField(values, width, height, CONTOUR_THRESHOLD);
     if (polygons.length > 0) regions.set(colorIndex, polygons);
   }
 

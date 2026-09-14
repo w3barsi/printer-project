@@ -9,6 +9,7 @@ import type { OrbitControls } from "three/addons/controls/OrbitControls.js";
 
 import { AttachmentPanel } from "@/components/3d/attachment-panel";
 import { BasePanel } from "@/components/3d/base-panel";
+import { DetailPanel } from "@/components/3d/detail-panel";
 import { ExportPanel } from "@/components/3d/export-panel";
 import { ImageDropzone } from "@/components/3d/image-dropzone";
 import { KeychainScene } from "@/components/3d/keychain-model";
@@ -20,18 +21,24 @@ import { Container } from "@/components/layouts/container";
 import { DEFAULT_ATTACHMENT, type Attachment } from "@/lib/3d/attachment";
 import type { RgbColor } from "@/lib/3d/color";
 import {
+  ALPHA_LIMITS,
   BASE_LIMITS,
+  DEFAULT_ALPHA_THRESHOLD,
   DEFAULT_BASE_COLOR,
   DEFAULT_BASE_SETTINGS,
+  DEFAULT_IMAGE_QUALITY,
   DEFAULT_LAYER_THICKNESS,
+  DEFAULT_SPECK_MM2,
+  SPECK_LIMITS,
   type BaseSettings,
+  type ImageQuality,
   type KeychainModelInfo,
   type PaletteSwatch,
 } from "@/lib/3d/design";
 import { build3mfBlob } from "@/lib/3d/export/3mf";
 import { buildStlBlob } from "@/lib/3d/export/stl";
 import type { KeychainGeometry } from "@/lib/3d/geometry";
-import { decodePng, type DecodedPng } from "@/lib/3d/png";
+import { decodePng, IMAGE_DIMENSIONS, type DecodedPng } from "@/lib/3d/png";
 import { quantize, type QuantizedImage } from "@/lib/3d/quantize";
 import { buildWarnings } from "@/lib/3d/warnings";
 
@@ -53,6 +60,7 @@ const DEFAULT_SLOTS = 4;
 
 type SourceImage = {
   fileName: string;
+  file: File;
   decoded: DecodedPng;
 };
 
@@ -62,19 +70,27 @@ function KeychainMakerPage() {
   const controlsRef = useRef<OrbitControls | null>(null);
   const [source, setSource] = useState<SourceImage | null>(null);
   const [colorCount, setColorCount] = useState(DEFAULT_COLOR_COUNT);
+  const [quality, setQuality] = useState<ImageQuality>(DEFAULT_IMAGE_QUALITY);
+  const [alphaThreshold, setAlphaThreshold] = useState(DEFAULT_ALPHA_THRESHOLD);
+  const [speckThresholdMm2, setSpeckThresholdMm2] = useState(DEFAULT_SPECK_MM2);
   const [quantized, setQuantized] = useState<QuantizedImage | null>(null);
   const [palette, setPalette] = useState<PaletteSwatch[]>([]);
   const [baseSettings, setBaseSettings] = useState<BaseSettings>(DEFAULT_BASE_SETTINGS);
   const [baseColor, setBaseColor] = useState<RgbColor>(DEFAULT_BASE_COLOR);
   const [attachment, setAttachment] = useState<Attachment | null>(DEFAULT_ATTACHMENT);
   const [slots, setSlots] = useState(DEFAULT_SLOTS);
+  const [uniformThickness, setUniformThickness] = useState(false);
   const [modelInfo, setModelInfo] = useState<KeychainModelInfo | null>(null);
   const [modelVersion, setModelVersion] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  function applyQuantization(decoded: DecodedPng, count: number) {
-    const result = quantize(decoded, count);
+  function applyQuantization(
+    decoded: DecodedPng,
+    count: number,
+    threshold = alphaThreshold,
+  ) {
+    const result = quantize(decoded, count, threshold);
     setQuantized(result);
     setPalette(
       result.palette.map((entry) => ({
@@ -90,15 +106,48 @@ function KeychainMakerPage() {
     setIsLoading(true);
     setError(null);
     try {
-      const decoded = await decodePng(file);
+      const decoded = await decodePng(file, IMAGE_DIMENSIONS[quality]);
       applyQuantization(decoded, colorCount);
-      setSource({ fileName: file.name, decoded });
+      setSource({ fileName: file.name, file, decoded });
     } catch (cause) {
       console.error(cause);
       setError(cause instanceof Error ? cause.message : "Could not read that PNG.");
     } finally {
       setIsLoading(false);
     }
+  }
+
+  async function handleQualityChange(next: ImageQuality) {
+    setQuality(next);
+    if (!source) return;
+    setIsLoading(true);
+    setError(null);
+    try {
+      const decoded = await decodePng(source.file, IMAGE_DIMENSIONS[next]);
+      applyQuantization(decoded, colorCount);
+      setSource((current) => (current ? { ...current, decoded } : current));
+    } catch (cause) {
+      console.error(cause);
+      setError(cause instanceof Error ? cause.message : "Could not read that PNG.");
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  function handleAlphaThresholdChange(value: number) {
+    if (!Number.isFinite(value)) return;
+    const clamped = Math.min(
+      ALPHA_LIMITS.max,
+      Math.max(ALPHA_LIMITS.min, Math.round(value)),
+    );
+    setAlphaThreshold(clamped);
+    if (!source) return;
+    applyQuantization(source.decoded, colorCount, clamped);
+  }
+
+  function handleSpeckThresholdChange(value: number) {
+    if (!Number.isFinite(value)) return;
+    setSpeckThresholdMm2(Math.min(SPECK_LIMITS.max, Math.max(SPECK_LIMITS.min, value)));
   }
 
   function handleColorCountChange(next: number) {
@@ -123,15 +172,28 @@ function KeychainMakerPage() {
     );
     setPalette((current) =>
       current.map((swatch, swatchIndex) =>
-        swatchIndex === index ? { ...swatch, thickness: clamped } : swatch,
+        uniformThickness || swatchIndex === index
+          ? { ...swatch, thickness: clamped }
+          : swatch,
       ),
     );
+  }
+
+  function handleUniformThicknessChange(next: boolean) {
+    setUniformThickness(next);
+    if (!next) return;
+    setPalette((current) => {
+      const value = current[0]?.thickness;
+      if (value === undefined) return current;
+      return current.map((swatch) => ({ ...swatch, thickness: value }));
+    });
   }
 
   function handleBaseSettingsChange(next: BaseSettings) {
     const footprintChanged =
       next.longestSideMm !== baseSettings.longestSideMm ||
-      next.marginMm !== baseSettings.marginMm;
+      next.marginMm !== baseSettings.marginMm ||
+      next.style !== baseSettings.style;
     setBaseSettings(next);
     if (footprintChanged) setModelVersion((version) => version + 1);
   }
@@ -159,7 +221,7 @@ function KeychainMakerPage() {
   const warnings =
     source && quantized
       ? buildWarnings({
-          hasTransparency: source.decoded.transparentPixels > 0,
+          hasTransparency: quantized.transparentPixels > 0,
           thinColorIndexes: modelInfo?.thinColorIndexes ?? [],
           palette,
           specksMerged: modelInfo?.specksMerged ?? 0,
@@ -196,6 +258,7 @@ function KeychainMakerPage() {
                 thicknesses={thicknesses}
                 palette={palette}
                 attachment={attachment}
+                speckThresholdMm2={speckThresholdMm2}
                 geometryRef={geometryRef}
                 controlsRef={controlsRef}
                 onModelInfo={setModelInfo}
@@ -267,15 +330,28 @@ function KeychainMakerPage() {
               {error ? <p className="text-xs text-destructive">{error}</p> : null}
             </section>
 
+            <DetailPanel
+              quality={quality}
+              alphaThreshold={alphaThreshold}
+              speckThresholdMm2={speckThresholdMm2}
+              onQualityChange={(next) => void handleQualityChange(next)}
+              onAlphaThresholdChange={handleAlphaThresholdChange}
+              onSpeckThresholdChange={handleSpeckThresholdChange}
+              disabled={isLoading}
+            />
+
             <PalettePanel
               colorCount={colorCount}
               palette={palette}
               hasImage={source !== null}
               slots={slots}
+              flattenLayers={baseSettings.faceDown}
+              uniformThickness={uniformThickness}
               onColorCountChange={handleColorCountChange}
               onColorChange={handlePaletteColorChange}
               onThicknessChange={handlePaletteThicknessChange}
               onSlotsChange={handleSlotsChange}
+              onUniformThicknessChange={handleUniformThicknessChange}
               disabled={isLoading}
             />
 

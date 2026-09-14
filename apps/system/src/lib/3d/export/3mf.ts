@@ -28,12 +28,16 @@ export async function build3mfBlob(
   baseColor: RgbColor,
 ): Promise<Blob> {
   const parts: Part[] = [
-    { name: "Base", geometry: geometry.base, color: baseColor },
-    ...geometry.parts.map((part) => ({
-      name: `Color ${part.colorIndex + 1}`,
-      geometry: part.geometry,
-      color: palette[part.colorIndex] ?? baseColor,
-    })),
+    ...(hasTriangles(geometry.base)
+      ? [{ name: "Base", geometry: geometry.base, color: baseColor }]
+      : []),
+    ...geometry.parts
+      .filter((part) => hasTriangles(part.geometry))
+      .map((part) => ({
+        name: `Color ${part.colorIndex + 1}`,
+        geometry: part.geometry,
+        color: palette[part.colorIndex] ?? baseColor,
+      })),
   ];
 
   const resources = [
@@ -104,6 +108,12 @@ ${triangles.join("\n")}
 
 function format(value: number): string {
   return value.toFixed(4).replace(/\.?0+$/, "") || "0";
+}
+
+function hasTriangles(geometry: BufferGeometry): boolean {
+  const index = geometry.getIndex();
+  if (index) return index.count > 0;
+  return (geometry.getAttribute("position")?.count ?? 0) > 0;
 }
 
 function escapeXml(value: string): string {

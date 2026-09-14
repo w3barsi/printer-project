@@ -22,6 +22,7 @@ type KeychainSceneProps = {
   thicknesses: number[];
   palette: PaletteSwatch[];
   attachment: Attachment | null;
+  speckThresholdMm2: number;
   geometryRef: RefObject<KeychainGeometry | null>;
   controlsRef: RefObject<OrbitControls | null>;
   onModelInfo: (info: KeychainModelInfo | null) => void;
@@ -35,6 +36,7 @@ export function KeychainScene({
   thicknesses,
   palette,
   attachment,
+  speckThresholdMm2,
   geometryRef,
   controlsRef,
   onModelInfo,
@@ -43,8 +45,8 @@ export function KeychainScene({
   const thicknessKey = thicknesses.join(",");
   const model = useMemo(() => {
     const values = thicknessKey.length > 0 ? thicknessKey.split(",").map(Number) : [];
-    return buildKeychain(quantized, base, values, attachment);
-  }, [quantized, base, thicknessKey, attachment]);
+    return buildKeychain(quantized, base, values, attachment, speckThresholdMm2);
+  }, [quantized, base, thicknessKey, attachment, speckThresholdMm2]);
 
   useEffect(() => {
     geometryRef.current = model;
@@ -154,7 +156,7 @@ function AttachmentOverlay({
     return {
       position: point,
       perimeterT: null,
-      valid: isPlacementValid(model.baseOutline, point, innerRadius),
+      valid: isPlacementValid(model.baseOutlines, point, innerRadius),
     };
   }
 

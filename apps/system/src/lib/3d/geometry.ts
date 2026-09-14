@@ -1,16 +1,30 @@
-import { ExtrudeGeometry, Path, Shape, type BufferGeometry } from "three";
+import { BufferGeometry, ExtrudeGeometry, Path, Shape } from "three";
 import { mergeVertices } from "three/addons/utils/BufferGeometryUtils.js";
 
 import {
-  applyAttachmentToOutline,
+  applyAttachmentToPolygons,
+  circleRing,
+  polygonBounds,
   resolveAttachment,
   subtractAttachmentFromPolygon,
+  subtractPolygons,
   type Attachment,
   type ResolvedAttachment,
 } from "./attachment";
-import { mergeSpecks } from "./cleanup";
-import { scaleRegions, traceRegions, type Point2, type Polygon } from "./contours";
-import { DEFAULT_LAYER_THICKNESS, LAYER_EMBED_MM, type BaseSettings } from "./design";
+import { distanceField, mergeSpecks } from "./cleanup";
+import {
+  scaleRegions,
+  traceField,
+  traceRegions,
+  type Point2,
+  type Polygon,
+} from "./contours";
+import {
+  DEFAULT_LAYER_THICKNESS,
+  LAYER_EMBED_MM,
+  MIN_REGION_AREA_MM2,
+  type BaseSettings,
+} from "./design";
 import { TRANSPARENT_INDEX, type QuantizedImage } from "./quantize";
 import { detectThinColors } from "./warnings";
 
@@ -26,6 +40,9 @@ export type KeychainGeometry = {
   width: number;
   height: number;
   baseThickness: number;
+  /** All base polygons (outer rings and holes) in millimetres. */
+  baseOutlines: Polygon[];
+  /** Largest outline ring, used for hook placement. */
   baseOutline: Point2[];
   attachment: ResolvedAttachment | null;
   specksMerged: number;
@@ -48,54 +65,122 @@ export function buildKeychain(
   base: BaseSettings,
   thicknesses: number[],
   attachment: Attachment | null,
+  speckThresholdMm2 = MIN_REGION_AREA_MM2,
 ): KeychainGeometry | null {
   const bounds = contentBounds(quantized);
   if (!bounds) return null;
 
   const contentWidthPx = Math.max(bounds.maxX - bounds.minX, 1);
   const contentHeightPx = Math.max(bounds.maxY - bounds.minY, 1);
-  const targetContentMm = Math.max(base.longestSideMm - base.marginMm * 2, 1);
+  const effectiveMarginMm = base.faceDown ? 0 : base.marginMm;
+  const targetContentMm = Math.max(base.longestSideMm - effectiveMarginMm * 2, 1);
   const mmPerPixel = targetContentMm / Math.max(contentWidthPx, contentHeightPx);
   const centerX = (bounds.minX + bounds.maxX) / 2;
   const centerY = (bounds.minY + bounds.maxY) / 2;
 
-  const { indices, mergedCount } = mergeSpecks(quantized, mmPerPixel);
+  const { indices, mergedCount } = mergeSpecks(quantized, mmPerPixel, speckThresholdMm2);
   const regions = traceRegions(indices, quantized.width, quantized.height);
   const mmRegions = scaleRegions(regions, mmPerPixel, centerX, centerY);
 
-  const width = contentWidthPx * mmPerPixel + base.marginMm * 2;
-  const height = contentHeightPx * mmPerPixel + base.marginMm * 2;
+  const width = contentWidthPx * mmPerPixel + effectiveMarginMm * 2;
+  const height = contentHeightPx * mmPerPixel + effectiveMarginMm * 2;
   const radius = base.cornerRadiusMm ?? autoCornerRadius(width, height);
 
-  const outline = roundedRectPolygon(width, height, radius);
-  const resolvedAttachment = attachment
-    ? resolveAttachment(outline, height, attachment)
-    : null;
-  const basePolygons = resolvedAttachment
-    ? applyAttachmentToOutline(outline, resolvedAttachment)
-    : [{ outer: outline, holes: [] }];
-  const baseGeometry = weld(extrudePolygons(basePolygons, base.thicknessMm, 0));
-
-  const parts: KeychainPart[] = [];
+  const visibleRegions: {
+    colorIndex: number;
+    polygons: Polygon[];
+    thickness: number;
+  }[] = [];
   for (const [colorIndex, polygons] of mmRegions) {
     const thickness = thicknesses[colorIndex] ?? DEFAULT_LAYER_THICKNESS;
     if (thickness <= 0) continue;
-
-    const finalPolygons = resolvedAttachment
-      ? polygons.flatMap((polygon) =>
-          subtractAttachmentFromPolygon(polygon, resolvedAttachment),
-        )
-      : polygons;
-    if (finalPolygons.length === 0) continue;
-
-    const geometry = extrudePolygons(
-      finalPolygons,
-      thickness,
-      base.thicknessMm - LAYER_EMBED_MM,
-    );
-
-    parts.push({ colorIndex, geometry: weld(geometry), thickness });
+    visibleRegions.push({ colorIndex, polygons, thickness });
   }
+
+  let initialOutlines: Polygon[];
+  if (base.faceDown || base.style === "outline") {
+    const visibleColors = new Set(visibleRegions.map((region) => region.colorIndex));
+    const outlinePolygons = outlineBasePolygons(
+      indices,
+      quantized.width,
+      quantized.height,
+      visibleColors,
+      effectiveMarginMm,
+      mmPerPixel,
+      centerX,
+      centerY,
+    );
+    initialOutlines =
+      outlinePolygons.length > 0
+        ? outlinePolygons
+        : [{ outer: roundedRectPolygon(width, height, radius), holes: [] }];
+  } else {
+    initialOutlines = [{ outer: roundedRectPolygon(width, height, radius), holes: [] }];
+  }
+
+  const resolvedAttachment = attachment
+    ? resolveAttachment(initialOutlines, attachment)
+    : null;
+
+  const colorLayers = visibleRegions
+    .map((region) => ({
+      ...region,
+      polygons: resolvedAttachment
+        ? region.polygons.flatMap((polygon) =>
+            subtractAttachmentFromPolygon(polygon, resolvedAttachment),
+          )
+        : region.polygons,
+    }))
+    .filter((layer) => layer.polygons.length > 0);
+
+  let basePolygons: Polygon[];
+  if (base.faceDown) {
+    // Colour layers fill the silhouette at full height, so the only base
+    // material left is the hook ring sticking out past the artwork. Cutting
+    // the base with the full colour set would overlap thousands of edges;
+    // the silhouette is the same region, traced once.
+    basePolygons =
+      resolvedAttachment?.kind === "hook"
+        ? subtractPolygons(
+            [
+              {
+                outer: circleRing(
+                  resolvedAttachment.point,
+                  resolvedAttachment.outerRadiusMm,
+                ),
+                holes: [
+                  circleRing(resolvedAttachment.point, resolvedAttachment.innerRadiusMm),
+                ],
+              },
+            ],
+            initialOutlines,
+          )
+        : [];
+  } else {
+    basePolygons = resolvedAttachment
+      ? applyAttachmentToPolygons(initialOutlines, resolvedAttachment)
+      : initialOutlines;
+  }
+
+  const baseGeometry =
+    basePolygons.length > 0
+      ? weld(extrudePolygons(basePolygons, base.thicknessMm, 0))
+      : emptyGeometry();
+
+  const parts: KeychainPart[] = [];
+  for (const layer of colorLayers) {
+    const thickness = base.faceDown ? base.thicknessMm : layer.thickness;
+    const zOffset = base.faceDown ? 0 : base.thicknessMm - LAYER_EMBED_MM;
+
+    const geometry = extrudePolygons(layer.polygons, thickness, zOffset);
+    parts.push({
+      colorIndex: layer.colorIndex,
+      geometry: weld(geometry),
+      thickness,
+    });
+  }
+
+  const footprint = polygonBounds(initialOutlines);
 
   const meshes = [baseGeometry, ...parts.map((part) => part.geometry)];
   const triangles = meshes.reduce(
@@ -106,10 +191,11 @@ export function buildKeychain(
   return {
     base: baseGeometry,
     parts,
-    width,
-    height,
+    width: footprint.maxX - footprint.minX,
+    height: footprint.maxY - footprint.minY,
     baseThickness: base.thicknessMm,
-    baseOutline: outline,
+    baseOutlines: initialOutlines,
+    baseOutline: primaryOutline(initialOutlines),
     attachment: resolvedAttachment,
     specksMerged: mergedCount,
     thinColorIndexes: detectThinColors(
@@ -120,6 +206,76 @@ export function buildKeychain(
     ),
     triangles,
   };
+}
+
+function outlineBasePolygons(
+  indices: Uint8Array,
+  width: number,
+  height: number,
+  visibleColors: Set<number>,
+  marginMm: number,
+  mmPerPixel: number,
+  centerX: number,
+  centerY: number,
+): Polygon[] {
+  // Pad the raster so the margin can grow outside the image bounds; without
+  // this, artwork that touches the border gets a clipped outline there.
+  const radiusPx = marginMm / mmPerPixel;
+  const pad = Math.max(2, Math.ceil(radiusPx) + 2);
+  const paddedWidth = width + pad * 2;
+  const paddedHeight = height + pad * 2;
+  const mask = new Uint8Array(paddedWidth * paddedHeight);
+  let hasContent = false;
+
+  for (let index = 0; index < indices.length; index += 1) {
+    const colorIndex = indices[index];
+    if (colorIndex === TRANSPARENT_INDEX || !visibleColors.has(colorIndex)) {
+      continue;
+    }
+    const x = index % width;
+    const y = (index - x) / width;
+    mask[(y + pad) * paddedWidth + (x + pad)] = 1;
+    hasContent = true;
+  }
+  if (!hasContent) return [];
+
+  const distances = distanceField(mask, paddedWidth, paddedHeight);
+  const values = new Float64Array(distances.length);
+  for (let index = 0; index < values.length; index += 1) {
+    values[index] = radiusPx + 0.5 - distances[index];
+  }
+  const polygons = traceField(values, paddedWidth, paddedHeight, 0);
+  if (polygons.length === 0) return [];
+
+  const scaled = scaleRegions(
+    new Map([[1, polygons]]),
+    mmPerPixel,
+    centerX + pad,
+    centerY + pad,
+  );
+  return scaled.get(1) ?? [];
+}
+
+function primaryOutline(polygons: Polygon[]): Point2[] {
+  let best: Point2[] = [];
+  let bestArea = 0;
+
+  for (const polygon of polygons) {
+    const bounds = polygonBounds([polygon]);
+    const area = (bounds.maxX - bounds.minX) * (bounds.maxY - bounds.minY);
+    if (area > bestArea) {
+      best = polygon.outer;
+      bestArea = area;
+    }
+  }
+
+  return best;
+}
+
+function emptyGeometry(): BufferGeometry {
+  const geometry = new BufferGeometry();
+  geometry.computeBoundingBox();
+  return geometry;
 }
 
 function contentBounds(quantized: QuantizedImage): Bounds | null {

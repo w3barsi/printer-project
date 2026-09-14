@@ -76,6 +76,7 @@ Verify: page renders without SSR errors, orbit works, `pnpm build:system` shows 
 - `png.ts`: `createImageBitmap` → canvas → `ImageData`; downscale to ≤1024 px longest side; alpha < 128 = transparent; report opaque-background flag.
 - `quantize.ts`: median cut over opaque pixels, nearest-color assignment → palette + index grid; deterministic.
 - UI: dropzone, color-count selector (1–5), swatch list, flat 2D quantized preview so quality is judged before 3D.
+- Detail controls: processing quality (1024/2048 px), alpha cutoff, and speck removal threshold (0 = keep everything).
 - Changing count: re-quantize and reset swatch colors and thicknesses (settled).
 
 Verify: transparent-logo PNG, opaque photo, high-res image, image with holes.
@@ -92,6 +93,8 @@ Verify: triangle counts stay low, holes survive, no martinez errors on noisy mas
 ### M4 — Base controls
 
 - Margin 2 mm (0–5), thickness 2 mm (0.6–5, step 0.2), base color, corner radius auto (`min(3, ¼ short edge)`) with 0–20 override, longest side 60 mm (20–150, aspect locked).
+- Face-down mode: flattens every colour layer to the base height and cuts the base around them, producing a flush, flat-top slab.
+- Outline base style: the base follows the artwork contour with a uniform margin (mask dilation), preserving holes in the artwork.
 
 Verify: dimension readout matches inputs; base is convex for the hook.
 
@@ -142,4 +145,4 @@ Verify (user + Bambu Studio): parts import, color dialog auto-matches, dimension
 
 ## Deferred backlog
 
-Outline base (needs offsetting), palette regenerate variants, manual region editing, stroke border, facedown mode, front/back/mirror, rotation, image adjustments, separate attachment color, multiple attachments, saving/sharing designs, sending to a printer.
+Palette regenerate variants, manual region editing, stroke border, front/back/mirror, rotation, image adjustments, separate attachment color, multiple attachments, saving/sharing designs, sending to a printer.

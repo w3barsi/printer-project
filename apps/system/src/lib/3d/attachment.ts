@@ -43,13 +43,19 @@ export type ResolvedAttachment =
     };
 
 export function resolveAttachment(
-  outline: Point2[],
-  height: number,
+  polygons: Polygon[],
   attachment: Attachment,
 ): ResolvedAttachment | null {
+  const primary = primaryPolygon(polygons);
+  if (!primary) return null;
+
+  const bounds = polygonBounds(polygons);
+
   if (attachment.type === "hook") {
-    const t = attachment.perimeterT ?? nearestOutlineT(outline, [0, height / 2]).t;
-    const { point } = pointAtT(outline, t);
+    const t =
+      attachment.perimeterT ??
+      nearestOutlineT(primary.outer, [(bounds.minX + bounds.maxX) / 2, bounds.maxY]).t;
+    const { point } = pointAtT(primary.outer, t);
     const innerRadiusMm = attachment.sizeMm / 2;
     return {
       kind: "hook",
@@ -63,16 +69,16 @@ export function resolveAttachment(
   const radiusMm = attachment.sizeMm / 2;
   const defaultY =
     attachment.type === "bookmark"
-      ? -(height / 2 - ATTACHMENT_WALL_MM - radiusMm)
-      : height / 2 - ATTACHMENT_WALL_MM - radiusMm;
+      ? bounds.minY + ATTACHMENT_WALL_MM + radiusMm
+      : bounds.maxY - ATTACHMENT_WALL_MM - radiusMm;
 
   const candidate = attachment.position ?? [0, defaultY];
-  if (isPlacementValid(outline, candidate, radiusMm)) {
+  if (isPlacementValid(polygons, candidate, radiusMm)) {
     return { kind: "hole", center: candidate, radiusMm };
   }
 
   const fallback: Point2 = [0, defaultY];
-  if (isPlacementValid(outline, fallback, radiusMm)) {
+  if (isPlacementValid(polygons, fallback, radiusMm)) {
     return { kind: "hole", center: fallback, radiusMm };
   }
 
@@ -80,13 +86,13 @@ export function resolveAttachment(
 }
 
 export function isPlacementValid(
-  outline: Point2[],
+  polygons: Polygon[],
   center: Point2,
   radiusMm: number,
 ): boolean {
   const required = radiusMm + ATTACHMENT_WALL_MM - 1e-6;
   return (
-    isInsideOutline(outline, center) && distanceToOutline(outline, center) >= required
+    isInsidePolygons(polygons, center) && distanceToPolygons(polygons, center) >= required
   );
 }
 
@@ -103,12 +109,14 @@ export function circleRing(center: Point2, radius: number, segments = 48): Point
   return ring;
 }
 
-export function applyAttachmentToOutline(
-  outline: Point2[],
+export function applyAttachmentToPolygons(
+  polygons: Polygon[],
   attachment: ResolvedAttachment,
 ): Polygon[] {
+  if (polygons.length === 0) return polygons;
+
   try {
-    const subject = [[closeRing(outline)]];
+    const subject = polygonsToGeometry(polygons);
 
     if (attachment.kind === "hook") {
       const merged = toMultiPolygon(
@@ -117,20 +125,20 @@ export function applyAttachmentToOutline(
       const holed = toMultiPolygon(
         diff(merged, [[circleRing(attachment.point, attachment.innerRadiusMm)]]),
       );
-      const polygons = toPolygons(holed);
-      if (polygons.length > 0) return polygons;
+      const result = toPolygons(holed);
+      if (result.length > 0) return result;
     } else {
       const holed = toMultiPolygon(
         diff(subject, [[circleRing(attachment.center, attachment.radiusMm)]]),
       );
-      const polygons = toPolygons(holed);
-      if (polygons.length > 0) return polygons;
+      const result = toPolygons(holed);
+      if (result.length > 0) return result;
     }
   } catch {
-    // Fall through to the plain outline.
+    // Fall through to the untouched polygons.
   }
 
-  return [{ outer: outline, holes: [] }];
+  return polygons;
 }
 
 export function subtractAttachmentFromPolygon(
@@ -149,6 +157,86 @@ export function subtractAttachmentFromPolygon(
   } catch {
     return [polygon];
   }
+}
+
+/** Subtracts whole polygons (e.g. colour regions) from the base. */
+export function subtractPolygons(base: Polygon[], clippers: Polygon[]): Polygon[] {
+  if (clippers.length === 0) return base;
+
+  try {
+    const result = toMultiPolygon(
+      diff(polygonsToGeometry(base), polygonsToGeometry(clippers)),
+    );
+    return toPolygons(result);
+  } catch {
+    return base;
+  }
+}
+
+function polygonsToGeometry(polygons: Polygon[]): Geometry {
+  return polygons.map((polygon) => [
+    closeRing(polygon.outer),
+    ...polygon.holes.map(closeRing),
+  ]) as unknown as Geometry;
+}
+
+export function polygonBounds(polygons: Polygon[]): {
+  minX: number;
+  minY: number;
+  maxX: number;
+  maxY: number;
+} {
+  let minX = Number.POSITIVE_INFINITY;
+  let minY = Number.POSITIVE_INFINITY;
+  let maxX = Number.NEGATIVE_INFINITY;
+  let maxY = Number.NEGATIVE_INFINITY;
+
+  for (const polygon of polygons) {
+    for (const [x, y] of polygon.outer) {
+      if (x < minX) minX = x;
+      if (x > maxX) maxX = x;
+      if (y < minY) minY = y;
+      if (y > maxY) maxY = y;
+    }
+  }
+
+  return { minX, minY, maxX, maxY };
+}
+
+function primaryPolygon(polygons: Polygon[]): Polygon | null {
+  let best: Polygon | null = null;
+  let bestArea = 0;
+
+  for (const polygon of polygons) {
+    const bounds = polygonBounds([polygon]);
+    const area = (bounds.maxX - bounds.minX) * (bounds.maxY - bounds.minY);
+    if (area > bestArea) {
+      best = polygon;
+      bestArea = area;
+    }
+  }
+
+  return best;
+}
+
+function isInsidePolygons(polygons: Polygon[], point: Point2): boolean {
+  for (const polygon of polygons) {
+    if (!isInsideOutline(polygon.outer, point)) continue;
+    if (polygon.holes.some((hole) => isInsideOutline(hole, point))) continue;
+    return true;
+  }
+  return false;
+}
+
+function distanceToPolygons(polygons: Polygon[], point: Point2): number {
+  let best = Number.POSITIVE_INFINITY;
+  for (const polygon of polygons) {
+    best = Math.min(best, distanceToOutline(polygon.outer, point));
+    for (const hole of polygon.holes) {
+      best = Math.min(best, distanceToOutline(hole, point));
+    }
+  }
+  return best;
 }
 
 function closeRing(points: Point2[]): Point2[] {

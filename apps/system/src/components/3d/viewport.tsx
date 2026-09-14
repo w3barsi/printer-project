@@ -10,6 +10,24 @@ import { useEffect, useRef, type ReactNode, type RefObject } from "react";
 import { Box3, MathUtils, Sphere, Vector3, type PerspectiveCamera } from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 
+// @react-three/fiber 9.7 constructs a THREE.Clock, which three r183+ deprecates
+// in favour of THREE.Timer. Filter that one upstream warning until fiber migrates.
+const CLOCK_DEPRECATION =
+  "THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.";
+
+const warnFilterState = globalThis as typeof globalThis & {
+  __dgClockWarningFiltered?: boolean;
+};
+
+if (typeof window !== "undefined" && !warnFilterState.__dgClockWarningFiltered) {
+  warnFilterState.__dgClockWarningFiltered = true;
+  const originalWarn = console.warn;
+  console.warn = (...args: unknown[]) => {
+    if (args[0] === CLOCK_DEPRECATION) return;
+    originalWarn(...args);
+  };
+}
+
 declare module "@react-three/fiber" {
   interface ThreeElements {
     orbitControls: ThreeElement<typeof OrbitControls>;

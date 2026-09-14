@@ -1,6 +1,8 @@
+import { Button } from "@dg/ui/components/button";
 import { Slider } from "@dg/ui/components/slider";
 import { Switch } from "@dg/ui/components/switch";
 
+import { SliderRow } from "@/components/3d/slider-row";
 import { fromHex, toHex, type RgbColor } from "@/lib/3d/color";
 import { BASE_LIMITS, type BaseSettings, type KeychainModelInfo } from "@/lib/3d/design";
 
@@ -33,6 +35,33 @@ export function BasePanel({
         </p>
       </div>
 
+      <div className="grid grid-cols-2 gap-1" role="group" aria-label="Base style">
+        <Button
+          type="button"
+          size="sm"
+          variant={settings.style === "rect" ? "default" : "outline"}
+          disabled={settings.faceDown}
+          onClick={() => onSettingsChange({ ...settings, style: "rect" })}
+        >
+          Bounding box
+        </Button>
+        <Button
+          type="button"
+          size="sm"
+          variant={settings.style === "outline" ? "default" : "outline"}
+          disabled={settings.faceDown}
+          onClick={() => onSettingsChange({ ...settings, style: "outline" })}
+        >
+          Outline
+        </Button>
+      </div>
+
+      {settings.faceDown ? (
+        <p className="text-xs text-muted-foreground">
+          Face-down uses the image outline exactly; margin and corner radius are ignored.
+        </p>
+      ) : null}
+
       <SliderRow
         label="Longest side"
         value={settings.longestSideMm}
@@ -60,41 +89,64 @@ export function BasePanel({
         min={BASE_LIMITS.marginMm.min}
         max={BASE_LIMITS.marginMm.max}
         step={BASE_LIMITS.marginMm.step}
+        disabled={settings.faceDown}
         onChange={(value) => onSettingsChange({ ...settings, marginMm: value })}
       />
 
-      <div className="flex flex-col gap-1.5">
-        <div className="flex items-center justify-between gap-2">
-          <span className="text-xs text-muted-foreground">Corner radius</span>
-          <div className="flex items-center gap-3">
-            <span className="text-xs tabular-nums">
-              {autoRadius ? "Auto" : `${radius.toFixed(1)} mm`}
-            </span>
-            <label className="flex items-center gap-1.5 text-xs text-muted-foreground">
-              Auto
-              <Switch
-                size="sm"
-                checked={autoRadius}
-                onCheckedChange={(checked) =>
-                  onSettingsChange({
-                    ...settings,
-                    cornerRadiusMm: checked ? null : 3,
-                  })
-                }
-              />
-            </label>
+      {settings.style === "rect" && !settings.faceDown ? (
+        <div className="flex flex-col gap-1.5">
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-xs text-muted-foreground">Corner radius</span>
+            <div className="flex items-center gap-3">
+              <span className="text-xs tabular-nums">
+                {autoRadius ? "Auto" : `${radius.toFixed(1)} mm`}
+              </span>
+              <label className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                Auto
+                <Switch
+                  size="sm"
+                  checked={autoRadius}
+                  onCheckedChange={(checked) =>
+                    onSettingsChange({
+                      ...settings,
+                      cornerRadiusMm: checked ? null : 3,
+                    })
+                  }
+                />
+              </label>
+            </div>
           </div>
+          <Slider
+            value={radius}
+            min={BASE_LIMITS.cornerRadiusMm.min}
+            max={BASE_LIMITS.cornerRadiusMm.max}
+            step={BASE_LIMITS.cornerRadiusMm.step}
+            disabled={autoRadius}
+            onValueChange={(value) => {
+              const next = Array.isArray(value) ? value[0] : value;
+              onSettingsChange({ ...settings, cornerRadiusMm: next });
+            }}
+          />
         </div>
-        <Slider
-          value={radius}
-          min={BASE_LIMITS.cornerRadiusMm.min}
-          max={BASE_LIMITS.cornerRadiusMm.max}
-          step={BASE_LIMITS.cornerRadiusMm.step}
-          disabled={autoRadius}
-          onValueChange={(value) => {
-            const next = Array.isArray(value) ? value[0] : value;
-            onSettingsChange({ ...settings, cornerRadiusMm: next });
-          }}
+      ) : (
+        <p className="text-xs text-muted-foreground">
+          The base follows the artwork with a {settings.marginMm.toFixed(1)} mm margin.
+        </p>
+      )}
+
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex flex-col">
+          <span className="text-xs text-muted-foreground">Face-down print</span>
+          <span className="text-xs text-muted-foreground/70">
+            Colors flush with the base, flat top.
+          </span>
+        </div>
+        <Switch
+          size="sm"
+          checked={settings.faceDown}
+          onCheckedChange={(checked) =>
+            onSettingsChange({ ...settings, faceDown: checked })
+          }
         />
       </div>
 
@@ -109,44 +161,5 @@ export function BasePanel({
         />
       </div>
     </section>
-  );
-}
-
-type SliderRowProps = {
-  label: string;
-  value: number;
-  display: string;
-  min: number;
-  max: number;
-  step: number;
-  disabled?: boolean;
-  onChange: (value: number) => void;
-};
-
-function SliderRow({
-  label,
-  value,
-  display,
-  min,
-  max,
-  step,
-  disabled,
-  onChange,
-}: SliderRowProps) {
-  return (
-    <div className="flex flex-col gap-1.5">
-      <div className="flex items-center justify-between">
-        <span className="text-xs text-muted-foreground">{label}</span>
-        <span className="text-xs tabular-nums">{display}</span>
-      </div>
-      <Slider
-        value={value}
-        min={min}
-        max={max}
-        step={step}
-        disabled={disabled}
-        onValueChange={(value) => onChange(Array.isArray(value) ? value[0] : value)}
-      />
-    </div>
   );
 }

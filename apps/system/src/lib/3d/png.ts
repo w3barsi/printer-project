@@ -1,24 +1,24 @@
-export const MAX_IMAGE_DIMENSION = 1024;
-export const ALPHA_THRESHOLD = 128;
+import type { ImageQuality } from "./design";
+
+export const IMAGE_DIMENSIONS: Record<ImageQuality, number> = {
+  standard: 1024,
+  high: 2048,
+};
 
 export type DecodedPng = {
   width: number;
   height: number;
   data: Uint8ClampedArray;
-  transparentPixels: number;
 };
 
-export async function decodePng(file: File): Promise<DecodedPng> {
+export async function decodePng(file: File, maxDimension: number): Promise<DecodedPng> {
   if (file.type && file.type !== "image/png") {
     throw new Error("Only PNG files are supported.");
   }
 
   const bitmap = await createImageBitmap(file);
   try {
-    const scale = Math.min(
-      1,
-      MAX_IMAGE_DIMENSION / Math.max(bitmap.width, bitmap.height),
-    );
+    const scale = Math.min(1, maxDimension / Math.max(bitmap.width, bitmap.height));
     const width = Math.max(1, Math.round(bitmap.width * scale));
     const height = Math.max(1, Math.round(bitmap.height * scale));
 
@@ -33,12 +33,7 @@ export async function decodePng(file: File): Promise<DecodedPng> {
     context.drawImage(bitmap, 0, 0, width, height);
 
     const { data } = context.getImageData(0, 0, width, height);
-    let transparentPixels = 0;
-    for (let offset = 3; offset < data.length; offset += 4) {
-      if (data[offset] < ALPHA_THRESHOLD) transparentPixels += 1;
-    }
-
-    return { width, height, data, transparentPixels };
+    return { width, height, data };
   } finally {
     bitmap.close();
   }

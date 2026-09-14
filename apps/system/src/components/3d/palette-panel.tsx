@@ -1,5 +1,6 @@
 import { Button } from "@dg/ui/components/button";
 import { Input } from "@dg/ui/components/input";
+import { Switch } from "@dg/ui/components/switch";
 
 import { fromHex, toHex, type RgbColor } from "@/lib/3d/color";
 import { BASE_LIMITS, type PaletteSwatch } from "@/lib/3d/design";
@@ -12,10 +13,13 @@ type PalettePanelProps = {
   palette: PaletteSwatch[];
   hasImage: boolean;
   slots: number;
+  flattenLayers?: boolean;
+  uniformThickness: boolean;
   onColorCountChange: (count: number) => void;
   onColorChange: (index: number, color: RgbColor) => void;
   onThicknessChange: (index: number, thickness: number) => void;
   onSlotsChange: (slots: number) => void;
+  onUniformThicknessChange: (value: boolean) => void;
   disabled?: boolean;
 };
 
@@ -24,10 +28,13 @@ export function PalettePanel({
   palette,
   hasImage,
   slots,
+  flattenLayers,
+  uniformThickness,
   onColorCountChange,
   onColorChange,
   onThicknessChange,
   onSlotsChange,
+  onUniformThicknessChange,
   disabled,
 }: PalettePanelProps) {
   const totalPixels = palette.reduce((total, swatch) => total + swatch.pixelCount, 0);
@@ -65,6 +72,36 @@ export function PalettePanel({
         </p>
       ) : (
         <>
+          <div className="flex items-center justify-between">
+            <span className="text-xs text-muted-foreground">Uniform thickness</span>
+            <Switch
+              size="sm"
+              checked={uniformThickness}
+              disabled={disabled}
+              onCheckedChange={onUniformThicknessChange}
+            />
+          </div>
+
+          {uniformThickness ? (
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-muted-foreground">Layer thickness</span>
+              <label className="flex items-center gap-1">
+                <Input
+                  type="number"
+                  value={palette[0]?.thickness ?? 0}
+                  min={BASE_LIMITS.layerThicknessMm.min}
+                  max={BASE_LIMITS.layerThicknessMm.max}
+                  step={BASE_LIMITS.layerThicknessMm.step}
+                  disabled={disabled || flattenLayers}
+                  onChange={(event) => onThicknessChange(0, Number(event.target.value))}
+                  aria-label="Layer thickness"
+                  className="h-7 w-16 text-xs"
+                />
+                <span className="text-xs text-muted-foreground">mm</span>
+              </label>
+            </div>
+          ) : null}
+
           <ul className="flex flex-col gap-2.5">
             {palette.map((swatch, index) => (
               <li key={swatch.id} className="flex items-center gap-3">
@@ -84,27 +121,31 @@ export function PalettePanel({
                     % of image
                   </span>
                 </div>
-                <label className="flex shrink-0 items-center gap-1">
-                  <Input
-                    type="number"
-                    value={swatch.thickness}
-                    min={BASE_LIMITS.layerThicknessMm.min}
-                    max={BASE_LIMITS.layerThicknessMm.max}
-                    step={BASE_LIMITS.layerThicknessMm.step}
-                    disabled={disabled}
-                    onChange={(event) =>
-                      onThicknessChange(index, Number(event.target.value))
-                    }
-                    aria-label={`Color ${index + 1} thickness`}
-                    className="h-7 w-16 text-xs"
-                  />
-                  <span className="text-xs text-muted-foreground">mm</span>
-                </label>
+                {uniformThickness ? null : (
+                  <label className="flex shrink-0 items-center gap-1">
+                    <Input
+                      type="number"
+                      value={swatch.thickness}
+                      min={BASE_LIMITS.layerThicknessMm.min}
+                      max={BASE_LIMITS.layerThicknessMm.max}
+                      step={BASE_LIMITS.layerThicknessMm.step}
+                      disabled={disabled || flattenLayers}
+                      onChange={(event) =>
+                        onThicknessChange(index, Number(event.target.value))
+                      }
+                      aria-label={`Color ${index + 1} thickness`}
+                      className="h-7 w-16 text-xs"
+                    />
+                    <span className="text-xs text-muted-foreground">mm</span>
+                  </label>
+                )}
               </li>
             ))}
           </ul>
           <p className="text-xs text-muted-foreground">
-            Set a layer to 0 mm to hide that color.
+            {flattenLayers
+              ? "Face-down mode flattens every layer to the base height."
+              : "Set a layer to 0 mm to hide that color."}
           </p>
           {palette.length < colorCount ? (
             <p className="text-xs text-muted-foreground">

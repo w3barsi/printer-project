@@ -1,4 +1,5 @@
-import { ALPHA_THRESHOLD, type DecodedPng } from "./png";
+import { DEFAULT_ALPHA_THRESHOLD } from "./design";
+import type { DecodedPng } from "./png";
 
 export const MAX_PALETTE_COLORS = 5;
 export const TRANSPARENT_INDEX = 255;
@@ -20,6 +21,7 @@ export type QuantizedImage = {
   /** Palette index per pixel, or TRANSPARENT_INDEX for transparent pixels. */
   indices: Uint8Array;
   palette: PaletteEntry[];
+  transparentPixels: number;
 };
 
 type Channel = 0 | 1 | 2;
@@ -110,6 +112,7 @@ function clampColorCount(value: number): number {
 export function quantize(
   decoded: DecodedPng,
   requestedColorCount: number,
+  alphaThreshold = DEFAULT_ALPHA_THRESHOLD,
 ): QuantizedImage {
   const colorCount = clampColorCount(requestedColorCount);
   const { width, height, data } = decoded;
@@ -119,10 +122,14 @@ export function quantize(
   const sumR = new Float64Array(BIN_COUNT);
   const sumG = new Float64Array(BIN_COUNT);
   const sumB = new Float64Array(BIN_COUNT);
+  let transparentPixels = 0;
 
   for (let pixel = 0; pixel < pixelCount; pixel += 1) {
     const offset = pixel * 4;
-    if (data[offset + 3] < ALPHA_THRESHOLD) continue;
+    if (data[offset + 3] < alphaThreshold) {
+      transparentPixels += 1;
+      continue;
+    }
     const bin = binIndex(data[offset], data[offset + 1], data[offset + 2]);
     counts[bin] += 1;
     sumR[bin] += data[offset];
@@ -138,7 +145,7 @@ export function quantize(
   const indices = new Uint8Array(pixelCount);
   if (bins.length === 0) {
     indices.fill(TRANSPARENT_INDEX);
-    return { width, height, indices, palette: [] };
+    return { width, height, indices, palette: [], transparentPixels };
   }
 
   const boxes = medianCut(bins, counts, colorCount);
@@ -188,7 +195,7 @@ export function quantize(
 
   for (let pixel = 0; pixel < pixelCount; pixel += 1) {
     const offset = pixel * 4;
-    if (data[offset + 3] < ALPHA_THRESHOLD) {
+    if (data[offset + 3] < alphaThreshold) {
       indices[pixel] = TRANSPARENT_INDEX;
       continue;
     }
@@ -196,5 +203,5 @@ export function quantize(
       binToPalette[binIndex(data[offset], data[offset + 1], data[offset + 2])];
   }
 
-  return { width, height, indices, palette };
+  return { width, height, indices, palette, transparentPixels };
 }

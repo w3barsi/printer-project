@@ -13,10 +13,11 @@ export type CleanupResult = {
 export function mergeSpecks(
   quantized: QuantizedImage,
   mmPerPixel: number,
+  minAreaMm2 = MIN_REGION_AREA_MM2,
 ): CleanupResult {
   const { width, height } = quantized;
   const indices = new Uint8Array(quantized.indices);
-  const minAreaPixels = MIN_REGION_AREA_MM2 / (mmPerPixel * mmPerPixel);
+  const minAreaPixels = minAreaMm2 / (mmPerPixel * mmPerPixel);
   if (minAreaPixels <= 1) {
     return { indices, mergedCount: 0 };
   }
@@ -103,4 +104,70 @@ export function mergeSpecks(
   }
 
   return { indices, mergedCount };
+}
+
+/**
+ * Exact Euclidean distance (in pixels) from each pixel to the nearest mask
+ * pixel, using the Felzenszwalb two-pass distance transform.
+ */
+export function distanceField(
+  mask: Uint8Array,
+  width: number,
+  height: number,
+): Float64Array {
+  const infinity = 1e20;
+  const size = Math.max(width, height);
+  const f = new Float64Array(size);
+  const d = new Float64Array(size);
+  const v = new Int32Array(size);
+  const z = new Float64Array(size + 1);
+  const output = new Float64Array(width * height);
+
+  for (let y = 0; y < height; y += 1) {
+    for (let x = 0; x < width; x += 1) {
+      f[x] = mask[y * width + x] ? 0 : infinity;
+    }
+    edt1d(f, d, v, z, width);
+    for (let x = 0; x < width; x += 1) output[y * width + x] = d[x];
+  }
+
+  for (let x = 0; x < width; x += 1) {
+    for (let y = 0; y < height; y += 1) f[y] = output[y * width + x];
+    edt1d(f, d, v, z, height);
+    for (let y = 0; y < height; y += 1) output[y * width + x] = Math.sqrt(d[y]);
+  }
+
+  return output;
+}
+
+function edt1d(
+  f: Float64Array,
+  d: Float64Array,
+  v: Int32Array,
+  z: Float64Array,
+  n: number,
+): void {
+  let k = 0;
+  v[0] = 0;
+  z[0] = Number.NEGATIVE_INFINITY;
+  z[1] = Number.POSITIVE_INFINITY;
+
+  for (let q = 1; q < n; q += 1) {
+    let s = (f[q] + q * q - (f[v[k]] + v[k] * v[k])) / (2 * q - 2 * v[k]);
+    while (s <= z[k]) {
+      k -= 1;
+      s = (f[q] + q * q - (f[v[k]] + v[k] * v[k])) / (2 * q - 2 * v[k]);
+    }
+    k += 1;
+    v[k] = q;
+    z[k] = s;
+    z[k + 1] = Number.POSITIVE_INFINITY;
+  }
+
+  k = 0;
+  for (let q = 0; q < n; q += 1) {
+    while (z[k + 1] < q) k += 1;
+    const distance = q - v[k];
+    d[q] = distance * distance + f[v[k]];
+  }
 }
