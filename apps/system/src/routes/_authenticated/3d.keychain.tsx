@@ -9,6 +9,7 @@ import type { OrbitControls } from "three/addons/controls/OrbitControls.js";
 
 import { AttachmentPanel } from "@/components/3d/attachment-panel";
 import { BasePanel } from "@/components/3d/base-panel";
+import { ColorPickerPopover } from "@/components/3d/color-picker-popover";
 import { DetailPanel } from "@/components/3d/detail-panel";
 import { ExportPanel } from "@/components/3d/export-panel";
 import { ImageDropzone } from "@/components/3d/image-dropzone";
@@ -19,7 +20,7 @@ import { Viewport } from "@/components/3d/viewport";
 import { WarningsPanel } from "@/components/3d/warnings-panel";
 import { Container } from "@/components/layouts/container";
 import { DEFAULT_ATTACHMENT, type Attachment } from "@/lib/3d/attachment";
-import type { RgbColor } from "@/lib/3d/color";
+import { toHex, type RgbColor } from "@/lib/3d/color";
 import {
   ALPHA_LIMITS,
   BASE_LIMITS,
@@ -58,6 +59,17 @@ export const Route = createFileRoute("/_authenticated/3d/keychain")({
 const DEFAULT_COLOR_COUNT = 3;
 const DEFAULT_SLOTS = 4;
 
+const DEFAULT_PREVIEW_BACKGROUND: RgbColor = { r: 255, g: 255, b: 255 };
+
+const PREVIEW_BACKGROUND_PRESETS: Array<{ label: string; color: RgbColor }> = [
+  { label: "White", color: { r: 255, g: 255, b: 255 } },
+  { label: "Light gray", color: { r: 244, g: 244, b: 245 } },
+  { label: "Silver", color: { r: 212, g: 212, b: 216 } },
+  { label: "Slate", color: { r: 113, g: 113, b: 122 } },
+  { label: "Graphite", color: { r: 63, g: 63, b: 70 } },
+  { label: "Charcoal", color: { r: 9, g: 9, b: 11 } },
+];
+
 type SourceImage = {
   fileName: string;
   file: File;
@@ -77,6 +89,9 @@ function KeychainMakerPage() {
   const [palette, setPalette] = useState<PaletteSwatch[]>([]);
   const [baseSettings, setBaseSettings] = useState<BaseSettings>(DEFAULT_BASE_SETTINGS);
   const [baseColor, setBaseColor] = useState<RgbColor>(DEFAULT_BASE_COLOR);
+  const [previewBackground, setPreviewBackground] = useState<RgbColor>(
+    DEFAULT_PREVIEW_BACKGROUND,
+  );
   const [attachment, setAttachment] = useState<Attachment | null>(DEFAULT_ATTACHMENT);
   const [slots, setSlots] = useState(DEFAULT_SLOTS);
   const [uniformThickness, setUniformThickness] = useState(false);
@@ -246,25 +261,37 @@ function KeychainMakerPage() {
               <Spinner className="size-6 text-muted-foreground" />
             </section>
           ) : quantized && palette.length > 0 ? (
-            <Viewport
-              fitKey={modelVersion}
-              controlsRef={controlsRef}
-              className="h-[70svh] min-h-100 w-full overflow-hidden rounded-lg border bg-card"
-            >
-              <KeychainScene
-                quantized={quantized}
-                base={baseSettings}
-                baseColor={baseColor}
-                thicknesses={thicknesses}
-                palette={palette}
-                attachment={attachment}
-                speckThresholdMm2={speckThresholdMm2}
-                geometryRef={geometryRef}
+            <div className="relative">
+              <Viewport
+                fitKey={modelVersion}
                 controlsRef={controlsRef}
-                onModelInfo={setModelInfo}
-                onAttachmentChange={setAttachment}
-              />
-            </Viewport>
+                background={toHex(previewBackground)}
+                className="h-[70svh] min-h-100 w-full overflow-hidden rounded-lg border bg-card"
+              >
+                <KeychainScene
+                  quantized={quantized}
+                  base={baseSettings}
+                  baseColor={baseColor}
+                  thicknesses={thicknesses}
+                  palette={palette}
+                  attachment={attachment}
+                  speckThresholdMm2={speckThresholdMm2}
+                  geometryRef={geometryRef}
+                  controlsRef={controlsRef}
+                  onModelInfo={setModelInfo}
+                  onAttachmentChange={setAttachment}
+                />
+              </Viewport>
+              <div className="absolute top-3 right-3">
+                <ColorPickerPopover
+                  label="Preview background"
+                  value={previewBackground}
+                  usedColors={[...palette, baseColor]}
+                  presets={PREVIEW_BACKGROUND_PRESETS}
+                  onChange={setPreviewBackground}
+                />
+              </div>
+            </div>
           ) : (
             <section className="flex min-h-[60svh] items-center justify-center overflow-hidden rounded-lg border bg-card p-4">
               {source && quantized ? (

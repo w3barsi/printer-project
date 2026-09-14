@@ -6,7 +6,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@dg/ui/components/select";
-import { Slider } from "@dg/ui/components/slider";
 import { Switch } from "@dg/ui/components/switch";
 
 import { ColorPickerPopover } from "@/components/3d/color-picker-popover";
@@ -83,7 +82,7 @@ export function BasePanel({
       <SliderRow
         label="Longest side"
         value={settings.longestSideMm}
-        display={`${settings.longestSideMm} mm`}
+        formatValue={(value) => `${value} mm`}
         min={BASE_LIMITS.longestSideMm.min}
         max={BASE_LIMITS.longestSideMm.max}
         step={BASE_LIMITS.longestSideMm.step}
@@ -93,7 +92,7 @@ export function BasePanel({
       <SliderRow
         label="Base thickness"
         value={settings.thicknessMm}
-        display={`${settings.thicknessMm.toFixed(1)} mm`}
+        formatValue={(value) => `${value.toFixed(1)} mm`}
         min={BASE_LIMITS.thicknessMm.min}
         max={BASE_LIMITS.thicknessMm.max}
         step={BASE_LIMITS.thicknessMm.step}
@@ -103,7 +102,7 @@ export function BasePanel({
       <SliderRow
         label="Margin"
         value={settings.marginMm}
-        display={`${settings.marginMm.toFixed(1)} mm`}
+        formatValue={(value) => `${value.toFixed(1)} mm`}
         min={BASE_LIMITS.marginMm.min}
         max={BASE_LIMITS.marginMm.max}
         step={BASE_LIMITS.marginMm.step}
@@ -111,40 +110,31 @@ export function BasePanel({
       />
 
       {settings.style === "rect" ? (
-        <div className="flex flex-col gap-1.5">
-          <div className="flex items-center justify-between gap-2">
-            <span className="text-xs text-muted-foreground">Corner radius</span>
-            <div className="flex items-center gap-3">
-              <span className="text-xs tabular-nums">
-                {autoRadius ? "Auto" : `${radius.toFixed(1)} mm`}
-              </span>
-              <label className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                Auto
-                <Switch
-                  size="sm"
-                  checked={autoRadius}
-                  onCheckedChange={(checked) =>
-                    onSettingsChange({
-                      ...settings,
-                      cornerRadiusMm: checked ? null : 3,
-                    })
-                  }
-                />
-              </label>
-            </div>
-          </div>
-          <Slider
-            value={radius}
-            min={BASE_LIMITS.cornerRadiusMm.min}
-            max={BASE_LIMITS.cornerRadiusMm.max}
-            step={BASE_LIMITS.cornerRadiusMm.step}
-            disabled={autoRadius}
-            onValueChange={(value) => {
-              const next = Array.isArray(value) ? value[0] : value;
-              onSettingsChange({ ...settings, cornerRadiusMm: next });
-            }}
-          />
-        </div>
+        <SliderRow
+          label="Corner radius"
+          value={radius}
+          formatValue={(value) => (autoRadius ? "Auto" : `${value.toFixed(1)} mm`)}
+          min={BASE_LIMITS.cornerRadiusMm.min}
+          max={BASE_LIMITS.cornerRadiusMm.max}
+          step={BASE_LIMITS.cornerRadiusMm.step}
+          disabled={autoRadius}
+          action={
+            <label className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              Auto
+              <Switch
+                size="sm"
+                checked={autoRadius}
+                onCheckedChange={(checked) =>
+                  onSettingsChange({
+                    ...settings,
+                    cornerRadiusMm: checked ? null : 3,
+                  })
+                }
+              />
+            </label>
+          }
+          onChange={(value) => onSettingsChange({ ...settings, cornerRadiusMm: value })}
+        />
       ) : settings.style === "outline" ? (
         <p className="text-xs text-muted-foreground">
           The base follows the artwork with a {settings.marginMm.toFixed(1)} mm margin.

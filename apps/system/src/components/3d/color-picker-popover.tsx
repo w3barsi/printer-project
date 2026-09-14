@@ -13,10 +13,16 @@ import { useCallback } from "react";
 
 import { toHex, type RgbColor } from "@/lib/3d/color";
 
+type ColorPickerPreset = {
+  label: string;
+  color: RgbColor;
+};
+
 type ColorPickerPopoverProps = {
   label: string;
   value: RgbColor;
   usedColors: RgbColor[];
+  presets?: ColorPickerPreset[];
   onChange: (color: RgbColor) => void;
   disabled?: boolean;
 };
@@ -25,6 +31,7 @@ export function ColorPickerPopover({
   label,
   value,
   usedColors,
+  presets,
   onChange,
   disabled,
 }: ColorPickerPopoverProps) {
@@ -42,6 +49,14 @@ export function ColorPickerPopover({
     [onChange],
   );
 
+  const seen = new Set<string>();
+  const uniqueUsedColors = usedColors.filter((color) => {
+    const colorHex = toHex(color);
+    if (seen.has(colorHex)) return false;
+    seen.add(colorHex);
+    return true;
+  });
+
   return (
     <Popover>
       <PopoverTrigger
@@ -51,6 +66,7 @@ export function ColorPickerPopover({
             variant="outline"
             size="icon-sm"
             disabled={disabled}
+            title={label}
             aria-label={label}
             className="size-7 p-1"
           />
@@ -62,24 +78,35 @@ export function ColorPickerPopover({
         />
       </PopoverTrigger>
       <PopoverContent align="end" className="w-72">
-        {usedColors.length > 0 ? (
+        {presets && presets.length > 0 ? (
+          <div className="flex flex-col gap-2">
+            <span className="text-xs text-muted-foreground">Recommended</span>
+            <div className="flex flex-wrap gap-1.5">
+              {presets.map((preset) => (
+                <ColorSwatch
+                  key={preset.label}
+                  color={preset.color}
+                  label={preset.label}
+                  selected={toHex(preset.color) === hex}
+                  onSelect={onChange}
+                />
+              ))}
+            </div>
+          </div>
+        ) : null}
+        {uniqueUsedColors.length > 0 ? (
           <div className="flex flex-col gap-2">
             <span className="text-xs text-muted-foreground">Used in this project</span>
             <div className="flex flex-wrap gap-1.5">
-              {usedColors.map((color) => {
+              {uniqueUsedColors.map((color) => {
                 const swatchHex = toHex(color);
                 return (
-                  <button
+                  <ColorSwatch
                     key={swatchHex}
-                    type="button"
-                    aria-label={`Use ${swatchHex}`}
-                    className={cn(
-                      "size-6 cursor-pointer rounded border",
-                      swatchHex === hex &&
-                        "ring-2 ring-ring ring-offset-1 ring-offset-popover",
-                    )}
-                    style={{ backgroundColor: swatchHex }}
-                    onClick={() => onChange(color)}
+                    color={color}
+                    label={`Use ${swatchHex}`}
+                    selected={swatchHex === hex}
+                    onSelect={onChange}
                   />
                 );
               })}
@@ -97,5 +124,31 @@ export function ColorPickerPopover({
         </ColorPicker>
       </PopoverContent>
     </Popover>
+  );
+}
+
+function ColorSwatch({
+  color,
+  label,
+  selected,
+  onSelect,
+}: {
+  color: RgbColor;
+  label: string;
+  selected: boolean;
+  onSelect: (color: RgbColor) => void;
+}) {
+  return (
+    <button
+      type="button"
+      title={label}
+      aria-label={label}
+      className={cn(
+        "size-6 cursor-pointer rounded border",
+        selected && "ring-2 ring-ring ring-offset-1 ring-offset-popover",
+      )}
+      style={{ backgroundColor: toHex(color) }}
+      onClick={() => onSelect(color)}
+    />
   );
 }

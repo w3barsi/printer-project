@@ -1,6 +1,6 @@
 import { Button } from "@dg/ui/components/button";
-import { Slider } from "@dg/ui/components/slider";
 
+import { SliderRow } from "@/components/3d/slider-row";
 import {
   ATTACHMENT_LIMITS,
   DEFAULT_ATTACHMENT,
@@ -66,25 +66,16 @@ export function AttachmentPanel({
       </div>
 
       {attachment ? (
-        <div className="flex flex-col gap-1.5">
-          <div className="flex items-center justify-between">
-            <span className="text-xs text-muted-foreground">Opening</span>
-            <span className="text-xs tabular-nums">
-              ⌀ {attachment.sizeMm.toFixed(1)} mm
-            </span>
-          </div>
-          <Slider
-            value={attachment.sizeMm}
-            min={ATTACHMENT_LIMITS.sizeMm.min}
-            max={ATTACHMENT_LIMITS.sizeMm.max}
-            step={ATTACHMENT_LIMITS.sizeMm.step}
-            disabled={disabled}
-            onValueChange={(value) => {
-              const next = Array.isArray(value) ? value[0] : value;
-              onChange({ ...attachment, sizeMm: next });
-            }}
-          />
-        </div>
+        <SliderRow
+          label="Opening"
+          value={attachment.sizeMm}
+          formatValue={(value) => `⌀ ${value.toFixed(1)} mm`}
+          min={ATTACHMENT_LIMITS.sizeMm.min}
+          max={ATTACHMENT_LIMITS.sizeMm.max}
+          step={ATTACHMENT_LIMITS.sizeMm.step}
+          disabled={disabled}
+          onChange={(sizeMm) => onChange({ ...attachment, sizeMm })}
+        />
       ) : null}
     </section>
   );

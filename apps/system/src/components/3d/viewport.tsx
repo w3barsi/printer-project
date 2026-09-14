@@ -45,19 +45,22 @@ type ViewportProps = {
   fitKey?: string | number;
   /** External ref to the orbit controls, e.g. to disable them while dragging. */
   controlsRef?: RefObject<OrbitControls | null>;
+  /** CSS color painted behind the transparent canvas. */
+  background?: string;
 };
 
 export function Viewport({
   children,
   className,
   fitKey,
+  background,
   controlsRef: externalControlsRef,
 }: ViewportProps) {
   const internalControlsRef = useRef<OrbitControls>(null);
   const controlsRef = externalControlsRef ?? internalControlsRef;
 
   return (
-    <div className={className}>
+    <div className={className} style={{ backgroundColor: background }}>
       <ClientOnly
         fallback={
           <div className="flex h-full w-full items-center justify-center text-sm text-muted-foreground">
