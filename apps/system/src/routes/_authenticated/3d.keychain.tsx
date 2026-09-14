@@ -3,8 +3,8 @@ import { Spinner } from "@dg/ui/components/spinner";
 import { createFileRoute } from "@tanstack/react-router";
 import { format } from "date-fns";
 import fileSaver from "file-saver";
-import { ImagePlusIcon } from "lucide-react";
-import { useRef, useState } from "react";
+import { ChevronDownIcon, ImagePlusIcon } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import type { OrbitControls } from "three/addons/controls/OrbitControls.js";
 
 import { AttachmentPanel } from "@/components/3d/attachment-panel";
@@ -80,6 +80,9 @@ function KeychainMakerPage() {
   const replaceInputRef = useRef<HTMLInputElement>(null);
   const geometryRef = useRef<KeychainGeometry | null>(null);
   const controlsRef = useRef<OrbitControls | null>(null);
+  const sidebarRef = useRef<HTMLElement>(null);
+  const sidebarEndRef = useRef<HTMLDivElement>(null);
+  const [hasMoreOptions, setHasMoreOptions] = useState(false);
   const [source, setSource] = useState<SourceImage | null>(null);
   const [colorCount, setColorCount] = useState(DEFAULT_COLOR_COUNT);
   const [quality, setQuality] = useState<ImageQuality>(DEFAULT_IMAGE_QUALITY);
@@ -99,6 +102,20 @@ function KeychainMakerPage() {
   const [modelVersion, setModelVersion] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Watch the end of the options list to know when there is more to scroll to.
+  useEffect(() => {
+    const scroller = sidebarRef.current;
+    const end = sidebarEndRef.current;
+    if (!scroller || !end) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => setHasMoreOptions(!entry.isIntersecting),
+      { root: scroller, rootMargin: "0px 0px 24px 0px" },
+    );
+    observer.observe(end);
+    return () => observer.disconnect();
+  }, []);
 
   function applyQuantization(
     decoded: DecodedPng,
@@ -246,27 +263,27 @@ function KeychainMakerPage() {
       : [];
 
   return (
-    <main className="min-h-[calc(100svh-4.1rem)] bg-muted/25">
-      <Container className="flex max-w-7xl flex-col gap-6 px-3 py-5 md:px-6 md:py-8">
-        <div className="flex flex-col gap-1">
+    <main className="min-h-[calc(100svh-4.1rem)] bg-muted/25 lg:h-[calc(100svh-4.1rem)] lg:min-h-0 lg:overflow-hidden">
+      <Container className="flex max-w-7xl flex-col gap-6 px-3 py-5 md:px-6 md:py-8 lg:h-full lg:min-h-0 lg:gap-5 lg:py-6">
+        <div className="flex flex-col gap-1 lg:shrink-0">
           <h1 className="text-3xl font-bold tracking-tight">Keychain Maker</h1>
           <p className="text-sm text-muted-foreground">
             Upload a transparent PNG and choose up to five colors.
           </p>
         </div>
 
-        <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_22rem]">
+        <div className="grid items-start gap-4 lg:min-h-0 lg:flex-1 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-stretch">
           {isLoading ? (
-            <section className="flex min-h-[60svh] items-center justify-center overflow-hidden rounded-lg border bg-card p-4">
+            <section className="flex min-h-[60svh] items-center justify-center overflow-hidden rounded-lg border bg-card p-4 lg:min-h-0">
               <Spinner className="size-6 text-muted-foreground" />
             </section>
           ) : quantized && palette.length > 0 ? (
-            <div className="relative">
+            <div className="relative lg:min-h-0">
               <Viewport
                 fitKey={modelVersion}
                 controlsRef={controlsRef}
                 background={toHex(previewBackground)}
-                className="h-[70svh] min-h-100 w-full overflow-hidden rounded-lg border bg-card"
+                className="h-[70svh] min-h-100 w-full overflow-hidden rounded-lg border bg-card lg:h-full lg:min-h-0"
               >
                 <KeychainScene
                   quantized={quantized}
@@ -293,7 +310,7 @@ function KeychainMakerPage() {
               </div>
             </div>
           ) : (
-            <section className="flex min-h-[60svh] items-center justify-center overflow-hidden rounded-lg border bg-card p-4">
+            <section className="flex min-h-[60svh] items-center justify-center overflow-hidden rounded-lg border bg-card p-4 lg:min-h-0">
               {source && quantized ? (
                 <p className="text-sm text-muted-foreground">
                   Nothing to preview — the image is fully transparent.
@@ -306,7 +323,10 @@ function KeychainMakerPage() {
             </section>
           )}
 
-          <aside className="flex flex-col gap-4">
+          <aside
+            ref={sidebarRef}
+            className="scrollbar-themed flex flex-col gap-4 lg:min-h-0 lg:overflow-y-scroll lg:pr-4"
+          >
             <section className="flex flex-col gap-3 rounded-lg border bg-card p-4">
               <div className="flex flex-col gap-1">
                 <h2 className="text-sm font-medium">Source</h2>
@@ -404,6 +424,27 @@ function KeychainMakerPage() {
               onExport3mf={() => void handleExport3mf()}
               onExportStl={handleExportStl}
             />
+
+            {hasMoreOptions ? (
+              <div className="pointer-events-none sticky bottom-0 -mt-4 hidden h-16 shrink-0 items-end justify-center bg-linear-to-t from-background via-background/80 to-transparent pb-1 lg:flex">
+                <button
+                  type="button"
+                  aria-label="Scroll down for more options"
+                  className="pointer-events-auto flex size-8 cursor-pointer items-center justify-center rounded-full border bg-card text-muted-foreground shadow-sm transition-colors hover:text-foreground"
+                  onClick={() => {
+                    const scroller = sidebarRef.current;
+                    if (!scroller) return;
+                    scroller.scrollBy({
+                      top: scroller.clientHeight * 0.8,
+                      behavior: "smooth",
+                    });
+                  }}
+                >
+                  <ChevronDownIcon className="size-4" />
+                </button>
+              </div>
+            ) : null}
+            <div ref={sidebarEndRef} aria-hidden className="h-px shrink-0" />
           </aside>
         </div>
       </Container>

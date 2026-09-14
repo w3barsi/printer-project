@@ -4,6 +4,8 @@ import { SliderRow } from "@/components/3d/slider-row";
 import {
   ATTACHMENT_LIMITS,
   DEFAULT_ATTACHMENT,
+  clampHookOffsetMm,
+  maxHookOffsetMm,
   type Attachment,
   type AttachmentType,
 } from "@/lib/3d/attachment";
@@ -66,16 +68,36 @@ export function AttachmentPanel({
       </div>
 
       {attachment ? (
-        <SliderRow
-          label="Opening"
-          value={attachment.sizeMm}
-          formatValue={(value) => `⌀ ${value.toFixed(1)} mm`}
-          min={ATTACHMENT_LIMITS.sizeMm.min}
-          max={ATTACHMENT_LIMITS.sizeMm.max}
-          step={ATTACHMENT_LIMITS.sizeMm.step}
-          disabled={disabled}
-          onChange={(sizeMm) => onChange({ ...attachment, sizeMm })}
-        />
+        <>
+          <SliderRow
+            label="Opening"
+            value={attachment.sizeMm}
+            formatValue={(value) => `⌀ ${value.toFixed(1)} mm`}
+            min={ATTACHMENT_LIMITS.sizeMm.min}
+            max={ATTACHMENT_LIMITS.sizeMm.max}
+            step={ATTACHMENT_LIMITS.sizeMm.step}
+            disabled={disabled}
+            onChange={(sizeMm) =>
+              onChange({
+                ...attachment,
+                sizeMm,
+                offsetMm: clampHookOffsetMm(sizeMm, attachment.offsetMm),
+              })
+            }
+          />
+          {attachment.type === "hook" ? (
+            <SliderRow
+              label="Offset"
+              value={attachment.offsetMm}
+              formatValue={(value) => `${value.toFixed(1)} mm`}
+              min={ATTACHMENT_LIMITS.offsetMm.min}
+              max={maxHookOffsetMm(attachment.sizeMm)}
+              step={ATTACHMENT_LIMITS.offsetMm.step}
+              disabled={disabled}
+              onChange={(offsetMm) => onChange({ ...attachment, offsetMm })}
+            />
+          ) : null}
+        </>
       ) : null}
     </section>
   );

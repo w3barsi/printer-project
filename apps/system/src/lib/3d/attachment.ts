@@ -4,9 +4,12 @@ import type { Point2, Polygon } from "./contours";
 
 export const ATTACHMENT_WALL_MM = 1.6;
 export const DEFAULT_ATTACHMENT_SIZE_MM = 4.2;
+/** Keeps at least this much of the hook ring fused to the base. */
+const MIN_HOOK_OVERLAP_MM = 0.5;
 
 export const ATTACHMENT_LIMITS = {
   sizeMm: { min: 2.5, max: 8, step: 0.1 },
+  offsetMm: { min: 0, step: 0.1 },
 } as const;
 
 export type AttachmentType = "hook" | "hole" | "bookmark";
@@ -15,6 +18,8 @@ export type Attachment = {
   type: AttachmentType;
   /** Opening diameter in millimetres. */
   sizeMm: number;
+  /** Hook centre offset from the base outline in millimetres. Ignored by other types. */
+  offsetMm: number;
   /** Millimetre position for hole/bookmark; null keeps the type default. */
   position: Point2 | null;
   /** Perimeter parameter (0..1) for the hook; null keeps the top-centre default. */
@@ -24,9 +29,20 @@ export type Attachment = {
 export const DEFAULT_ATTACHMENT: Attachment = {
   type: "hook",
   sizeMm: DEFAULT_ATTACHMENT_SIZE_MM,
+  offsetMm: DEFAULT_ATTACHMENT_SIZE_MM / 2,
   position: null,
   perimeterT: null,
 };
+
+/** Largest hook offset that still keeps the ring fused to the base. */
+export function maxHookOffsetMm(sizeMm: number): number {
+  return sizeMm / 2 + ATTACHMENT_WALL_MM - MIN_HOOK_OVERLAP_MM;
+}
+
+/** Clamps a hook offset so the ring stays fused to the base. */
+export function clampHookOffsetMm(sizeMm: number, offsetMm: number): number {
+  return Math.max(0, Math.min(offsetMm, maxHookOffsetMm(sizeMm)));
+}
 
 export type ResolvedAttachment =
   | {
@@ -55,11 +71,11 @@ export function resolveAttachment(
     const t =
       attachment.perimeterT ??
       nearestOutlineT(primary.outer, [(bounds.minX + bounds.maxX) / 2, bounds.maxY]).t;
-    const { point } = pointAtT(primary.outer, t);
     const innerRadiusMm = attachment.sizeMm / 2;
+    const offsetMm = clampHookOffsetMm(attachment.sizeMm, attachment.offsetMm);
     return {
       kind: "hook",
-      point,
+      point: offsetOutlinePoint(primary.outer, t, offsetMm),
       innerRadiusMm,
       outerRadiusMm: innerRadiusMm + ATTACHMENT_WALL_MM,
       perimeterT: t,
@@ -307,6 +323,21 @@ export function pointAtT(
   }
 
   return { point: outline[0], normal: [0, 1] };
+}
+
+/** Point at perimeter parameter `t`, pushed `offsetMm` outwards along the outline normal. */
+export function offsetOutlinePoint(
+  outline: Point2[],
+  t: number,
+  offsetMm: number,
+): Point2 {
+  const { point, normal } = pointAtT(outline, t);
+  if (offsetMm <= 0) return point;
+
+  const probe: Point2 = [point[0] + normal[0] * 0.01, point[1] + normal[1] * 0.01];
+  const sign = isInsideOutline(outline, probe) ? -1 : 1;
+
+  return [point[0] + normal[0] * sign * offsetMm, point[1] + normal[1] * sign * offsetMm];
 }
 
 export function nearestOutlineT(

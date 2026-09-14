@@ -5,8 +5,10 @@ import type { OrbitControls } from "three/addons/controls/OrbitControls.js";
 
 import {
   ATTACHMENT_WALL_MM,
+  clampHookOffsetMm,
   isPlacementValid,
   nearestOutlineT,
+  offsetOutlinePoint,
   type Attachment,
 } from "@/lib/3d/attachment";
 import { toHex, type RgbColor } from "@/lib/3d/color";
@@ -151,7 +153,12 @@ function AttachmentOverlay({
     const point: Point2 = [event.point.x, -event.point.z];
     if (attachment.type === "hook") {
       const nearest = nearestOutlineT(model.baseOutline, point);
-      return { position: nearest.point, perimeterT: nearest.t, valid: true };
+      const offsetMm = clampHookOffsetMm(attachment.sizeMm, attachment.offsetMm);
+      return {
+        position: offsetOutlinePoint(model.baseOutline, nearest.t, offsetMm),
+        perimeterT: nearest.t,
+        valid: true,
+      };
     }
     return {
       position: point,

@@ -35,7 +35,7 @@ export const DEFAULT_BASE_SETTINGS: BaseSettings = {
   thicknessMm: 2,
   cornerRadiusMm: null,
   faceDown: false,
-  style: "rect",
+  style: "outline",
 };
 
 export const BASE_LIMITS = {
