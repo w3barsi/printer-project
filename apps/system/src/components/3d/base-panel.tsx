@@ -1,10 +1,28 @@
-import { Button } from "@dg/ui/components/button";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@dg/ui/components/select";
 import { Slider } from "@dg/ui/components/slider";
 import { Switch } from "@dg/ui/components/switch";
 
 import { SliderRow } from "@/components/3d/slider-row";
 import { fromHex, toHex, type RgbColor } from "@/lib/3d/color";
-import { BASE_LIMITS, type BaseSettings, type KeychainModelInfo } from "@/lib/3d/design";
+import {
+  BASE_LIMITS,
+  type BaseSettings,
+  type BaseStyle,
+  type KeychainModelInfo,
+} from "@/lib/3d/design";
+
+const BASE_SHAPES: Array<{ label: string; value: BaseStyle }> = [
+  { label: "Bounding box", value: "rect" },
+  { label: "Outline", value: "outline" },
+  { label: "Round", value: "circle" },
+];
 
 type BasePanelProps = {
   settings: BaseSettings;
@@ -35,32 +53,29 @@ export function BasePanel({
         </p>
       </div>
 
-      <div className="grid grid-cols-2 gap-1" role="group" aria-label="Base style">
-        <Button
-          type="button"
-          size="sm"
-          variant={settings.style === "rect" ? "default" : "outline"}
-          disabled={settings.faceDown}
-          onClick={() => onSettingsChange({ ...settings, style: "rect" })}
+      <div className="flex flex-col gap-1.5">
+        <span className="text-xs text-muted-foreground">Base shape</span>
+        <Select
+          items={BASE_SHAPES}
+          value={settings.style}
+          onValueChange={(value) =>
+            onSettingsChange({ ...settings, style: value as BaseStyle })
+          }
         >
-          Bounding box
-        </Button>
-        <Button
-          type="button"
-          size="sm"
-          variant={settings.style === "outline" ? "default" : "outline"}
-          disabled={settings.faceDown}
-          onClick={() => onSettingsChange({ ...settings, style: "outline" })}
-        >
-          Outline
-        </Button>
+          <SelectTrigger className="w-full" size="sm">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              {BASE_SHAPES.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectGroup>
+          </SelectContent>
+        </Select>
       </div>
-
-      {settings.faceDown ? (
-        <p className="text-xs text-muted-foreground">
-          Face-down uses the image outline exactly; margin and corner radius are ignored.
-        </p>
-      ) : null}
 
       <SliderRow
         label="Longest side"
@@ -89,11 +104,10 @@ export function BasePanel({
         min={BASE_LIMITS.marginMm.min}
         max={BASE_LIMITS.marginMm.max}
         step={BASE_LIMITS.marginMm.step}
-        disabled={settings.faceDown}
         onChange={(value) => onSettingsChange({ ...settings, marginMm: value })}
       />
 
-      {settings.style === "rect" && !settings.faceDown ? (
+      {settings.style === "rect" ? (
         <div className="flex flex-col gap-1.5">
           <div className="flex items-center justify-between gap-2">
             <span className="text-xs text-muted-foreground">Corner radius</span>
@@ -128,9 +142,13 @@ export function BasePanel({
             }}
           />
         </div>
-      ) : (
+      ) : settings.style === "outline" ? (
         <p className="text-xs text-muted-foreground">
           The base follows the artwork with a {settings.marginMm.toFixed(1)} mm margin.
+        </p>
+      ) : (
+        <p className="text-xs text-muted-foreground">
+          Round base {settings.longestSideMm} mm across, artwork fitted inside.
         </p>
       )}
 

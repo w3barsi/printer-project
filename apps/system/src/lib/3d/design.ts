@@ -15,7 +15,7 @@ export const SPECK_LIMITS = { min: 0, max: 3, step: 0.1 } as const;
 
 export const DEFAULT_BASE_COLOR = { r: 244, g: 244, b: 245 };
 
-export type BaseStyle = "rect" | "outline";
+export type BaseStyle = "rect" | "outline" | "circle";
 
 export type BaseSettings = {
   longestSideMm: number;
@@ -25,7 +25,7 @@ export type BaseSettings = {
   cornerRadiusMm: number | null;
   /** Flattens every colour layer to the base height for a flush, flat top. */
   faceDown: boolean;
-  /** "rect" = auto-fitted rounded box; "outline" = follows the artwork contour. */
+  /** "rect" = auto-fitted rounded box; "outline" = follows the artwork contour; "circle" = round disc. */
   style: BaseStyle;
 };
 

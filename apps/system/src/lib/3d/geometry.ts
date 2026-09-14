@@ -59,6 +59,7 @@ type Bounds = {
 
 const WELD_TOLERANCE = 1e-4;
 const CORNER_SEGMENTS = 8;
+const CIRCLE_SEGMENTS = 128;
 
 export function buildKeychain(
   quantized: QuantizedImage,
@@ -72,9 +73,15 @@ export function buildKeychain(
 
   const contentWidthPx = Math.max(bounds.maxX - bounds.minX, 1);
   const contentHeightPx = Math.max(bounds.maxY - bounds.minY, 1);
-  const effectiveMarginMm = base.faceDown ? 0 : base.marginMm;
-  const targetContentMm = Math.max(base.longestSideMm - effectiveMarginMm * 2, 1);
-  const mmPerPixel = targetContentMm / Math.max(contentWidthPx, contentHeightPx);
+  const marginMm = base.marginMm;
+  const targetContentMm = Math.max(base.longestSideMm - marginMm * 2, 1);
+  // A round base is sized by its diameter, so the artwork has to fit by its
+  // diagonal; the other shapes are sized by their longest side.
+  const spanPx =
+    base.style === "circle"
+      ? Math.hypot(contentWidthPx, contentHeightPx)
+      : Math.max(contentWidthPx, contentHeightPx);
+  const mmPerPixel = targetContentMm / spanPx;
   const centerX = (bounds.minX + bounds.maxX) / 2;
   const centerY = (bounds.minY + bounds.maxY) / 2;
 
@@ -82,8 +89,14 @@ export function buildKeychain(
   const regions = traceRegions(indices, quantized.width, quantized.height);
   const mmRegions = scaleRegions(regions, mmPerPixel, centerX, centerY);
 
-  const width = contentWidthPx * mmPerPixel + effectiveMarginMm * 2;
-  const height = contentHeightPx * mmPerPixel + effectiveMarginMm * 2;
+  const width =
+    base.style === "circle"
+      ? base.longestSideMm
+      : contentWidthPx * mmPerPixel + marginMm * 2;
+  const height =
+    base.style === "circle"
+      ? base.longestSideMm
+      : contentHeightPx * mmPerPixel + marginMm * 2;
   const radius = base.cornerRadiusMm ?? autoCornerRadius(width, height);
 
   const visibleRegions: {
@@ -98,14 +111,14 @@ export function buildKeychain(
   }
 
   let initialOutlines: Polygon[];
-  if (base.faceDown || base.style === "outline") {
+  if (base.style === "outline") {
     const visibleColors = new Set(visibleRegions.map((region) => region.colorIndex));
     const outlinePolygons = outlineBasePolygons(
       indices,
       quantized.width,
       quantized.height,
       visibleColors,
-      effectiveMarginMm,
+      marginMm,
       mmPerPixel,
       centerX,
       centerY,
@@ -114,6 +127,10 @@ export function buildKeychain(
       outlinePolygons.length > 0
         ? outlinePolygons
         : [{ outer: roundedRectPolygon(width, height, radius), holes: [] }];
+  } else if (base.style === "circle") {
+    initialOutlines = [
+      { outer: circleRing([0, 0], base.longestSideMm / 2, CIRCLE_SEGMENTS), holes: [] },
+    ];
   } else {
     initialOutlines = [{ outer: roundedRectPolygon(width, height, radius), holes: [] }];
   }
@@ -133,33 +150,16 @@ export function buildKeychain(
     }))
     .filter((layer) => layer.polygons.length > 0);
 
-  let basePolygons: Polygon[];
+  let basePolygons = resolvedAttachment
+    ? applyAttachmentToPolygons(initialOutlines, resolvedAttachment)
+    : initialOutlines;
   if (base.faceDown) {
-    // Colour layers fill the silhouette at full height, so the only base
-    // material left is the hook ring sticking out past the artwork. Cutting
-    // the base with the full colour set would overlap thousands of edges;
-    // the silhouette is the same region, traced once.
-    basePolygons =
-      resolvedAttachment?.kind === "hook"
-        ? subtractPolygons(
-            [
-              {
-                outer: circleRing(
-                  resolvedAttachment.point,
-                  resolvedAttachment.outerRadiusMm,
-                ),
-                holes: [
-                  circleRing(resolvedAttachment.point, resolvedAttachment.innerRadiusMm),
-                ],
-              },
-            ],
-            initialOutlines,
-          )
-        : [];
-  } else {
-    basePolygons = resolvedAttachment
-      ? applyAttachmentToPolygons(initialOutlines, resolvedAttachment)
-      : initialOutlines;
+    // Colour layers run the full base height, so base material only remains
+    // where the artwork has none.
+    basePolygons = subtractPolygons(
+      basePolygons,
+      colorLayers.flatMap((layer) => layer.polygons),
+    );
   }
 
   const baseGeometry =
