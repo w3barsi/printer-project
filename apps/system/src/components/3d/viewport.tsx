@@ -7,7 +7,7 @@ import {
 } from "@react-three/fiber";
 import { ClientOnly } from "@tanstack/react-router";
 import { useEffect, useRef, type ReactNode, type RefObject } from "react";
-import { Box3, MathUtils, Sphere, Vector3, type PerspectiveCamera } from "three";
+import { Box3, MathUtils, MOUSE, Sphere, Vector3, type PerspectiveCamera } from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 
 // @react-three/fiber 9.7 constructs a THREE.Clock, which three r183+ deprecates
@@ -90,11 +90,22 @@ function Controls({ controlsRef }: { controlsRef: RefObject<OrbitControls | null
     controlsRef.current?.update();
   });
 
+  useEffect(() => {
+    const canvas = gl.domElement;
+    // Chrome and Firefox start autoscroll on middle mousedown, which fights
+    // the middle-drag pan.
+    const blockMiddleAutoScroll = (event: MouseEvent) => {
+      if (event.button === 1) event.preventDefault();
+    };
+    canvas.addEventListener("mousedown", blockMiddleAutoScroll);
+    return () => canvas.removeEventListener("mousedown", blockMiddleAutoScroll);
+  }, [gl]);
+
   return (
     <orbitControls
       ref={controlsRef}
       args={[camera, gl.domElement]}
-      enablePan={false}
+      mouseButtons={{ LEFT: MOUSE.ROTATE, MIDDLE: MOUSE.PAN, RIGHT: MOUSE.ROTATE }}
       enableDamping
     />
   );
