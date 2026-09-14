@@ -15,6 +15,7 @@
     "@base-ui/react": "^1.6.0",
     "class-variance-authority": "^0.7.1",
     "cn": "^0.2.4",
+    "color": "^5.0.3",
     "embla-carousel-react": "^8.6.0",
     "input-otp": "^1.4.2",
     "lucide-react": "^0.525.0",

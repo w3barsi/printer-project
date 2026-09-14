@@ -9,8 +9,9 @@ import {
 import { Slider } from "@dg/ui/components/slider";
 import { Switch } from "@dg/ui/components/switch";
 
+import { ColorPickerPopover } from "@/components/3d/color-picker-popover";
 import { SliderRow } from "@/components/3d/slider-row";
-import { fromHex, toHex, type RgbColor } from "@/lib/3d/color";
+import { type RgbColor } from "@/lib/3d/color";
 import {
   BASE_LIMITS,
   type BaseSettings,
@@ -27,6 +28,7 @@ const BASE_SHAPES: Array<{ label: string; value: BaseStyle }> = [
 type BasePanelProps = {
   settings: BaseSettings;
   color: RgbColor;
+  usedColors: RgbColor[];
   modelInfo: KeychainModelInfo | null;
   onSettingsChange: (settings: BaseSettings) => void;
   onColorChange: (color: RgbColor) => void;
@@ -35,6 +37,7 @@ type BasePanelProps = {
 export function BasePanel({
   settings,
   color,
+  usedColors,
   modelInfo,
   onSettingsChange,
   onColorChange,
@@ -170,12 +173,11 @@ export function BasePanel({
 
       <div className="flex items-center justify-between">
         <span className="text-xs text-muted-foreground">Base color</span>
-        <input
-          type="color"
-          value={toHex(color)}
-          onChange={(event) => onColorChange(fromHex(event.target.value))}
-          aria-label="Base color"
-          className="size-7 cursor-pointer rounded border bg-transparent p-0.5"
+        <ColorPickerPopover
+          label="Base color"
+          value={color}
+          usedColors={usedColors}
+          onChange={onColorChange}
         />
       </div>
     </section>

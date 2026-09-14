@@ -358,6 +358,7 @@ function KeychainMakerPage() {
             <BasePanel
               settings={baseSettings}
               color={baseColor}
+              usedColors={palette}
               modelInfo={modelInfo}
               onSettingsChange={handleBaseSettingsChange}
               onColorChange={setBaseColor}
