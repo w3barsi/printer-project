@@ -1,10 +1,16 @@
 import { Badge } from "@dg/ui/components/badge";
 import { Button } from "@dg/ui/components/button";
 import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuTrigger,
+} from "@dg/ui/components/context-menu";
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@dg/ui/components/dropdown-menu";
 import { cn } from "@dg/ui/lib/utils";
@@ -36,6 +42,73 @@ export type DriveParentPath = {
   name: string;
   folderId: string | null;
 };
+
+function DriveItemMenuItems({
+  item,
+  onDelete,
+  onDownload,
+  onRename,
+  onShare,
+  onMove,
+  canDelete,
+  keepMenuOpen,
+  renderItemActions,
+}: {
+  item: DriveItem;
+  onDelete: () => void;
+  onDownload?: () => void;
+  onRename?: () => void;
+  onShare?: () => void;
+  onMove?: () => void;
+  canDelete: boolean;
+  keepMenuOpen: () => void;
+  renderItemActions?: (
+    item: DriveItem,
+    controls: { keepMenuOpen: () => void },
+  ) => ReactNode;
+}) {
+  const hasActionsBeforeDelete =
+    !!onDownload || !!onRename || !!onMove || !!onShare || !!renderItemActions;
+
+  return (
+    <>
+      {onDownload && (
+        <DropdownMenuItem onClick={onDownload}>
+          <DownloadIcon />
+          {item.kind === "folder" ? "Download Folder" : "Download File"}
+        </DropdownMenuItem>
+      )}
+      {onRename && (
+        <DropdownMenuItem onClick={onRename}>
+          <PencilIcon />
+          Rename
+        </DropdownMenuItem>
+      )}
+      {onMove && (
+        <DropdownMenuItem onClick={onMove}>
+          <FolderInputIcon />
+          Move
+        </DropdownMenuItem>
+      )}
+      {onShare && (
+        <DropdownMenuItem onClick={onShare}>
+          <Share2Icon />
+          Share
+        </DropdownMenuItem>
+      )}
+      {renderItemActions?.(item, { keepMenuOpen })}
+      {canDelete && (
+        <>
+          {hasActionsBeforeDelete && <DropdownMenuSeparator />}
+          <DropdownMenuItem variant="destructive" onClick={onDelete}>
+            <Trash2Icon />
+            Delete
+          </DropdownMenuItem>
+        </>
+      )}
+    </>
+  );
+}
 
 export function DriveFileRow({
   item,
@@ -78,6 +151,7 @@ export function DriveFileRow({
   ) => ReactNode;
 }) {
   const [actionsOpen, setActionsOpen] = useState(false);
+  const [contextMenuOpen, setContextMenuOpen] = useState(false);
   const {
     attributes,
     listeners,
@@ -108,7 +182,7 @@ export function DriveFileRow({
     canDelete ||
     !!renderItemActions;
 
-  return (
+  const row = (
     <div
       ref={setNodeRef}
       {...attributes}
@@ -189,39 +263,17 @@ export function DriveFileRow({
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-max">
               <DropdownMenuGroup>
-                {onDownload && (
-                  <DropdownMenuItem onClick={onDownload}>
-                    <DownloadIcon />
-                    {item.kind === "folder" ? "Download Folder" : "Download File"}
-                  </DropdownMenuItem>
-                )}
-                {onRename && (
-                  <DropdownMenuItem onClick={onRename}>
-                    <PencilIcon />
-                    Rename
-                  </DropdownMenuItem>
-                )}
-                {onMove && (
-                  <DropdownMenuItem onClick={onMove}>
-                    <FolderInputIcon />
-                    Move
-                  </DropdownMenuItem>
-                )}
-                {onShare && (
-                  <DropdownMenuItem onClick={onShare}>
-                    <Share2Icon />
-                    Share
-                  </DropdownMenuItem>
-                )}
-                {renderItemActions?.(item, {
-                  keepMenuOpen: () => setActionsOpen(true),
-                })}
-                {canDelete && (
-                  <DropdownMenuItem variant="destructive" onClick={onDelete}>
-                    <Trash2Icon />
-                    Delete
-                  </DropdownMenuItem>
-                )}
+                <DriveItemMenuItems
+                  item={item}
+                  onDelete={onDelete}
+                  onDownload={onDownload}
+                  onRename={onRename}
+                  onShare={onShare}
+                  onMove={onMove}
+                  canDelete={canDelete}
+                  keepMenuOpen={() => setActionsOpen(true)}
+                  renderItemActions={renderItemActions}
+                />
               </DropdownMenuGroup>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -230,6 +282,29 @@ export function DriveFileRow({
         <span aria-hidden="true" />
       )}
     </div>
+  );
+
+  if (!hasActions) return row;
+
+  return (
+    <ContextMenu open={contextMenuOpen} onOpenChange={setContextMenuOpen}>
+      <ContextMenuTrigger render={row} />
+      <ContextMenuContent>
+        <DropdownMenuGroup>
+          <DriveItemMenuItems
+            item={item}
+            onDelete={onDelete}
+            onDownload={onDownload}
+            onRename={onRename}
+            onShare={onShare}
+            onMove={onMove}
+            canDelete={canDelete}
+            keepMenuOpen={() => setContextMenuOpen(true)}
+            renderItemActions={renderItemActions}
+          />
+        </DropdownMenuGroup>
+      </ContextMenuContent>
+    </ContextMenu>
   );
 }
 
