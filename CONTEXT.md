@@ -33,13 +33,21 @@ The set of up to five colors that quantizing the source image produces.
 _Avoid_: Colors, scheme
 
 **Quantization**:
-Reducing the source PNG to the Palette by grouping pixels into the nearest Palette color.
+Reducing the source image to the Palette by grouping pixels into the nearest Palette color.
 _Avoid_: Posterize, vectorize, trace
+
+**Rasterize**:
+Rendering an SVG to pixels before Quantization. One of the SVG reading modes.
+_Avoid_: Flatten, bake
+
+**Exact fills**:
+The SVG reading mode that builds the Palette from the file's declared fill and stroke colors, skipping Quantization.
+_Avoid_: Vectorize, direct colors
 
 **Attachment**:
 An optional feature on a Keychain used to hang or carry it. Variants: Hook (raised loop joined to the Base), Hole (through-hole), Bookmark (through-hole at the tassel position).
 _Avoid_: Loop, ring, tab, hanger
 
 **Source image**:
-The PNG a Tool consumes as its input.
+The PNG or SVG a Tool consumes as its input.
 _Avoid_: Upload, photo, artwork

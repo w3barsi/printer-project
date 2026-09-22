@@ -16,11 +16,13 @@ import { ImageDropzone } from "@/components/3d/image-dropzone";
 import { KeychainScene } from "@/components/3d/keychain-model";
 import { PalettePanel } from "@/components/3d/palette-panel";
 import { QuantizedPreview } from "@/components/3d/quantized-preview";
+import { SvgModeChooser, SvgModeToggle, type SvgMode } from "@/components/3d/svg-mode";
 import { Viewport } from "@/components/3d/viewport";
 import { WarningsPanel } from "@/components/3d/warnings-panel";
 import { Container } from "@/components/layouts/container";
 import { DEFAULT_ATTACHMENT, type Attachment } from "@/lib/3d/attachment";
 import { toHex, type RgbColor } from "@/lib/3d/color";
+import { decodePng, IMAGE_DIMENSIONS, type DecodedImage } from "@/lib/3d/decode";
 import {
   ALPHA_LIMITS,
   BASE_LIMITS,
@@ -39,8 +41,8 @@ import {
 import { build3mfBlob } from "@/lib/3d/export/3mf";
 import { buildStlBlob } from "@/lib/3d/export/stl";
 import type { KeychainGeometry } from "@/lib/3d/geometry";
-import { decodePng, IMAGE_DIMENSIONS, type DecodedPng } from "@/lib/3d/png";
-import { quantize, type QuantizedImage } from "@/lib/3d/quantize";
+import { assignToPalette, quantize, type QuantizedImage } from "@/lib/3d/quantize";
+import { decodeSvg, extractSvgPaints, type SvgPaints } from "@/lib/3d/svg";
 import { buildWarnings } from "@/lib/3d/warnings";
 
 export const Route = createFileRoute("/_authenticated/3d/keychain")({
@@ -70,11 +72,32 @@ const PREVIEW_BACKGROUND_PRESETS: Array<{ label: string; color: RgbColor }> = [
   { label: "Charcoal", color: { r: 9, g: 9, b: 11 } },
 ];
 
+type SourceKind = "png" | "svg";
+
 type SourceImage = {
   fileName: string;
   file: File;
-  decoded: DecodedPng;
+  kind: SourceKind;
+  decoded: DecodedImage;
+  /** null while an SVG is waiting for its reading-mode choice. */
+  mode: SvgMode | null;
+  exactPaints: SvgPaints | null;
 };
+
+function sourceKind(file: File): SourceKind | null {
+  const name = file.name.toLowerCase();
+  if (file.type === "image/svg+xml" || name.endsWith(".svg")) return "svg";
+  if (file.type === "image/png" || name.endsWith(".png")) return "png";
+  return null;
+}
+
+async function decodeSource(
+  file: File,
+  kind: SourceKind,
+  maxDimension: number,
+): Promise<DecodedImage> {
+  return kind === "svg" ? decodeSvg(file, maxDimension) : decodePng(file, maxDimension);
+}
 
 function KeychainMakerPage() {
   const replaceInputRef = useRef<HTMLInputElement>(null);
@@ -117,12 +140,7 @@ function KeychainMakerPage() {
     return () => observer.disconnect();
   }, []);
 
-  function applyQuantization(
-    decoded: DecodedPng,
-    count: number,
-    threshold = alphaThreshold,
-  ) {
-    const result = quantize(decoded, count, threshold);
+  function applyResult(result: QuantizedImage) {
     setQuantized(result);
     setPalette(
       result.palette.map((entry) => ({
@@ -134,33 +152,101 @@ function KeychainMakerPage() {
     setModelVersion((version) => version + 1);
   }
 
+  function applyQuantization(
+    decoded: DecodedImage,
+    count: number,
+    threshold = alphaThreshold,
+  ) {
+    applyResult(quantize(decoded, count, threshold));
+  }
+
+  function applyExact(
+    decoded: DecodedImage,
+    paints: SvgPaints,
+    threshold = alphaThreshold,
+  ) {
+    applyResult(assignToPalette(decoded, paints.colors, threshold));
+  }
+
+  function applySource(value: SourceImage, threshold = alphaThreshold) {
+    if (
+      value.mode === "exact" &&
+      value.exactPaints &&
+      value.exactPaints.colors.length > 0
+    ) {
+      applyExact(value.decoded, value.exactPaints, threshold);
+    } else if (value.mode === "raster") {
+      applyQuantization(value.decoded, colorCount, threshold);
+    }
+  }
+
   async function handleFile(file: File) {
     setIsLoading(true);
     setError(null);
     try {
-      const decoded = await decodePng(file, IMAGE_DIMENSIONS[quality]);
+      const kind = sourceKind(file);
+      if (!kind) throw new Error("Only PNG and SVG files are supported.");
+
+      const decoded = await decodeSource(file, kind, IMAGE_DIMENSIONS[quality]);
+      if (kind === "svg") {
+        setSource({
+          fileName: file.name,
+          file,
+          kind,
+          decoded,
+          mode: null,
+          exactPaints: extractSvgPaints(await file.text()),
+        });
+        setQuantized(null);
+        setPalette([]);
+        setModelInfo(null);
+        geometryRef.current = null;
+        return;
+      }
+
+      setSource({
+        fileName: file.name,
+        file,
+        kind,
+        decoded,
+        mode: "raster",
+        exactPaints: null,
+      });
       applyQuantization(decoded, colorCount);
-      setSource({ fileName: file.name, file, decoded });
     } catch (cause) {
       console.error(cause);
-      setError(cause instanceof Error ? cause.message : "Could not read that PNG.");
+      setError(cause instanceof Error ? cause.message : "Could not read that image.");
     } finally {
       setIsLoading(false);
     }
   }
 
+  function handleModeChoose(mode: SvgMode) {
+    if (!source || source.kind !== "svg") return;
+    if (mode === "exact" && (source.exactPaints?.colors.length ?? 0) === 0) return;
+    const next: SourceImage = { ...source, mode };
+    setSource(next);
+    applySource(next);
+  }
+
   async function handleQualityChange(next: ImageQuality) {
     setQuality(next);
-    if (!source) return;
+    const current = source;
+    if (!current) return;
     setIsLoading(true);
     setError(null);
     try {
-      const decoded = await decodePng(source.file, IMAGE_DIMENSIONS[next]);
-      applyQuantization(decoded, colorCount);
-      setSource((current) => (current ? { ...current, decoded } : current));
+      const decoded = await decodeSource(
+        current.file,
+        current.kind,
+        IMAGE_DIMENSIONS[next],
+      );
+      const updated: SourceImage = { ...current, decoded };
+      setSource(updated);
+      applySource(updated);
     } catch (cause) {
       console.error(cause);
-      setError(cause instanceof Error ? cause.message : "Could not read that PNG.");
+      setError(cause instanceof Error ? cause.message : "Could not read that image.");
     } finally {
       setIsLoading(false);
     }
@@ -174,7 +260,7 @@ function KeychainMakerPage() {
     );
     setAlphaThreshold(clamped);
     if (!source) return;
-    applyQuantization(source.decoded, colorCount, clamped);
+    applySource(source, clamped);
   }
 
   function handleSpeckThresholdChange(value: number) {
@@ -184,7 +270,7 @@ function KeychainMakerPage() {
 
   function handleColorCountChange(next: number) {
     setColorCount(next);
-    if (!source) return;
+    if (!source || source.mode !== "raster") return;
     applyQuantization(source.decoded, next);
   }
 
@@ -268,7 +354,7 @@ function KeychainMakerPage() {
         <div className="flex flex-col gap-1 lg:shrink-0">
           <h1 className="text-3xl font-bold tracking-tight">Keychain Maker</h1>
           <p className="text-sm text-muted-foreground">
-            Upload a transparent PNG and choose up to five colors.
+            Upload a transparent PNG or SVG and choose up to five colors.
           </p>
         </div>
 
@@ -276,6 +362,15 @@ function KeychainMakerPage() {
           {isLoading ? (
             <section className="flex min-h-[60svh] items-center justify-center overflow-hidden rounded-lg border bg-card p-4 lg:min-h-0">
               <Spinner className="size-6 text-muted-foreground" />
+            </section>
+          ) : source?.mode === null && source.exactPaints ? (
+            <section className="flex min-h-[60svh] items-center justify-center overflow-hidden rounded-lg border bg-card p-4 lg:min-h-0">
+              <SvgModeChooser
+                paintCount={source.exactPaints.colors.length}
+                gradientCount={source.exactPaints.gradientCount}
+                unresolvedCount={source.exactPaints.unresolvedCount}
+                onChoose={handleModeChoose}
+              />
             </section>
           ) : quantized && palette.length > 0 ? (
             <div className="relative lg:min-h-0">
@@ -331,7 +426,7 @@ function KeychainMakerPage() {
               <div className="flex flex-col gap-1">
                 <h2 className="text-sm font-medium">Source</h2>
                 <p className="text-xs text-muted-foreground">
-                  PNG only. Transparent pixels are ignored.
+                  PNG or SVG. Transparent pixels are ignored.
                 </p>
               </div>
 
@@ -350,10 +445,20 @@ function KeychainMakerPage() {
                       {source.decoded.width} × {source.decoded.height} px
                     </span>
                   </div>
+                  {source.kind === "svg" && source.mode ? (
+                    <SvgModeToggle
+                      mode={source.mode}
+                      exactDisabled={(source.exactPaints?.colors.length ?? 0) === 0}
+                      gradientCount={source.exactPaints?.gradientCount ?? 0}
+                      unresolvedCount={source.exactPaints?.unresolvedCount ?? 0}
+                      disabled={isLoading}
+                      onChange={handleModeChoose}
+                    />
+                  ) : null}
                   <input
                     ref={replaceInputRef}
                     type="file"
-                    accept="image/png,.png"
+                    accept="image/png,.png,image/svg+xml,.svg"
                     className="hidden"
                     onChange={(event) => {
                       const file = event.target.files?.[0];
@@ -388,12 +493,18 @@ function KeychainMakerPage() {
             />
 
             <PalettePanel
-              colorCount={colorCount}
+              colorCount={source?.mode === "exact" ? palette.length : colorCount}
               palette={palette}
-              hasImage={source !== null}
+              hasImage={source !== null && source.mode !== null}
               slots={slots}
               flattenLayers={baseSettings.faceDown}
               uniformThickness={uniformThickness}
+              showColorCount={source?.mode !== "exact"}
+              emptyMessage={
+                source?.mode === null
+                  ? "Choose a reading mode to generate a palette."
+                  : undefined
+              }
               onColorCountChange={handleColorCountChange}
               onColorChange={handlePaletteColorChange}
               onThicknessChange={handlePaletteThicknessChange}

@@ -12,7 +12,7 @@ export function ImageDropzone({ onFile, disabled }: ImageDropzoneProps) {
   const [rejection, setRejection] = useState<string | null>(null);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    accept: { "image/png": [".png"] },
+    accept: { "image/png": [".png"], "image/svg+xml": [".svg"] },
     multiple: false,
     disabled,
     onDrop: (acceptedFiles) => {
@@ -22,7 +22,7 @@ export function ImageDropzone({ onFile, disabled }: ImageDropzoneProps) {
       onFile(file);
     },
     onDropRejected: () => {
-      setRejection("Only PNG files are supported.");
+      setRejection("Only PNG and SVG files are supported.");
     },
   });
 
@@ -38,7 +38,7 @@ export function ImageDropzone({ onFile, disabled }: ImageDropzoneProps) {
       >
         <input {...getInputProps()} />
         <ImageUpIcon className="size-6 text-muted-foreground" />
-        <p className="text-sm font-medium">Drop a PNG here</p>
+        <p className="text-sm font-medium">Drop a PNG or SVG here</p>
         <p className="text-xs text-muted-foreground">
           or click to browse. Transparent pixels are ignored.
         </p>

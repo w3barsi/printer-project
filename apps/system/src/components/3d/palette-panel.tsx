@@ -15,6 +15,8 @@ type PalettePanelProps = {
   slots: number;
   flattenLayers?: boolean;
   uniformThickness: boolean;
+  showColorCount?: boolean;
+  emptyMessage?: string;
   onColorCountChange: (count: number) => void;
   onColorChange: (index: number, color: RgbColor) => void;
   onThicknessChange: (index: number, thickness: number) => void;
@@ -30,6 +32,8 @@ export function PalettePanel({
   slots,
   flattenLayers,
   uniformThickness,
+  showColorCount = true,
+  emptyMessage,
   onColorCountChange,
   onColorChange,
   onThicknessChange,
@@ -48,27 +52,30 @@ export function PalettePanel({
         </p>
       </div>
 
-      <div className="flex gap-1" role="group" aria-label="Number of colors">
-        {COLOR_COUNTS.map((count) => (
-          <Button
-            key={count}
-            type="button"
-            size="sm"
-            variant={count === colorCount ? "default" : "outline"}
-            className="flex-1"
-            disabled={disabled}
-            onClick={() => onColorCountChange(count)}
-          >
-            {count}
-          </Button>
-        ))}
-      </div>
+      {showColorCount ? (
+        <div className="flex gap-1" role="group" aria-label="Number of colors">
+          {COLOR_COUNTS.map((count) => (
+            <Button
+              key={count}
+              type="button"
+              size="sm"
+              variant={count === colorCount ? "default" : "outline"}
+              className="flex-1"
+              disabled={disabled}
+              onClick={() => onColorCountChange(count)}
+            >
+              {count}
+            </Button>
+          ))}
+        </div>
+      ) : null}
 
       {palette.length === 0 ? (
         <p className="text-xs text-muted-foreground">
-          {hasImage
-            ? "This image has no opaque pixels."
-            : "Upload a PNG to generate a palette."}
+          {emptyMessage ??
+            (hasImage
+              ? "This image has no opaque pixels."
+              : "Upload a PNG or SVG to generate a palette.")}
         </p>
       ) : (
         <>

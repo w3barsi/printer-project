@@ -91,7 +91,7 @@ export function buildWarnings(input: {
   if (!input.hasTransparency) {
     warnings.push({
       id: "opaque-background",
-      message: "This PNG has no transparency, so its background becomes a color layer.",
+      message: "This image has no transparency, so its background becomes a color layer.",
     });
   }
 

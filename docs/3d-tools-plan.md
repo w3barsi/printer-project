@@ -1,6 +1,6 @@
 # 3D Tools — Implementation Plan
 
-Status: implemented through M8 (2026-09-13).
+Status: implemented through M8 (2026-09-13). SVG sources with Rasterize/Exact reading modes were added later; see `docs/3d-svg-plan.md`.
 
 v1: **Keychain Maker**, client-only, inside `apps/system`. Design language lives in `CONTEXT.md`; decisions in `docs/adr/0001-3d-tools-client-only.md` and `docs/adr/0002-product-is-a-scoping-boundary.md`.
 
@@ -14,7 +14,7 @@ v1: **Keychain Maker**, client-only, inside `apps/system`. Design language lives
 
 - Routes: `/_authenticated/3d` (launcher) and `/_authenticated/3d/keychain` (tool).
 - All model state lives in the keychain route (`useReducer`); heavy derivation lives in pure functions under `src/lib/3d/`.
-- Pipeline: PNG → RGBA grid → quantize (median-cut) → per-color masks → speck merge → contours → simplify → mm polygons → 2D booleans → `THREE.Shape` + `ExtrudeGeometry` → viewport + exporters.
+- Pipeline: PNG or SVG → RGBA grid → quantize (median-cut for Rasterize, nearest exact color for Exact fills) → per-color masks → speck merge → contours → simplify → mm polygons → 2D booleans → `THREE.Shape` + `ExtrudeGeometry` → viewport + exporters.
 - Units are millimetres end to end, including the 3MF `unit="millimeter"`.
 - `three` is imported only by the keychain route chain; the canvas renders inside `<ClientOnly>` (present in the installed router).
 

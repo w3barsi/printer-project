@@ -1,5 +1,6 @@
+import type { RgbColor } from "./color";
+import type { DecodedImage } from "./decode";
 import { DEFAULT_ALPHA_THRESHOLD } from "./design";
-import type { DecodedPng } from "./png";
 
 export const MAX_PALETTE_COLORS = 5;
 export const TRANSPARENT_INDEX = 255;
@@ -110,7 +111,7 @@ function clampColorCount(value: number): number {
 }
 
 export function quantize(
-  decoded: DecodedPng,
+  decoded: DecodedImage,
   requestedColorCount: number,
   alphaThreshold = DEFAULT_ALPHA_THRESHOLD,
 ): QuantizedImage {
@@ -201,6 +202,98 @@ export function quantize(
     }
     indices[pixel] =
       binToPalette[binIndex(data[offset], data[offset + 1], data[offset + 2])];
+  }
+
+  return { width, height, indices, palette, transparentPixels };
+}
+
+/**
+ * Assigns every opaque pixel to the nearest of the given colors, skipping
+ * median cut. Keeps the MAX_PALETTE_COLORS most-used colors.
+ */
+export function assignToPalette(
+  decoded: DecodedImage,
+  colors: RgbColor[],
+  alphaThreshold = DEFAULT_ALPHA_THRESHOLD,
+): QuantizedImage {
+  if (colors.length === 0) {
+    throw new Error("assignToPalette requires at least one color.");
+  }
+
+  const { width, height, data } = decoded;
+  const pixelCount = width * height;
+  const indices = new Uint8Array(pixelCount);
+  const counts = new Uint32Array(colors.length);
+  let transparentPixels = 0;
+
+  for (let pixel = 0; pixel < pixelCount; pixel += 1) {
+    const offset = pixel * 4;
+    if (data[offset + 3] < alphaThreshold) {
+      indices[pixel] = TRANSPARENT_INDEX;
+      transparentPixels += 1;
+      continue;
+    }
+
+    const r = data[offset];
+    const g = data[offset + 1];
+    const b = data[offset + 2];
+    let best = 0;
+    let bestDistance = Number.POSITIVE_INFINITY;
+
+    for (let index = 0; index < colors.length; index += 1) {
+      const dr = r - colors[index].r;
+      const dg = g - colors[index].g;
+      const db = b - colors[index].b;
+      const distance = dr * dr + dg * dg + db * db;
+      if (distance < bestDistance) {
+        bestDistance = distance;
+        best = index;
+      }
+    }
+
+    indices[pixel] = best;
+    counts[best] += 1;
+  }
+
+  const kept = Array.from(colors.keys())
+    .filter((index) => counts[index] > 0)
+    .sort((a, b) => counts[b] - counts[a] || a - b)
+    .slice(0, MAX_PALETTE_COLORS);
+
+  const palette: PaletteEntry[] = kept.map((index) => ({
+    ...colors[index],
+    pixelCount: counts[index],
+  }));
+
+  if (kept.length !== colors.length) {
+    const keptSet = new Set(kept);
+    const remap = new Uint8Array(colors.length);
+    kept.forEach((index, newIndex) => {
+      remap[index] = newIndex;
+    });
+
+    for (let index = 0; index < colors.length; index += 1) {
+      if (keptSet.has(index) || counts[index] === 0) continue;
+      let best = kept[0];
+      let bestDistance = Number.POSITIVE_INFINITY;
+      for (const candidate of kept) {
+        const dr = colors[index].r - colors[candidate].r;
+        const dg = colors[index].g - colors[candidate].g;
+        const db = colors[index].b - colors[candidate].b;
+        const distance = dr * dr + dg * dg + db * db;
+        if (distance < bestDistance) {
+          bestDistance = distance;
+          best = candidate;
+        }
+      }
+      remap[index] = remap[best];
+    }
+
+    for (let pixel = 0; pixel < pixelCount; pixel += 1) {
+      if (indices[pixel] !== TRANSPARENT_INDEX) {
+        indices[pixel] = remap[indices[pixel]];
+      }
+    }
   }
 
   return { width, height, indices, palette, transparentPixels };

@@ -1,6 +1,6 @@
 # SVG Sources — Implementation Plan
 
-Status: proposed (2026-09-13).
+Status: implemented (2026-09-15). Quality and Alpha cutoff re-decode and re-apply whichever reading mode is active.
 
 Scope: the Keychain Maker accepts SVG as a source. An SVG upload gets an explicit mode choice — **Rasterize** (render to pixels, quantize like a PNG) or **Exact colors** (use the SVG's declared fill/stroke colors). Everything after the palette (cleanup → contours → geometry → export) is untouched. No new dependencies; stays inside the client-only boundary (ADR-0001).
 
@@ -31,7 +31,7 @@ Changed:
 
 ```
 src/lib/3d/png.ts → decode.ts     DecodedImage, shared helpers; keeps decodePng
-src/lib/3d/quantize.ts            add assignToPalette(decoded, colors)
+src/lib/3d/quantize.ts            add assignToPalette(decoded, colors, alphaThreshold)
 src/routes/_authenticated/3d.keychain.tsx  source state, dispatch, mode apply, copy
 src/components/3d/image-dropzone.tsx       accept SVG, copy
 src/components/3d/palette-panel.tsx        hide the color-count control in Exact mode
