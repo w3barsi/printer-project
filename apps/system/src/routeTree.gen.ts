@@ -9,69 +9,78 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteRouteImport } from './routes/_auth/route'
-import { Route as AppIndexRouteImport } from './routes/app.index'
-import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
-import { Route as AppSplatRouteImport } from './routes/app.$'
-import { Route as AuthenticatedNewdriveRouteImport } from './routes/_authenticated/newdrive'
-import { Route as AuthenticatedInventoryRouteImport } from './routes/_authenticated/inventory'
-import { Route as AuthenticatedDriveRouteImport } from './routes/_authenticated/drive'
-import { Route as AuthSignupRouteImport } from './routes/_auth/signup'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthLoginRouteImport } from './routes/_auth/login'
-import { Route as AuthenticatedCashierRouteRouteImport } from './routes/_authenticated/_cashier/route'
+import { Route as AuthSignupRouteImport } from './routes/_auth/signup'
+import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
 import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/_admin/route'
-import { Route as AuthenticatedTrelloIndexRouteImport } from './routes/_authenticated/trello.index'
-import { Route as AuthenticatedNewdriveIndexRouteImport } from './routes/_authenticated/newdrive.index'
-import { Route as AuthenticatedJoIndexRouteImport } from './routes/_authenticated/jo.index'
-import { Route as AuthenticatedDriveIndexRouteImport } from './routes/_authenticated/drive.index'
+import { Route as AuthenticatedCashierRouteRouteImport } from './routes/_authenticated/_cashier/route'
+import { Route as AuthenticatedDriveRouteImport } from './routes/_authenticated/drive'
+import { Route as AuthenticatedInventoryRouteImport } from './routes/_authenticated/inventory'
+import { Route as AuthenticatedNewdriveRouteImport } from './routes/_authenticated/newdrive'
+import { Route as AppIndexRouteImport } from './routes/app.index'
+import { Route as AppSplatRouteImport } from './routes/app.$'
 import { Route as Authenticated3dIndexRouteImport } from './routes/_authenticated/3d.index'
-import { Route as ApiAuthSplatRouteImport } from './routes/api/auth.$'
-import { Route as AuthenticatedTrelloListIdRouteImport } from './routes/_authenticated/trello.$listId'
-import { Route as AuthenticatedJoJoIdRouteImport } from './routes/_authenticated/jo.$joId'
-import { Route as AuthenticatedInventoryIdRouteImport } from './routes/_authenticated/inventory_.$id'
-import { Route as AuthenticatedCashierCashflowRouteImport } from './routes/_authenticated/_cashier/cashflow'
 import { Route as Authenticated3dKeychainRouteImport } from './routes/_authenticated/3d.keychain'
+import { Route as AuthenticatedCashierCashflowRouteImport } from './routes/_authenticated/_cashier/cashflow'
+import { Route as AuthenticatedDriveIndexRouteImport } from './routes/_authenticated/drive.index'
+import { Route as AuthenticatedInventoryIdRouteImport } from './routes/_authenticated/inventory_.$id'
+import { Route as AuthenticatedJoIndexRouteImport } from './routes/_authenticated/jo.index'
+import { Route as AuthenticatedJoJoIdRouteImport } from './routes/_authenticated/jo.$joId'
+import { Route as AuthenticatedNewdriveIndexRouteImport } from './routes/_authenticated/newdrive.index'
+import { Route as AuthenticatedTrelloIndexRouteImport } from './routes/_authenticated/trello.index'
+import { Route as AuthenticatedTrelloListIdRouteImport } from './routes/_authenticated/trello.$listId'
+import { Route as ApiAuthSplatRouteImport } from './routes/api/auth.$'
 import { Route as AuthenticatedAdminAdminIndexRouteImport } from './routes/_authenticated/_admin/admin.index'
-import { Route as AuthenticatedNewdriveFileItemIdRouteImport } from './routes/_authenticated/newdrive.file.$itemId'
-import { Route as AuthenticatedNewdriveSpaceIdChar123FolderIdChar125RouteImport } from './routes/_authenticated/newdrive.$spaceId.{-$folderId}'
-import { Route as AuthenticatedDriveFileItemIdRouteImport } from './routes/_authenticated/drive.file.$itemId'
-import { Route as AuthenticatedDriveSpaceIdChar123FolderIdChar125RouteImport } from './routes/_authenticated/drive.$spaceId.{-$folderId}'
-import { Route as AuthenticatedAdminAdminUsersRouteImport } from './routes/_authenticated/_admin/admin.users'
-import { Route as AuthenticatedAdminAdminSuppliersRouteImport } from './routes/_authenticated/_admin/admin.suppliers'
 import { Route as AuthenticatedAdminAdminCustomersRouteImport } from './routes/_authenticated/_admin/admin.customers'
-import { Route as AuthenticatedAdminAdminSuppliersIndexRouteImport } from './routes/_authenticated/_admin/admin.suppliers.index'
+import { Route as AuthenticatedAdminAdminSuppliersRouteImport } from './routes/_authenticated/_admin/admin.suppliers'
+import { Route as AuthenticatedAdminAdminUsersRouteImport } from './routes/_authenticated/_admin/admin.users'
+import { Route as AuthenticatedDriveSpaceIdChar123FolderIdChar125RouteImport } from './routes/_authenticated/drive.$spaceId.{-$folderId}'
+import { Route as AuthenticatedDriveFileItemIdRouteImport } from './routes/_authenticated/drive.file.$itemId'
+import { Route as AuthenticatedNewdriveSpaceIdChar123FolderIdChar125RouteImport } from './routes/_authenticated/newdrive.$spaceId.{-$folderId}'
+import { Route as AuthenticatedNewdriveFileItemIdRouteImport } from './routes/_authenticated/newdrive.file.$itemId'
 import { Route as AuthenticatedAdminAdminCustomersIndexRouteImport } from './routes/_authenticated/_admin/admin.customers.index'
-import { Route as AuthenticatedAdminAdminUsersUserIdRouteImport } from './routes/_authenticated/_admin/admin.users_.$userId'
-import { Route as AuthenticatedAdminAdminSuppliersSupplierIdRouteImport } from './routes/_authenticated/_admin/admin.suppliers.$supplierId'
 import { Route as AuthenticatedAdminAdminCustomersCustomerIdRouteImport } from './routes/_authenticated/_admin/admin.customers.$customerId'
+import { Route as AuthenticatedAdminAdminSuppliersIndexRouteImport } from './routes/_authenticated/_admin/admin.suppliers.index'
+import { Route as AuthenticatedAdminAdminSuppliersSupplierIdRouteImport } from './routes/_authenticated/_admin/admin.suppliers.$supplierId'
+import { Route as AuthenticatedAdminAdminUsersUserIdRouteImport } from './routes/_authenticated/_admin/admin.users_.$userId'
 
-const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
-  id: '/_authenticated',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AuthRouteRoute = AuthRouteRouteImport.update({
   id: '/_auth',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AppIndexRoute = AppIndexRouteImport.update({
-  id: '/app/',
-  path: '/app/',
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthLoginRoute = AuthLoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => AuthRouteRoute,
+} as any)
+const AuthSignupRoute = AuthSignupRouteImport.update({
+  id: '/signup',
+  path: '/signup',
+  getParentRoute: () => AuthRouteRoute,
 } as any)
 const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AppSplatRoute = AppSplatRouteImport.update({
-  id: '/app/$',
-  path: '/app/$',
-  getParentRoute: () => rootRouteImport,
+const AuthenticatedAdminRouteRoute = AuthenticatedAdminRouteRouteImport.update({
+  id: '/_admin',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedNewdriveRoute = AuthenticatedNewdriveRouteImport.update({
-  id: '/newdrive',
-  path: '/newdrive',
+const AuthenticatedCashierRouteRoute =
+  AuthenticatedCashierRouteRouteImport.update({
+    id: '/_cashier',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedDriveRoute = AuthenticatedDriveRouteImport.update({
+  id: '/drive',
+  path: '/drive',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedInventoryRoute = AuthenticatedInventoryRouteImport.update({
@@ -79,72 +88,41 @@ const AuthenticatedInventoryRoute = AuthenticatedInventoryRouteImport.update({
   path: '/inventory',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedDriveRoute = AuthenticatedDriveRouteImport.update({
-  id: '/drive',
-  path: '/drive',
+const AuthenticatedNewdriveRoute = AuthenticatedNewdriveRouteImport.update({
+  id: '/newdrive',
+  path: '/newdrive',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthSignupRoute = AuthSignupRouteImport.update({
-  id: '/signup',
-  path: '/signup',
-  getParentRoute: () => AuthRouteRoute,
+const AppIndexRoute = AppIndexRouteImport.update({
+  id: '/app/',
+  path: '/app/',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const AuthLoginRoute = AuthLoginRouteImport.update({
-  id: '/login',
-  path: '/login',
-  getParentRoute: () => AuthRouteRoute,
-} as any)
-const AuthenticatedCashierRouteRoute =
-  AuthenticatedCashierRouteRouteImport.update({
-    id: '/_cashier',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedAdminRouteRoute = AuthenticatedAdminRouteRouteImport.update({
-  id: '/_admin',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedTrelloIndexRoute =
-  AuthenticatedTrelloIndexRouteImport.update({
-    id: '/trello/',
-    path: '/trello/',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedNewdriveIndexRoute =
-  AuthenticatedNewdriveIndexRouteImport.update({
-    id: '/',
-    path: '/',
-    getParentRoute: () => AuthenticatedNewdriveRoute,
-  } as any)
-const AuthenticatedJoIndexRoute = AuthenticatedJoIndexRouteImport.update({
-  id: '/jo/',
-  path: '/jo/',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedDriveIndexRoute = AuthenticatedDriveIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => AuthenticatedDriveRoute,
+const AppSplatRoute = AppSplatRouteImport.update({
+  id: '/app/$',
+  path: '/app/$',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const Authenticated3dIndexRoute = Authenticated3dIndexRouteImport.update({
   id: '/3d/',
   path: '/3d/',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
-  id: '/api/auth/$',
-  path: '/api/auth/$',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuthenticatedTrelloListIdRoute =
-  AuthenticatedTrelloListIdRouteImport.update({
-    id: '/trello/$listId',
-    path: '/trello/$listId',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedJoJoIdRoute = AuthenticatedJoJoIdRouteImport.update({
-  id: '/jo/$joId',
-  path: '/jo/$joId',
+const Authenticated3dKeychainRoute = Authenticated3dKeychainRouteImport.update({
+  id: '/3d/keychain',
+  path: '/3d/keychain',
   getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedCashierCashflowRoute =
+  AuthenticatedCashierCashflowRouteImport.update({
+    id: '/cashflow',
+    path: '/cashflow',
+    getParentRoute: () => AuthenticatedCashierRouteRoute,
+  } as any)
+const AuthenticatedDriveIndexRoute = AuthenticatedDriveIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthenticatedDriveRoute,
 } as any)
 const AuthenticatedInventoryIdRoute =
   AuthenticatedInventoryIdRouteImport.update({
@@ -152,57 +130,43 @@ const AuthenticatedInventoryIdRoute =
     path: '/inventory/$id',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
-const AuthenticatedCashierCashflowRoute =
-  AuthenticatedCashierCashflowRouteImport.update({
-    id: '/cashflow',
-    path: '/cashflow',
-    getParentRoute: () => AuthenticatedCashierRouteRoute,
-  } as any)
-const Authenticated3dKeychainRoute = Authenticated3dKeychainRouteImport.update({
-  id: '/3d/keychain',
-  path: '/3d/keychain',
+const AuthenticatedJoIndexRoute = AuthenticatedJoIndexRouteImport.update({
+  id: '/jo/',
+  path: '/jo/',
   getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedJoJoIdRoute = AuthenticatedJoJoIdRouteImport.update({
+  id: '/jo/$joId',
+  path: '/jo/$joId',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedNewdriveIndexRoute =
+  AuthenticatedNewdriveIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedNewdriveRoute,
+  } as any)
+const AuthenticatedTrelloIndexRoute =
+  AuthenticatedTrelloIndexRouteImport.update({
+    id: '/trello/',
+    path: '/trello/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedTrelloListIdRoute =
+  AuthenticatedTrelloListIdRouteImport.update({
+    id: '/trello/$listId',
+    path: '/trello/$listId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
+  id: '/api/auth/$',
+  path: '/api/auth/$',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAdminAdminIndexRoute =
   AuthenticatedAdminAdminIndexRouteImport.update({
     id: '/admin/',
     path: '/admin/',
-    getParentRoute: () => AuthenticatedAdminRouteRoute,
-  } as any)
-const AuthenticatedNewdriveFileItemIdRoute =
-  AuthenticatedNewdriveFileItemIdRouteImport.update({
-    id: '/file/$itemId',
-    path: '/file/$itemId',
-    getParentRoute: () => AuthenticatedNewdriveRoute,
-  } as any)
-const AuthenticatedNewdriveSpaceIdChar123FolderIdChar125Route =
-  AuthenticatedNewdriveSpaceIdChar123FolderIdChar125RouteImport.update({
-    id: '/$spaceId/{-$folderId}',
-    path: '/$spaceId/{-$folderId}',
-    getParentRoute: () => AuthenticatedNewdriveRoute,
-  } as any)
-const AuthenticatedDriveFileItemIdRoute =
-  AuthenticatedDriveFileItemIdRouteImport.update({
-    id: '/file/$itemId',
-    path: '/file/$itemId',
-    getParentRoute: () => AuthenticatedDriveRoute,
-  } as any)
-const AuthenticatedDriveSpaceIdChar123FolderIdChar125Route =
-  AuthenticatedDriveSpaceIdChar123FolderIdChar125RouteImport.update({
-    id: '/$spaceId/{-$folderId}',
-    path: '/$spaceId/{-$folderId}',
-    getParentRoute: () => AuthenticatedDriveRoute,
-  } as any)
-const AuthenticatedAdminAdminUsersRoute =
-  AuthenticatedAdminAdminUsersRouteImport.update({
-    id: '/admin/users',
-    path: '/admin/users',
-    getParentRoute: () => AuthenticatedAdminRouteRoute,
-  } as any)
-const AuthenticatedAdminAdminSuppliersRoute =
-  AuthenticatedAdminAdminSuppliersRouteImport.update({
-    id: '/admin/suppliers',
-    path: '/admin/suppliers',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
 const AuthenticatedAdminAdminCustomersRoute =
@@ -211,11 +175,41 @@ const AuthenticatedAdminAdminCustomersRoute =
     path: '/admin/customers',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
-const AuthenticatedAdminAdminSuppliersIndexRoute =
-  AuthenticatedAdminAdminSuppliersIndexRouteImport.update({
-    id: '/',
-    path: '/',
-    getParentRoute: () => AuthenticatedAdminAdminSuppliersRoute,
+const AuthenticatedAdminAdminSuppliersRoute =
+  AuthenticatedAdminAdminSuppliersRouteImport.update({
+    id: '/admin/suppliers',
+    path: '/admin/suppliers',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminAdminUsersRoute =
+  AuthenticatedAdminAdminUsersRouteImport.update({
+    id: '/admin/users',
+    path: '/admin/users',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedDriveSpaceIdChar123FolderIdChar125Route =
+  AuthenticatedDriveSpaceIdChar123FolderIdChar125RouteImport.update({
+    id: '/$spaceId/{-$folderId}',
+    path: '/$spaceId/{-$folderId}',
+    getParentRoute: () => AuthenticatedDriveRoute,
+  } as any)
+const AuthenticatedDriveFileItemIdRoute =
+  AuthenticatedDriveFileItemIdRouteImport.update({
+    id: '/file/$itemId',
+    path: '/file/$itemId',
+    getParentRoute: () => AuthenticatedDriveRoute,
+  } as any)
+const AuthenticatedNewdriveSpaceIdChar123FolderIdChar125Route =
+  AuthenticatedNewdriveSpaceIdChar123FolderIdChar125RouteImport.update({
+    id: '/$spaceId/{-$folderId}',
+    path: '/$spaceId/{-$folderId}',
+    getParentRoute: () => AuthenticatedNewdriveRoute,
+  } as any)
+const AuthenticatedNewdriveFileItemIdRoute =
+  AuthenticatedNewdriveFileItemIdRouteImport.update({
+    id: '/file/$itemId',
+    path: '/file/$itemId',
+    getParentRoute: () => AuthenticatedNewdriveRoute,
   } as any)
 const AuthenticatedAdminAdminCustomersIndexRoute =
   AuthenticatedAdminAdminCustomersIndexRouteImport.update({
@@ -223,11 +217,17 @@ const AuthenticatedAdminAdminCustomersIndexRoute =
     path: '/',
     getParentRoute: () => AuthenticatedAdminAdminCustomersRoute,
   } as any)
-const AuthenticatedAdminAdminUsersUserIdRoute =
-  AuthenticatedAdminAdminUsersUserIdRouteImport.update({
-    id: '/admin/users_/$userId',
-    path: '/admin/users/$userId',
-    getParentRoute: () => AuthenticatedAdminRouteRoute,
+const AuthenticatedAdminAdminCustomersCustomerIdRoute =
+  AuthenticatedAdminAdminCustomersCustomerIdRouteImport.update({
+    id: '/$customerId',
+    path: '/$customerId',
+    getParentRoute: () => AuthenticatedAdminAdminCustomersRoute,
+  } as any)
+const AuthenticatedAdminAdminSuppliersIndexRoute =
+  AuthenticatedAdminAdminSuppliersIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedAdminAdminSuppliersRoute,
   } as any)
 const AuthenticatedAdminAdminSuppliersSupplierIdRoute =
   AuthenticatedAdminAdminSuppliersSupplierIdRouteImport.update({
@@ -235,11 +235,11 @@ const AuthenticatedAdminAdminSuppliersSupplierIdRoute =
     path: '/$supplierId',
     getParentRoute: () => AuthenticatedAdminAdminSuppliersRoute,
   } as any)
-const AuthenticatedAdminAdminCustomersCustomerIdRoute =
-  AuthenticatedAdminAdminCustomersCustomerIdRouteImport.update({
-    id: '/$customerId',
-    path: '/$customerId',
-    getParentRoute: () => AuthenticatedAdminAdminCustomersRoute,
+const AuthenticatedAdminAdminUsersUserIdRoute =
+  AuthenticatedAdminAdminUsersUserIdRouteImport.update({
+    id: '/admin/users_/$userId',
+    path: '/admin/users/$userId',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
@@ -460,13 +460,6 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/_authenticated': {
-      id: '/_authenticated'
-      path: ''
-      fullPath: '/'
-      preLoaderRoute: typeof AuthenticatedRouteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/_auth': {
       id: '/_auth'
       path: ''
@@ -474,54 +467,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/app/': {
-      id: '/app/'
-      path: '/app'
-      fullPath: '/app/'
-      preLoaderRoute: typeof AppIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/_authenticated/': {
-      id: '/_authenticated/'
-      path: '/'
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
       fullPath: '/'
-      preLoaderRoute: typeof AuthenticatedIndexRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/app/$': {
-      id: '/app/$'
-      path: '/app/$'
-      fullPath: '/app/$'
-      preLoaderRoute: typeof AppSplatRouteImport
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
       parentRoute: typeof rootRouteImport
-    }
-    '/_authenticated/newdrive': {
-      id: '/_authenticated/newdrive'
-      path: '/newdrive'
-      fullPath: '/newdrive'
-      preLoaderRoute: typeof AuthenticatedNewdriveRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/inventory': {
-      id: '/_authenticated/inventory'
-      path: '/inventory'
-      fullPath: '/inventory'
-      preLoaderRoute: typeof AuthenticatedInventoryRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/drive': {
-      id: '/_authenticated/drive'
-      path: '/drive'
-      fullPath: '/drive'
-      preLoaderRoute: typeof AuthenticatedDriveRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_auth/signup': {
-      id: '/_auth/signup'
-      path: '/signup'
-      fullPath: '/signup'
-      preLoaderRoute: typeof AuthSignupRouteImport
-      parentRoute: typeof AuthRouteRoute
     }
     '/_auth/login': {
       id: '/_auth/login'
@@ -530,11 +481,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthLoginRouteImport
       parentRoute: typeof AuthRouteRoute
     }
-    '/_authenticated/_cashier': {
-      id: '/_authenticated/_cashier'
-      path: ''
+    '/_auth/signup': {
+      id: '/_auth/signup'
+      path: '/signup'
+      fullPath: '/signup'
+      preLoaderRoute: typeof AuthSignupRouteImport
+      parentRoute: typeof AuthRouteRoute
+    }
+    '/_authenticated/': {
+      id: '/_authenticated/'
+      path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof AuthenticatedCashierRouteRouteImport
+      preLoaderRoute: typeof AuthenticatedIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/_admin': {
@@ -544,33 +502,47 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminRouteRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/trello/': {
-      id: '/_authenticated/trello/'
-      path: '/trello'
-      fullPath: '/trello/'
-      preLoaderRoute: typeof AuthenticatedTrelloIndexRouteImport
+    '/_authenticated/_cashier': {
+      id: '/_authenticated/_cashier'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedCashierRouteRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/newdrive/': {
-      id: '/_authenticated/newdrive/'
-      path: '/'
-      fullPath: '/newdrive/'
-      preLoaderRoute: typeof AuthenticatedNewdriveIndexRouteImport
-      parentRoute: typeof AuthenticatedNewdriveRoute
-    }
-    '/_authenticated/jo/': {
-      id: '/_authenticated/jo/'
-      path: '/jo'
-      fullPath: '/jo/'
-      preLoaderRoute: typeof AuthenticatedJoIndexRouteImport
+    '/_authenticated/drive': {
+      id: '/_authenticated/drive'
+      path: '/drive'
+      fullPath: '/drive'
+      preLoaderRoute: typeof AuthenticatedDriveRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/drive/': {
-      id: '/_authenticated/drive/'
-      path: '/'
-      fullPath: '/drive/'
-      preLoaderRoute: typeof AuthenticatedDriveIndexRouteImport
-      parentRoute: typeof AuthenticatedDriveRoute
+    '/_authenticated/inventory': {
+      id: '/_authenticated/inventory'
+      path: '/inventory'
+      fullPath: '/inventory'
+      preLoaderRoute: typeof AuthenticatedInventoryRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/newdrive': {
+      id: '/_authenticated/newdrive'
+      path: '/newdrive'
+      fullPath: '/newdrive'
+      preLoaderRoute: typeof AuthenticatedNewdriveRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/app/': {
+      id: '/app/'
+      path: '/app'
+      fullPath: '/app/'
+      preLoaderRoute: typeof AppIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/app/$': {
+      id: '/app/$'
+      path: '/app/$'
+      fullPath: '/app/$'
+      preLoaderRoute: typeof AppSplatRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_authenticated/3d/': {
       id: '/_authenticated/3d/'
@@ -579,32 +551,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof Authenticated3dIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/api/auth/$': {
-      id: '/api/auth/$'
-      path: '/api/auth/$'
-      fullPath: '/api/auth/$'
-      preLoaderRoute: typeof ApiAuthSplatRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/_authenticated/trello/$listId': {
-      id: '/_authenticated/trello/$listId'
-      path: '/trello/$listId'
-      fullPath: '/trello/$listId'
-      preLoaderRoute: typeof AuthenticatedTrelloListIdRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/jo/$joId': {
-      id: '/_authenticated/jo/$joId'
-      path: '/jo/$joId'
-      fullPath: '/jo/$joId'
-      preLoaderRoute: typeof AuthenticatedJoJoIdRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/inventory_/$id': {
-      id: '/_authenticated/inventory_/$id'
-      path: '/inventory/$id'
-      fullPath: '/inventory/$id'
-      preLoaderRoute: typeof AuthenticatedInventoryIdRouteImport
+    '/_authenticated/3d/keychain': {
+      id: '/_authenticated/3d/keychain'
+      path: '/3d/keychain'
+      fullPath: '/3d/keychain'
+      preLoaderRoute: typeof Authenticated3dKeychainRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/_cashier/cashflow': {
@@ -614,60 +565,67 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCashierCashflowRouteImport
       parentRoute: typeof AuthenticatedCashierRouteRoute
     }
-    '/_authenticated/3d/keychain': {
-      id: '/_authenticated/3d/keychain'
-      path: '/3d/keychain'
-      fullPath: '/3d/keychain'
-      preLoaderRoute: typeof Authenticated3dKeychainRouteImport
+    '/_authenticated/drive/': {
+      id: '/_authenticated/drive/'
+      path: '/'
+      fullPath: '/drive/'
+      preLoaderRoute: typeof AuthenticatedDriveIndexRouteImport
+      parentRoute: typeof AuthenticatedDriveRoute
+    }
+    '/_authenticated/inventory_/$id': {
+      id: '/_authenticated/inventory_/$id'
+      path: '/inventory/$id'
+      fullPath: '/inventory/$id'
+      preLoaderRoute: typeof AuthenticatedInventoryIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/jo/': {
+      id: '/_authenticated/jo/'
+      path: '/jo'
+      fullPath: '/jo/'
+      preLoaderRoute: typeof AuthenticatedJoIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/jo/$joId': {
+      id: '/_authenticated/jo/$joId'
+      path: '/jo/$joId'
+      fullPath: '/jo/$joId'
+      preLoaderRoute: typeof AuthenticatedJoJoIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/newdrive/': {
+      id: '/_authenticated/newdrive/'
+      path: '/'
+      fullPath: '/newdrive/'
+      preLoaderRoute: typeof AuthenticatedNewdriveIndexRouteImport
+      parentRoute: typeof AuthenticatedNewdriveRoute
+    }
+    '/_authenticated/trello/': {
+      id: '/_authenticated/trello/'
+      path: '/trello'
+      fullPath: '/trello/'
+      preLoaderRoute: typeof AuthenticatedTrelloIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/trello/$listId': {
+      id: '/_authenticated/trello/$listId'
+      path: '/trello/$listId'
+      fullPath: '/trello/$listId'
+      preLoaderRoute: typeof AuthenticatedTrelloListIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/api/auth/$': {
+      id: '/api/auth/$'
+      path: '/api/auth/$'
+      fullPath: '/api/auth/$'
+      preLoaderRoute: typeof ApiAuthSplatRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_authenticated/_admin/admin/': {
       id: '/_authenticated/_admin/admin/'
       path: '/admin'
       fullPath: '/admin/'
       preLoaderRoute: typeof AuthenticatedAdminAdminIndexRouteImport
-      parentRoute: typeof AuthenticatedAdminRouteRoute
-    }
-    '/_authenticated/newdrive/file/$itemId': {
-      id: '/_authenticated/newdrive/file/$itemId'
-      path: '/file/$itemId'
-      fullPath: '/newdrive/file/$itemId'
-      preLoaderRoute: typeof AuthenticatedNewdriveFileItemIdRouteImport
-      parentRoute: typeof AuthenticatedNewdriveRoute
-    }
-    '/_authenticated/newdrive/$spaceId/{-$folderId}': {
-      id: '/_authenticated/newdrive/$spaceId/{-$folderId}'
-      path: '/$spaceId/{-$folderId}'
-      fullPath: '/newdrive/$spaceId/{-$folderId}'
-      preLoaderRoute: typeof AuthenticatedNewdriveSpaceIdChar123FolderIdChar125RouteImport
-      parentRoute: typeof AuthenticatedNewdriveRoute
-    }
-    '/_authenticated/drive/file/$itemId': {
-      id: '/_authenticated/drive/file/$itemId'
-      path: '/file/$itemId'
-      fullPath: '/drive/file/$itemId'
-      preLoaderRoute: typeof AuthenticatedDriveFileItemIdRouteImport
-      parentRoute: typeof AuthenticatedDriveRoute
-    }
-    '/_authenticated/drive/$spaceId/{-$folderId}': {
-      id: '/_authenticated/drive/$spaceId/{-$folderId}'
-      path: '/$spaceId/{-$folderId}'
-      fullPath: '/drive/$spaceId/{-$folderId}'
-      preLoaderRoute: typeof AuthenticatedDriveSpaceIdChar123FolderIdChar125RouteImport
-      parentRoute: typeof AuthenticatedDriveRoute
-    }
-    '/_authenticated/_admin/admin/users': {
-      id: '/_authenticated/_admin/admin/users'
-      path: '/admin/users'
-      fullPath: '/admin/users'
-      preLoaderRoute: typeof AuthenticatedAdminAdminUsersRouteImport
-      parentRoute: typeof AuthenticatedAdminRouteRoute
-    }
-    '/_authenticated/_admin/admin/suppliers': {
-      id: '/_authenticated/_admin/admin/suppliers'
-      path: '/admin/suppliers'
-      fullPath: '/admin/suppliers'
-      preLoaderRoute: typeof AuthenticatedAdminAdminSuppliersRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
     '/_authenticated/_admin/admin/customers': {
@@ -677,12 +635,47 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminAdminCustomersRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
-    '/_authenticated/_admin/admin/suppliers/': {
-      id: '/_authenticated/_admin/admin/suppliers/'
-      path: '/'
-      fullPath: '/admin/suppliers/'
-      preLoaderRoute: typeof AuthenticatedAdminAdminSuppliersIndexRouteImport
-      parentRoute: typeof AuthenticatedAdminAdminSuppliersRoute
+    '/_authenticated/_admin/admin/suppliers': {
+      id: '/_authenticated/_admin/admin/suppliers'
+      path: '/admin/suppliers'
+      fullPath: '/admin/suppliers'
+      preLoaderRoute: typeof AuthenticatedAdminAdminSuppliersRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/_admin/admin/users': {
+      id: '/_authenticated/_admin/admin/users'
+      path: '/admin/users'
+      fullPath: '/admin/users'
+      preLoaderRoute: typeof AuthenticatedAdminAdminUsersRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/drive/$spaceId/{-$folderId}': {
+      id: '/_authenticated/drive/$spaceId/{-$folderId}'
+      path: '/$spaceId/{-$folderId}'
+      fullPath: '/drive/$spaceId/{-$folderId}'
+      preLoaderRoute: typeof AuthenticatedDriveSpaceIdChar123FolderIdChar125RouteImport
+      parentRoute: typeof AuthenticatedDriveRoute
+    }
+    '/_authenticated/drive/file/$itemId': {
+      id: '/_authenticated/drive/file/$itemId'
+      path: '/file/$itemId'
+      fullPath: '/drive/file/$itemId'
+      preLoaderRoute: typeof AuthenticatedDriveFileItemIdRouteImport
+      parentRoute: typeof AuthenticatedDriveRoute
+    }
+    '/_authenticated/newdrive/$spaceId/{-$folderId}': {
+      id: '/_authenticated/newdrive/$spaceId/{-$folderId}'
+      path: '/$spaceId/{-$folderId}'
+      fullPath: '/newdrive/$spaceId/{-$folderId}'
+      preLoaderRoute: typeof AuthenticatedNewdriveSpaceIdChar123FolderIdChar125RouteImport
+      parentRoute: typeof AuthenticatedNewdriveRoute
+    }
+    '/_authenticated/newdrive/file/$itemId': {
+      id: '/_authenticated/newdrive/file/$itemId'
+      path: '/file/$itemId'
+      fullPath: '/newdrive/file/$itemId'
+      preLoaderRoute: typeof AuthenticatedNewdriveFileItemIdRouteImport
+      parentRoute: typeof AuthenticatedNewdriveRoute
     }
     '/_authenticated/_admin/admin/customers/': {
       id: '/_authenticated/_admin/admin/customers/'
@@ -691,12 +684,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminAdminCustomersIndexRouteImport
       parentRoute: typeof AuthenticatedAdminAdminCustomersRoute
     }
-    '/_authenticated/_admin/admin/users_/$userId': {
-      id: '/_authenticated/_admin/admin/users_/$userId'
-      path: '/admin/users/$userId'
-      fullPath: '/admin/users/$userId'
-      preLoaderRoute: typeof AuthenticatedAdminAdminUsersUserIdRouteImport
-      parentRoute: typeof AuthenticatedAdminRouteRoute
+    '/_authenticated/_admin/admin/customers/$customerId': {
+      id: '/_authenticated/_admin/admin/customers/$customerId'
+      path: '/$customerId'
+      fullPath: '/admin/customers/$customerId'
+      preLoaderRoute: typeof AuthenticatedAdminAdminCustomersCustomerIdRouteImport
+      parentRoute: typeof AuthenticatedAdminAdminCustomersRoute
+    }
+    '/_authenticated/_admin/admin/suppliers/': {
+      id: '/_authenticated/_admin/admin/suppliers/'
+      path: '/'
+      fullPath: '/admin/suppliers/'
+      preLoaderRoute: typeof AuthenticatedAdminAdminSuppliersIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminAdminSuppliersRoute
     }
     '/_authenticated/_admin/admin/suppliers/$supplierId': {
       id: '/_authenticated/_admin/admin/suppliers/$supplierId'
@@ -705,12 +705,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminAdminSuppliersSupplierIdRouteImport
       parentRoute: typeof AuthenticatedAdminAdminSuppliersRoute
     }
-    '/_authenticated/_admin/admin/customers/$customerId': {
-      id: '/_authenticated/_admin/admin/customers/$customerId'
-      path: '/$customerId'
-      fullPath: '/admin/customers/$customerId'
-      preLoaderRoute: typeof AuthenticatedAdminAdminCustomersCustomerIdRouteImport
-      parentRoute: typeof AuthenticatedAdminAdminCustomersRoute
+    '/_authenticated/_admin/admin/users_/$userId': {
+      id: '/_authenticated/_admin/admin/users_/$userId'
+      path: '/admin/users/$userId'
+      fullPath: '/admin/users/$userId'
+      preLoaderRoute: typeof AuthenticatedAdminAdminUsersUserIdRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
     }
   }
 }

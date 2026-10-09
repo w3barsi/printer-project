@@ -13,8 +13,8 @@ import { Route as ShopRouteRouteImport } from './routes/_shop/route'
 import { Route as ShopIndexRouteImport } from './routes/_shop/index'
 import { Route as ShopOrderRouteImport } from './routes/_shop/order'
 import { Route as ShopShowcaseIndexRouteImport } from './routes/_shop/showcase.index'
-import { Route as ShareTokenChar123ItemIdChar125RouteImport } from './routes/share.$token.{-$itemId}'
 import { Route as ShopShowcaseServiceRouteImport } from './routes/_shop/showcase.$service'
+import { Route as ShareTokenChar123ItemIdChar125RouteImport } from './routes/share.$token.{-$itemId}'
 
 const ShopRouteRoute = ShopRouteRouteImport.update({
   id: '/_shop',
@@ -35,17 +35,17 @@ const ShopShowcaseIndexRoute = ShopShowcaseIndexRouteImport.update({
   path: '/showcase/',
   getParentRoute: () => ShopRouteRoute,
 } as any)
+const ShopShowcaseServiceRoute = ShopShowcaseServiceRouteImport.update({
+  id: '/showcase/$service',
+  path: '/showcase/$service',
+  getParentRoute: () => ShopRouteRoute,
+} as any)
 const ShareTokenChar123ItemIdChar125Route =
   ShareTokenChar123ItemIdChar125RouteImport.update({
     id: '/share/$token/{-$itemId}',
     path: '/share/$token/{-$itemId}',
     getParentRoute: () => rootRouteImport,
   } as any)
-const ShopShowcaseServiceRoute = ShopShowcaseServiceRouteImport.update({
-  id: '/showcase/$service',
-  path: '/showcase/$service',
-  getParentRoute: () => ShopRouteRoute,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof ShopIndexRoute
@@ -130,19 +130,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ShopShowcaseIndexRouteImport
       parentRoute: typeof ShopRouteRoute
     }
-    '/share/$token/{-$itemId}': {
-      id: '/share/$token/{-$itemId}'
-      path: '/share/$token/{-$itemId}'
-      fullPath: '/share/$token/{-$itemId}'
-      preLoaderRoute: typeof ShareTokenChar123ItemIdChar125RouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/_shop/showcase/$service': {
       id: '/_shop/showcase/$service'
       path: '/showcase/$service'
       fullPath: '/showcase/$service'
       preLoaderRoute: typeof ShopShowcaseServiceRouteImport
       parentRoute: typeof ShopRouteRoute
+    }
+    '/share/$token/{-$itemId}': {
+      id: '/share/$token/{-$itemId}'
+      path: '/share/$token/{-$itemId}'
+      fullPath: '/share/$token/{-$itemId}'
+      preLoaderRoute: typeof ShareTokenChar123ItemIdChar125RouteImport
+      parentRoute: typeof rootRouteImport
     }
   }
 }
