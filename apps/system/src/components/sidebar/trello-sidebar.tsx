@@ -16,7 +16,7 @@ import { Spinner } from "@dg/ui/components/spinner";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@dg/ui/components/tooltip";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useMatch } from "@tanstack/react-router";
-import { ChevronRight, TrelloIcon } from "lucide-react";
+import { ChevronRight, KanbanIcon, KanbanSquareIcon } from "lucide-react";
 import { useEffect } from "react";
 
 import { useLocalStorage } from "@/hooks/use-local-storage";
@@ -50,7 +50,7 @@ export function TrelloSidebar() {
     return (
       <SidebarMenuItem>
         <SidebarMenuButton tooltip="Loading..." disabled>
-          <TrelloIcon className="text-neutral-500" />
+          <KanbanIcon className="text-neutral-500" />
           <span className="text-neutral-500">Trello</span>
         </SidebarMenuButton>
         <SidebarMenuAction showOnHover={false} className="hover:bg-transparent">
@@ -65,7 +65,7 @@ export function TrelloSidebar() {
       <Tooltip>
         <TooltipTrigger render={<SidebarMenuItem />}>
           <SidebarMenuButton tooltip="Trello API Error" disabled>
-            <TrelloIcon className="text-red-500" />
+            <KanbanSquareIcon className="text-red-500" />
             <span className="text-red-500">Trello</span>
           </SidebarMenuButton>
         </TooltipTrigger>
@@ -79,7 +79,7 @@ export function TrelloSidebar() {
   if (!lists) {
     <SidebarMenuItem>
       <SidebarMenuButton tooltip="Trello API Error" disabled>
-        <TrelloIcon className="text-red-500" />
+        <KanbanSquareIcon className="text-red-500" />
         <span className="text-red-500">Trello</span>
       </SidebarMenuButton>
     </SidebarMenuItem>;
@@ -98,7 +98,7 @@ export function TrelloSidebar() {
           />
         }
       >
-        <TrelloIcon />
+        <KanbanSquareIcon />
         <span>Trello</span>
       </SidebarMenuButton>
       {lists?.length ? (
