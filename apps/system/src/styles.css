@@ -3,6 +3,7 @@
 
 @source "./";
 @source "../../../packages/drive/src";
+@source "../../../packages/ui-coss/components";
 
 @layer utilities {
   @keyframes dot-appear {

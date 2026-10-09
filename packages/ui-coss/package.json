@@ -1,0 +1,41 @@
+{
+  "name": "@dg/ui-coss",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./components/*": "./components/*.tsx",
+    "./hooks/*": "./hooks/*.ts",
+    "./lib/*": "./lib/*.ts",
+    "./styles/base.css": "./styles/base.css"
+  },
+  "scripts": {
+    "ui": "pnpm dlx shadcn@4.21.4"
+  },
+  "dependencies": {
+    "@base-ui/react": "^1.8.0",
+    "@daypicker/react": "^10.0.2",
+    "@fontsource-variable/inter": "^5.3.0",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "cn": "^0.4.0",
+    "color": "^5.0.3",
+    "geist": "^1.7.2",
+    "lucide-react": "^0.525.0",
+    "react-day-picker": "^10.0.2",
+    "tailwind-merge": "^3.7.0",
+    "tailwindcss": "^4.3.3",
+    "tw-animate-css": "^1.4.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "shadcn": "^4.21.4",
+    "typescript": "^5.9.3"
+  },
+  "peerDependencies": {
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0"
+  }
+}
