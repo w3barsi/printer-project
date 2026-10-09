@@ -57,8 +57,8 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
       <head>
         <HeadContent />
       </head>
-      <body>
-        {children}
+      <body className="relative">
+        <div className="relative isolate flex min-h-svh flex-col">{children}</div>
         <Scripts />
       </body>
     </html>

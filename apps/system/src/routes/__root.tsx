@@ -4,7 +4,8 @@ import {
 } from "@convex-dev/better-auth/react";
 import { convexQuery, type ConvexQueryClient } from "@convex-dev/react-query";
 import { api } from "@dg/backend/api";
-import { TooltipProvider } from "@dg/ui/components/tooltip";
+import { ToastProvider } from "@dg/ui-coss/components/toast";
+import { TooltipProvider } from "@dg/ui-coss/components/tooltip";
 import { TanStackDevtools } from "@tanstack/react-devtools";
 import { queryOptions, type QueryClient } from "@tanstack/react-query";
 import { ReactQueryDevtoolsPanel } from "@tanstack/react-query-devtools";
@@ -97,7 +98,7 @@ function RootComponent() {
       authClient={authClient as unknown as ConvexAuthClient}
       initialToken={token}
     >
-      <TooltipProvider>
+      <TooltipProvider delay={0}>
         <DeviceProvider>
           <RootDocument>
             <Outlet />
@@ -114,10 +115,12 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
       <head>
         <HeadContent />
       </head>
-      <body>
+      <body className="relative">
         <ThemeProvider>
-          {children}
-          <ThemedToaster richColors position="top-center" />
+          <ToastProvider position="top-center">
+            <div className="relative isolate flex min-h-svh flex-col">{children}</div>
+            <ThemedToaster richColors position="top-center" />
+          </ToastProvider>
         </ThemeProvider>
         <TanStackDevtools
           plugins={[
