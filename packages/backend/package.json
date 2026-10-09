@@ -19,13 +19,13 @@
     "convex:env": "pnpm --dir ../.. exec convex env"
   },
   "dependencies": {
-    "@convex-dev/better-auth": "^0.12.4",
-    "@convex-dev/migrations": "^0.3.5",
-    "@convex-dev/r2": "^0.10.2",
+    "@convex-dev/better-auth": "^0.12.5",
+    "@convex-dev/migrations": "^0.3.6",
+    "@convex-dev/r2": "^0.10.3",
     "@dg/auth": "workspace:*",
     "better-auth": "~1.6.19",
-    "convex": "^1.42.0",
-    "convex-helpers": "^0.1.119"
+    "convex": "^1.46.0",
+    "convex-helpers": "^0.1.128"
   },
   "devDependencies": {
     "typescript": "^5.9.3"
