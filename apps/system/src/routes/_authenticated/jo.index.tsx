@@ -2,9 +2,9 @@ import { convexQuery } from "@convex-dev/react-query";
 import { api } from "@dg/backend/api";
 import { Badge } from "@dg/ui-coss/components/badge";
 import { Button } from "@dg/ui-coss/components/button";
+import { Input } from "@dg/ui-coss/components/input";
 import { Skeleton } from "@dg/ui-coss/components/skeleton";
 import { cn } from "@dg/ui-coss/lib/utils";
-import { Input } from "@dg/ui/components/input";
 import {
   Table,
   TableBody,

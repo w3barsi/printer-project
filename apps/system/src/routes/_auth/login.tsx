@@ -1,6 +1,6 @@
 import { Button } from "@dg/ui-coss/components/button";
+import { Input } from "@dg/ui-coss/components/input";
 import { Label } from "@dg/ui-coss/components/label";
-import { Input } from "@dg/ui/components/input";
 import {
   InputGroup,
   InputGroupAddon,

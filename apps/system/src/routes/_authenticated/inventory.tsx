@@ -3,6 +3,7 @@ import { api } from "@dg/backend/api";
 import { Badge } from "@dg/ui-coss/components/badge";
 import { Button } from "@dg/ui-coss/components/button";
 import { Skeleton } from "@dg/ui-coss/components/skeleton";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@dg/ui-coss/components/tabs";
 import {
   Card,
   CardContent,
@@ -26,7 +27,6 @@ import {
   TableRow,
   TableWrapper,
 } from "@dg/ui/components/table";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@dg/ui/components/tabs";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArchiveIcon, ArrowLeftIcon, ArrowRightIcon, BoxesIcon } from "lucide-react";
@@ -89,7 +89,7 @@ function InventoryPage() {
       </div>
 
       <Tabs defaultValue="items" className="flex-col">
-        <TabsList variant="line">
+        <TabsList variant="underline">
           <TabsTrigger value="items">Stock</TabsTrigger>
           <TabsTrigger value="activity">Activity</TabsTrigger>
         </TabsList>

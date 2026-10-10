@@ -1,4 +1,4 @@
-import { Progress } from "@dg/ui/components/progress";
+import { Progress } from "@dg/ui-coss/components/progress";
 import { CheckCircle2Icon, Loader2Icon, XCircleIcon } from "lucide-react";
 
 export function UploadToast({

@@ -1,6 +1,6 @@
 import { Button } from "@dg/ui-coss/components/button";
-import { Input } from "@dg/ui/components/input";
-import { Switch } from "@dg/ui/components/switch";
+import { Input } from "@dg/ui-coss/components/input";
+import { Switch } from "@dg/ui-coss/components/switch";
 
 import { fromHex, toHex, type RgbColor } from "@/lib/3d/color";
 import { BASE_LIMITS, type PaletteSwatch } from "@/lib/3d/design";
@@ -82,7 +82,6 @@ export function PalettePanel({
           <div className="flex items-center justify-between">
             <span className="text-xs text-muted-foreground">Uniform thickness</span>
             <Switch
-              size="sm"
               checked={uniformThickness}
               disabled={disabled}
               onCheckedChange={onUniformThicknessChange}

@@ -1,6 +1,7 @@
 import { api } from "@dg/backend/api";
 import type { Id } from "@dg/backend/dataModel";
 import { Button } from "@dg/ui-coss/components/button";
+import { Input } from "@dg/ui-coss/components/input";
 import {
   Dialog,
   DialogContent,
@@ -9,7 +10,6 @@ import {
   DialogTrigger,
 } from "@dg/ui/components/dialog";
 import { Field, FieldError, FieldLabel } from "@dg/ui/components/field";
-import { Input } from "@dg/ui/components/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouteContext } from "@tanstack/react-router";
 import { useMutation } from "convex/react";

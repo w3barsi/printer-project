@@ -1,4 +1,5 @@
 import { Button } from "@dg/ui-coss/components/button";
+import { Input } from "@dg/ui-coss/components/input";
 import { Spinner } from "@dg/ui-coss/components/spinner";
 import {
   AlertDialog,
@@ -19,7 +20,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@dg/ui/components/dialog";
-import { Input } from "@dg/ui/components/input";
 import {
   Select,
   SelectContent,

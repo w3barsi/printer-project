@@ -1,4 +1,4 @@
-import { Slider } from "@dg/ui/components/slider";
+import { Slider } from "@dg/ui-coss/components/slider";
 import { useEffect, useState, type ReactNode } from "react";
 
 export type SliderRowProps = {

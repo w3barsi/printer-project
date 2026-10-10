@@ -1,3 +1,4 @@
+import { Switch } from "@dg/ui-coss/components/switch";
 import {
   Select,
   SelectContent,
@@ -6,7 +7,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@dg/ui/components/select";
-import { Switch } from "@dg/ui/components/switch";
 
 import { ColorPickerPopover } from "@/components/3d/color-picker-popover";
 import { SliderRow } from "@/components/3d/slider-row";
@@ -122,7 +122,6 @@ export function BasePanel({
             <label className="flex items-center gap-1.5 text-xs text-muted-foreground">
               Auto
               <Switch
-                size="sm"
                 checked={autoRadius}
                 onCheckedChange={(checked) =>
                   onSettingsChange({
@@ -153,7 +152,6 @@ export function BasePanel({
           </span>
         </div>
         <Switch
-          size="sm"
           checked={settings.faceDown}
           onCheckedChange={(checked) =>
             onSettingsChange({ ...settings, faceDown: checked })
