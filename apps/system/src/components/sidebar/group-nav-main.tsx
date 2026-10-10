@@ -4,7 +4,7 @@ import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
-} from "@dg/ui/components/collapsible";
+} from "@dg/ui-coss/components/collapsible";
 import {
   SidebarGroup,
   SidebarMenu,

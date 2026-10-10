@@ -1,8 +1,6 @@
 import { api } from "@dg/backend/api";
 import type { Id } from "@dg/backend/dataModel";
 import { Button } from "@dg/ui-coss/components/button";
-import { Field, FieldError, FieldLabel } from "@dg/ui-coss/components/field";
-import { Input } from "@dg/ui-coss/components/input";
 import {
   Dialog,
   DialogContent,
@@ -10,7 +8,9 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@dg/ui/components/dialog";
+} from "@dg/ui-coss/components/dialog";
+import { Field, FieldError, FieldLabel } from "@dg/ui-coss/components/field";
+import { Input } from "@dg/ui-coss/components/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouteContext, useSearch } from "@tanstack/react-router";
 import { useMutation } from "convex/react";

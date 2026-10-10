@@ -1,4 +1,3 @@
-import { Switch } from "@dg/ui-coss/components/switch";
 import {
   Select,
   SelectContent,
@@ -6,7 +5,8 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@dg/ui/components/select";
+} from "@dg/ui-coss/components/select";
+import { Switch } from "@dg/ui-coss/components/switch";
 
 import { ColorPickerPopover } from "@/components/3d/color-picker-popover";
 import { SliderRow } from "@/components/3d/slider-row";

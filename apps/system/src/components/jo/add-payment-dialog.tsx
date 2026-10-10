@@ -1,10 +1,6 @@
 import { api } from "@dg/backend/api";
 import type { Id } from "@dg/backend/dataModel";
 import { Button } from "@dg/ui-coss/components/button";
-import { Field, FieldError, FieldLabel } from "@dg/ui-coss/components/field";
-import { Input } from "@dg/ui-coss/components/input";
-import { Kbd } from "@dg/ui-coss/components/kbd";
-import { Textarea } from "@dg/ui-coss/components/textarea";
 import {
   Dialog,
   DialogContent,
@@ -13,7 +9,10 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@dg/ui/components/dialog";
+} from "@dg/ui-coss/components/dialog";
+import { Field, FieldError, FieldLabel } from "@dg/ui-coss/components/field";
+import { Input } from "@dg/ui-coss/components/input";
+import { Kbd } from "@dg/ui-coss/components/kbd";
 import {
   Select,
   SelectContent,
@@ -21,8 +20,9 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@dg/ui/components/select";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@dg/ui/components/tooltip";
+} from "@dg/ui-coss/components/select";
+import { Textarea } from "@dg/ui-coss/components/textarea";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@dg/ui-coss/components/tooltip";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouteContext } from "@tanstack/react-router";
 import { useMutation } from "convex/react";

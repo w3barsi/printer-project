@@ -1,17 +1,13 @@
-import { Button } from "@dg/ui-coss/components/button";
-import { Input } from "@dg/ui-coss/components/input";
-import { Spinner } from "@dg/ui-coss/components/spinner";
 import {
   AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
+  AlertDialogClose,
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
-  AlertDialogMedia,
   AlertDialogTitle,
-} from "@dg/ui/components/alert-dialog";
+} from "@dg/ui-coss/components/alert-dialog";
+import { Button } from "@dg/ui-coss/components/button";
 import {
   Dialog,
   DialogContent,
@@ -19,7 +15,8 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@dg/ui/components/dialog";
+} from "@dg/ui-coss/components/dialog";
+import { Input } from "@dg/ui-coss/components/input";
 import {
   Select,
   SelectContent,
@@ -27,7 +24,8 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@dg/ui/components/select";
+} from "@dg/ui-coss/components/select";
+import { Spinner } from "@dg/ui-coss/components/spinner";
 import { FolderInputIcon, Trash2Icon } from "lucide-react";
 import type { FormEventHandler } from "react";
 
@@ -52,9 +50,12 @@ export function DeleteItemsDialog({
     <AlertDialog open={itemIds.length > 0} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogMedia className="bg-destructive/10 text-destructive">
+          <div
+            data-slot="alert-dialog-media"
+            className="mb-2 inline-flex size-16 items-center justify-center rounded-md bg-destructive/10 text-destructive sm:group-data-[size=default]/alert-dialog-content:row-span-2 *:[svg:not([class*='size-'])]:size-8"
+          >
             <Trash2Icon />
-          </AlertDialogMedia>
+          </div>
           <AlertDialogTitle>
             Delete {itemIds.length === 1 ? "this item" : "selected items"}?
           </AlertDialogTitle>
@@ -71,14 +72,13 @@ export function DeleteItemsDialog({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
-          <AlertDialogAction
-            variant="destructive"
+          <AlertDialogClose disabled={isDeleting}>Cancel</AlertDialogClose>
+          <AlertDialogClose
             disabled={isDeleting}
-            onClick={(event) => {
-              event.preventDefault();
+            onClick={() => {
               onConfirm();
             }}
+            render={<Button variant="destructive" />}
           >
             {isDeleting ? (
               <Spinner data-icon="inline-start" />
@@ -86,7 +86,7 @@ export function DeleteItemsDialog({
               <Trash2Icon data-icon="inline-start" />
             )}
             Delete
-          </AlertDialogAction>
+          </AlertDialogClose>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
@@ -173,6 +173,12 @@ export function MoveItemDialog({
         <Select
           value={destinationId}
           onValueChange={(value) => onDestinationChange(value ?? "")}
+          items={destinations
+            .filter(({ id }) => id !== item?.id)
+            .map((destination) => ({
+              value: destination.id,
+              label: destination.name,
+            }))}
         >
           <SelectTrigger className="w-full">
             <SelectValue placeholder="Select a destination" />

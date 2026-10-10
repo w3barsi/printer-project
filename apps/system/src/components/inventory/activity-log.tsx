@@ -17,6 +17,14 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@dg/ui-coss/components/empty";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@dg/ui-coss/components/select";
 import { Skeleton } from "@dg/ui-coss/components/skeleton";
 import {
   Table,
@@ -36,14 +44,6 @@ import {
   ComboboxList,
   ComboboxTrigger,
 } from "@dg/ui/components/combobox";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@dg/ui/components/select";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { Link, useRouteContext } from "@tanstack/react-router";
 import { ArrowLeftIcon, ArrowRightIcon, HistoryIcon, Trash2Icon } from "lucide-react";
