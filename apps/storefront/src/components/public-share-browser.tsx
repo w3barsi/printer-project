@@ -11,7 +11,7 @@ import { downloadSharedFolder } from "@dg/drive/download-shared-folder";
 import { shareApi, type PublicShareItem } from "@dg/drive/share-api";
 import type { DriveItem } from "@dg/drive/types";
 import { useDriveUploadWithOperations } from "@dg/drive/use-upload";
-import { Badge } from "@dg/ui/components/badge";
+import { Badge } from "@dg/ui-coss/components/badge";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -19,10 +19,11 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from "@dg/ui/components/breadcrumb";
-import { Button } from "@dg/ui/components/button";
-import { Progress } from "@dg/ui/components/progress";
-import { Spinner } from "@dg/ui/components/spinner";
+} from "@dg/ui-coss/components/breadcrumb";
+import { Button } from "@dg/ui-coss/components/button";
+import { Progress } from "@dg/ui-coss/components/progress";
+import { Spinner } from "@dg/ui-coss/components/spinner";
+import { toastManager } from "@dg/ui-coss/components/toast";
 import { useNavigate } from "@tanstack/react-router";
 import { useAction, useConvex, useMutation, useQuery } from "convex/react";
 import { format, formatDistanceToNow } from "date-fns";
@@ -34,7 +35,6 @@ import {
   LockKeyholeIcon,
 } from "lucide-react";
 import { Fragment, useEffect, useRef, useState } from "react";
-import { toast } from "sonner";
 
 export function PublicShareBrowser({
   token,
@@ -128,14 +128,21 @@ export function PublicShareBrowser({
   }
 
   async function downloadItems(items: Array<Pick<DriveItem, "id" | "kind">>) {
-    const toastId = toast.loading("Download in progress");
+    const toastId = toastManager.add({
+      title: "Download in progress",
+      type: "loading",
+      timeout: 0,
+    });
     try {
       const manifests = await Promise.all(items.map(getDownloadManifest));
       await downloadDriveItems(manifests);
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Download failed");
+      toastManager.add({
+        title: error instanceof Error ? error.message : "Download failed",
+        type: "error",
+      });
     } finally {
-      toast.dismiss(toastId);
+      toastManager.close(toastId);
     }
   }
 
@@ -351,7 +358,10 @@ function PublicFile({
         folders: [],
       });
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Download failed");
+      toastManager.add({
+        title: error instanceof Error ? error.message : "Download failed",
+        type: "error",
+      });
     } finally {
       if (downloadRequest.current === request) setIsDownloading(false);
     }
@@ -465,14 +475,16 @@ function DownloadAllButton({ token }: { token: string }) {
       );
       if (abortController.current === controller) {
         setProgress(100);
-        toast.success("Archive downloaded");
+        toastManager.add({ title: "Archive downloaded", type: "success" });
       }
     } catch (error) {
-      if (controller.signal.aborted) toast.info("Archive download cancelled");
+      if (controller.signal.aborted)
+        toastManager.add({ title: "Archive download cancelled", type: "info" });
       else
-        toast.error(
-          error instanceof Error ? error.message : "Archive could not be created",
-        );
+        toastManager.add({
+          title: error instanceof Error ? error.message : "Archive could not be created",
+          type: "error",
+        });
     } finally {
       if (abortController.current === controller) {
         abortController.current = null;

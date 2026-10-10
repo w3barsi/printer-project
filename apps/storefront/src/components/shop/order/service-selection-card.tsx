@@ -1,4 +1,4 @@
-import { Badge } from "@dg/ui/components/badge";
+import { Badge } from "@dg/ui-coss/components/badge";
 import { ArrowRightIcon } from "lucide-react";
 
 import { SERVICES } from "@/lib/services";

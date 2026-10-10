@@ -44,6 +44,9 @@ importers:
       '@dg/ui':
         specifier: workspace:*
         version: link:../../packages/ui
+      '@dg/ui-coss':
+        specifier: workspace:*
+        version: link:../../packages/ui-coss
       '@t3-oss/env-core':
         specifier: ^0.13.11
         version: 0.13.11(typescript@5.9.3)(zod@4.6.5)

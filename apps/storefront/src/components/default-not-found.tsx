@@ -1,4 +1,4 @@
-import { Button } from "@dg/ui/components/button";
+import { Button } from "@dg/ui-coss/components/button";
 import { Link } from "@tanstack/react-router";
 
 export function DefaultNotFound() {
@@ -9,7 +9,7 @@ export function DefaultNotFound() {
         <Button type="button" onClick={() => window.history.back()}>
           Go back
         </Button>
-        <Button variant="secondary" nativeButton={false} render={<Link to="/" />}>
+        <Button variant="secondary" render={<Link to="/" />}>
           Home
         </Button>
       </p>

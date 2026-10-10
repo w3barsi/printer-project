@@ -1,5 +1,5 @@
 import type { ConvexQueryClient } from "@convex-dev/react-query";
-import { Toaster } from "@dg/ui/components/sonner";
+import { ToastProvider } from "@dg/ui-coss/components/toast";
 import type { QueryClient } from "@tanstack/react-query";
 import {
   createRootRouteWithContext,
@@ -44,8 +44,9 @@ function RootComponent() {
   return (
     <ConvexProvider client={convexQueryClient.convexClient}>
       <RootDocument>
-        <Outlet />
-        <Toaster />
+        <ToastProvider>
+          <Outlet />
+        </ToastProvider>
       </RootDocument>
     </ConvexProvider>
   );
