@@ -8,6 +8,7 @@ import {
   DialogDescription,
   DialogFooter,
   DialogHeader,
+  DialogPanel,
   DialogTitle,
 } from "@dg/ui-coss/components/dialog";
 import { Field, FieldLabel } from "@dg/ui-coss/components/field";
@@ -142,94 +143,96 @@ export function ShareDialog({
             disabled.
           </DialogDescription>
         </DialogHeader>
-        {settings === undefined ? (
-          <div className="flex min-h-32 items-center justify-center">
-            <Spinner />
-          </div>
-        ) : (
-          <div className="flex w-full flex-col gap-7">
-            <Field>
-              <FieldLabel>Access</FieldLabel>
-              <Select
-                items={accessItems}
-                value={access}
-                onValueChange={(value) => setAccess(value as Access)}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    {accessItems.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
-            </Field>
-            <Field>
-              <FieldLabel>Expiration</FieldLabel>
-              <Select
-                items={expirationItems}
-                value={expiration}
-                onValueChange={(value) => setExpiration(value as Expiration)}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    {expirationItems.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
-            </Field>
-            {expiration === "custom" && (
+        <DialogPanel>
+          {settings === undefined ? (
+            <div className="flex min-h-32 items-center justify-center">
+              <Spinner />
+            </div>
+          ) : (
+            <div className="flex w-full flex-col gap-7">
               <Field>
-                <FieldLabel htmlFor="share-expiration">Expires at</FieldLabel>
-                <Input
-                  id="share-expiration"
-                  type="datetime-local"
-                  value={customExpiration}
-                  onChange={(event) => setCustomExpiration(event.target.value)}
-                />
+                <FieldLabel>Access</FieldLabel>
+                <Select
+                  items={accessItems}
+                  value={access}
+                  onValueChange={(value) => setAccess(value as Access)}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      {accessItems.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
               </Field>
-            )}
-            {url && (
               <Field>
-                <FieldLabel>Public link</FieldLabel>
-                <div className="flex gap-2">
-                  <Input readOnly value={url} />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="icon"
-                    aria-label="Copy public link"
-                    onClick={async () => {
-                      try {
-                        await navigator.clipboard.writeText(url);
-                        toastManager.add({ title: "Link copied", type: "success" });
-                      } catch {
-                        toastManager.add({
-                          title: "Link could not be copied",
-                          type: "error",
-                        });
-                      }
-                    }}
-                  >
-                    <CopyIcon />
-                  </Button>
-                </div>
+                <FieldLabel>Expiration</FieldLabel>
+                <Select
+                  items={expirationItems}
+                  value={expiration}
+                  onValueChange={(value) => setExpiration(value as Expiration)}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      {expirationItems.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
               </Field>
-            )}
-          </div>
-        )}
+              {expiration === "custom" && (
+                <Field>
+                  <FieldLabel htmlFor="share-expiration">Expires at</FieldLabel>
+                  <Input
+                    id="share-expiration"
+                    type="datetime-local"
+                    value={customExpiration}
+                    onChange={(event) => setCustomExpiration(event.target.value)}
+                  />
+                </Field>
+              )}
+              {url && (
+                <Field>
+                  <FieldLabel>Public link</FieldLabel>
+                  <div className="flex gap-2">
+                    <Input readOnly value={url} />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      aria-label="Copy public link"
+                      onClick={async () => {
+                        try {
+                          await navigator.clipboard.writeText(url);
+                          toastManager.add({ title: "Link copied", type: "success" });
+                        } catch {
+                          toastManager.add({
+                            title: "Link could not be copied",
+                            type: "error",
+                          });
+                        }
+                      }}
+                    >
+                      <CopyIcon />
+                    </Button>
+                  </div>
+                </Field>
+              )}
+            </div>
+          )}
+        </DialogPanel>
         <DialogFooter className="sm:justify-between">
           {settings?.status === "shared" ? (
             <Button

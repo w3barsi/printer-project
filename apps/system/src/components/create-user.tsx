@@ -7,6 +7,7 @@ import {
   DialogDescription,
   DialogFooter,
   DialogHeader,
+  DialogPanel,
   DialogTitle,
   DialogTrigger,
 } from "@dg/ui-coss/components/dialog";
@@ -82,63 +83,65 @@ export function CreateUserDialog() {
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          <Controller
-            name="name"
-            control={form.control}
-            render={({ field, fieldState }) => (
-              <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor="user-name">Name</FieldLabel>
-                <Input
-                  {...field}
-                  id="user-name"
-                  placeholder="John Doe"
-                  aria-invalid={fieldState.invalid}
-                />
-                {fieldState.invalid && (
-                  <FieldError>{fieldState.error?.message}</FieldError>
-                )}
-              </Field>
-            )}
-          />
-          <Controller
-            name="email"
-            control={form.control}
-            render={({ field, fieldState }) => (
-              <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor="user-email">Email</FieldLabel>
-                <Input
-                  {...field}
-                  id="user-email"
-                  type="email"
-                  placeholder="john@example.com"
-                  aria-invalid={fieldState.invalid}
-                />
-                {fieldState.invalid && (
-                  <FieldError>{fieldState.error?.message}</FieldError>
-                )}
-              </Field>
-            )}
-          />
-          <Controller
-            name="password"
-            control={form.control}
-            render={({ field, fieldState }) => (
-              <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor="user-password">Password</FieldLabel>
-                <Input
-                  {...field}
-                  id="user-password"
-                  type="password"
-                  placeholder="••••••••"
-                  aria-invalid={fieldState.invalid}
-                />
-                <FieldDescription>Must be at least 8 characters long</FieldDescription>
-                {fieldState.invalid && (
-                  <FieldError>{fieldState.error?.message}</FieldError>
-                )}
-              </Field>
-            )}
-          />
+          <DialogPanel>
+            <Controller
+              name="name"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor="user-name">Name</FieldLabel>
+                  <Input
+                    {...field}
+                    id="user-name"
+                    placeholder="John Doe"
+                    aria-invalid={fieldState.invalid}
+                  />
+                  {fieldState.invalid && (
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  )}
+                </Field>
+              )}
+            />
+            <Controller
+              name="email"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor="user-email">Email</FieldLabel>
+                  <Input
+                    {...field}
+                    id="user-email"
+                    type="email"
+                    placeholder="john@example.com"
+                    aria-invalid={fieldState.invalid}
+                  />
+                  {fieldState.invalid && (
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  )}
+                </Field>
+              )}
+            />
+            <Controller
+              name="password"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor="user-password">Password</FieldLabel>
+                  <Input
+                    {...field}
+                    id="user-password"
+                    type="password"
+                    placeholder="••••••••"
+                    aria-invalid={fieldState.invalid}
+                  />
+                  <FieldDescription>Must be at least 8 characters long</FieldDescription>
+                  {fieldState.invalid && (
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  )}
+                </Field>
+              )}
+            />
+          </DialogPanel>
           <DialogFooter>
             <Button type="submit" disabled={mutation.isPending}>
               {mutation.isPending ? "Creating..." : "Create User"}

@@ -7,6 +7,7 @@ import {
   DialogDescription,
   DialogFooter,
   DialogHeader,
+  DialogPanel,
   DialogTitle,
   DialogTrigger,
 } from "@dg/ui-coss/components/dialog";
@@ -144,88 +145,90 @@ export function AddPaymentDialog({
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          <Controller
-            name="amount"
-            control={form.control}
-            render={({ field, fieldState }) => (
-              <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor="payment-amount">Amount</FieldLabel>
-                <div className="flex gap-2">
-                  <Input
-                    {...field}
-                    id="payment-amount"
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    placeholder="0.00"
-                    aria-invalid={fieldState.invalid}
-                    onChange={(e) => field.onChange(parseFloat(e.target.value))}
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={handleTotalPayment}
-                    className="whitespace-nowrap"
+          <DialogPanel>
+            <Controller
+              name="amount"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor="payment-amount">Amount</FieldLabel>
+                  <div className="flex gap-2">
+                    <Input
+                      {...field}
+                      id="payment-amount"
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      placeholder="0.00"
+                      aria-invalid={fieldState.invalid}
+                      onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handleTotalPayment}
+                      className="whitespace-nowrap"
+                    >
+                      Full Payment
+                    </Button>
+                  </div>
+                  {fieldState.invalid && (
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  )}
+                </Field>
+              )}
+            />
+            <Controller
+              name="paymentType"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor="payment-type">Payment Type</FieldLabel>
+                  <Select
+                    items={paymentTypeItems}
+                    name={field.name}
+                    value={field.value}
+                    onValueChange={field.onChange}
                   >
-                    Full Payment
-                  </Button>
-                </div>
-                {fieldState.invalid && (
-                  <FieldError>{fieldState.error?.message}</FieldError>
-                )}
-              </Field>
-            )}
-          />
-          <Controller
-            name="paymentType"
-            control={form.control}
-            render={({ field, fieldState }) => (
-              <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor="payment-type">Payment Type</FieldLabel>
-                <Select
-                  items={paymentTypeItems}
-                  name={field.name}
-                  value={field.value}
-                  onValueChange={field.onChange}
-                >
-                  <SelectTrigger id="payment-type" aria-invalid={fieldState.invalid}>
-                    <SelectValue placeholder="Select payment type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      {paymentTypeItems.map((item) => (
-                        <SelectItem key={item.value} value={item.value}>
-                          {item.label}
-                        </SelectItem>
-                      ))}
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
-                {fieldState.invalid && (
-                  <FieldError>{fieldState.error?.message}</FieldError>
-                )}
-              </Field>
-            )}
-          />
-          <Controller
-            name="note"
-            control={form.control}
-            render={({ field, fieldState }) => (
-              <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor="payment-note">Note (optional)</FieldLabel>
-                <Textarea
-                  {...field}
-                  id="payment-note"
-                  placeholder="Add any notes..."
-                  className="resize-none"
-                  aria-invalid={fieldState.invalid}
-                />
-                {fieldState.invalid && (
-                  <FieldError>{fieldState.error?.message}</FieldError>
-                )}
-              </Field>
-            )}
-          />
+                    <SelectTrigger id="payment-type" aria-invalid={fieldState.invalid}>
+                      <SelectValue placeholder="Select payment type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        {paymentTypeItems.map((item) => (
+                          <SelectItem key={item.value} value={item.value}>
+                            {item.label}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                  {fieldState.invalid && (
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  )}
+                </Field>
+              )}
+            />
+            <Controller
+              name="note"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor="payment-note">Note (optional)</FieldLabel>
+                  <Textarea
+                    {...field}
+                    id="payment-note"
+                    placeholder="Add any notes..."
+                    className="resize-none"
+                    aria-invalid={fieldState.invalid}
+                  />
+                  {fieldState.invalid && (
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  )}
+                </Field>
+              )}
+            />
+          </DialogPanel>
           <DialogFooter>
             <Button
               type="submit"

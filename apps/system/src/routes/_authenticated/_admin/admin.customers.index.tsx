@@ -8,6 +8,7 @@ import {
   DialogDescription,
   DialogFooter,
   DialogHeader,
+  DialogPanel,
   DialogTitle,
   DialogTrigger,
 } from "@dg/ui-coss/components/dialog";
@@ -218,67 +219,71 @@ function CustomerFormDialog() {
           onSubmit={form.handleSubmit((values) => mutation.mutate(values))}
           className="flex flex-col gap-6"
         >
-          <div className="flex w-full flex-col gap-7">
-            <Controller
-              name="name"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="new-customer-name">Customer name</FieldLabel>
-                  <Input
-                    {...field}
-                    id="new-customer-name"
-                    aria-invalid={fieldState.invalid}
-                    disabled={mutation.isPending}
-                    autoFocus
-                  />
-                  {fieldState.invalid && (
-                    <FieldError>{fieldState.error?.message}</FieldError>
-                  )}
-                </Field>
-              )}
-            />
-            <Controller
-              name="handler"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="new-customer-handler">Handler</FieldLabel>
-                  <Input
-                    {...field}
-                    id="new-customer-handler"
-                    placeholder="Customer's go-to person"
-                    aria-invalid={fieldState.invalid}
-                    disabled={mutation.isPending}
-                  />
-                  <FieldDescription>
-                    Optional, for company or client accounts.
-                  </FieldDescription>
-                  {fieldState.invalid && (
-                    <FieldError>{fieldState.error?.message}</FieldError>
-                  )}
-                </Field>
-              )}
-            />
-            <Controller
-              name="contactNumbers"
-              control={form.control}
-              render={({ field }) => (
-                <Field>
-                  <FieldLabel htmlFor="new-customer-contacts">Contact numbers</FieldLabel>
-                  <Input
-                    {...field}
-                    id="new-customer-contacts"
-                    placeholder="0917 123 4567, 0928 765 4321"
-                    disabled={mutation.isPending}
-                  />
-                  <FieldDescription>
-                    Separate multiple numbers with commas.
-                  </FieldDescription>
-                </Field>
-              )}
-            />
-          </div>
+          <DialogPanel>
+            <div className="flex w-full flex-col gap-7">
+              <Controller
+                name="name"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor="new-customer-name">Customer name</FieldLabel>
+                    <Input
+                      {...field}
+                      id="new-customer-name"
+                      aria-invalid={fieldState.invalid}
+                      disabled={mutation.isPending}
+                      autoFocus
+                    />
+                    {fieldState.invalid && (
+                      <FieldError>{fieldState.error?.message}</FieldError>
+                    )}
+                  </Field>
+                )}
+              />
+              <Controller
+                name="handler"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor="new-customer-handler">Handler</FieldLabel>
+                    <Input
+                      {...field}
+                      id="new-customer-handler"
+                      placeholder="Customer's go-to person"
+                      aria-invalid={fieldState.invalid}
+                      disabled={mutation.isPending}
+                    />
+                    <FieldDescription>
+                      Optional, for company or client accounts.
+                    </FieldDescription>
+                    {fieldState.invalid && (
+                      <FieldError>{fieldState.error?.message}</FieldError>
+                    )}
+                  </Field>
+                )}
+              />
+              <Controller
+                name="contactNumbers"
+                control={form.control}
+                render={({ field }) => (
+                  <Field>
+                    <FieldLabel htmlFor="new-customer-contacts">
+                      Contact numbers
+                    </FieldLabel>
+                    <Input
+                      {...field}
+                      id="new-customer-contacts"
+                      placeholder="0917 123 4567, 0928 765 4321"
+                      disabled={mutation.isPending}
+                    />
+                    <FieldDescription>
+                      Separate multiple numbers with commas.
+                    </FieldDescription>
+                  </Field>
+                )}
+              />
+            </div>
+          </DialogPanel>
           <DialogFooter>
             <Button type="submit" disabled={mutation.isPending}>
               {mutation.isPending && <Spinner data-icon="inline-start" />}

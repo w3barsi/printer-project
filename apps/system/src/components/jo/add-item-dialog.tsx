@@ -7,6 +7,7 @@ import {
   DialogDescription,
   DialogFooter,
   DialogHeader,
+  DialogPanel,
   DialogTitle,
   DialogTrigger,
 } from "@dg/ui-coss/components/dialog";
@@ -110,66 +111,68 @@ export function AddItemDialog({ joId }: { joId: Id<"jo"> }) {
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          <Controller
-            name="name"
-            control={form.control}
-            render={({ field, fieldState }) => (
-              <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor="item-name">Name</FieldLabel>
-                <Input
-                  {...field}
-                  id="item-name"
-                  placeholder="Item name"
-                  aria-invalid={fieldState.invalid}
-                />
-                {fieldState.invalid && (
-                  <FieldError>{fieldState.error?.message}</FieldError>
-                )}
-              </Field>
-            )}
-          />
-          <Controller
-            name="quantity"
-            control={form.control}
-            render={({ field, fieldState }) => (
-              <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor="item-quantity">Quantity</FieldLabel>
-                <Input
-                  {...field}
-                  id="item-quantity"
-                  type="number"
-                  min="1"
-                  aria-invalid={fieldState.invalid}
-                  onChange={(e) => field.onChange(parseInt(e.target.value))}
-                />
-                {fieldState.invalid && (
-                  <FieldError>{fieldState.error?.message}</FieldError>
-                )}
-              </Field>
-            )}
-          />
-          <Controller
-            name="price"
-            control={form.control}
-            render={({ field, fieldState }) => (
-              <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor="item-price">Price</FieldLabel>
-                <Input
-                  {...field}
-                  id="item-price"
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  placeholder="0.00"
-                  aria-invalid={fieldState.invalid}
-                  onChange={(e) => field.onChange(parseFloat(e.target.value))}
-                />
-                {fieldState.invalid && (
-                  <FieldError>{fieldState.error?.message}</FieldError>
-                )}
-              </Field>
-            )}
-          />
+          <DialogPanel>
+            <Controller
+              name="name"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor="item-name">Name</FieldLabel>
+                  <Input
+                    {...field}
+                    id="item-name"
+                    placeholder="Item name"
+                    aria-invalid={fieldState.invalid}
+                  />
+                  {fieldState.invalid && (
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  )}
+                </Field>
+              )}
+            />
+            <Controller
+              name="quantity"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor="item-quantity">Quantity</FieldLabel>
+                  <Input
+                    {...field}
+                    id="item-quantity"
+                    type="number"
+                    min="1"
+                    aria-invalid={fieldState.invalid}
+                    onChange={(e) => field.onChange(parseInt(e.target.value))}
+                  />
+                  {fieldState.invalid && (
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  )}
+                </Field>
+              )}
+            />
+            <Controller
+              name="price"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor="item-price">Price</FieldLabel>
+                  <Input
+                    {...field}
+                    id="item-price"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    placeholder="0.00"
+                    aria-invalid={fieldState.invalid}
+                    onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                  />
+                  {fieldState.invalid && (
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  )}
+                </Field>
+              )}
+            />
+          </DialogPanel>
           <DialogFooter>
             <Button
               type="submit"

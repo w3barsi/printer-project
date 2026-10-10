@@ -8,6 +8,7 @@ import {
   DialogDescription,
   DialogFooter,
   DialogHeader,
+  DialogPanel,
   DialogTitle,
   DialogTrigger,
 } from "@dg/ui-coss/components/dialog";
@@ -91,76 +92,76 @@ export function SupplierManagerDialog() {
             Create reusable suppliers or rename an existing supplier.
           </DialogDescription>
         </DialogHeader>
-
-        <form onSubmit={form.handleSubmit((values) => mutation.mutate(values))}>
-          <div className="flex w-full flex-row items-end gap-2">
-            <Controller
-              name="name"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid} className="gap-2">
-                  <FieldLabel htmlFor="new-supplier-name">New supplier</FieldLabel>
-                  <Input
-                    {...field}
-                    id="new-supplier-name"
-                    placeholder="e.g. Acme Paper Co."
-                    aria-invalid={fieldState.invalid}
-                    disabled={mutation.isPending}
-                  />
-                  {fieldState.invalid && (
-                    <FieldError>{fieldState.error?.message}</FieldError>
-                  )}
-                </Field>
-              )}
-            />
-            <Button type="submit" disabled={mutation.isPending} className="shrink-0">
-              {mutation.isPending ? (
-                <Spinner data-icon="inline-start" />
-              ) : (
-                <PlusIcon data-icon="inline-start" />
-              )}
-              Add
-            </Button>
-          </div>
-        </form>
-
-        <div className="overflow-hidden rounded-lg border">
-          <div className="border-b bg-muted/40 px-4 py-2 text-xs font-medium tracking-wide text-muted-foreground uppercase">
-            Suppliers
-          </div>
-          {isPending ? (
-            <div className="flex flex-col gap-3 p-4">
-              <Skeleton className="h-8 w-full" />
-              <Skeleton className="h-8 w-full" />
-              <Skeleton className="h-8 w-4/5" />
+        <DialogPanel>
+          <form onSubmit={form.handleSubmit((values) => mutation.mutate(values))}>
+            <div className="flex w-full flex-row items-end gap-2">
+              <Controller
+                name="name"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid} className="gap-2">
+                    <FieldLabel htmlFor="new-supplier-name">New supplier</FieldLabel>
+                    <Input
+                      {...field}
+                      id="new-supplier-name"
+                      placeholder="e.g. Acme Paper Co."
+                      aria-invalid={fieldState.invalid}
+                      disabled={mutation.isPending}
+                    />
+                    {fieldState.invalid && (
+                      <FieldError>{fieldState.error?.message}</FieldError>
+                    )}
+                  </Field>
+                )}
+              />
+              <Button type="submit" disabled={mutation.isPending} className="shrink-0">
+                {mutation.isPending ? (
+                  <Spinner data-icon="inline-start" />
+                ) : (
+                  <PlusIcon data-icon="inline-start" />
+                )}
+                Add
+              </Button>
             </div>
-          ) : data?.page.length ? (
-            <div className="divide-y">
-              {data.page.map((supplier) => (
-                <div
-                  key={supplier._id}
-                  className="flex items-center justify-between gap-3 px-4 py-3"
-                >
-                  <div className="min-w-0">
-                    <p className="truncate font-medium">{supplier.name}</p>
-                    <p className="text-xs text-muted-foreground">
-                      Added by {supplier.createdByName}
-                    </p>
+          </form>
+
+          <div className="overflow-hidden rounded-lg border">
+            <div className="border-b bg-muted/40 px-4 py-2 text-xs font-medium tracking-wide text-muted-foreground uppercase">
+              Suppliers
+            </div>
+            {isPending ? (
+              <div className="flex flex-col gap-3 p-4">
+                <Skeleton className="h-8 w-full" />
+                <Skeleton className="h-8 w-full" />
+                <Skeleton className="h-8 w-4/5" />
+              </div>
+            ) : data?.page.length ? (
+              <div className="divide-y">
+                {data.page.map((supplier) => (
+                  <div
+                    key={supplier._id}
+                    className="flex items-center justify-between gap-3 px-4 py-3"
+                  >
+                    <div className="min-w-0">
+                      <p className="truncate font-medium">{supplier.name}</p>
+                      <p className="text-xs text-muted-foreground">
+                        Added by {supplier.createdByName}
+                      </p>
+                    </div>
+                    <RenameSupplierDialog
+                      supplierId={supplier._id}
+                      currentName={supplier.name}
+                    />
                   </div>
-                  <RenameSupplierDialog
-                    supplierId={supplier._id}
-                    currentName={supplier.name}
-                  />
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="p-6 text-center text-sm text-muted-foreground">
-              No suppliers yet. Add the first one above.
-            </p>
-          )}
-        </div>
-
+                ))}
+              </div>
+            ) : (
+              <p className="p-6 text-center text-sm text-muted-foreground">
+                No suppliers yet. Add the first one above.
+              </p>
+            )}
+          </div>
+        </DialogPanel>
         <DialogFooter className="items-center sm:justify-between">
           <span className="text-xs text-muted-foreground">
             Page {cursorHistory.length + 1}
@@ -251,24 +252,26 @@ function RenameSupplierDialog({
           )}
           className="flex flex-col gap-6"
         >
-          <Controller
-            name="name"
-            control={form.control}
-            render={({ field, fieldState }) => (
-              <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor={`supplier-${supplierId}`}>Name</FieldLabel>
-                <Input
-                  {...field}
-                  id={`supplier-${supplierId}`}
-                  aria-invalid={fieldState.invalid}
-                  disabled={mutation.isPending}
-                />
-                {fieldState.invalid && (
-                  <FieldError>{fieldState.error?.message}</FieldError>
-                )}
-              </Field>
-            )}
-          />
+          <DialogPanel>
+            <Controller
+              name="name"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor={`supplier-${supplierId}`}>Name</FieldLabel>
+                  <Input
+                    {...field}
+                    id={`supplier-${supplierId}`}
+                    aria-invalid={fieldState.invalid}
+                    disabled={mutation.isPending}
+                  />
+                  {fieldState.invalid && (
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  )}
+                </Field>
+              )}
+            />
+          </DialogPanel>
           <DialogFooter>
             <Button type="submit" disabled={mutation.isPending}>
               {mutation.isPending && <Spinner data-icon="inline-start" />}

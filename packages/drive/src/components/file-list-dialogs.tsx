@@ -14,6 +14,7 @@ import {
   DialogDescription,
   DialogFooter,
   DialogHeader,
+  DialogPanel,
   DialogTitle,
 } from "@dg/ui-coss/components/dialog";
 import { Input } from "@dg/ui-coss/components/input";
@@ -118,13 +119,15 @@ export function RenameItemDialog({
           <DialogDescription>Enter a new name for {item?.name}.</DialogDescription>
         </DialogHeader>
         <form className="flex flex-col gap-4" onSubmit={onSubmit}>
-          <Input
-            autoFocus
-            aria-label="New item name"
-            maxLength={255}
-            value={value}
-            onChange={(event) => onValueChange(event.target.value)}
-          />
+          <DialogPanel>
+            <Input
+              autoFocus
+              aria-label="New item name"
+              maxLength={255}
+              value={value}
+              onChange={(event) => onValueChange(event.target.value)}
+            />
+          </DialogPanel>
           <DialogFooter>
             <Button
               type="button"
@@ -172,31 +175,33 @@ export function MoveItemDialog({
           <DialogTitle>Move {item?.name}</DialogTitle>
           <DialogDescription>Choose a folder within this shared area.</DialogDescription>
         </DialogHeader>
-        <Select
-          value={destinationId}
-          onValueChange={(value) => onDestinationChange(value ?? "")}
-          items={destinations
-            .filter(({ id }) => id !== item?.id)
-            .map((destination) => ({
-              value: destination.id,
-              label: destination.name,
-            }))}
-        >
-          <SelectTrigger className="w-full">
-            <SelectValue placeholder="Select a destination" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectGroup>
-              {destinations
-                .filter(({ id }) => id !== item?.id)
-                .map((destination) => (
-                  <SelectItem key={destination.id} value={destination.id}>
-                    {destination.name}
-                  </SelectItem>
-                ))}
-            </SelectGroup>
-          </SelectContent>
-        </Select>
+        <DialogPanel>
+          <Select
+            value={destinationId}
+            onValueChange={(value) => onDestinationChange(value ?? "")}
+            items={destinations
+              .filter(({ id }) => id !== item?.id)
+              .map((destination) => ({
+                value: destination.id,
+                label: destination.name,
+              }))}
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select a destination" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                {destinations
+                  .filter(({ id }) => id !== item?.id)
+                  .map((destination) => (
+                    <SelectItem key={destination.id} value={destination.id}>
+                      {destination.name}
+                    </SelectItem>
+                  ))}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+        </DialogPanel>
         <DialogFooter>
           <Button
             type="button"

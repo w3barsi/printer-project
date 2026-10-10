@@ -7,6 +7,7 @@ import {
   DialogDescription,
   DialogFooter,
   DialogHeader,
+  DialogPanel,
   DialogTitle,
   DialogTrigger,
 } from "@dg/ui-coss/components/dialog";
@@ -98,72 +99,74 @@ export function CreateJoDialog() {
           <DialogDescription>Add the customer and pickup details.</DialogDescription>
         </DialogHeader>
         <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4">
-          <div className="flex w-full flex-col gap-7">
-            <Controller
-              name="customerId"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field className="gap-2" data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="customer">Customer</FieldLabel>
-                  <CustomerCombobox
-                    id="customer"
-                    value={field.value ? (field.value as Id<"customer">) : null}
-                    invalid={fieldState.invalid}
-                    onValueChange={(customer) => {
-                      field.onChange(customer?._id ?? "");
-                      form.setValue("contact", customer?.contactNumbers?.[0] ?? "");
-                    }}
-                  />
-                  {fieldState.invalid && (
-                    <FieldError>{fieldState.error?.message}</FieldError>
-                  )}
-                </Field>
-              )}
-            />
-            <Controller
-              name="contact"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field className="gap-2" data-invalid={fieldState.invalid}>
-                  <div className="flex items-baseline justify-between gap-3">
-                    <FieldLabel htmlFor="contact">Contact number</FieldLabel>
-                    <span className="text-xs text-muted-foreground">Optional</span>
-                  </div>
-                  <Input
-                    {...field}
-                    id="contact"
-                    type="tel"
-                    className="h-10"
-                    placeholder="e.g. 0917 123 4567"
-                    autoComplete="tel"
-                    aria-invalid={fieldState.invalid}
-                  />
-                  {fieldState.invalid && (
-                    <FieldError>{fieldState.error?.message}</FieldError>
-                  )}
-                </Field>
-              )}
-            />
-            <Controller
-              name="date"
-              control={form.control}
-              render={({ field }) => (
-                <Field className="gap-2">
-                  <FieldLabel htmlFor="pickup-date">Pickup date</FieldLabel>
-                  <DateAndTimePicker
-                    date={field.value}
-                    setDate={(newDate) => {
-                      if (newDate) {
-                        field.onChange(newDate);
-                        form.setValue("time", null);
-                      }
-                    }}
-                    today={today}
-                  />
-                </Field>
-              )}
-            />
-          </div>
+          <DialogPanel>
+            <div className="flex w-full flex-col gap-7">
+              <Controller
+                name="customerId"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field className="gap-2" data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor="customer">Customer</FieldLabel>
+                    <CustomerCombobox
+                      id="customer"
+                      value={field.value ? (field.value as Id<"customer">) : null}
+                      invalid={fieldState.invalid}
+                      onValueChange={(customer) => {
+                        field.onChange(customer?._id ?? "");
+                        form.setValue("contact", customer?.contactNumbers?.[0] ?? "");
+                      }}
+                    />
+                    {fieldState.invalid && (
+                      <FieldError>{fieldState.error?.message}</FieldError>
+                    )}
+                  </Field>
+                )}
+              />
+              <Controller
+                name="contact"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field className="gap-2" data-invalid={fieldState.invalid}>
+                    <div className="flex items-baseline justify-between gap-3">
+                      <FieldLabel htmlFor="contact">Contact number</FieldLabel>
+                      <span className="text-xs text-muted-foreground">Optional</span>
+                    </div>
+                    <Input
+                      {...field}
+                      id="contact"
+                      type="tel"
+                      className="h-10"
+                      placeholder="e.g. 0917 123 4567"
+                      autoComplete="tel"
+                      aria-invalid={fieldState.invalid}
+                    />
+                    {fieldState.invalid && (
+                      <FieldError>{fieldState.error?.message}</FieldError>
+                    )}
+                  </Field>
+                )}
+              />
+              <Controller
+                name="date"
+                control={form.control}
+                render={({ field }) => (
+                  <Field className="gap-2">
+                    <FieldLabel htmlFor="pickup-date">Pickup date</FieldLabel>
+                    <DateAndTimePicker
+                      date={field.value}
+                      setDate={(newDate) => {
+                        if (newDate) {
+                          field.onChange(newDate);
+                          form.setValue("time", null);
+                        }
+                      }}
+                      today={today}
+                    />
+                  </Field>
+                )}
+              />
+            </div>
+          </DialogPanel>
           <DialogFooter>
             <Button
               type="submit"

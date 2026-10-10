@@ -5,6 +5,7 @@ import {
   Dialog,
   DialogContent,
   DialogHeader,
+  DialogPanel,
   DialogTitle,
   DialogTrigger,
 } from "@dg/ui-coss/components/dialog";
@@ -87,32 +88,34 @@ export function AddCoh({ start }: { start: number }) {
         <DialogHeader>
           <DialogTitle>Add Cash On Hand</DialogTitle>
         </DialogHeader>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          <Controller
-            name="amount"
-            control={form.control}
-            render={({ field, fieldState }) => (
-              <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor="coh-amount">Amount</FieldLabel>
-                <Input
-                  {...field}
-                  id="coh-amount"
-                  type="number"
-                  aria-invalid={fieldState.invalid}
-                  onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
-                />
-                {fieldState.invalid && (
-                  <FieldError>{fieldState.error?.message}</FieldError>
-                )}
-              </Field>
-            )}
-          />
-          <div className="flex w-full justify-end">
-            <Button type="submit" className="w-24">
-              Submit
-            </Button>
-          </div>
-        </form>
+        <DialogPanel>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <Controller
+              name="amount"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor="coh-amount">Amount</FieldLabel>
+                  <Input
+                    {...field}
+                    id="coh-amount"
+                    type="number"
+                    aria-invalid={fieldState.invalid}
+                    onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                  />
+                  {fieldState.invalid && (
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  )}
+                </Field>
+              )}
+            />
+            <div className="flex w-full justify-end">
+              <Button type="submit" className="w-24">
+                Submit
+              </Button>
+            </div>
+          </form>
+        </DialogPanel>
       </DialogContent>
     </Dialog>
   );

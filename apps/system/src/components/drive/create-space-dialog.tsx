@@ -7,6 +7,7 @@ import {
   DialogDescription,
   DialogFooter,
   DialogHeader,
+  DialogPanel,
   DialogTitle,
   DialogTrigger,
 } from "@dg/ui-coss/components/dialog";
@@ -118,81 +119,83 @@ export function CreateSpaceDialog({ variant = "button" }: CreateSpaceDialogProps
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-6">
-          <div className="flex w-full flex-col gap-7">
-            <Controller
-              name="name"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor={`${id}-name`}>Name</FieldLabel>
-                  <Input
-                    {...field}
-                    id={`${id}-name`}
-                    placeholder="Client projects"
-                    autoFocus
-                    aria-invalid={fieldState.invalid}
-                  />
-                  {fieldState.invalid && (
-                    <FieldError>{fieldState.error?.message}</FieldError>
-                  )}
-                </Field>
-              )}
-            />
-            <Controller
-              name="description"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor={`${id}-description`}>
-                    Description (optional)
-                  </FieldLabel>
-                  <Input
-                    {...field}
-                    id={`${id}-description`}
-                    placeholder="Proofs, artwork, and production files"
-                    aria-invalid={fieldState.invalid}
-                  />
-                  <FieldDescription>Optional, up to 160 characters.</FieldDescription>
-                  {fieldState.invalid && (
-                    <FieldError>{fieldState.error?.message}</FieldError>
-                  )}
-                </Field>
-              )}
-            />
-            <Controller
-              name="visibility"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor={`${id}-visibility`}>Visibility</FieldLabel>
-                  <Select
-                    items={visibilityOptions}
-                    value={field.value}
-                    onValueChange={(value) => field.onChange(value)}
-                  >
-                    <SelectTrigger id={`${id}-visibility`} className="w-full">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        {visibilityOptions.map((option) => (
-                          <SelectItem key={option.value} value={option.value}>
-                            {option.label}
-                          </SelectItem>
-                        ))}
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                  <FieldDescription>
-                    Admin-only spaces are hidden from all other users.
-                  </FieldDescription>
-                  {fieldState.invalid && (
-                    <FieldError>{fieldState.error?.message}</FieldError>
-                  )}
-                </Field>
-              )}
-            />
-          </div>
+          <DialogPanel>
+            <div className="flex w-full flex-col gap-7">
+              <Controller
+                name="name"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor={`${id}-name`}>Name</FieldLabel>
+                    <Input
+                      {...field}
+                      id={`${id}-name`}
+                      placeholder="Client projects"
+                      autoFocus
+                      aria-invalid={fieldState.invalid}
+                    />
+                    {fieldState.invalid && (
+                      <FieldError>{fieldState.error?.message}</FieldError>
+                    )}
+                  </Field>
+                )}
+              />
+              <Controller
+                name="description"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor={`${id}-description`}>
+                      Description (optional)
+                    </FieldLabel>
+                    <Input
+                      {...field}
+                      id={`${id}-description`}
+                      placeholder="Proofs, artwork, and production files"
+                      aria-invalid={fieldState.invalid}
+                    />
+                    <FieldDescription>Optional, up to 160 characters.</FieldDescription>
+                    {fieldState.invalid && (
+                      <FieldError>{fieldState.error?.message}</FieldError>
+                    )}
+                  </Field>
+                )}
+              />
+              <Controller
+                name="visibility"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor={`${id}-visibility`}>Visibility</FieldLabel>
+                    <Select
+                      items={visibilityOptions}
+                      value={field.value}
+                      onValueChange={(value) => field.onChange(value)}
+                    >
+                      <SelectTrigger id={`${id}-visibility`} className="w-full">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          {visibilityOptions.map((option) => (
+                            <SelectItem key={option.value} value={option.value}>
+                              {option.label}
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                    <FieldDescription>
+                      Admin-only spaces are hidden from all other users.
+                    </FieldDescription>
+                    {fieldState.invalid && (
+                      <FieldError>{fieldState.error?.message}</FieldError>
+                    )}
+                  </Field>
+                )}
+              />
+            </div>
+          </DialogPanel>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => setOpen(false)}>
               Cancel

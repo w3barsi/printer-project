@@ -16,6 +16,7 @@ import {
   DialogDescription,
   DialogFooter,
   DialogHeader,
+  DialogPanel,
   DialogTitle,
 } from "@dg/ui-coss/components/dialog";
 import { Field, FieldDescription, FieldLabel } from "@dg/ui-coss/components/field";
@@ -213,43 +214,45 @@ export function CustomerCombobox({
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleCreate} className="flex flex-col gap-6">
-            <div className="flex w-full flex-col gap-7">
-              <Field>
-                <FieldLabel htmlFor={`${inputId}-new-name`}>Customer name</FieldLabel>
-                <Input
-                  id={`${inputId}-new-name`}
-                  value={newName}
-                  onChange={(event) => setNewName(event.target.value)}
-                  maxLength={MAX_CUSTOMER_NAME_LENGTH}
-                  required
-                  autoFocus
-                />
-              </Field>
-              <Field>
-                <FieldLabel htmlFor={`${inputId}-handler`}>Handler</FieldLabel>
-                <Input
-                  id={`${inputId}-handler`}
-                  value={handler}
-                  onChange={(event) => setHandler(event.target.value)}
-                  placeholder="Customer's go-to person"
-                />
-                <FieldDescription>
-                  Optional, for customers that are companies or clients.
-                </FieldDescription>
-              </Field>
-              <Field>
-                <FieldLabel htmlFor={`${inputId}-contacts`}>Contact numbers</FieldLabel>
-                <Input
-                  id={`${inputId}-contacts`}
-                  value={contactNumbers}
-                  onChange={(event) => setContactNumbers(event.target.value)}
-                  placeholder="0917 123 4567, 0928 765 4321"
-                />
-                <FieldDescription>
-                  Optional. Separate multiple numbers with commas.
-                </FieldDescription>
-              </Field>
-            </div>
+            <DialogPanel>
+              <div className="flex w-full flex-col gap-7">
+                <Field>
+                  <FieldLabel htmlFor={`${inputId}-new-name`}>Customer name</FieldLabel>
+                  <Input
+                    id={`${inputId}-new-name`}
+                    value={newName}
+                    onChange={(event) => setNewName(event.target.value)}
+                    maxLength={MAX_CUSTOMER_NAME_LENGTH}
+                    required
+                    autoFocus
+                  />
+                </Field>
+                <Field>
+                  <FieldLabel htmlFor={`${inputId}-handler`}>Handler</FieldLabel>
+                  <Input
+                    id={`${inputId}-handler`}
+                    value={handler}
+                    onChange={(event) => setHandler(event.target.value)}
+                    placeholder="Customer's go-to person"
+                  />
+                  <FieldDescription>
+                    Optional, for customers that are companies or clients.
+                  </FieldDescription>
+                </Field>
+                <Field>
+                  <FieldLabel htmlFor={`${inputId}-contacts`}>Contact numbers</FieldLabel>
+                  <Input
+                    id={`${inputId}-contacts`}
+                    value={contactNumbers}
+                    onChange={(event) => setContactNumbers(event.target.value)}
+                    placeholder="0917 123 4567, 0928 765 4321"
+                  />
+                  <FieldDescription>
+                    Optional. Separate multiple numbers with commas.
+                  </FieldDescription>
+                </Field>
+              </div>
+            </DialogPanel>
             <DialogFooter>
               <Button
                 type="submit"

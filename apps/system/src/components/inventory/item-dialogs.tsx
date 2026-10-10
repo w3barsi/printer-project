@@ -9,6 +9,7 @@ import {
   DialogDescription,
   DialogFooter,
   DialogHeader,
+  DialogPanel,
   DialogTitle,
   DialogTrigger,
 } from "@dg/ui-coss/components/dialog";
@@ -137,94 +138,98 @@ export function AddInventoryItemDialog() {
           )}
           className="flex flex-col gap-6"
         >
-          <div className="flex w-full flex-col gap-7">
-            <Controller
-              name="name"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="inventory-item-name">Item name</FieldLabel>
-                  <Input
-                    {...field}
-                    id="inventory-item-name"
-                    placeholder="e.g. Matte A4 paper"
-                    aria-invalid={fieldState.invalid}
-                    disabled={mutation.isPending}
-                  />
-                  {fieldState.invalid && (
-                    <FieldError>{fieldState.error?.message}</FieldError>
-                  )}
-                </Field>
-              )}
-            />
-            <Controller
-              name="supplierId"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="inventory-item-supplier">
-                    Supplier (optional)
-                  </FieldLabel>
-                  <SupplierCombobox
-                    id="inventory-item-supplier"
-                    value={field.value ? (field.value as Id<"inventorySuppliers">) : null}
-                    onValueChange={field.onChange}
-                    disabled={mutation.isPending}
-                    invalid={fieldState.invalid}
-                  />
-                  {fieldState.invalid && (
-                    <FieldError>{fieldState.error?.message}</FieldError>
-                  )}
-                </Field>
-              )}
-            />
-            <Controller
-              name="initialQuantity"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="inventory-initial-quantity">
-                    Initial quantity
-                  </FieldLabel>
-                  <Input
-                    {...field}
-                    id="inventory-initial-quantity"
-                    type="number"
-                    min="0"
-                    step="1"
-                    aria-invalid={fieldState.invalid}
-                    disabled={mutation.isPending}
-                    onChange={(event) => field.onChange(Number(event.target.value))}
-                  />
-                  <FieldDescription>Defaults to zero.</FieldDescription>
-                  {fieldState.invalid && (
-                    <FieldError>{fieldState.error?.message}</FieldError>
-                  )}
-                </Field>
-              )}
-            />
-            <Controller
-              name="reason"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="inventory-create-reason">
-                    Reason <span className="text-muted-foreground">(optional)</span>
-                  </FieldLabel>
-                  <Textarea
-                    {...field}
-                    id="inventory-create-reason"
-                    placeholder="Opening delivery, initial count..."
-                    aria-invalid={fieldState.invalid}
-                    disabled={mutation.isPending}
-                  />
-                  {fieldState.invalid && (
-                    <FieldError>{fieldState.error?.message}</FieldError>
-                  )}
-                </Field>
-              )}
-            />
-          </div>
+          <DialogPanel>
+            <div className="flex w-full flex-col gap-7">
+              <Controller
+                name="name"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor="inventory-item-name">Item name</FieldLabel>
+                    <Input
+                      {...field}
+                      id="inventory-item-name"
+                      placeholder="e.g. Matte A4 paper"
+                      aria-invalid={fieldState.invalid}
+                      disabled={mutation.isPending}
+                    />
+                    {fieldState.invalid && (
+                      <FieldError>{fieldState.error?.message}</FieldError>
+                    )}
+                  </Field>
+                )}
+              />
+              <Controller
+                name="supplierId"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor="inventory-item-supplier">
+                      Supplier (optional)
+                    </FieldLabel>
+                    <SupplierCombobox
+                      id="inventory-item-supplier"
+                      value={
+                        field.value ? (field.value as Id<"inventorySuppliers">) : null
+                      }
+                      onValueChange={field.onChange}
+                      disabled={mutation.isPending}
+                      invalid={fieldState.invalid}
+                    />
+                    {fieldState.invalid && (
+                      <FieldError>{fieldState.error?.message}</FieldError>
+                    )}
+                  </Field>
+                )}
+              />
+              <Controller
+                name="initialQuantity"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor="inventory-initial-quantity">
+                      Initial quantity
+                    </FieldLabel>
+                    <Input
+                      {...field}
+                      id="inventory-initial-quantity"
+                      type="number"
+                      min="0"
+                      step="1"
+                      aria-invalid={fieldState.invalid}
+                      disabled={mutation.isPending}
+                      onChange={(event) => field.onChange(Number(event.target.value))}
+                    />
+                    <FieldDescription>Defaults to zero.</FieldDescription>
+                    {fieldState.invalid && (
+                      <FieldError>{fieldState.error?.message}</FieldError>
+                    )}
+                  </Field>
+                )}
+              />
+              <Controller
+                name="reason"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor="inventory-create-reason">
+                      Reason <span className="text-muted-foreground">(optional)</span>
+                    </FieldLabel>
+                    <Textarea
+                      {...field}
+                      id="inventory-create-reason"
+                      placeholder="Opening delivery, initial count..."
+                      aria-invalid={fieldState.invalid}
+                      disabled={mutation.isPending}
+                    />
+                    {fieldState.invalid && (
+                      <FieldError>{fieldState.error?.message}</FieldError>
+                    )}
+                  </Field>
+                )}
+              />
+            </div>
+          </DialogPanel>
           <DialogFooter>
             <Button ref={createButtonRef} type="submit" disabled={mutation.isPending}>
               {mutation.isPending && <Spinner data-icon="inline-start" />}
@@ -529,58 +534,33 @@ function StockAdjustmentDialog({
           </div>
         </div>
         <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-6">
-          <div className="flex w-full flex-col gap-7">
-            <Controller
-              name="quantity"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor={`${fieldId}-quantity`}>
-                    {copy.quantityLabel}
-                  </FieldLabel>
-                  <Input
-                    {...field}
-                    id={`${fieldId}-quantity`}
-                    type="number"
-                    min="0"
-                    step="1"
-                    aria-invalid={fieldState.invalid}
-                    disabled={mutation.isPending}
-                    onChange={(event) => field.onChange(Number(event.target.value))}
-                  />
-                  <FieldDescription>
-                    Resulting balance:{" "}
-                    <span className="font-medium text-foreground tabular-nums">
-                      {Number.isFinite(projectedQuantity)
-                        ? projectedQuantity.toLocaleString()
-                        : "—"}
-                    </span>
-                  </FieldDescription>
-                  {fieldState.invalid && (
-                    <FieldError>{fieldState.error?.message}</FieldError>
-                  )}
-                </Field>
-              )}
-            />
-            {mode === "remove" && (
+          <DialogPanel>
+            <div className="flex w-full flex-col gap-7">
               <Controller
-                name="jobOrderId"
+                name="quantity"
                 control={form.control}
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor={`${fieldId}-job-order`}>
-                      Used for Job Order (optional)
+                    <FieldLabel htmlFor={`${fieldId}-quantity`}>
+                      {copy.quantityLabel}
                     </FieldLabel>
-                    <JobOrderCombobox
-                      id={`${fieldId}-job-order`}
-                      value={field.value ? (field.value as Id<"jo">) : null}
-                      onValueChange={(jobOrderId) => field.onChange(jobOrderId ?? "")}
-                      onOptionChange={setSelectedJobOrder}
+                    <Input
+                      {...field}
+                      id={`${fieldId}-quantity`}
+                      type="number"
+                      min="0"
+                      step="1"
+                      aria-invalid={fieldState.invalid}
                       disabled={mutation.isPending}
-                      invalid={fieldState.invalid}
+                      onChange={(event) => field.onChange(Number(event.target.value))}
                     />
                     <FieldDescription>
-                      Leave blank for damage, disposal, or general use.
+                      Resulting balance:{" "}
+                      <span className="font-medium text-foreground tabular-nums">
+                        {Number.isFinite(projectedQuantity)
+                          ? projectedQuantity.toLocaleString()
+                          : "—"}
+                      </span>
                     </FieldDescription>
                     {fieldState.invalid && (
                       <FieldError>{fieldState.error?.message}</FieldError>
@@ -588,46 +568,76 @@ function StockAdjustmentDialog({
                   </Field>
                 )}
               />
-            )}
-            <Controller
-              name="reason"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor={`${fieldId}-reason`}>
-                    Reason
-                    {mode !== "correct" && (
-                      <span className="text-muted-foreground">(optional)</span>
-                    )}
-                  </FieldLabel>
-                  <Textarea
-                    {...field}
-                    id={`${fieldId}-reason`}
-                    placeholder={
-                      mode === "add"
-                        ? "Delivery, returned materials..."
-                        : mode === "remove"
-                          ? "Usage, damage, disposal..."
-                          : "Required for the activity log"
-                    }
-                    aria-invalid={fieldState.invalid}
-                    disabled={mutation.isPending}
-                  />
-                  {fieldState.invalid && (
-                    <FieldError>{fieldState.error?.message}</FieldError>
+              {mode === "remove" && (
+                <Controller
+                  name="jobOrderId"
+                  control={form.control}
+                  render={({ field, fieldState }) => (
+                    <Field data-invalid={fieldState.invalid}>
+                      <FieldLabel htmlFor={`${fieldId}-job-order`}>
+                        Used for Job Order (optional)
+                      </FieldLabel>
+                      <JobOrderCombobox
+                        id={`${fieldId}-job-order`}
+                        value={field.value ? (field.value as Id<"jo">) : null}
+                        onValueChange={(jobOrderId) => field.onChange(jobOrderId ?? "")}
+                        onOptionChange={setSelectedJobOrder}
+                        disabled={mutation.isPending}
+                        invalid={fieldState.invalid}
+                      />
+                      <FieldDescription>
+                        Leave blank for damage, disposal, or general use.
+                      </FieldDescription>
+                      {fieldState.invalid && (
+                        <FieldError>{fieldState.error?.message}</FieldError>
+                      )}
+                    </Field>
                   )}
-                </Field>
+                />
               )}
-            />
-          </div>
-          {mode === "remove" && quantity > 0 && (
-            <p className="rounded-md border border-destructive/30 bg-destructive/5 p-3 text-sm">
-              You are using{" "}
-              <strong className="tabular-nums">{quantity.toLocaleString()}</strong> from{" "}
-              {item.name}
-              {selectedJobOrder?.joNumber ? ` for JO #${selectedJobOrder.joNumber}` : ""}.
-            </p>
-          )}
+              <Controller
+                name="reason"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor={`${fieldId}-reason`}>
+                      Reason
+                      {mode !== "correct" && (
+                        <span className="text-muted-foreground">(optional)</span>
+                      )}
+                    </FieldLabel>
+                    <Textarea
+                      {...field}
+                      id={`${fieldId}-reason`}
+                      placeholder={
+                        mode === "add"
+                          ? "Delivery, returned materials..."
+                          : mode === "remove"
+                            ? "Usage, damage, disposal..."
+                            : "Required for the activity log"
+                      }
+                      aria-invalid={fieldState.invalid}
+                      disabled={mutation.isPending}
+                    />
+                    {fieldState.invalid && (
+                      <FieldError>{fieldState.error?.message}</FieldError>
+                    )}
+                  </Field>
+                )}
+              />
+            </div>
+            {mode === "remove" && quantity > 0 && (
+              <p className="rounded-md border border-destructive/30 bg-destructive/5 p-3 text-sm">
+                You are using{" "}
+                <strong className="tabular-nums">{quantity.toLocaleString()}</strong> from{" "}
+                {item.name}
+                {selectedJobOrder?.joNumber
+                  ? ` for JO #${selectedJobOrder.joNumber}`
+                  : ""}
+                .
+              </p>
+            )}
+          </DialogPanel>
           <DialogFooter>
             <Button
               type="submit"
@@ -706,67 +716,71 @@ function EditItemDetailsDialog({
           )}
           className="flex flex-col gap-6"
         >
-          <div className="flex w-full flex-col gap-7">
-            <Controller
-              name="name"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor={`${fieldId}-name`}>Item name</FieldLabel>
-                  <Input
-                    {...field}
-                    id={`${fieldId}-name`}
-                    aria-invalid={fieldState.invalid}
-                    disabled={mutation.isPending}
-                  />
-                  {fieldState.invalid && (
-                    <FieldError>{fieldState.error?.message}</FieldError>
-                  )}
-                </Field>
-              )}
-            />
-            <Controller
-              name="supplierId"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor={`${fieldId}-supplier`}>
-                    Supplier (optional)
-                  </FieldLabel>
-                  <SupplierCombobox
-                    id={`${fieldId}-supplier`}
-                    value={field.value ? (field.value as Id<"inventorySuppliers">) : null}
-                    initialLabel={item.supplierId ? item.supplierName : undefined}
-                    onValueChange={field.onChange}
-                    disabled={mutation.isPending}
-                    invalid={fieldState.invalid}
-                  />
-                  {fieldState.invalid && (
-                    <FieldError>{fieldState.error?.message}</FieldError>
-                  )}
-                </Field>
-              )}
-            />
-            <Controller
-              name="reason"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor={`${fieldId}-edit-reason`}>Reason</FieldLabel>
-                  <Textarea
-                    {...field}
-                    id={`${fieldId}-edit-reason`}
-                    placeholder="Why are these details changing?"
-                    aria-invalid={fieldState.invalid}
-                    disabled={mutation.isPending}
-                  />
-                  {fieldState.invalid && (
-                    <FieldError>{fieldState.error?.message}</FieldError>
-                  )}
-                </Field>
-              )}
-            />
-          </div>
+          <DialogPanel>
+            <div className="flex w-full flex-col gap-7">
+              <Controller
+                name="name"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor={`${fieldId}-name`}>Item name</FieldLabel>
+                    <Input
+                      {...field}
+                      id={`${fieldId}-name`}
+                      aria-invalid={fieldState.invalid}
+                      disabled={mutation.isPending}
+                    />
+                    {fieldState.invalid && (
+                      <FieldError>{fieldState.error?.message}</FieldError>
+                    )}
+                  </Field>
+                )}
+              />
+              <Controller
+                name="supplierId"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor={`${fieldId}-supplier`}>
+                      Supplier (optional)
+                    </FieldLabel>
+                    <SupplierCombobox
+                      id={`${fieldId}-supplier`}
+                      value={
+                        field.value ? (field.value as Id<"inventorySuppliers">) : null
+                      }
+                      initialLabel={item.supplierId ? item.supplierName : undefined}
+                      onValueChange={field.onChange}
+                      disabled={mutation.isPending}
+                      invalid={fieldState.invalid}
+                    />
+                    {fieldState.invalid && (
+                      <FieldError>{fieldState.error?.message}</FieldError>
+                    )}
+                  </Field>
+                )}
+              />
+              <Controller
+                name="reason"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor={`${fieldId}-edit-reason`}>Reason</FieldLabel>
+                    <Textarea
+                      {...field}
+                      id={`${fieldId}-edit-reason`}
+                      placeholder="Why are these details changing?"
+                      aria-invalid={fieldState.invalid}
+                      disabled={mutation.isPending}
+                    />
+                    {fieldState.invalid && (
+                      <FieldError>{fieldState.error?.message}</FieldError>
+                    )}
+                  </Field>
+                )}
+              />
+            </div>
+          </DialogPanel>
           <DialogFooter>
             <Button type="submit" disabled={mutation.isPending}>
               {mutation.isPending && <Spinner data-icon="inline-start" />}

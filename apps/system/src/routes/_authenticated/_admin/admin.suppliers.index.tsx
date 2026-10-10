@@ -8,6 +8,7 @@ import {
   DialogDescription,
   DialogFooter,
   DialogHeader,
+  DialogPanel,
   DialogTitle,
   DialogTrigger,
 } from "@dg/ui-coss/components/dialog";
@@ -192,27 +193,29 @@ function SupplierFormDialog() {
           onSubmit={form.handleSubmit((values) => mutation.mutate(values))}
           className="flex flex-col gap-6"
         >
-          <div className="flex w-full flex-col gap-7">
-            <Controller
-              name="name"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="new-supplier-name">Supplier name</FieldLabel>
-                  <Input
-                    {...field}
-                    id="new-supplier-name"
-                    aria-invalid={fieldState.invalid}
-                    disabled={mutation.isPending}
-                    autoFocus
-                  />
-                  {fieldState.invalid && (
-                    <FieldError>{fieldState.error?.message}</FieldError>
-                  )}
-                </Field>
-              )}
-            />
-          </div>
+          <DialogPanel>
+            <div className="flex w-full flex-col gap-7">
+              <Controller
+                name="name"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor="new-supplier-name">Supplier name</FieldLabel>
+                    <Input
+                      {...field}
+                      id="new-supplier-name"
+                      aria-invalid={fieldState.invalid}
+                      disabled={mutation.isPending}
+                      autoFocus
+                    />
+                    {fieldState.invalid && (
+                      <FieldError>{fieldState.error?.message}</FieldError>
+                    )}
+                  </Field>
+                )}
+              />
+            </div>
+          </DialogPanel>
           <DialogFooter>
             <Button type="submit" disabled={mutation.isPending}>
               {mutation.isPending && <Spinner data-icon="inline-start" />}

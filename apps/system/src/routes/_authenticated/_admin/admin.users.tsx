@@ -8,6 +8,7 @@ import {
   DialogDescription,
   DialogFooter,
   DialogHeader,
+  DialogPanel,
   DialogTitle,
 } from "@dg/ui-coss/components/dialog";
 import { Input } from "@dg/ui-coss/components/input";
@@ -295,21 +296,23 @@ function ChangePasswordDialog({
             <DialogTitle>Change Password</DialogTitle>
             <DialogDescription>Enter your new password below.</DialogDescription>
           </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="new-password" className="text-right">
-                New Password
-              </Label>
-              <Input
-                id="new-password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="col-span-3"
-                placeholder="Enter new password"
-              />
+          <DialogPanel>
+            <div className="grid gap-4 py-4">
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="new-password" className="text-right">
+                  New Password
+                </Label>
+                <Input
+                  id="new-password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="col-span-3"
+                  placeholder="Enter new password"
+                />
+              </div>
             </div>
-          </div>
+          </DialogPanel>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => setOpen(false)}>
               Close
