@@ -1,11 +1,11 @@
 {
   "$schema": "https://ui.shadcn.com/schema.json",
-  "style": "base-vega",
+  "style": "new-york",
   "rsc": false,
   "tsx": true,
   "tailwind": {
     "config": "",
-    "css": "../../packages/ui/styles/base.css",
+    "css": "../../packages/ui-coss/styles/base.css",
     "baseColor": "neutral",
     "cssVariables": true,
     "prefix": ""
@@ -13,12 +13,14 @@
   "iconLibrary": "lucide",
   "aliases": {
     "components": "@/components",
-    "utils": "@dg/ui/lib/utils",
-    "ui": "@dg/ui/components",
+    "utils": "@dg/ui-coss/lib/utils",
+    "ui": "@dg/ui-coss/components",
     "lib": "@/lib",
-    "hooks": "@dg/ui/hooks"
+    "hooks": "@dg/ui-coss/hooks"
   },
   "menuColor": "default",
   "menuAccent": "subtle",
-  "registries": {}
+  "registries": {
+    "@coss": "https://coss.com/ui/r/{name}.json"
+  }
 }

@@ -23,7 +23,7 @@
     "deps:major": "pnpx taze@latest major -Ilw",
     "env": "node sync-env.js",
     "env:prod": "node sync-env.js --prod",
-    "ui": "pnpm --filter @dg/ui ui",
+    "ui": "pnpm --filter @dg/ui-coss ui",
     "dryrun": "pnpm --filter @dg/backend dry-run"
   },
   "devDependencies": {

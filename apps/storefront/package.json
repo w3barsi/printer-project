@@ -17,7 +17,6 @@
     "@convex-dev/react-query": "0.1.0",
     "@dg/backend": "workspace:*",
     "@dg/drive": "workspace:*",
-    "@dg/ui": "workspace:*",
     "@dg/ui-coss": "workspace:*",
     "@t3-oss/env-core": "^0.13.11",
     "@tanstack/react-query": "^5.104.1",
@@ -31,7 +30,6 @@
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
     "react-hotkeys-hook": "^5.3.3",
-    "sonner": "^2.0.8",
     "zod": "^4.6.5"
   },
   "devDependencies": {
