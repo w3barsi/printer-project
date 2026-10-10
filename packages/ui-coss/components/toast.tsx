@@ -28,6 +28,10 @@ type ToastData = {
     "children" | "className" | "swipeDirection" | "toast"
   >;
   tooltipStyle?: boolean;
+  /** Custom per-toast body (e.g. UploadToast with Progress). Replaces the
+      default Title/Description/Action layout; Toast.Root chrome still applies,
+      so custom content must not bring its own card border/background. */
+  customContent?: React.ReactNode;
 };
 
 function getSwipeDirection(position: ToastPosition): SwipeDirection[] {
@@ -140,34 +144,36 @@ function Toasts({
               swipeDirection={swipeDirection}
               toast={toast}
             >
-              <Toast.Content className="pointer-events-auto flex items-center justify-between gap-1.5 overflow-hidden px-3.5 py-3 text-sm transition-opacity duration-250 data-behind:opacity-0 data-behind:not-data-expanded:pointer-events-none data-expanded:opacity-100">
-                <div className="flex gap-2">
-                  {Icon && (
-                    <div
-                      className="[&_svg]:pointer-events-none [&_svg]:shrink-0 [&>svg]:h-lh [&>svg]:w-4"
-                      data-slot="toast-icon"
-                    >
-                      <Icon className="in-data-[type=info]:text-info in-data-[type=success]:text-success in-data-[type=warning]:text-warning in-data-[type=error]:text-destructive in-data-[type=loading]:animate-spin in-data-[type=loading]:opacity-80" />
-                    </div>
-                  )}
+              {toastData?.customContent ?? (
+                <Toast.Content className="pointer-events-auto flex items-center justify-between gap-1.5 overflow-hidden px-3.5 py-3 text-sm transition-opacity duration-250 data-behind:opacity-0 data-behind:not-data-expanded:pointer-events-none data-expanded:opacity-100">
+                  <div className="flex gap-2">
+                    {Icon && (
+                      <div
+                        className="[&_svg]:pointer-events-none [&_svg]:shrink-0 [&>svg]:h-lh [&>svg]:w-4"
+                        data-slot="toast-icon"
+                      >
+                        <Icon className="in-data-[type=info]:text-info in-data-[type=success]:text-success in-data-[type=warning]:text-warning in-data-[type=error]:text-destructive in-data-[type=loading]:animate-spin in-data-[type=loading]:opacity-80" />
+                      </div>
+                    )}
 
-                  <div className="flex flex-col gap-0.5">
-                    <Toast.Title className="font-medium" data-slot="toast-title" />
-                    <Toast.Description
-                      className="text-muted-foreground"
-                      data-slot="toast-description"
-                    />
+                    <div className="flex flex-col gap-0.5">
+                      <Toast.Title className="font-medium" data-slot="toast-title" />
+                      <Toast.Description
+                        className="text-muted-foreground"
+                        data-slot="toast-description"
+                      />
+                    </div>
                   </div>
-                </div>
-                {toast.actionProps && (
-                  <Toast.Action
-                    className={buttonVariants({ size: "xs" })}
-                    data-slot="toast-action"
-                  >
-                    {toast.actionProps.children}
-                  </Toast.Action>
-                )}
-              </Toast.Content>
+                  {toast.actionProps && (
+                    <Toast.Action
+                      className={buttonVariants({ size: "xs" })}
+                      data-slot="toast-action"
+                    >
+                      {toast.actionProps.children}
+                    </Toast.Action>
+                  )}
+                </Toast.Content>
+              )}
             </Toast.Root>
           );
         })}
