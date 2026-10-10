@@ -1,4 +1,4 @@
-import { Button } from "@dg/ui/components/button";
+import { Button } from "@dg/ui-coss/components/button";
 import {
   ColorPicker,
   ColorPickerEyeDropper,
@@ -6,9 +6,9 @@ import {
   ColorPickerHue,
   ColorPickerOutput,
   ColorPickerSelection,
-} from "@dg/ui/components/color-picker";
-import { Popover, PopoverContent, PopoverTrigger } from "@dg/ui/components/popover";
-import { cn } from "@dg/ui/lib/utils";
+} from "@dg/ui-coss/components/legacy/color-picker";
+import { Popover, PopoverContent, PopoverTrigger } from "@dg/ui-coss/components/popover";
+import { cn } from "@dg/ui-coss/lib/utils";
 import { useCallback } from "react";
 
 import { toHex, type RgbColor } from "@/lib/3d/color";
