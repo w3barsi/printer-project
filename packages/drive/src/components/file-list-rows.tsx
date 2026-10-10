@@ -1,19 +1,19 @@
 import { Badge } from "@dg/ui-coss/components/badge";
 import { Button } from "@dg/ui-coss/components/button";
-import { cn } from "@dg/ui-coss/lib/utils";
 import {
   ContextMenu,
-  ContextMenuContent,
+  ContextMenuPopup,
   ContextMenuTrigger,
-} from "@dg/ui/components/context-menu";
+} from "@dg/ui-coss/components/context-menu";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@dg/ui/components/dropdown-menu";
+  Menu,
+  MenuPopup,
+  MenuGroup,
+  MenuItem,
+  MenuSeparator,
+  MenuTrigger,
+} from "@dg/ui-coss/components/menu";
+import { cn } from "@dg/ui-coss/lib/utils";
 import { useDraggable, useDroppable } from "@dnd-kit/core";
 import {
   DownloadIcon,
@@ -73,37 +73,37 @@ function DriveItemMenuItems({
   return (
     <>
       {onDownload && (
-        <DropdownMenuItem onClick={onDownload}>
+        <MenuItem onClick={onDownload}>
           <DownloadIcon />
           {item.kind === "folder" ? "Download Folder" : "Download File"}
-        </DropdownMenuItem>
+        </MenuItem>
       )}
       {onRename && (
-        <DropdownMenuItem onClick={onRename}>
+        <MenuItem onClick={onRename}>
           <PencilIcon />
           Rename
-        </DropdownMenuItem>
+        </MenuItem>
       )}
       {onMove && (
-        <DropdownMenuItem onClick={onMove}>
+        <MenuItem onClick={onMove}>
           <FolderInputIcon />
           Move
-        </DropdownMenuItem>
+        </MenuItem>
       )}
       {onShare && (
-        <DropdownMenuItem onClick={onShare}>
+        <MenuItem onClick={onShare}>
           <Share2Icon />
           Share
-        </DropdownMenuItem>
+        </MenuItem>
       )}
       {renderItemActions?.(item, { keepMenuOpen })}
       {canDelete && (
         <>
-          {hasActionsBeforeDelete && <DropdownMenuSeparator />}
-          <DropdownMenuItem variant="destructive" onClick={onDelete}>
+          {hasActionsBeforeDelete && <MenuSeparator />}
+          <MenuItem variant="destructive" onClick={onDelete}>
             <Trash2Icon />
             Delete
-          </DropdownMenuItem>
+          </MenuItem>
         </>
       )}
     </>
@@ -248,8 +248,8 @@ export function DriveFileRow({
           onDoubleClick={(event) => event.stopPropagation()}
           onKeyDown={(event) => event.stopPropagation()}
         >
-          <DropdownMenu open={actionsOpen} onOpenChange={setActionsOpen}>
-            <DropdownMenuTrigger
+          <Menu open={actionsOpen} onOpenChange={setActionsOpen}>
+            <MenuTrigger
               render={
                 <Button
                   variant="ghost"
@@ -260,9 +260,9 @@ export function DriveFileRow({
               }
             >
               <MoreHorizontalIcon />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-max">
-              <DropdownMenuGroup>
+            </MenuTrigger>
+            <MenuPopup align="end" className="w-max">
+              <MenuGroup>
                 <DriveItemMenuItems
                   item={item}
                   onDelete={onDelete}
@@ -274,9 +274,9 @@ export function DriveFileRow({
                   keepMenuOpen={() => setActionsOpen(true)}
                   renderItemActions={renderItemActions}
                 />
-              </DropdownMenuGroup>
-            </DropdownMenuContent>
-          </DropdownMenu>
+              </MenuGroup>
+            </MenuPopup>
+          </Menu>
         </div>
       ) : (
         <span aria-hidden="true" />
@@ -289,8 +289,8 @@ export function DriveFileRow({
   return (
     <ContextMenu open={contextMenuOpen} onOpenChange={setContextMenuOpen}>
       <ContextMenuTrigger render={row} />
-      <ContextMenuContent>
-        <DropdownMenuGroup>
+      <ContextMenuPopup>
+        <MenuGroup>
           <DriveItemMenuItems
             item={item}
             onDelete={onDelete}
@@ -302,8 +302,8 @@ export function DriveFileRow({
             keepMenuOpen={() => setContextMenuOpen(true)}
             renderItemActions={renderItemActions}
           />
-        </DropdownMenuGroup>
-      </ContextMenuContent>
+        </MenuGroup>
+      </ContextMenuPopup>
     </ContextMenu>
   );
 }

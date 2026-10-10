@@ -5,7 +5,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
-} from "@dg/ui/components/sidebar";
+} from "@dg/ui-coss/components/sidebar";
 import { Link, useMatch, useRouteContext } from "@tanstack/react-router";
 import { ContactRoundIcon, ShieldUserIcon, TruckIcon } from "lucide-react";
 

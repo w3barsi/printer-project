@@ -1,4 +1,4 @@
-import { DropdownMenuItem } from "@dg/ui/components/dropdown-menu";
+import { MenuItem } from "@dg/ui-coss/components/menu";
 import { Check, PrinterIcon } from "lucide-react";
 
 import { useDevice } from "@/contexts/device-context";
@@ -11,7 +11,7 @@ export function PrinterModeToggle() {
   }
 
   return (
-    <DropdownMenuItem
+    <MenuItem
       className="flex justify-between"
       onClick={() => setIsPrinterMode(!isPrinterMode)}
     >
@@ -19,6 +19,6 @@ export function PrinterModeToggle() {
         <PrinterIcon /> Mode
       </span>
       {isPrinterMode ? <Check /> : null}
-    </DropdownMenuItem>
+    </MenuItem>
   );
 }

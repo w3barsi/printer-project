@@ -15,7 +15,7 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
   useSidebar,
-} from "@dg/ui/components/sidebar";
+} from "@dg/ui-coss/components/sidebar";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, useMatch, useRouteContext } from "@tanstack/react-router";
 import {

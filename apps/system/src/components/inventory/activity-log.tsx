@@ -11,6 +11,15 @@ import {
   CardTitle,
 } from "@dg/ui-coss/components/card";
 import {
+  Combobox,
+  ComboboxPopup,
+  ComboboxEmpty,
+  ComboboxInput,
+  ComboboxItem,
+  ComboboxList,
+  ComboboxTrigger,
+} from "@dg/ui-coss/components/combobox";
+import {
   Empty,
   EmptyDescription,
   EmptyHeader,
@@ -35,15 +44,6 @@ import {
   TableRow,
 } from "@dg/ui-coss/components/table";
 import { cn } from "@dg/ui-coss/lib/utils";
-import {
-  Combobox,
-  ComboboxContent,
-  ComboboxEmpty,
-  ComboboxInput,
-  ComboboxItem,
-  ComboboxList,
-  ComboboxTrigger,
-} from "@dg/ui/components/combobox";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { Link, useRouteContext } from "@tanstack/react-router";
 import { ArrowLeftIcon, ArrowRightIcon, HistoryIcon, Trash2Icon } from "lucide-react";
@@ -497,7 +497,7 @@ function InventoryItemFilter({
           {selectedOption?.label ?? "All items"}
         </span>
       </ComboboxTrigger>
-      <ComboboxContent className="w-(--anchor-width) min-w-(--anchor-width) p-0">
+      <ComboboxPopup className="w-(--anchor-width) min-w-(--anchor-width) p-0">
         <ComboboxInput
           showTrigger={false}
           placeholder="Search inventory..."
@@ -519,7 +519,7 @@ function InventoryItemFilter({
             </ComboboxItem>
           )}
         </ComboboxList>
-      </ComboboxContent>
+      </ComboboxPopup>
     </Combobox>
   );
 }

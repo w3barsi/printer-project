@@ -7,7 +7,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarSeparator,
-} from "@dg/ui/components/sidebar";
+} from "@dg/ui-coss/components/sidebar";
 import { Link } from "@tanstack/react-router";
 import * as React from "react";
 

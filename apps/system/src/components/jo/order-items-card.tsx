@@ -3,6 +3,7 @@ import { api } from "@dg/backend/api";
 import type { Id } from "@dg/backend/dataModel";
 import { Button } from "@dg/ui-coss/components/button";
 import { Card, CardContent, CardHeader } from "@dg/ui-coss/components/card";
+import { Menu, MenuPopup, MenuItem, MenuTrigger } from "@dg/ui-coss/components/menu";
 import {
   Table,
   TableBody,
@@ -12,12 +13,6 @@ import {
   TableHeader,
   TableRow,
 } from "@dg/ui-coss/components/table";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@dg/ui/components/dropdown-menu";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { MoreHorizontalIcon, PencilIcon, Trash2Icon } from "lucide-react";
 import { useState } from "react";
@@ -91,14 +86,12 @@ export function OrderItemsCard({ joId }: { joId: Id<"jo"> }) {
                   </TableCell>
                   <TableCell className="w-12 text-right">
                     {jo.status !== "unconfirmed" ? (
-                      <DropdownMenu>
-                        <DropdownMenuTrigger
-                          render={<Button variant="ghost" size="icon" />}
-                        >
+                      <Menu>
+                        <MenuTrigger render={<Button variant="ghost" size="icon" />}>
                           <MoreHorizontalIcon className="h-4 w-4" />
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem
+                        </MenuTrigger>
+                        <MenuPopup align="end">
+                          <MenuItem
                             onClick={() => {
                               setIsEditDialogOpen(true);
                               setItem(item);
@@ -106,8 +99,8 @@ export function OrderItemsCard({ joId }: { joId: Id<"jo"> }) {
                           >
                             <PencilIcon />
                             Edit
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
+                          </MenuItem>
+                          <MenuItem
                             variant="destructive"
                             onClick={() => {
                               setIsDeleteAlertDialogOpen(true);
@@ -116,9 +109,9 @@ export function OrderItemsCard({ joId }: { joId: Id<"jo"> }) {
                           >
                             <Trash2Icon />
                             Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                          </MenuItem>
+                        </MenuPopup>
+                      </Menu>
                     ) : null}
                   </TableCell>
                 </TableRow>

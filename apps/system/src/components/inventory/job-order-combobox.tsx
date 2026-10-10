@@ -4,12 +4,12 @@ import type { Id } from "@dg/backend/dataModel";
 import { Badge } from "@dg/ui-coss/components/badge";
 import {
   Combobox,
-  ComboboxContent,
+  ComboboxPopup,
   ComboboxEmpty,
   ComboboxInput,
   ComboboxItem,
   ComboboxList,
-} from "@dg/ui/components/combobox";
+} from "@dg/ui-coss/components/combobox";
 import { useQuery } from "@tanstack/react-query";
 import { useId, useState } from "react";
 
@@ -99,7 +99,7 @@ export function JobOrderCombobox({
         disabled={disabled}
         className="w-full"
       />
-      <ComboboxContent>
+      <ComboboxPopup>
         <ComboboxEmpty>
           {isPending ? "Loading Job Orders..." : "No selectable Job Order found."}
         </ComboboxEmpty>
@@ -122,7 +122,7 @@ export function JobOrderCombobox({
             </ComboboxItem>
           )}
         </ComboboxList>
-      </ComboboxContent>
+      </ComboboxPopup>
     </Combobox>
   );
 }

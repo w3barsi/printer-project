@@ -2,19 +2,19 @@
 
 import { Avatar, AvatarFallback, AvatarImage } from "@dg/ui-coss/components/avatar";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@dg/ui/components/dropdown-menu";
+  Menu,
+  MenuPopup,
+  MenuGroup,
+  MenuItem,
+  MenuGroupLabel,
+  MenuSeparator,
+  MenuTrigger,
+} from "@dg/ui-coss/components/menu";
 import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@dg/ui/components/sidebar";
+} from "@dg/ui-coss/components/sidebar";
 import { useRouteContext } from "@tanstack/react-router";
 import { ChevronsUpDown, LogOut } from "lucide-react";
 
@@ -40,8 +40,8 @@ export function NavUser() {
   return (
     <SidebarMenu>
       <SidebarMenuItem>
-        <DropdownMenu>
-          <DropdownMenuTrigger
+        <Menu>
+          <MenuTrigger
             render={
               <SidebarMenuButton
                 size="lg"
@@ -58,14 +58,14 @@ export function NavUser() {
               <span className="truncate text-xs">{user.email}</span>
             </div>
             <ChevronsUpDown className="ml-auto size-4" />
-          </DropdownMenuTrigger>
-          <DropdownMenuContent
+          </MenuTrigger>
+          <MenuPopup
             className="w-(--anchor-width) min-w-56 rounded-lg"
             align="end"
             sideOffset={4}
           >
-            <DropdownMenuGroup>
-              <DropdownMenuLabel className="p-0 font-normal">
+            <MenuGroup>
+              <MenuGroupLabel className="p-0 font-normal">
                 <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                   <Avatar className="h-8 w-8 rounded-lg">
                     <AvatarImage src={image} alt={user.name} />
@@ -76,20 +76,20 @@ export function NavUser() {
                     <span className="truncate text-xs">{user.email}</span>
                   </div>
                 </div>
-              </DropdownMenuLabel>
-            </DropdownMenuGroup>
-            <DropdownMenuSeparator />
+              </MenuGroupLabel>
+            </MenuGroup>
+            <MenuSeparator />
             <PrinterModeToggle />
-            <DropdownMenuItem
+            <MenuItem
               onClick={async () => {
                 await handleSignOut();
               }}
             >
               <LogOut />
               Log out
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+            </MenuItem>
+          </MenuPopup>
+        </Menu>
       </SidebarMenuItem>
     </SidebarMenu>
   );

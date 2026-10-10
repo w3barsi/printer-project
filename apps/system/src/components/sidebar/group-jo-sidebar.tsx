@@ -10,7 +10,7 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
   useSidebar,
-} from "@dg/ui/components/sidebar";
+} from "@dg/ui-coss/components/sidebar";
 import { useAutoAnimate } from "@formkit/auto-animate/react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, useMatch } from "@tanstack/react-router";

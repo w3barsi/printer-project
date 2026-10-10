@@ -3,8 +3,6 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@dg/ui-coss/components/collapsible";
-import { Spinner } from "@dg/ui-coss/components/spinner";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@dg/ui-coss/components/tooltip";
 import {
   SidebarMenuAction,
   SidebarMenuButton,
@@ -13,7 +11,9 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
   useSidebar,
-} from "@dg/ui/components/sidebar";
+} from "@dg/ui-coss/components/sidebar";
+import { Spinner } from "@dg/ui-coss/components/spinner";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@dg/ui-coss/components/tooltip";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useMatch } from "@tanstack/react-router";
 import { ChevronRight, KanbanIcon, KanbanSquareIcon } from "lucide-react";
