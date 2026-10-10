@@ -94,7 +94,7 @@ WARN_RULES: list[tuple[str, str]] = [
 ]
 
 PROTECTED = ("routeTree.gen.ts", "convex/_generated")
-SKIP_IMPORTS = ("@dg/ui/components/sonner", 'from "sonner"', "components/color-picker")
+SKIP_IMPORTS = ("@dg/ui/components/sonner", "components/color-picker")
 
 
 @dataclass
