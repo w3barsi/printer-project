@@ -1,5 +1,5 @@
-import { Button } from "@dg/ui/components/button";
-import { Spinner } from "@dg/ui/components/spinner";
+import { Button } from "@dg/ui-coss/components/button";
+import { Spinner } from "@dg/ui-coss/components/spinner";
 import { createFileRoute } from "@tanstack/react-router";
 import { format } from "date-fns";
 import fileSaver from "file-saver";

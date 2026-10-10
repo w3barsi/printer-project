@@ -1,6 +1,7 @@
 import { api } from "@dg/backend/api";
 import type { Id } from "@dg/backend/dataModel";
-import { Button } from "@dg/ui/components/button";
+import { Button } from "@dg/ui-coss/components/button";
+import { Kbd } from "@dg/ui-coss/components/kbd";
 import {
   Dialog,
   DialogContent,
@@ -12,7 +13,6 @@ import {
 } from "@dg/ui/components/dialog";
 import { Field, FieldError, FieldLabel } from "@dg/ui/components/field";
 import { Input } from "@dg/ui/components/input";
-import { Kbd } from "@dg/ui/components/kbd";
 import {
   Select,
   SelectContent,

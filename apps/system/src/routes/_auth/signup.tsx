@@ -1,6 +1,6 @@
-import { Button } from "@dg/ui/components/button";
+import { Button } from "@dg/ui-coss/components/button";
+import { Label } from "@dg/ui-coss/components/label";
 import { Input } from "@dg/ui/components/input";
-import { Label } from "@dg/ui/components/label";
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { GalleryVerticalEndIcon, LoaderCircleIcon } from "lucide-react";
 import type { FormEvent } from "react";

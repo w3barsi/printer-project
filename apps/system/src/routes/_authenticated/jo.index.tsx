@@ -1,9 +1,10 @@
 import { convexQuery } from "@convex-dev/react-query";
 import { api } from "@dg/backend/api";
-import { Badge } from "@dg/ui/components/badge";
-import { Button } from "@dg/ui/components/button";
+import { Badge } from "@dg/ui-coss/components/badge";
+import { Button } from "@dg/ui-coss/components/button";
+import { Skeleton } from "@dg/ui-coss/components/skeleton";
+import { cn } from "@dg/ui-coss/lib/utils";
 import { Input } from "@dg/ui/components/input";
-import { Skeleton } from "@dg/ui/components/skeleton";
 import {
   Table,
   TableBody,
@@ -13,7 +14,6 @@ import {
   TableRow,
   TableWrapper,
 } from "@dg/ui/components/table";
-import { cn } from "@dg/ui/lib/utils";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, useRouter } from "@tanstack/react-router";
 import {

@@ -1,4 +1,4 @@
-import { Button } from "@dg/ui/components/button";
+import { Button } from "@dg/ui-coss/components/button";
 import { Input } from "@dg/ui/components/input";
 import { Switch } from "@dg/ui/components/switch";
 

@@ -1,4 +1,4 @@
-import { Button } from "@dg/ui/components/button";
+import { Button } from "@dg/ui-coss/components/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@dg/ui/components/tooltip";
 
 import { useDevice } from "@/contexts/device-context";

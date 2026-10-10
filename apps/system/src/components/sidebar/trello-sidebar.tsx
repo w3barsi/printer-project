@@ -1,3 +1,4 @@
+import { Spinner } from "@dg/ui-coss/components/spinner";
 import {
   Collapsible,
   CollapsibleContent,
@@ -12,7 +13,6 @@ import {
   SidebarMenuSubItem,
   useSidebar,
 } from "@dg/ui/components/sidebar";
-import { Spinner } from "@dg/ui/components/spinner";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@dg/ui/components/tooltip";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useMatch } from "@tanstack/react-router";

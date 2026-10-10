@@ -1,7 +1,7 @@
 import { convexQuery } from "@convex-dev/react-query";
 import { api } from "@dg/backend/api";
 import type { Id } from "@dg/backend/dataModel";
-import { Button, buttonVariants } from "@dg/ui/components/button";
+import { Button, buttonVariants } from "@dg/ui-coss/components/button";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { format } from "date-fns";
@@ -67,12 +67,7 @@ function FilePreviewPage() {
           <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
             This file may have been moved, deleted, or restricted.
           </p>
-          <Button
-            variant="outline"
-            className="mt-6"
-            nativeButton={false}
-            render={<Link to="/drive" />}
-          >
+          <Button variant="outline" className="mt-6" render={<Link to="/drive" />}>
             <ArrowLeftIcon data-icon="inline-start" />
             Back to Drive
           </Button>
@@ -97,7 +92,6 @@ function FilePreviewPage() {
           <Button
             variant="outline"
             className="w-fit"
-            nativeButton={false}
             render={<Link to="/drive/$spaceId/{-$folderId}" params={parentParams} />}
           >
             <ArrowLeftIcon data-icon="inline-start" />

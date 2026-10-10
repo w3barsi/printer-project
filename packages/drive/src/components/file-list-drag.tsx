@@ -1,5 +1,5 @@
-import { Button } from "@dg/ui/components/button";
-import { cn } from "@dg/ui/lib/utils";
+import { Button } from "@dg/ui-coss/components/button";
+import { cn } from "@dg/ui-coss/lib/utils";
 import { useDroppable } from "@dnd-kit/core";
 import { Trash2Icon } from "lucide-react";
 

@@ -1,6 +1,6 @@
 import { convexQuery } from "@convex-dev/react-query";
 import { api } from "@dg/backend/api";
-import { Separator } from "@dg/ui/components/separator";
+import { Separator } from "@dg/ui-coss/components/separator";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@dg/ui/components/sidebar";
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 

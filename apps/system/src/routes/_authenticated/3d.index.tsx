@@ -1,5 +1,5 @@
-import { Badge } from "@dg/ui/components/badge";
-import { Button } from "@dg/ui/components/button";
+import { Badge } from "@dg/ui-coss/components/badge";
+import { Button } from "@dg/ui-coss/components/button";
 import {
   Card,
   CardAction,
@@ -55,7 +55,6 @@ function ThreeDPage() {
                     <Button
                       variant="ghost"
                       size="icon-sm"
-                      nativeButton={false}
                       aria-label={`Open ${tool.name}`}
                       render={<Link to={tool.to} />}
                     >
@@ -71,7 +70,6 @@ function ThreeDPage() {
                     variant="outline"
                     size="sm"
                     className="w-full"
-                    nativeButton={false}
                     render={<Link to={tool.to} />}
                   >
                     Open tool

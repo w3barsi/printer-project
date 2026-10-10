@@ -1,6 +1,6 @@
 "use client";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@dg/ui/components/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@dg/ui-coss/components/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,

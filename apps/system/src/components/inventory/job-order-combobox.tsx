@@ -1,7 +1,7 @@
 import { convexQuery } from "@convex-dev/react-query";
 import { api } from "@dg/backend/api";
 import type { Id } from "@dg/backend/dataModel";
-import { Badge } from "@dg/ui/components/badge";
+import { Badge } from "@dg/ui-coss/components/badge";
 import {
   Combobox,
   ComboboxContent,

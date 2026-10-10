@@ -128,7 +128,6 @@ function SupplierTable() {
                   <Button
                     variant="ghost"
                     size="icon-sm"
-                    nativeButton={false}
                     render={
                       <Link
                         to="/admin/suppliers/$supplierId"

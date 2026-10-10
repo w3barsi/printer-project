@@ -114,7 +114,6 @@ function RouteComponent() {
             variant="ghost"
             size="sm"
             className="w-fit"
-            nativeButton={false}
             render={<Link to="/admin/customers" />}
           >
             <ArrowLeftIcon data-icon="inline-start" />
@@ -336,7 +335,6 @@ function CustomerJobOrders({
                     <Button
                       variant="ghost"
                       size="sm"
-                      nativeButton={false}
                       render={<Link to="/jo/$joId" params={{ joId: jobOrder._id }} />}
                     >
                       Open JO

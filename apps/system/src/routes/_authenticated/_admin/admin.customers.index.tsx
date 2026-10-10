@@ -146,7 +146,6 @@ function CustomerTable() {
                   <Button
                     variant="ghost"
                     size="icon-sm"
-                    nativeButton={false}
                     render={
                       <Link
                         to="/admin/customers/$customerId"

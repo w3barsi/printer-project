@@ -1,11 +1,12 @@
 import { convexQuery } from "@convex-dev/react-query";
 import { api } from "@dg/backend/api";
-import { Button } from "@dg/ui/components/button";
+import { Button } from "@dg/ui-coss/components/button";
+import { Label } from "@dg/ui-coss/components/label";
+import { Separator } from "@dg/ui-coss/components/separator";
+import { cn } from "@dg/ui-coss/lib/utils";
 import { Calendar } from "@dg/ui/components/calendar";
 import { Card, CardContent, CardHeader } from "@dg/ui/components/card";
-import { Label } from "@dg/ui/components/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@dg/ui/components/popover";
-import { Separator } from "@dg/ui/components/separator";
 import {
   Table,
   TableBody,
@@ -15,7 +16,6 @@ import {
   TableRow,
   TableWrapper,
 } from "@dg/ui/components/table";
-import { cn } from "@dg/ui/lib/utils";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation } from "convex/react";

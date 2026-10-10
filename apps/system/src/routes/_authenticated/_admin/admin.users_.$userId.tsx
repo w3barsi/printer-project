@@ -1,6 +1,7 @@
 import { convexQuery } from "@convex-dev/react-query";
 import { api } from "@dg/backend/api";
-import { Button } from "@dg/ui/components/button";
+import { Button } from "@dg/ui-coss/components/button";
+import { Skeleton } from "@dg/ui-coss/components/skeleton";
 import {
   Card,
   CardContent,
@@ -8,7 +9,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@dg/ui/components/card";
-import { Skeleton } from "@dg/ui/components/skeleton";
 import {
   Table,
   TableBody,

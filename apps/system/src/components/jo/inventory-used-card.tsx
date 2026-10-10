@@ -1,8 +1,9 @@
 import { convexQuery } from "@convex-dev/react-query";
 import { api } from "@dg/backend/api";
 import type { Id } from "@dg/backend/dataModel";
-import { Badge } from "@dg/ui/components/badge";
-import { Button } from "@dg/ui/components/button";
+import { Badge } from "@dg/ui-coss/components/badge";
+import { Button } from "@dg/ui-coss/components/button";
+import { cn } from "@dg/ui-coss/lib/utils";
 import {
   Card,
   CardContent,
@@ -17,7 +18,6 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@dg/ui/components/empty";
-import { cn } from "@dg/ui/lib/utils";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { ArrowLeftIcon, ArrowRightIcon, PackageMinusIcon } from "lucide-react";
 import { useState } from "react";

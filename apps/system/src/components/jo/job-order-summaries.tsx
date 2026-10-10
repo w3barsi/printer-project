@@ -1,8 +1,8 @@
 import { convexQuery } from "@convex-dev/react-query";
 import { api } from "@dg/backend/api";
 import type { Id } from "@dg/backend/dataModel";
+import { Separator } from "@dg/ui-coss/components/separator";
 import { Card, CardContent, CardDescription, CardHeader } from "@dg/ui/components/card";
-import { Separator } from "@dg/ui/components/separator";
 import { useSuspenseQuery } from "@tanstack/react-query";
 
 import { formatOptionalDate } from "@/components/jo/job-order-formatters";

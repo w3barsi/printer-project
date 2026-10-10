@@ -1,4 +1,4 @@
-import { Button } from "@dg/ui/components/button";
+import { Button } from "@dg/ui-coss/components/button";
 import type { ErrorComponentProps } from "@tanstack/react-router";
 import { ErrorComponent, Link, rootRouteId, useMatch } from "@tanstack/react-router";
 
@@ -18,7 +18,7 @@ export function DefaultCatchBoundary({ error }: Readonly<ErrorComponentProps>) {
           Try Again
         </Button>
         {isRoot ? (
-          <Button variant="secondary" nativeButton={false} render={<Link to="/" />}>
+          <Button variant="secondary" render={<Link to="/" />}>
             Home
           </Button>
         ) : (

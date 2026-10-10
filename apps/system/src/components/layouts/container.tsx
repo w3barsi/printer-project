@@ -1,4 +1,4 @@
-import { cn, type ClassValue } from "@dg/ui/lib/utils";
+import { cn, type ClassValue } from "@dg/ui-coss/lib/utils";
 import type { ComponentProps } from "react";
 
 /**

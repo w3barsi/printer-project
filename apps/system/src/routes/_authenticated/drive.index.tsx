@@ -1,8 +1,8 @@
 import { convexQuery } from "@convex-dev/react-query";
 import { api } from "@dg/backend/api";
 import { DriveFileList } from "@dg/drive/components/file-list";
-import { Badge } from "@dg/ui/components/badge";
-import { Button } from "@dg/ui/components/button";
+import { Badge } from "@dg/ui-coss/components/badge";
+import { Button } from "@dg/ui-coss/components/button";
 import {
   Card,
   CardAction,
@@ -93,7 +93,6 @@ function DrivePage() {
                     <Button
                       variant="ghost"
                       size="icon-sm"
-                      nativeButton={false}
                       aria-label={`Open ${space.name}`}
                       render={
                         <Link
@@ -120,7 +119,6 @@ function DrivePage() {
                     variant="outline"
                     size="sm"
                     className="w-full"
-                    nativeButton={false}
                     render={
                       <Link
                         to="/drive/$spaceId/{-$folderId}"

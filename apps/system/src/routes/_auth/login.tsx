@@ -1,4 +1,5 @@
-import { Button } from "@dg/ui/components/button";
+import { Button } from "@dg/ui-coss/components/button";
+import { Label } from "@dg/ui-coss/components/label";
 import { Input } from "@dg/ui/components/input";
 import {
   InputGroup,
@@ -6,7 +7,6 @@ import {
   InputGroupButton,
   InputGroupInput,
 } from "@dg/ui/components/input-group";
-import { Label } from "@dg/ui/components/label";
 import { createFileRoute } from "@tanstack/react-router";
 import { EyeClosedIcon, EyeIcon, LoaderCircleIcon } from "lucide-react";
 import type { FormEvent } from "react";

@@ -1,4 +1,4 @@
-import { Skeleton } from "@dg/ui/components/skeleton";
+import { Skeleton } from "@dg/ui-coss/components/skeleton";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 

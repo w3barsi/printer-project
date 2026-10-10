@@ -1,4 +1,4 @@
-import { cn } from "@dg/ui/lib/utils";
+import { cn } from "@dg/ui-coss/lib/utils";
 import { ImageUpIcon } from "lucide-react";
 import { useState } from "react";
 import { useDropzone } from "react-dropzone";

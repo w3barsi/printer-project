@@ -1,4 +1,4 @@
-import { Button } from "@dg/ui/components/button";
+import { Button } from "@dg/ui-coss/components/button";
 
 import { SliderRow } from "@/components/3d/slider-row";
 import { ALPHA_LIMITS, SPECK_LIMITS, type ImageQuality } from "@/lib/3d/design";

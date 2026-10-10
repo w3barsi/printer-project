@@ -1,5 +1,6 @@
-import { Badge } from "@dg/ui/components/badge";
-import { Button } from "@dg/ui/components/button";
+import { Badge } from "@dg/ui-coss/components/badge";
+import { Button } from "@dg/ui-coss/components/button";
+import { cn } from "@dg/ui-coss/lib/utils";
 import {
   ContextMenu,
   ContextMenuContent,
@@ -13,7 +14,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@dg/ui/components/dropdown-menu";
-import { cn } from "@dg/ui/lib/utils";
 import { useDraggable, useDroppable } from "@dnd-kit/core";
 import {
   DownloadIcon,

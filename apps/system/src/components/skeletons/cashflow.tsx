@@ -1,6 +1,6 @@
+import { Separator } from "@dg/ui-coss/components/separator";
+import { Skeleton } from "@dg/ui-coss/components/skeleton";
 import { Card, CardContent, CardHeader } from "@dg/ui/components/card";
-import { Separator } from "@dg/ui/components/separator";
-import { Skeleton } from "@dg/ui/components/skeleton";
 import {
   Table,
   TableBody,

@@ -1,10 +1,10 @@
 import { convexQuery } from "@convex-dev/react-query";
 import { api } from "@dg/backend/api";
 import type { Doc } from "@dg/backend/dataModel";
-import { Badge } from "@dg/ui/components/badge";
-import { Button } from "@dg/ui/components/button";
-import { Skeleton } from "@dg/ui/components/skeleton";
-import { cn } from "@dg/ui/lib/utils";
+import { Badge } from "@dg/ui-coss/components/badge";
+import { Button } from "@dg/ui-coss/components/button";
+import { Skeleton } from "@dg/ui-coss/components/skeleton";
+import { cn } from "@dg/ui-coss/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useRouteContext } from "@tanstack/react-router";
 import {
