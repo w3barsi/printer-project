@@ -101,7 +101,7 @@ export function EditItemDialog({
             Update the details below to edit the item.
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={form.handleSubmit(onSubmit)}>
           <DialogPanel>
             <Controller
               name="name"

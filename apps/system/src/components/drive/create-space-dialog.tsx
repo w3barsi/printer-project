@@ -118,7 +118,7 @@ export function CreateSpaceDialog({ variant = "button" }: CreateSpaceDialogProps
             Set up a shared home for files and choose who can discover it.
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-6">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col">
           <DialogPanel>
             <div className="flex w-full flex-col gap-7">
               <Controller

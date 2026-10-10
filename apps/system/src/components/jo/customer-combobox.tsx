@@ -213,7 +213,7 @@ export function CustomerCombobox({
               Save this customer so they can be reused for future Job Orders.
             </DialogDescription>
           </DialogHeader>
-          <form onSubmit={handleCreate} className="flex flex-col gap-6">
+          <form onSubmit={handleCreate} className="flex flex-col">
             <DialogPanel>
               <div className="flex w-full flex-col gap-7">
                 <Field>

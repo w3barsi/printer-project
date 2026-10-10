@@ -533,7 +533,7 @@ function StockAdjustmentDialog({
             </Badge>
           </div>
         </div>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-6">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col">
           <DialogPanel>
             <div className="flex w-full flex-col gap-7">
               <Controller
