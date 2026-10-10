@@ -69,20 +69,20 @@ export function CreateUserDialog() {
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger render={<Button />}>
-        <PlusIcon className="h-4 w-4" />
-        Create User
-      </DialogTrigger>
-      <DialogContent className="">
-        <DialogHeader>
-          <DialogTitle>Create New User</DialogTitle>
-          <DialogDescription>
-            Add a new user to the system. They will receive an email to verify their
-            account.
-          </DialogDescription>
-        </DialogHeader>
-        <form onSubmit={form.handleSubmit(onSubmit)}>
+    <form id="create-user-form" onSubmit={form.handleSubmit(onSubmit)}>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogTrigger render={<Button type="button" />}>
+          <PlusIcon className="h-4 w-4" />
+          Create User
+        </DialogTrigger>
+        <DialogContent className="">
+          <DialogHeader>
+            <DialogTitle>Create New User</DialogTitle>
+            <DialogDescription>
+              Add a new user to the system. They will receive an email to verify their
+              account.
+            </DialogDescription>
+          </DialogHeader>
           <DialogPanel>
             <Controller
               name="name"
@@ -143,12 +143,12 @@ export function CreateUserDialog() {
             />
           </DialogPanel>
           <DialogFooter>
-            <Button type="submit" disabled={mutation.isPending}>
+            <Button type="submit" form="create-user-form" disabled={mutation.isPending}>
               {mutation.isPending ? "Creating..." : "Create User"}
             </Button>
           </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
+        </DialogContent>
+      </Dialog>
+    </form>
   );
 }
