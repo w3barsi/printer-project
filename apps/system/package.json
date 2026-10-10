@@ -45,7 +45,6 @@
     "react-hook-form": "^7.62.0",
     "react-hotkeys-hook": "^5.3.3",
     "simplify-js": "^1.2.4",
-    "sonner": "^2.0.8",
     "three": "^0.186.1",
     "zod": "^4.6.5"
   },

@@ -1,6 +1,6 @@
 import { api } from "@dg/backend/api";
 import type { Id } from "@dg/backend/dataModel";
-import { Button } from "@dg/ui/components/button";
+import { Button } from "@dg/ui-coss/components/button";
 import {
   Dialog,
   DialogContent,
@@ -9,18 +9,18 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@dg/ui/components/dialog";
-import { Field, FieldError, FieldGroup, FieldLabel } from "@dg/ui/components/field";
-import { Input } from "@dg/ui/components/input";
-import { Kbd } from "@dg/ui/components/kbd";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@dg/ui/components/tooltip";
+} from "@dg/ui-coss/components/dialog";
+import { Field, FieldError, FieldLabel } from "@dg/ui-coss/components/field";
+import { Input } from "@dg/ui-coss/components/input";
+import { Kbd } from "@dg/ui-coss/components/kbd";
+import { toastManager } from "@dg/ui-coss/components/toast";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@dg/ui-coss/components/tooltip";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "convex/react";
 import { PlusIcon } from "lucide-react";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useHotkeys } from "react-hotkeys-hook";
-import { toast } from "sonner";
 import { z } from "zod";
 
 import { CustomerCombobox } from "@/components/jo/customer-combobox";
@@ -67,7 +67,10 @@ export function CreateJoDialog() {
       setOpen(false);
       form.reset();
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Could not create Job Order");
+      toastManager.add({
+        title: error instanceof Error ? error.message : "Could not create Job Order",
+        type: "error",
+      });
     }
   };
 
@@ -95,7 +98,7 @@ export function CreateJoDialog() {
           <DialogDescription>Add the customer and pickup details.</DialogDescription>
         </DialogHeader>
         <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4">
-          <FieldGroup>
+          <div className="flex w-full flex-col gap-7">
             <Controller
               name="customerId"
               control={form.control}
@@ -111,7 +114,9 @@ export function CreateJoDialog() {
                       form.setValue("contact", customer?.contactNumbers?.[0] ?? "");
                     }}
                   />
-                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                  {fieldState.invalid && (
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  )}
                 </Field>
               )}
             />
@@ -133,7 +138,9 @@ export function CreateJoDialog() {
                     autoComplete="tel"
                     aria-invalid={fieldState.invalid}
                   />
-                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                  {fieldState.invalid && (
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  )}
                 </Field>
               )}
             />
@@ -156,7 +163,7 @@ export function CreateJoDialog() {
                 </Field>
               )}
             />
-          </FieldGroup>
+          </div>
           <DialogFooter>
             <Button
               type="submit"

@@ -1,7 +1,7 @@
 import type { Id } from "@dg/backend/dataModel";
 import { shareApi } from "@dg/drive/share-api";
 import type { DriveShareItem } from "@dg/drive/types";
-import { Button } from "@dg/ui/components/button";
+import { Button } from "@dg/ui-coss/components/button";
 import {
   Dialog,
   DialogContent,
@@ -9,9 +9,9 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@dg/ui/components/dialog";
-import { Field, FieldGroup, FieldLabel } from "@dg/ui/components/field";
-import { Input } from "@dg/ui/components/input";
+} from "@dg/ui-coss/components/dialog";
+import { Field, FieldLabel } from "@dg/ui-coss/components/field";
+import { Input } from "@dg/ui-coss/components/input";
 import {
   Select,
   SelectContent,
@@ -19,12 +19,12 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@dg/ui/components/select";
-import { Spinner } from "@dg/ui/components/spinner";
+} from "@dg/ui-coss/components/select";
+import { Spinner } from "@dg/ui-coss/components/spinner";
+import { toastManager } from "@dg/ui-coss/components/toast";
 import { useMutation, useQuery } from "convex/react";
 import { CopyIcon, LinkIcon, Share2Icon, Trash2Icon } from "lucide-react";
 import { useEffect, useState } from "react";
-import { toast } from "sonner";
 
 import { storefrontOrigin } from "@/lib/app-origins";
 
@@ -94,19 +94,21 @@ export function ShareDialog({
       expirationTime !== null &&
       (!Number.isFinite(expirationTime) || expirationTime <= Date.now())
     ) {
-      toast.error("Choose a future expiration date");
+      toastManager.add({ title: "Choose a future expiration date", type: "error" });
       return;
     }
     setIsSaving(true);
     try {
       await setShare({ itemId, access, expiresAt: expirationTime });
-      toast.success(
-        settings?.status === "shared" ? "Sharing updated" : "Public link created",
-      );
+      toastManager.add({
+        title: settings?.status === "shared" ? "Sharing updated" : "Public link created",
+        type: "success",
+      });
     } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : "Sharing could not be updated",
-      );
+      toastManager.add({
+        title: error instanceof Error ? error.message : "Sharing could not be updated",
+        type: "error",
+      });
     } finally {
       setIsSaving(false);
     }
@@ -117,11 +119,12 @@ export function ShareDialog({
     setIsSaving(true);
     try {
       await disableShare({ itemId });
-      toast.success("Public link disabled");
+      toastManager.add({ title: "Public link disabled", type: "success" });
     } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : "Sharing could not be disabled",
-      );
+      toastManager.add({
+        title: error instanceof Error ? error.message : "Sharing could not be disabled",
+        type: "error",
+      });
     } finally {
       setIsSaving(false);
     }
@@ -144,7 +147,7 @@ export function ShareDialog({
             <Spinner />
           </div>
         ) : (
-          <FieldGroup>
+          <div className="flex w-full flex-col gap-7">
             <Field>
               <FieldLabel>Access</FieldLabel>
               <Select
@@ -211,9 +214,12 @@ export function ShareDialog({
                     onClick={async () => {
                       try {
                         await navigator.clipboard.writeText(url);
-                        toast.success("Link copied");
+                        toastManager.add({ title: "Link copied", type: "success" });
                       } catch {
-                        toast.error("Link could not be copied");
+                        toastManager.add({
+                          title: "Link could not be copied",
+                          type: "error",
+                        });
                       }
                     }}
                   >
@@ -222,7 +228,7 @@ export function ShareDialog({
                 </div>
               </Field>
             )}
-          </FieldGroup>
+          </div>
         )}
         <DialogFooter className="sm:justify-between">
           {settings?.status === "shared" ? (

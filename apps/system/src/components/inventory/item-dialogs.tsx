@@ -1,8 +1,8 @@
 import { useConvexMutation } from "@convex-dev/react-query";
 import { api } from "@dg/backend/api";
 import type { Doc, Id } from "@dg/backend/dataModel";
-import { Badge } from "@dg/ui/components/badge";
-import { Button } from "@dg/ui/components/button";
+import { Badge } from "@dg/ui-coss/components/badge";
+import { Button } from "@dg/ui-coss/components/button";
 import {
   Dialog,
   DialogContent,
@@ -11,24 +11,24 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@dg/ui/components/dialog";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@dg/ui/components/dropdown-menu";
+} from "@dg/ui-coss/components/dialog";
 import {
   Field,
   FieldDescription,
   FieldError,
-  FieldGroup,
   FieldLabel,
-} from "@dg/ui/components/field";
-import { Input } from "@dg/ui/components/input";
-import { Spinner } from "@dg/ui/components/spinner";
-import { Textarea } from "@dg/ui/components/textarea";
+} from "@dg/ui-coss/components/field";
+import { Input } from "@dg/ui-coss/components/input";
+import {
+  Menu,
+  MenuPopup,
+  MenuGroup,
+  MenuItem,
+  MenuTrigger,
+} from "@dg/ui-coss/components/menu";
+import { Spinner } from "@dg/ui-coss/components/spinner";
+import { Textarea } from "@dg/ui-coss/components/textarea";
+import { toastManager } from "@dg/ui-coss/components/toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import {
@@ -42,7 +42,6 @@ import {
 import { useId, useRef, useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { useHotkeys } from "react-hotkeys-hook";
-import { toast } from "sonner";
 import { z } from "zod";
 
 import {
@@ -83,12 +82,15 @@ export function AddInventoryItemDialog() {
   const mutation = useMutation({
     mutationFn: useConvexMutation(api.inventory.createItem),
     onSuccess: () => {
-      toast.success("Inventory item created");
+      toastManager.add({ title: "Inventory item created", type: "success" });
       form.reset();
       setOpen(false);
     },
     onError: (error) => {
-      toast.error(error.message || "Could not create inventory item");
+      toastManager.add({
+        title: error.message || "Could not create inventory item",
+        type: "error",
+      });
     },
   });
   useHotkeys(
@@ -135,7 +137,7 @@ export function AddInventoryItemDialog() {
           )}
           className="flex flex-col gap-6"
         >
-          <FieldGroup>
+          <div className="flex w-full flex-col gap-7">
             <Controller
               name="name"
               control={form.control}
@@ -149,7 +151,9 @@ export function AddInventoryItemDialog() {
                     aria-invalid={fieldState.invalid}
                     disabled={mutation.isPending}
                   />
-                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                  {fieldState.invalid && (
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  )}
                 </Field>
               )}
             />
@@ -168,7 +172,9 @@ export function AddInventoryItemDialog() {
                     disabled={mutation.isPending}
                     invalid={fieldState.invalid}
                   />
-                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                  {fieldState.invalid && (
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  )}
                 </Field>
               )}
             />
@@ -191,7 +197,9 @@ export function AddInventoryItemDialog() {
                     onChange={(event) => field.onChange(Number(event.target.value))}
                   />
                   <FieldDescription>Defaults to zero.</FieldDescription>
-                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                  {fieldState.invalid && (
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  )}
                 </Field>
               )}
             />
@@ -210,11 +218,13 @@ export function AddInventoryItemDialog() {
                     aria-invalid={fieldState.invalid}
                     disabled={mutation.isPending}
                   />
-                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                  {fieldState.invalid && (
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  )}
                 </Field>
               )}
             />
-          </FieldGroup>
+          </div>
           <DialogFooter>
             <Button ref={createButtonRef} type="submit" disabled={mutation.isPending}>
               {mutation.isPending && <Spinner data-icon="inline-start" />}
@@ -234,34 +244,32 @@ export function InventoryItemActions({ item }: { item: InventoryListItem }) {
 
   return (
     <>
-      <DropdownMenu>
-        <DropdownMenuTrigger
-          render={<Button type="button" variant="ghost" size="icon-sm" />}
-        >
+      <Menu>
+        <MenuTrigger render={<Button type="button" variant="ghost" size="icon-sm" />}>
           <MoreHorizontalIcon />
           <span className="sr-only">Actions for {item.name}</span>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-44">
-          <DropdownMenuGroup>
-            <DropdownMenuItem onClick={() => setAction("add")}>
+        </MenuTrigger>
+        <MenuPopup align="end" className="w-44">
+          <MenuGroup>
+            <MenuItem onClick={() => setAction("add")}>
               <PackagePlusIcon />
               Add stock
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setAction("remove")}>
+            </MenuItem>
+            <MenuItem onClick={() => setAction("remove")}>
               <MinusIcon />
               Use stock
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setAction("correct")}>
+            </MenuItem>
+            <MenuItem onClick={() => setAction("correct")}>
               <RefreshCwIcon />
               Update stock
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setAction("edit")}>
+            </MenuItem>
+            <MenuItem onClick={() => setAction("edit")}>
               <PencilIcon />
               Edit details
-            </DropdownMenuItem>
-          </DropdownMenuGroup>
-        </DropdownMenuContent>
-      </DropdownMenu>
+            </MenuItem>
+          </MenuGroup>
+        </MenuPopup>
+      </Menu>
 
       {action === "edit" ? (
         <EditItemDetailsDialog
@@ -463,17 +471,22 @@ function StockAdjustmentDialog({
       });
     },
     onSuccess: () => {
-      toast.success(
-        mode === "add"
-          ? "Stock added"
-          : mode === "remove"
-            ? "Stock used"
-            : "Stock count corrected",
-      );
+      toastManager.add({
+        title:
+          mode === "add"
+            ? "Stock added"
+            : mode === "remove"
+              ? "Stock used"
+              : "Stock count corrected",
+        type: "success",
+      });
       onOpenChange(false);
     },
     onError: (error) => {
-      toast.error(error.message || "Could not update stock");
+      toastManager.add({
+        title: error.message || "Could not update stock",
+        type: "error",
+      });
     },
   });
   const projectedQuantity =
@@ -516,7 +529,7 @@ function StockAdjustmentDialog({
           </div>
         </div>
         <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-6">
-          <FieldGroup>
+          <div className="flex w-full flex-col gap-7">
             <Controller
               name="quantity"
               control={form.control}
@@ -543,7 +556,9 @@ function StockAdjustmentDialog({
                         : "—"}
                     </span>
                   </FieldDescription>
-                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                  {fieldState.invalid && (
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  )}
                 </Field>
               )}
             />
@@ -567,7 +582,9 @@ function StockAdjustmentDialog({
                     <FieldDescription>
                       Leave blank for damage, disposal, or general use.
                     </FieldDescription>
-                    {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                    {fieldState.invalid && (
+                      <FieldError>{fieldState.error?.message}</FieldError>
+                    )}
                   </Field>
                 )}
               />
@@ -596,11 +613,13 @@ function StockAdjustmentDialog({
                     aria-invalid={fieldState.invalid}
                     disabled={mutation.isPending}
                   />
-                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                  {fieldState.invalid && (
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  )}
                 </Field>
               )}
             />
-          </FieldGroup>
+          </div>
           {mode === "remove" && quantity > 0 && (
             <p className="rounded-md border border-destructive/30 bg-destructive/5 p-3 text-sm">
               You are using{" "}
@@ -654,11 +673,14 @@ function EditItemDetailsDialog({
   const mutation = useMutation({
     mutationFn: useConvexMutation(api.inventory.updateItemDetails),
     onSuccess: () => {
-      toast.success("Item details updated");
+      toastManager.add({ title: "Item details updated", type: "success" });
       onOpenChange(false);
     },
     onError: (error) => {
-      toast.error(error.message || "Could not update item details");
+      toastManager.add({
+        title: error.message || "Could not update item details",
+        type: "error",
+      });
     },
   });
 
@@ -684,7 +706,7 @@ function EditItemDetailsDialog({
           )}
           className="flex flex-col gap-6"
         >
-          <FieldGroup>
+          <div className="flex w-full flex-col gap-7">
             <Controller
               name="name"
               control={form.control}
@@ -697,7 +719,9 @@ function EditItemDetailsDialog({
                     aria-invalid={fieldState.invalid}
                     disabled={mutation.isPending}
                   />
-                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                  {fieldState.invalid && (
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  )}
                 </Field>
               )}
             />
@@ -717,7 +741,9 @@ function EditItemDetailsDialog({
                     disabled={mutation.isPending}
                     invalid={fieldState.invalid}
                   />
-                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                  {fieldState.invalid && (
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  )}
                 </Field>
               )}
             />
@@ -734,11 +760,13 @@ function EditItemDetailsDialog({
                     aria-invalid={fieldState.invalid}
                     disabled={mutation.isPending}
                   />
-                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                  {fieldState.invalid && (
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  )}
                 </Field>
               )}
             />
-          </FieldGroup>
+          </div>
           <DialogFooter>
             <Button type="submit" disabled={mutation.isPending}>
               {mutation.isPending && <Spinner data-icon="inline-start" />}

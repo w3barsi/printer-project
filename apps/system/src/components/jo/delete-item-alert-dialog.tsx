@@ -2,17 +2,17 @@ import { api } from "@dg/backend/api";
 import type { Id } from "@dg/backend/dataModel";
 import {
   AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
+  AlertDialogClose,
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@dg/ui/components/alert-dialog";
+} from "@dg/ui-coss/components/alert-dialog";
+import { Button } from "@dg/ui-coss/components/button";
+import { toastManager } from "@dg/ui-coss/components/toast";
 import { useMutation } from "convex/react";
 import { useState } from "react";
-import { toast } from "sonner";
 
 import type { Item } from "@/types/convex";
 
@@ -35,10 +35,13 @@ export function DeleteItemAlertDialog({
     setIsDeleting(true);
     try {
       await deleteItem({ itemId: item._id, joId });
-      toast.success(`"${item.name}" has been deleted.`);
+      toastManager.add({ title: `"${item.name}" has been deleted.`, type: "success" });
       setOpen(false);
     } catch (error) {
-      toast.error("Failed to delete item. Please try again.");
+      toastManager.add({
+        title: "Failed to delete item. Please try again.",
+        type: "error",
+      });
     } finally {
       setIsDeleting(false);
     }
@@ -57,16 +60,16 @@ export function DeleteItemAlertDialog({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel variant="outline" disabled={isDeleting}>
+          <AlertDialogClose disabled={isDeleting} render={<Button variant="outline" />}>
             Cancel
-          </AlertDialogCancel>
-          <AlertDialogAction
-            variant="destructive"
+          </AlertDialogClose>
+          <AlertDialogClose
             onClick={handleDeleteItem}
             disabled={isDeleting}
+            render={<Button variant="destructive" />}
           >
             {isDeleting ? "Deleting..." : "Delete"}
-          </AlertDialogAction>
+          </AlertDialogClose>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

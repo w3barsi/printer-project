@@ -20,7 +20,6 @@ import { createServerFn } from "@tanstack/react-start";
 import type { ReactNode } from "react";
 import { useEffect } from "react";
 
-import { ThemedToaster } from "@/components/themed-toaster";
 import { DeviceProvider } from "@/contexts/device-context";
 import { ThemeProvider } from "@/contexts/theme-context";
 import { authClient } from "@/lib/auth-client";
@@ -119,7 +118,6 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
         <ThemeProvider>
           <ToastProvider position="top-center">
             <div className="relative isolate flex min-h-svh flex-col">{children}</div>
-            <ThemedToaster richColors position="top-center" />
           </ToastProvider>
         </ThemeProvider>
         <TanStackDevtools

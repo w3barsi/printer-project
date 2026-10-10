@@ -1,6 +1,6 @@
 import { convexQuery, useConvexMutation } from "@convex-dev/react-query";
 import { api } from "@dg/backend/api";
-import { Button } from "@dg/ui/components/button";
+import { Button } from "@dg/ui-coss/components/button";
 import {
   Dialog,
   DialogContent,
@@ -9,15 +9,14 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@dg/ui/components/dialog";
+} from "@dg/ui-coss/components/dialog";
 import {
   Field,
   FieldDescription,
   FieldError,
-  FieldGroup,
   FieldLabel,
-} from "@dg/ui/components/field";
-import { Input } from "@dg/ui/components/input";
+} from "@dg/ui-coss/components/field";
+import { Input } from "@dg/ui-coss/components/input";
 import {
   Select,
   SelectContent,
@@ -25,16 +24,16 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@dg/ui/components/select";
-import { SidebarMenuSubButton } from "@dg/ui/components/sidebar";
-import { Spinner } from "@dg/ui/components/spinner";
+} from "@dg/ui-coss/components/select";
+import { SidebarMenuSubButton } from "@dg/ui-coss/components/sidebar";
+import { Spinner } from "@dg/ui-coss/components/spinner";
+import { toastManager } from "@dg/ui-coss/components/toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouteContext } from "@tanstack/react-router";
 import { PlusIcon } from "lucide-react";
 import { useId, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { toast } from "sonner";
 import { z } from "zod";
 
 const visibilityOptions = [
@@ -76,12 +75,15 @@ export function CreateSpaceDialog({ variant = "button" }: CreateSpaceDialogProps
     mutationFn: createSpace,
     onSuccess: () => {
       void qc.invalidateQueries(convexQuery(api.drive.spaces.list, {}));
-      toast.success("Space created");
+      toastManager.add({ title: "Space created", type: "success" });
       setOpen(false);
       form.reset();
     },
     onError: (error) => {
-      toast.error(error.message || "Could not create the space");
+      toastManager.add({
+        title: error.message || "Could not create the space",
+        type: "error",
+      });
     },
   });
 
@@ -116,7 +118,7 @@ export function CreateSpaceDialog({ variant = "button" }: CreateSpaceDialogProps
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-6">
-          <FieldGroup>
+          <div className="flex w-full flex-col gap-7">
             <Controller
               name="name"
               control={form.control}
@@ -130,7 +132,9 @@ export function CreateSpaceDialog({ variant = "button" }: CreateSpaceDialogProps
                     autoFocus
                     aria-invalid={fieldState.invalid}
                   />
-                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                  {fieldState.invalid && (
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  )}
                 </Field>
               )}
             />
@@ -149,7 +153,9 @@ export function CreateSpaceDialog({ variant = "button" }: CreateSpaceDialogProps
                     aria-invalid={fieldState.invalid}
                   />
                   <FieldDescription>Optional, up to 160 characters.</FieldDescription>
-                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                  {fieldState.invalid && (
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  )}
                 </Field>
               )}
             />
@@ -180,11 +186,13 @@ export function CreateSpaceDialog({ variant = "button" }: CreateSpaceDialogProps
                   <FieldDescription>
                     Admin-only spaces are hidden from all other users.
                   </FieldDescription>
-                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                  {fieldState.invalid && (
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  )}
                 </Field>
               )}
             />
-          </FieldGroup>
+          </div>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => setOpen(false)}>
               Cancel

@@ -4,23 +4,24 @@ import type { Id } from "@dg/backend/dataModel";
 import type { DriveItem } from "@dg/drive/types";
 import {
   AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
+  AlertDialogClose,
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@dg/ui/components/alert-dialog";
+} from "@dg/ui-coss/components/alert-dialog";
+import { Button } from "@dg/ui-coss/components/button";
 import {
-  DropdownMenuCheckboxItem,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
-} from "@dg/ui/components/dropdown-menu";
+  MenuCheckboxItem,
+  MenuItem,
+  MenuGroupLabel,
+  MenuSeparator,
+  MenuSub,
+  MenuSubPopup,
+  MenuSubTrigger,
+} from "@dg/ui-coss/components/menu";
+import { toastManager } from "@dg/ui-coss/components/toast";
 import { useQuery } from "@tanstack/react-query";
 import { useAction } from "convex/react";
 import {
@@ -30,7 +31,6 @@ import {
   RefreshCwIcon,
 } from "lucide-react";
 import { useState } from "react";
-import { toast } from "sonner";
 
 import { getListCards, getTrelloLists } from "@/server/trello";
 
@@ -78,28 +78,28 @@ function TrelloListMenu({
   );
 
   return (
-    <DropdownMenuSub open={open} onOpenChange={setOpen}>
-      <DropdownMenuSubTrigger className="max-w-72">
+    <MenuSub open={open} onOpenChange={setOpen}>
+      <MenuSubTrigger className="max-w-72">
         <span className="truncate">{list.name}</span>
-      </DropdownMenuSubTrigger>
-      <DropdownMenuSubContent className="max-h-80 w-72 overflow-y-auto">
+      </MenuSubTrigger>
+      <MenuSubPopup className="max-h-80 w-72 overflow-y-auto">
         {cardsQuery.isLoading && (
-          <DropdownMenuItem disabled>
+          <MenuItem disabled>
             <LoaderCircleIcon className="animate-spin" /> Loading cards
-          </DropdownMenuItem>
+          </MenuItem>
         )}
         {cardsQuery.isError && (
-          <DropdownMenuItem onClick={() => void cardsQuery.refetch()}>
+          <MenuItem onClick={() => void cardsQuery.refetch()}>
             <RefreshCwIcon /> Retry loading cards
-          </DropdownMenuItem>
+          </MenuItem>
         )}
         {cardsQuery.isSuccess && cards.length === 0 && (
-          <DropdownMenuItem disabled>No active cards</DropdownMenuItem>
+          <MenuItem disabled>No active cards</MenuItem>
         )}
         {cards.map((card) => {
           const attachment = byCardId.get(card.id);
           return (
-            <DropdownMenuCheckboxItem
+            <MenuCheckboxItem
               key={card.id}
               checked={attachment?.desiredState === "attached"}
               disabled={attachment?.syncStatus === "pending"}
@@ -109,11 +109,11 @@ function TrelloListMenu({
             >
               <span className="truncate">{card.name}</span>
               {attachment && <ActionStatus attachment={attachment} />}
-            </DropdownMenuCheckboxItem>
+            </MenuCheckboxItem>
           );
         })}
-      </DropdownMenuSubContent>
-    </DropdownMenuSub>
+      </MenuSubPopup>
+    </MenuSub>
   );
 }
 
@@ -147,23 +147,30 @@ export function TrelloAttachmentMenu({
   async function runAction(label: string, operation: () => Promise<AttachmentResult>) {
     if (busy) return;
     setBusy(true);
-    const toastId = toast.loading(label);
+    const toastId = toastManager.add({ title: label, type: "loading", timeout: 0 });
     try {
       const result = await operation();
       if (result.status === "error") {
-        toast.error(result.message, { id: toastId });
+        toastManager.add({ title: result.message, type: "error", id: toastId });
       } else if (result.status === "already-attached") {
-        toast.info("This item is already attached", { id: toastId });
+        toastManager.add({
+          title: "This item is already attached",
+          type: "info",
+          id: toastId,
+        });
       } else {
-        toast.success("Trello attachment updated", { id: toastId });
+        toastManager.add({
+          title: "Trello attachment updated",
+          type: "success",
+          id: toastId,
+        });
       }
     } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : "Trello could not be updated",
-        {
-          id: toastId,
-        },
-      );
+      toastManager.add({
+        title: error instanceof Error ? error.message : "Trello could not be updated",
+        type: "error",
+        id: toastId,
+      });
     } finally {
       setBusy(false);
     }
@@ -196,21 +203,21 @@ export function TrelloAttachmentMenu({
 
   return (
     <>
-      <DropdownMenuSub open={open} onOpenChange={setOpen}>
-        <DropdownMenuSubTrigger>
+      <MenuSub open={open} onOpenChange={setOpen}>
+        <MenuSubTrigger>
           <PaperclipIcon /> Attach to Trello Card
-        </DropdownMenuSubTrigger>
-        <DropdownMenuSubContent className="max-h-[min(24rem,70svh)] w-72 overflow-y-auto">
+        </MenuSubTrigger>
+        <MenuSubPopup className="max-h-[min(24rem,70svh)] w-72 overflow-y-auto">
           {attachmentsQuery.isLoading && (
-            <DropdownMenuItem disabled>
+            <MenuItem disabled>
               <LoaderCircleIcon className="animate-spin" /> Loading attachments
-            </DropdownMenuItem>
+            </MenuItem>
           )}
           {attachments && attachments.length > 0 && (
             <>
-              <DropdownMenuLabel>Attached Cards</DropdownMenuLabel>
+              <MenuGroupLabel>Attached Cards</MenuGroupLabel>
               {attachments.map((attachment) => (
-                <DropdownMenuCheckboxItem
+                <MenuCheckboxItem
                   key={attachment._id}
                   checked={attachment.desiredState === "attached"}
                   disabled={attachment.syncStatus === "pending" || busy}
@@ -223,23 +230,23 @@ export function TrelloAttachmentMenu({
                     {attachment.desiredState === "detached" && " (failed removal)"}
                   </span>
                   <ActionStatus attachment={attachment} />
-                </DropdownMenuCheckboxItem>
+                </MenuCheckboxItem>
               ))}
-              <DropdownMenuSeparator />
+              <MenuSeparator />
             </>
           )}
           {listsQuery.isLoading && (
-            <DropdownMenuItem disabled>
+            <MenuItem disabled>
               <LoaderCircleIcon className="animate-spin" /> Loading lists
-            </DropdownMenuItem>
+            </MenuItem>
           )}
           {listsQuery.isError && (
-            <DropdownMenuItem onClick={() => void listsQuery.refetch()}>
+            <MenuItem onClick={() => void listsQuery.refetch()}>
               <RefreshCwIcon /> Retry loading lists
-            </DropdownMenuItem>
+            </MenuItem>
           )}
           {listsQuery.isSuccess && activeLists.length === 0 && (
-            <DropdownMenuItem disabled>No active Trello lists</DropdownMenuItem>
+            <MenuItem disabled>No active Trello lists</MenuItem>
           )}
           {activeLists.map((list) => (
             <TrelloListMenu
@@ -249,8 +256,8 @@ export function TrelloAttachmentMenu({
               onSelectCard={selectCard}
             />
           ))}
-        </DropdownMenuSubContent>
-      </DropdownMenuSub>
+        </MenuSubPopup>
+      </MenuSub>
 
       <AlertDialog
         open={detachRequest !== null}
@@ -265,8 +272,10 @@ export function TrelloAttachmentMenu({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={busy}>Cancel</AlertDialogCancel>
-            <AlertDialogAction
+            <AlertDialogClose disabled={busy} render={<Button variant="outline" />}>
+              Cancel
+            </AlertDialogClose>
+            <AlertDialogClose
               disabled={busy || !detachRequest}
               onClick={() => {
                 if (!detachRequest) return;
@@ -277,9 +286,10 @@ export function TrelloAttachmentMenu({
                   detach({ attachmentId }),
                 );
               }}
+              render={<Button />}
             >
               Detach
-            </AlertDialogAction>
+            </AlertDialogClose>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

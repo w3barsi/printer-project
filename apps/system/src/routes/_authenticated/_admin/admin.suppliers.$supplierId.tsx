@@ -1,25 +1,25 @@
 import { convexQuery, useConvexMutation } from "@convex-dev/react-query";
 import { api } from "@dg/backend/api";
 import type { Id } from "@dg/backend/dataModel";
-import { Badge } from "@dg/ui/components/badge";
-import { Button } from "@dg/ui/components/button";
+import { Badge } from "@dg/ui-coss/components/badge";
+import { Button } from "@dg/ui-coss/components/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@dg/ui/components/card";
+} from "@dg/ui-coss/components/card";
 import {
   Empty,
   EmptyDescription,
   EmptyHeader,
   EmptyMedia,
   EmptyTitle,
-} from "@dg/ui/components/empty";
-import { Field, FieldError, FieldGroup, FieldLabel } from "@dg/ui/components/field";
-import { Input } from "@dg/ui/components/input";
-import { Spinner } from "@dg/ui/components/spinner";
+} from "@dg/ui-coss/components/empty";
+import { Field, FieldError, FieldLabel } from "@dg/ui-coss/components/field";
+import { Input } from "@dg/ui-coss/components/input";
+import { Spinner } from "@dg/ui-coss/components/spinner";
 import {
   Table,
   TableBody,
@@ -27,7 +27,8 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@dg/ui/components/table";
+} from "@dg/ui-coss/components/table";
+import { toastManager } from "@dg/ui-coss/components/toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
@@ -40,7 +41,6 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { toast } from "sonner";
 import { z } from "zod";
 
 import { Container } from "@/components/layouts/container";
@@ -146,10 +146,14 @@ function SupplierProfile({
     mutationFn: (values: SupplierFormData) =>
       renameSupplier({ supplierId: supplier._id, name: values.name }),
     onSuccess: () => {
-      toast.success("Supplier updated");
+      toastManager.add({ title: "Supplier updated", type: "success" });
       form.reset(form.getValues());
     },
-    onError: (error) => toast.error(error.message || "Could not update supplier"),
+    onError: (error) =>
+      toastManager.add({
+        title: error.message || "Could not update supplier",
+        type: "error",
+      }),
   });
 
   return (
@@ -165,7 +169,7 @@ function SupplierProfile({
           onSubmit={form.handleSubmit((values) => mutation.mutate(values))}
           className="flex flex-col gap-6"
         >
-          <FieldGroup>
+          <div className="flex w-full flex-col gap-7">
             <Controller
               name="name"
               control={form.control}
@@ -178,11 +182,13 @@ function SupplierProfile({
                     aria-invalid={fieldState.invalid}
                     disabled={mutation.isPending}
                   />
-                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                  {fieldState.invalid && (
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  )}
                 </Field>
               )}
             />
-          </FieldGroup>
+          </div>
           <Button
             type="submit"
             className="w-full"

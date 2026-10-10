@@ -1,6 +1,6 @@
 import type { Id } from "@dg/backend/dataModel";
+import { toastManager } from "@dg/ui-coss/components/toast";
 import { useCallback, useState } from "react";
-import { toast } from "sonner";
 
 import { UploadToast } from "./components/upload-toast";
 
@@ -103,16 +103,18 @@ export function useDriveUploadWithOperations(
           const targetParent = await ensureFolder(segments.slice(0, -1).join("/"));
           let ticketId: Id<"driveUploadTickets"> | undefined;
           let progress = 0;
-          const toastId = toast.custom(
-            () => (
-              <UploadToast
-                name={uploadFile.relativePath}
-                progress={progress}
-                status="uploading"
-              />
-            ),
-            { duration: Infinity, position: "bottom-right" },
-          );
+          const toastId = toastManager.add({
+            data: {
+              customContent: (
+                <UploadToast
+                  name={uploadFile.relativePath}
+                  progress={progress}
+                  status="uploading"
+                />
+              ),
+            },
+            timeout: 0,
+          });
           try {
             const ticket = await createUploadTicket({
               parentId: targetParent,
@@ -123,50 +125,59 @@ export function useDriveUploadWithOperations(
             ticketId = ticket.ticketId;
             await putFile(ticket.url, uploadFile.file, (nextProgress) => {
               progress = nextProgress;
-              toast.custom(
-                () => (
+              toastManager.add({
+                data: {
+                  customContent: (
+                    <UploadToast
+                      name={uploadFile.relativePath}
+                      progress={progress}
+                      status="uploading"
+                    />
+                  ),
+                },
+                id: toastId,
+                timeout: 0,
+              });
+            });
+            await finalizeUpload({ ticketId });
+            toastManager.add({
+              data: {
+                customContent: (
+                  <UploadToast
+                    name={uploadFile.relativePath}
+                    progress={100}
+                    status="success"
+                  />
+                ),
+              },
+              id: toastId,
+              timeout: 3000,
+            });
+          } catch (error) {
+            if (ticketId) void cancelUpload({ ticketId });
+            toastManager.add({
+              data: {
+                customContent: (
                   <UploadToast
                     name={uploadFile.relativePath}
                     progress={progress}
-                    status="uploading"
+                    status="error"
+                    errorMessage={
+                      error instanceof Error ? error.message : "Upload failed"
+                    }
                   />
                 ),
-                { id: toastId, duration: Infinity, position: "bottom-right" },
-              );
+              },
+              id: toastId,
+              timeout: 5000,
             });
-            await finalizeUpload({ ticketId });
-            toast.custom(
-              () => (
-                <UploadToast
-                  name={uploadFile.relativePath}
-                  progress={100}
-                  status="success"
-                />
-              ),
-              { id: toastId, duration: 3000, position: "bottom-right" },
-            );
-          } catch (error) {
-            if (ticketId) void cancelUpload({ ticketId });
-            toast.custom(
-              () => (
-                <UploadToast
-                  name={uploadFile.relativePath}
-                  progress={progress}
-                  status="error"
-                  errorMessage={error instanceof Error ? error.message : "Upload failed"}
-                />
-              ),
-              { id: toastId, duration: 5000, position: "bottom-right" },
-            );
           }
         }
       } catch (error) {
-        toast.error(
-          error instanceof Error ? error.message : "Upload could not be started",
-          {
-            position: "bottom-right",
-          },
-        );
+        toastManager.add({
+          title: error instanceof Error ? error.message : "Upload could not be started",
+          type: "error",
+        });
       } finally {
         setIsUploading(false);
       }

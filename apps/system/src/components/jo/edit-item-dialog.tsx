@@ -1,6 +1,6 @@
 import { api } from "@dg/backend/api";
 import type { Id } from "@dg/backend/dataModel";
-import { Button } from "@dg/ui/components/button";
+import { Button } from "@dg/ui-coss/components/button";
 import {
   Dialog,
   DialogContent,
@@ -8,14 +8,14 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@dg/ui/components/dialog";
-import { Field, FieldError, FieldLabel } from "@dg/ui/components/field";
-import { Input } from "@dg/ui/components/input";
+} from "@dg/ui-coss/components/dialog";
+import { Field, FieldError, FieldLabel } from "@dg/ui-coss/components/field";
+import { Input } from "@dg/ui-coss/components/input";
+import { toastManager } from "@dg/ui-coss/components/toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "convex/react";
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { toast } from "sonner";
 import { z } from "zod";
 
 import type { Item } from "@/types/convex";
@@ -72,10 +72,13 @@ export function EditItemDialog({
         quantity: data.quantity,
         price: data.price,
       });
-      toast.success(`"${data.name}" has been updated.`);
+      toastManager.add({ title: `"${data.name}" has been updated.`, type: "success" });
       setOpen(false);
     } catch (error) {
-      toast.error("Failed to update item. Please try again.");
+      toastManager.add({
+        title: "Failed to update item. Please try again.",
+        type: "error",
+      });
     }
   };
 
@@ -105,7 +108,9 @@ export function EditItemDialog({
               <Field data-invalid={fieldState.invalid}>
                 <FieldLabel htmlFor="edit-item-name">Name</FieldLabel>
                 <Input {...field} id="edit-item-name" aria-invalid={fieldState.invalid} />
-                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                {fieldState.invalid && (
+                  <FieldError>{fieldState.error?.message}</FieldError>
+                )}
               </Field>
             )}
           />
@@ -122,7 +127,9 @@ export function EditItemDialog({
                   aria-invalid={fieldState.invalid}
                   onChange={(e) => field.onChange(parseInt(e.target.value))}
                 />
-                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                {fieldState.invalid && (
+                  <FieldError>{fieldState.error?.message}</FieldError>
+                )}
               </Field>
             )}
           />
@@ -140,7 +147,9 @@ export function EditItemDialog({
                   aria-invalid={fieldState.invalid}
                   onChange={(e) => field.onChange(parseFloat(e.target.value))}
                 />
-                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                {fieldState.invalid && (
+                  <FieldError>{fieldState.error?.message}</FieldError>
+                )}
               </Field>
             )}
           />

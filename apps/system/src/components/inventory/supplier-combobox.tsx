@@ -3,17 +3,17 @@ import { api } from "@dg/backend/api";
 import type { Id } from "@dg/backend/dataModel";
 import {
   Combobox,
-  ComboboxContent,
+  ComboboxPopup,
   ComboboxEmpty,
   ComboboxInput,
   ComboboxItem,
   ComboboxList,
-} from "@dg/ui/components/combobox";
-import { Spinner } from "@dg/ui/components/spinner";
+} from "@dg/ui-coss/components/combobox";
+import { Spinner } from "@dg/ui-coss/components/spinner";
+import { toastManager } from "@dg/ui-coss/components/toast";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { PlusIcon } from "lucide-react";
 import { useId, useState } from "react";
-import { toast } from "sonner";
 
 import { useDebounce } from "@/hooks/use-debounce";
 
@@ -69,10 +69,13 @@ export function SupplierCombobox({
       onValueChange(supplierId);
       setSelectedName(supplierName);
       setSearch(supplierName);
-      toast.success(`Supplier "${supplierName}" created`);
+      toastManager.add({ title: `Supplier "${supplierName}" created`, type: "success" });
     },
     onError: (error) => {
-      toast.error(error.message || "Could not create supplier");
+      toastManager.add({
+        title: error.message || "Could not create supplier",
+        type: "error",
+      });
     },
   });
   const selectedSupplier = suppliers?.find((supplier) => supplier._id === value);
@@ -166,7 +169,7 @@ export function SupplierCombobox({
         disabled={disabled || createMutation.isPending}
         className="w-full"
       />
-      <ComboboxContent>
+      <ComboboxPopup>
         <ComboboxEmpty>{getEmptyMessage()}</ComboboxEmpty>
         <ComboboxList>
           {(option: SupplierComboboxOption) => (
@@ -184,7 +187,7 @@ export function SupplierCombobox({
             </ComboboxItem>
           )}
         </ComboboxList>
-      </ComboboxContent>
+      </ComboboxPopup>
     </Combobox>
   );
 }

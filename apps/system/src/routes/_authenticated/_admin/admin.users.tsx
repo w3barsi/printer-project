@@ -1,6 +1,7 @@
 import { convexQuery, useConvexMutation } from "@convex-dev/react-query";
 import { api } from "@dg/backend/api";
-import { Button } from "@dg/ui/components/button";
+import { Button } from "@dg/ui-coss/components/button";
+import { Card } from "@dg/ui-coss/components/card";
 import {
   Dialog,
   DialogContent,
@@ -8,16 +9,11 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@dg/ui/components/dialog";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@dg/ui/components/dropdown-menu";
-import { Input } from "@dg/ui/components/input";
-import { Label } from "@dg/ui/components/label";
-import { Skeleton } from "@dg/ui/components/skeleton";
+} from "@dg/ui-coss/components/dialog";
+import { Input } from "@dg/ui-coss/components/input";
+import { Label } from "@dg/ui-coss/components/label";
+import { Menu, MenuPopup, MenuItem, MenuTrigger } from "@dg/ui-coss/components/menu";
+import { Skeleton } from "@dg/ui-coss/components/skeleton";
 import {
   Table,
   TableBody,
@@ -25,9 +21,9 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-  TableWrapper,
-} from "@dg/ui/components/table";
-import { cn } from "@dg/ui/lib/utils";
+} from "@dg/ui-coss/components/table";
+import { toastManager } from "@dg/ui-coss/components/toast";
+import { cn } from "@dg/ui-coss/lib/utils";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import {
@@ -39,7 +35,6 @@ import {
 } from "lucide-react";
 import type { Dispatch } from "react";
 import { Suspense, useState } from "react";
-import { toast } from "sonner";
 
 import { CreateUserDialog } from "@/components/create-user";
 import { Container } from "@/components/layouts/container";
@@ -90,25 +85,31 @@ function UserManagementTable() {
   async function onChangeRole(userId: string, role: "user" | "admin" | "cashier") {
     try {
       await setRole({ userId, role });
-      toast.success("Role updated");
+      toastManager.add({ title: "Role updated", type: "success" });
     } catch (e: unknown) {
       const error = e as { message?: string };
-      toast.error(error?.message || "Failed to update role");
+      toastManager.add({
+        title: error?.message || "Failed to update role",
+        type: "error",
+      });
     }
   }
 
   async function banHandler(userId: string, isBanned: boolean) {
     try {
       await banOrUnbanUser({ userId, isBanned });
-      toast.success("User deleted");
+      toastManager.add({ title: "User deleted", type: "success" });
     } catch (e: unknown) {
       const error = e as { message?: string };
-      toast.error(error?.message || "Failed to delete user");
+      toastManager.add({
+        title: error?.message || "Failed to delete user",
+        type: "error",
+      });
     }
   }
 
   return (
-    <TableWrapper>
+    <Card className="overflow-hidden">
       <Table>
         <TableHeader className="sticky top-0 z-10">
           <TableRow>
@@ -150,22 +151,20 @@ function UserManagementTable() {
                 </TableCell>
                 <TableCell>{u.email || "-"}</TableCell>
                 <TableCell data-user-actions>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger render={<Button variant="outline" size="sm" />}>
+                  <Menu>
+                    <MenuTrigger render={<Button variant="outline" size="sm" />}>
                       {u.role || "user"}
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="start">
-                      <DropdownMenuItem onClick={() => onChangeRole(u.id, "admin")}>
+                    </MenuTrigger>
+                    <MenuPopup align="start">
+                      <MenuItem onClick={() => onChangeRole(u.id, "admin")}>
                         admin
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => onChangeRole(u.id, "user")}>
-                        user
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => onChangeRole(u.id, "cashier")}>
+                      </MenuItem>
+                      <MenuItem onClick={() => onChangeRole(u.id, "user")}>user</MenuItem>
+                      <MenuItem onClick={() => onChangeRole(u.id, "cashier")}>
                         cashier
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                      </MenuItem>
+                    </MenuPopup>
+                  </Menu>
                 </TableCell>
                 <TableCell className={cn(u.banned && "text-red-500")}>
                   {u.banned ? "banned" : "active"}
@@ -174,52 +173,50 @@ function UserManagementTable() {
                   {u.createdAt ? new Date(u.createdAt).toLocaleString() : "-"}
                 </TableCell>
                 <TableCell className="pr-4 text-right" data-user-actions>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger
+                  <Menu>
+                    <MenuTrigger
                       render={<Button variant="ghost" size="icon" aria-label="Actions" />}
                     >
                       <MoreVerticalIcon className="size-4" />
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-max">
-                      <DropdownMenuItem
-                        onClick={() => banHandler(u.id, u.banned ?? false)}
-                      >
+                    </MenuTrigger>
+                    <MenuPopup align="end" className="w-max">
+                      <MenuItem onClick={() => banHandler(u.id, u.banned ?? false)}>
                         <GavelIcon /> {u.banned ? "Unban User" : "Ban User"}
-                      </DropdownMenuItem>
+                      </MenuItem>
 
-                      <DropdownMenuItem
+                      <MenuItem
                         onClick={async () => {
                           const { error } = await authClient.admin.impersonateUser({
                             userId: u.id,
                           });
                           if (error) {
-                            toast.error(error.message);
+                            toastManager.add({ title: error.message, type: "error" });
                           } else {
                             window.location.reload();
                           }
                         }}
                       >
                         <User2Icon /> Impersonate User
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
+                      </MenuItem>
+                      <MenuItem
                         onClick={() => {
                           setIsPasswordDialogOpen(true);
                           setUser({ name: u.name, id: u.id });
                         }}
                       >
                         <LockKeyholeIcon /> Change Password
-                      </DropdownMenuItem>
+                      </MenuItem>
 
-                      <DropdownMenuItem
+                      <MenuItem
                         variant="destructive"
                         onClick={() => {
                           deleteUser({ id: u.id });
                         }}
                       >
                         <DeleteIcon /> Delete User
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                      </MenuItem>
+                    </MenuPopup>
+                  </Menu>
                 </TableCell>
               </TableRow>
             ))
@@ -231,7 +228,7 @@ function UserManagementTable() {
         setOpen={setIsPasswordDialogOpen}
         user={user}
       />
-    </TableWrapper>
+    </Card>
   );
 }
 
@@ -257,13 +254,32 @@ function ChangePasswordDialog({
   const handleApply = () => {
     if (password.trim().length < 8) {
       setPassword((p) => p.trim());
-      return toast.error("Password must be at least 8 characters long");
+      return toastManager.add({
+        title: "Password must be at least 8 characters long",
+        type: "error",
+      });
     }
-    toast.promise(changePassword, {
-      loading: `Changing password for ${user!.name}`,
-      success: "Password changed successfully!",
-      error: "Error changing password!",
+    const toastId = toastManager.add({
+      title: `Changing password for ${user!.name}`,
+      type: "loading",
+      timeout: 0,
     });
+    void Promise.resolve(changePassword).then(
+      () => {
+        toastManager.add({
+          title: "Password changed successfully!",
+          type: "success",
+          id: toastId,
+        });
+      },
+      () => {
+        toastManager.add({
+          title: "Error changing password!",
+          type: "error",
+          id: toastId,
+        });
+      },
+    );
   };
 
   return (
@@ -310,7 +326,7 @@ function ChangePasswordDialog({
 
 function UserTableSkeleton() {
   return (
-    <TableWrapper>
+    <Card className="overflow-hidden">
       <Table>
         <TableHeader className="sticky top-0 z-10">
           <TableRow>
@@ -347,6 +363,6 @@ function UserTableSkeleton() {
           ))}
         </TableBody>
       </Table>
-    </TableWrapper>
+    </Card>
   );
 }

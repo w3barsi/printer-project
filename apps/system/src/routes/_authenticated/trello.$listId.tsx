@@ -1,13 +1,13 @@
-import { Button } from "@dg/ui/components/button";
-import { Card, CardContent, CardFooter } from "@dg/ui/components/card";
-import { Skeleton } from "@dg/ui/components/skeleton";
+import { Button } from "@dg/ui-coss/components/button";
+import { Card, CardContent, CardFooter } from "@dg/ui-coss/components/card";
+import { Skeleton } from "@dg/ui-coss/components/skeleton";
+import { toastManager } from "@dg/ui-coss/components/toast";
 import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import fileSaver from "file-saver";
 import JSZip from "jszip";
 import { RefreshCwIcon } from "lucide-react";
 import { Suspense } from "react";
-import { toast } from "sonner";
 
 import { Container } from "@/components/layouts/container";
 import {
@@ -153,13 +153,29 @@ function CardList() {
               <CardFooter className="p-0">
                 <Button
                   className="w-full rounded-t-none"
-                  onClick={() =>
-                    toast.promise(getAttachments(card.id, card.name), {
-                      loading: "Downloading attachments...",
-                      success: "Attachments downloaded successfully!",
-                      error: "Error downloading attachments!",
-                    })
-                  }
+                  onClick={() => {
+                    const toastId = toastManager.add({
+                      title: "Downloading attachments...",
+                      type: "loading",
+                      timeout: 0,
+                    });
+                    void getAttachments(card.id, card.name).then(
+                      () => {
+                        toastManager.add({
+                          title: "Attachments downloaded successfully!",
+                          type: "success",
+                          id: toastId,
+                        });
+                      },
+                      () => {
+                        toastManager.add({
+                          title: "Error downloading attachments!",
+                          type: "error",
+                          id: toastId,
+                        });
+                      },
+                    );
+                  }}
                   disabled={card.badges.attachments === 0}
                 >
                   {card.badges.attachments === 0

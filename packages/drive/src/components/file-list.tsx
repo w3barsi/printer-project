@@ -1,30 +1,30 @@
-import { Button } from "@dg/ui/components/button";
-import { ButtonGroup } from "@dg/ui/components/button-group";
-import { Card, CardHeader } from "@dg/ui/components/card";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuLabel,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-  DropdownMenuTrigger,
-} from "@dg/ui/components/dropdown-menu";
+import { Button } from "@dg/ui-coss/components/button";
+import { Card, CardHeader } from "@dg/ui-coss/components/card";
 import {
   Empty,
   EmptyDescription,
   EmptyHeader,
   EmptyMedia,
   EmptyTitle,
-} from "@dg/ui/components/empty";
+} from "@dg/ui-coss/components/empty";
+import { ButtonGroup } from "@dg/ui-coss/components/group";
 import {
   InputGroup,
   InputGroupAddon,
-  InputGroupButton,
   InputGroupInput,
-} from "@dg/ui/components/input-group";
-import { Spinner } from "@dg/ui/components/spinner";
-import { useIsMobile } from "@dg/ui/hooks/use-mobile";
-import { cn } from "@dg/ui/lib/utils";
+} from "@dg/ui-coss/components/input-group";
+import {
+  Menu,
+  MenuPopup,
+  MenuGroupLabel,
+  MenuRadioGroup,
+  MenuRadioItem,
+  MenuTrigger,
+} from "@dg/ui-coss/components/menu";
+import { Spinner } from "@dg/ui-coss/components/spinner";
+import { toastManager } from "@dg/ui-coss/components/toast";
+import { useIsMobile } from "@dg/ui-coss/hooks/use-mobile";
+import { cn } from "@dg/ui-coss/lib/utils";
 // oxlint-disable jsx-a11y/click-events-have-key-events, jsx-a11y/no-noninteractive-element-interactions, jsx-a11y/no-static-element-interactions
 import {
   DndContext,
@@ -55,7 +55,6 @@ import {
   useRef,
   useState,
 } from "react";
-import { toast } from "sonner";
 
 import type { DriveItem } from "../types";
 import { DeleteItemsDialog, MoveItemDialog, RenameItemDialog } from "./file-list-dialogs";
@@ -279,15 +278,16 @@ export function DriveFileList({
     setIsDeleting(true);
     try {
       await onDeleteItems(deleteRequest);
-      toast.success(
-        `${deleteRequest.length} ${deleteRequest.length === 1 ? "item" : "items"} deleted`,
-        { position: "bottom-right" },
-      );
+      toastManager.add({
+        title: `${deleteRequest.length} ${deleteRequest.length === 1 ? "item" : "items"} deleted`,
+        type: "success",
+      });
       setDeleteRequest([]);
       clearSelection();
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Items could not be deleted", {
-        position: "bottom-right",
+      toastManager.add({
+        title: error instanceof Error ? error.message : "Items could not be deleted",
+        type: "error",
       });
     } finally {
       setIsDeleting(false);
@@ -300,12 +300,13 @@ export function DriveFileList({
     setIsRenaming(true);
     try {
       await onRenameItem(renameRequest.id, renameValue);
-      toast.success(`Renamed to ${renameValue.trim()}`, { position: "bottom-right" });
+      toastManager.add({ title: `Renamed to ${renameValue.trim()}`, type: "success" });
       setRenameRequest(null);
       setIsRenaming(false);
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Item could not be renamed", {
-        position: "bottom-right",
+      toastManager.add({
+        title: error instanceof Error ? error.message : "Item could not be renamed",
+        type: "error",
       });
       setIsRenaming(false);
     }
@@ -322,12 +323,13 @@ export function DriveFileList({
     try {
       const didMove = await onMoveItems([moveRequest.id], moveDestinationId);
       if (!didMove) throw new Error("Item cannot be moved there");
-      toast.success(`${moveRequest.name} moved`, { position: "bottom-right" });
+      toastManager.add({ title: `${moveRequest.name} moved`, type: "success" });
       setMoveRequest(null);
       setMoveDestinationId("");
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Item could not be moved", {
-        position: "bottom-right",
+      toastManager.add({
+        title: error instanceof Error ? error.message : "Item could not be moved",
+        type: "error",
       });
     } finally {
       setIsMoving(false);
@@ -472,19 +474,21 @@ export function DriveFileList({
       const destinationId = isParentTarget ? parentPath?.folderId : destinationFolderId;
       const didMove = (await onMoveItems?.(itemIds, destinationId ?? null)) ?? false;
       if (!didMove) {
-        toast.error("Items cannot be moved into that folder", {
-          position: "bottom-right",
+        toastManager.add({
+          title: "Items cannot be moved into that folder",
+          type: "error",
         });
         return;
       }
-      toast.success(
-        `${itemIds.length} ${itemIds.length === 1 ? "item" : "items"} moved to ${destination.name}`,
-        { position: "bottom-right" },
-      );
+      toastManager.add({
+        title: `${itemIds.length} ${itemIds.length === 1 ? "item" : "items"} moved to ${destination.name}`,
+        type: "success",
+      });
       clearSelection();
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Items could not be moved", {
-        position: "bottom-right",
+      toastManager.add({
+        title: error instanceof Error ? error.message : "Items could not be moved",
+        type: "error",
       });
     }
   }
@@ -552,8 +556,8 @@ export function DriveFileList({
                 >
                   <FolderUpIcon />
                 </Button>
-                <DropdownMenu>
-                  <DropdownMenuTrigger
+                <Menu>
+                  <MenuTrigger
                     render={
                       <Button
                         variant="outline"
@@ -563,21 +567,21 @@ export function DriveFileList({
                     }
                   >
                     <ArrowUpDownIcon />
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="start" className="min-w-48">
-                    <DropdownMenuRadioGroup
+                  </MenuTrigger>
+                  <MenuPopup align="start" className="min-w-48">
+                    <MenuRadioGroup
                       value={sortBy}
                       onValueChange={(value) => setSortBy(value as SortBy)}
                     >
-                      <DropdownMenuLabel>Sort by</DropdownMenuLabel>
+                      <MenuGroupLabel>Sort by</MenuGroupLabel>
                       {sortOptions.map((option) => (
-                        <DropdownMenuRadioItem key={option.value} value={option.value}>
+                        <MenuRadioItem key={option.value} value={option.value}>
                           {option.label}
-                        </DropdownMenuRadioItem>
+                        </MenuRadioItem>
                       ))}
-                    </DropdownMenuRadioGroup>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                    </MenuRadioGroup>
+                  </MenuPopup>
+                </Menu>
               </div>
               {onSearchChange && (
                 <div className="flex min-w-48 flex-1 basis-48 flex-wrap items-center gap-2">
@@ -594,13 +598,15 @@ export function DriveFileList({
                     />
                     {searchValue && (
                       <InputGroupAddon align="inline-end">
-                        <InputGroupButton
+                        <Button
+                          type="button"
+                          variant="ghost"
                           size="icon-xs"
                           aria-label="Clear search"
                           onClick={() => onSearchChange("")}
                         >
                           <XIcon />
-                        </InputGroupButton>
+                        </Button>
                       </InputGroupAddon>
                     )}
                   </InputGroup>

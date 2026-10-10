@@ -2,24 +2,23 @@ import { api } from "@dg/backend/api";
 import type { Id } from "@dg/backend/dataModel";
 import {
   AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
+  AlertDialogClose,
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@dg/ui/components/alert-dialog";
-import { Button } from "@dg/ui/components/button";
-import { Kbd } from "@dg/ui/components/kbd";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@dg/ui/components/tooltip";
+} from "@dg/ui-coss/components/alert-dialog";
+import { Button } from "@dg/ui-coss/components/button";
+import { Kbd } from "@dg/ui-coss/components/kbd";
+import { toastManager } from "@dg/ui-coss/components/toast";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@dg/ui-coss/components/tooltip";
 import { useNavigate } from "@tanstack/react-router";
 import { useMutation } from "convex/react";
 import { Trash2Icon } from "lucide-react";
 import { useRef, useState } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
-import { toast } from "sonner";
 
 export function DeleteJoAlertDialog({
   joId,
@@ -67,14 +66,18 @@ export function DeleteJoAlertDialog({
     setIsDeleting(true);
     try {
       await mutate({ joId: joId });
-      toast.success(
-        joName
+      toastManager.add({
+        title: joName
           ? `"${joName}" has been deleted.`
           : `Job Order #${joNumber} has been deleted.`,
-      );
+        type: "success",
+      });
       navigate({ to: "/jo" });
     } catch (error) {
-      toast.error("Failed to delete job order. Please try again.");
+      toastManager.add({
+        title: "Failed to delete job order. Please try again.",
+        type: "error",
+      });
     } finally {
       setIsDeleting(false);
     }
@@ -115,15 +118,17 @@ export function DeleteJoAlertDialog({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
-          <AlertDialogAction
-            variant="destructive"
+          <AlertDialogClose disabled={isDeleting} render={<Button variant="outline" />}>
+            Cancel
+          </AlertDialogClose>
+          <AlertDialogClose
             onClick={deleteJo}
             disabled={isDeleting}
+            render={<Button variant="destructive" />}
           >
             <Trash2Icon />
             {isDeleting ? "Deleting..." : "Delete"}
-          </AlertDialogAction>
+          </AlertDialogClose>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

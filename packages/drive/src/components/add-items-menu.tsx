@@ -1,22 +1,22 @@
-import { Button } from "@dg/ui/components/button";
+import { Button } from "@dg/ui-coss/components/button";
+import { Field, FieldLabel } from "@dg/ui-coss/components/field";
+import { Input } from "@dg/ui-coss/components/input";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@dg/ui/components/dropdown-menu";
-import { Field, FieldGroup, FieldLabel } from "@dg/ui/components/field";
-import { Input } from "@dg/ui/components/input";
+  Menu,
+  MenuPopup,
+  MenuGroup,
+  MenuItem,
+  MenuTrigger,
+} from "@dg/ui-coss/components/menu";
 import {
   Popover,
   PopoverContent,
   PopoverDescription,
-  PopoverHeader,
   PopoverTitle,
   PopoverTrigger,
-} from "@dg/ui/components/popover";
-import { Spinner } from "@dg/ui/components/spinner";
+} from "@dg/ui-coss/components/popover";
+import { Spinner } from "@dg/ui-coss/components/spinner";
+import { toastManager } from "@dg/ui-coss/components/toast";
 import {
   DownloadIcon,
   FolderPlusIcon,
@@ -26,7 +26,6 @@ import {
   UploadIcon,
 } from "lucide-react";
 import { type ChangeEvent, useId, useRef, useState } from "react";
-import { toast } from "sonner";
 
 import type { DriveUploadSelection } from "../use-upload";
 
@@ -70,11 +69,14 @@ export function AddItemsMenu({
     setIsCreatingFolder(true);
     try {
       await onCreateFolder(folderName);
-      toast.success("Folder created");
+      toastManager.add({ title: "Folder created", type: "success" });
       setFolderName("");
       setFolderPopoverOpen(false);
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Could not create folder");
+      toastManager.add({
+        title: error instanceof Error ? error.message : "Could not create folder",
+        type: "error",
+      });
     } finally {
       setIsCreatingFolder(false);
     }
@@ -82,28 +84,28 @@ export function AddItemsMenu({
 
   return (
     <div className="flex items-center gap-2 sm:shrink-0">
-      <DropdownMenu>
-        <DropdownMenuTrigger render={<Button disabled={isUploading} />}>
+      <Menu>
+        <MenuTrigger render={<Button disabled={isUploading} />}>
           {isUploading ? (
             <Spinner data-icon="inline-start" />
           ) : (
             <UploadIcon data-icon="inline-start" />
           )}
           {isUploading ? "Uploading..." : "Upload File/Folder"}
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuGroup>
-            <DropdownMenuItem onClick={() => fileInput.current?.click()}>
+        </MenuTrigger>
+        <MenuPopup align="end">
+          <MenuGroup>
+            <MenuItem onClick={() => fileInput.current?.click()}>
               <UploadIcon />
               Upload files
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => folderInput.current?.click()}>
+            </MenuItem>
+            <MenuItem onClick={() => folderInput.current?.click()}>
               <FolderUpIcon />
               Upload folder
-            </DropdownMenuItem>
-          </DropdownMenuGroup>
-        </DropdownMenuContent>
-      </DropdownMenu>
+            </MenuItem>
+          </MenuGroup>
+        </MenuPopup>
+      </Menu>
 
       <Popover open={folderPopoverOpen} onOpenChange={setFolderPopoverOpen}>
         <PopoverTrigger
@@ -119,12 +121,12 @@ export function AddItemsMenu({
           <FolderPlusIcon />
         </PopoverTrigger>
         <PopoverContent align="end">
-          <PopoverHeader>
+          <div className="flex flex-col gap-1 text-sm">
             <PopoverTitle>Create a folder</PopoverTitle>
             <PopoverDescription>Add an empty folder in this location.</PopoverDescription>
-          </PopoverHeader>
+          </div>
           <form onSubmit={submitFolder} className="flex flex-col gap-4">
-            <FieldGroup className="gap-4">
+            <div className="flex w-full flex-col gap-4">
               <Field>
                 <FieldLabel htmlFor={`${id}-folder-name`}>Folder name</FieldLabel>
                 <Input
@@ -135,7 +137,7 @@ export function AddItemsMenu({
                   autoFocus
                 />
               </Field>
-            </FieldGroup>
+            </div>
             <Button
               type="submit"
               size="sm"
@@ -149,8 +151,8 @@ export function AddItemsMenu({
       </Popover>
 
       {(onDownloadFolder || onShareFolder) && (
-        <DropdownMenu>
-          <DropdownMenuTrigger
+        <Menu>
+          <MenuTrigger
             render={
               <Button
                 type="button"
@@ -161,27 +163,24 @@ export function AddItemsMenu({
             }
           >
             <MoreHorizontalIcon />
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="min-w-52">
-            <DropdownMenuGroup>
+          </MenuTrigger>
+          <MenuPopup align="end" className="min-w-52">
+            <MenuGroup>
               {onDownloadFolder && (
-                <DropdownMenuItem
-                  className="whitespace-nowrap"
-                  onClick={onDownloadFolder}
-                >
+                <MenuItem className="whitespace-nowrap" onClick={onDownloadFolder}>
                   <DownloadIcon />
                   Download this folder
-                </DropdownMenuItem>
+                </MenuItem>
               )}
               {onShareFolder && (
-                <DropdownMenuItem className="whitespace-nowrap" onClick={onShareFolder}>
+                <MenuItem className="whitespace-nowrap" onClick={onShareFolder}>
                   <Share2Icon />
                   Share this folder
-                </DropdownMenuItem>
+                </MenuItem>
               )}
-            </DropdownMenuGroup>
-          </DropdownMenuContent>
-        </DropdownMenu>
+            </MenuGroup>
+          </MenuPopup>
+        </Menu>
       )}
 
       <input

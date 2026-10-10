@@ -1,6 +1,6 @@
 import { convexQuery, useConvexMutation } from "@convex-dev/react-query";
 import { api } from "@dg/backend/api";
-import { Button } from "@dg/ui/components/button";
+import { Button } from "@dg/ui-coss/components/button";
 import {
   Dialog,
   DialogContent,
@@ -9,15 +9,20 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@dg/ui/components/dialog";
-import { Field, FieldDescription, FieldError, FieldLabel } from "@dg/ui/components/field";
-import { Input } from "@dg/ui/components/input";
+} from "@dg/ui-coss/components/dialog";
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldLabel,
+} from "@dg/ui-coss/components/field";
+import { Input } from "@dg/ui-coss/components/input";
+import { toastManager } from "@dg/ui-coss/components/toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { PlusIcon } from "lucide-react";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { toast } from "sonner";
 import { z } from "zod";
 
 const createUserSchema = z.object({
@@ -45,13 +50,16 @@ export function CreateUserDialog() {
   const mutation = useMutation({
     mutationFn: createUser,
     onSuccess: () => {
-      toast.success("User created successfully");
+      toastManager.add({ title: "User created successfully", type: "success" });
       queryClient.invalidateQueries(convexQuery(api.admin.users.listUsers, {}));
       setOpen(false);
       form.reset();
     },
     onError: (error) => {
-      toast.error(error?.message || "Failed to create user");
+      toastManager.add({
+        title: error?.message || "Failed to create user",
+        type: "error",
+      });
     },
   });
 
@@ -86,7 +94,9 @@ export function CreateUserDialog() {
                   placeholder="John Doe"
                   aria-invalid={fieldState.invalid}
                 />
-                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                {fieldState.invalid && (
+                  <FieldError>{fieldState.error?.message}</FieldError>
+                )}
               </Field>
             )}
           />
@@ -103,7 +113,9 @@ export function CreateUserDialog() {
                   placeholder="john@example.com"
                   aria-invalid={fieldState.invalid}
                 />
-                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                {fieldState.invalid && (
+                  <FieldError>{fieldState.error?.message}</FieldError>
+                )}
               </Field>
             )}
           />
@@ -121,7 +133,9 @@ export function CreateUserDialog() {
                   aria-invalid={fieldState.invalid}
                 />
                 <FieldDescription>Must be at least 8 characters long</FieldDescription>
-                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                {fieldState.invalid && (
+                  <FieldError>{fieldState.error?.message}</FieldError>
+                )}
               </Field>
             )}
           />

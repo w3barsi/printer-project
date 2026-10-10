@@ -6,13 +6,13 @@ import { DriveFileList } from "@dg/drive/components/file-list";
 import { DriveUploadDropzone } from "@dg/drive/components/upload-dropzone";
 import { downloadDriveItems } from "@dg/drive/download-drive-item";
 import type { DriveItem, DriveShareItem } from "@dg/drive/types";
+import { toastManager } from "@dg/ui-coss/components/toast";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, useNavigate, useRouteContext } from "@tanstack/react-router";
 import { useConvex, useMutation } from "convex/react";
 import { formatDistanceToNow } from "date-fns";
 import { FolderOpenIcon } from "lucide-react";
 import { useState } from "react";
-import { toast } from "sonner";
 import { z } from "zod";
 
 import { ShareDialog } from "@/components/drive/share-dialog";
@@ -175,7 +175,11 @@ function SpaceBrowserPage() {
   const title = folder?.name ?? space?.name ?? "Space";
 
   async function downloadItems(items: Array<Pick<DriveItem, "id" | "kind">>) {
-    const toastId = toast.loading("Download in progress");
+    const toastId = toastManager.add({
+      title: "Download in progress",
+      type: "loading",
+      timeout: 0,
+    });
     try {
       const manifests = await Promise.all(
         items.map((item) =>
@@ -186,9 +190,12 @@ function SpaceBrowserPage() {
       );
       await downloadDriveItems(manifests);
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Download failed");
+      toastManager.add({
+        title: error instanceof Error ? error.message : "Download failed",
+        type: "error",
+      });
     } finally {
-      toast.dismiss(toastId);
+      toastManager.close(toastId);
     }
   }
 

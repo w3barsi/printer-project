@@ -1,24 +1,24 @@
 import { convexQuery } from "@convex-dev/react-query";
 import { api } from "@dg/backend/api";
 import type { Id } from "@dg/backend/dataModel";
-import { Button } from "@dg/ui/components/button";
+import { Button } from "@dg/ui-coss/components/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@dg/ui/components/card";
+} from "@dg/ui-coss/components/card";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
-} from "@dg/ui/components/collapsible";
+} from "@dg/ui-coss/components/collapsible";
+import { toastManager } from "@dg/ui-coss/components/toast";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useMutation } from "convex/react";
 import { ChevronDownIcon, ExternalLinkIcon } from "lucide-react";
 import { useState } from "react";
-import { toast } from "sonner";
 
 import {
   formatCurrency,
@@ -43,13 +43,16 @@ export function OnlineOrderDetailsCard({ joId }: { joId: Id<"jo"> }) {
     try {
       const url = await getAttachmentUrl({ attachmentId });
       if (!url) {
-        toast.error("Attachment URL is unavailable.");
+        toastManager.add({ title: "Attachment URL is unavailable.", type: "error" });
         return;
       }
 
       window.open(url, "_blank", "noopener,noreferrer");
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Could not open attachment.");
+      toastManager.add({
+        title: error instanceof Error ? error.message : "Could not open attachment.",
+        type: "error",
+      });
     }
   }
 

@@ -1,8 +1,8 @@
-import { Button } from "@dg/ui/components/button";
-import { cn } from "@dg/ui/lib/utils";
+import { Button } from "@dg/ui-coss/components/button";
+import { toastManager } from "@dg/ui-coss/components/toast";
+import { cn } from "@dg/ui-coss/lib/utils";
 import { CheckIcon, Trash2Icon } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { toast } from "sonner";
 
 interface DeleteConfirmButtonProps {
   onConfirm: () => Promise<null>;
@@ -44,7 +44,7 @@ export function DeleteConfirmButton({
       try {
         await onConfirm();
       } catch (e) {
-        toast.error(`Failed to delete ${deleteFor}.`);
+        toastManager.add({ title: `Failed to delete ${deleteFor}.`, type: "error" });
       }
     }
     setIsConfirming(false);

@@ -1,11 +1,11 @@
 import { api } from "@dg/backend/api";
-import { Button } from "@dg/ui/components/button";
-import { Kbd } from "@dg/ui/components/kbd";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@dg/ui/components/tooltip";
+import { Button } from "@dg/ui-coss/components/button";
+import { Kbd } from "@dg/ui-coss/components/kbd";
+import { toastManager } from "@dg/ui-coss/components/toast";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@dg/ui-coss/components/tooltip";
 import { useMutation } from "convex/react";
 import { PrinterIcon } from "lucide-react";
 import { useHotkeys } from "react-hotkeys-hook";
-import { toast } from "sonner";
 
 import { useDevice } from "@/contexts/device-context";
 import { printReceipt } from "@/lib/printer";
@@ -21,9 +21,9 @@ export function PrintJoButton({ jo }: { jo: GetOneComplete }) {
     if (!isConnected) {
       try {
         await markForPrinting({ joId: jo._id });
-        return toast("Marked for printing.", { icon: "🖨️" });
+        return toastManager.add({ title: "Marked for printing." });
       } catch (e) {
-        return toast.error("No printer connected.", { icon: "🖨️" });
+        return toastManager.add({ title: "No printer connected.", type: "error" });
       }
     }
     printReceipt({ jo, device });

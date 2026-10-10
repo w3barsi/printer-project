@@ -72,7 +72,9 @@ export function DeleteItemsDialog({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogClose disabled={isDeleting}>Cancel</AlertDialogClose>
+          <AlertDialogClose disabled={isDeleting} render={<Button variant="outline" />}>
+            Cancel
+          </AlertDialogClose>
           <AlertDialogClose
             disabled={isDeleting}
             onClick={() => {

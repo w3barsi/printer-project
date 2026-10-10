@@ -1,15 +1,15 @@
 import { convexQuery } from "@convex-dev/react-query";
 import { api } from "@dg/backend/api";
 import type { Id } from "@dg/backend/dataModel";
-import { Badge } from "@dg/ui/components/badge";
-import { Button } from "@dg/ui/components/button";
+import { Badge } from "@dg/ui-coss/components/badge";
+import { Button } from "@dg/ui-coss/components/button";
+import { toastManager } from "@dg/ui-coss/components/toast";
 import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation } from "convex/react";
 import { CheckCircle2Icon } from "lucide-react";
 import { useState } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
-import { toast } from "sonner";
 
 import { DeleteJoAlertDialog } from "@/components/jo/delete-jo-alert-dialog";
 import { InventoryUsedCard } from "@/components/jo/inventory-used-card";
@@ -132,9 +132,12 @@ function JobOrderHeader() {
     try {
       await confirmOnlineOrder({ joId });
       await queryClient.invalidateQueries();
-      toast.success("Online order confirmed.");
+      toastManager.add({ title: "Online order confirmed.", type: "success" });
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Failed to confirm order.");
+      toastManager.add({
+        title: error instanceof Error ? error.message : "Failed to confirm order.",
+        type: "error",
+      });
     } finally {
       setIsConfirming(false);
     }

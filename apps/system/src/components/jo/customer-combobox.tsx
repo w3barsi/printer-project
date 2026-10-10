@@ -1,15 +1,15 @@
 import { convexQuery, useConvexMutation } from "@convex-dev/react-query";
 import { api } from "@dg/backend/api";
 import type { Id } from "@dg/backend/dataModel";
-import { Button } from "@dg/ui/components/button";
+import { Button } from "@dg/ui-coss/components/button";
 import {
   Combobox,
-  ComboboxContent,
+  ComboboxPopup,
   ComboboxEmpty,
   ComboboxInput,
   ComboboxItem,
   ComboboxList,
-} from "@dg/ui/components/combobox";
+} from "@dg/ui-coss/components/combobox";
 import {
   Dialog,
   DialogContent,
@@ -17,14 +17,14 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@dg/ui/components/dialog";
-import { Field, FieldDescription, FieldGroup, FieldLabel } from "@dg/ui/components/field";
-import { Input } from "@dg/ui/components/input";
-import { Spinner } from "@dg/ui/components/spinner";
+} from "@dg/ui-coss/components/dialog";
+import { Field, FieldDescription, FieldLabel } from "@dg/ui-coss/components/field";
+import { Input } from "@dg/ui-coss/components/input";
+import { Spinner } from "@dg/ui-coss/components/spinner";
+import { toastManager } from "@dg/ui-coss/components/toast";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { PlusIcon } from "lucide-react";
 import { type FormEvent, useId, useState } from "react";
-import { toast } from "sonner";
 
 const MAX_CUSTOMER_NAME_LENGTH = 120;
 
@@ -90,9 +90,13 @@ export function CustomerCombobox({
       setSearch(customer.name);
       onValueChange(customer);
       setCreateOpen(false);
-      toast.success(`Customer "${customer.name}" created`);
+      toastManager.add({ title: `Customer "${customer.name}" created`, type: "success" });
     },
-    onError: (error) => toast.error(error.message || "Could not create customer"),
+    onError: (error) =>
+      toastManager.add({
+        title: error.message || "Could not create customer",
+        type: "error",
+      }),
   });
   const customerOptions: CustomerOption[] =
     customers?.map((customer) => ({ kind: "customer", ...customer })) ?? [];
@@ -171,7 +175,7 @@ export function CustomerCombobox({
           className="w-full"
           autoFocus
         />
-        <ComboboxContent>
+        <ComboboxPopup>
           <ComboboxEmpty>
             {isPending ? "Loading customers..." : "No customer found."}
           </ComboboxEmpty>
@@ -197,7 +201,7 @@ export function CustomerCombobox({
               </ComboboxItem>
             )}
           </ComboboxList>
-        </ComboboxContent>
+        </ComboboxPopup>
       </Combobox>
 
       <Dialog open={createOpen} onOpenChange={setCreateOpen}>
@@ -209,7 +213,7 @@ export function CustomerCombobox({
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleCreate} className="flex flex-col gap-6">
-            <FieldGroup>
+            <div className="flex w-full flex-col gap-7">
               <Field>
                 <FieldLabel htmlFor={`${inputId}-new-name`}>Customer name</FieldLabel>
                 <Input
@@ -245,7 +249,7 @@ export function CustomerCombobox({
                   Optional. Separate multiple numbers with commas.
                 </FieldDescription>
               </Field>
-            </FieldGroup>
+            </div>
             <DialogFooter>
               <Button
                 type="submit"

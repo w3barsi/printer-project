@@ -1,6 +1,6 @@
 import { api } from "@dg/backend/api";
 import type { Id } from "@dg/backend/dataModel";
-import { Button } from "@dg/ui/components/button";
+import { Button } from "@dg/ui-coss/components/button";
 import {
   Dialog,
   DialogContent,
@@ -9,18 +9,18 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@dg/ui/components/dialog";
-import { Field, FieldError, FieldLabel } from "@dg/ui/components/field";
-import { Input } from "@dg/ui/components/input";
-import { Kbd } from "@dg/ui/components/kbd";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@dg/ui/components/tooltip";
+} from "@dg/ui-coss/components/dialog";
+import { Field, FieldError, FieldLabel } from "@dg/ui-coss/components/field";
+import { Input } from "@dg/ui-coss/components/input";
+import { Kbd } from "@dg/ui-coss/components/kbd";
+import { toastManager } from "@dg/ui-coss/components/toast";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@dg/ui-coss/components/tooltip";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "convex/react";
 import { PlusIcon } from "lucide-react";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useHotkeys } from "react-hotkeys-hook";
-import { toast } from "sonner";
 import { z } from "zod";
 
 const formSchema = z.object({
@@ -80,7 +80,7 @@ export function AddItemDialog({ joId }: { joId: Id<"jo"> }) {
 
   const onSubmit = (data: FormData) => {
     createItem({ joId, ...data });
-    toast.success(`"${data.name}" has been added.`);
+    toastManager.add({ title: `"${data.name}" has been added.`, type: "success" });
     form.reset();
     setIsOpen(false);
   };
@@ -122,7 +122,9 @@ export function AddItemDialog({ joId }: { joId: Id<"jo"> }) {
                   placeholder="Item name"
                   aria-invalid={fieldState.invalid}
                 />
-                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                {fieldState.invalid && (
+                  <FieldError>{fieldState.error?.message}</FieldError>
+                )}
               </Field>
             )}
           />
@@ -140,7 +142,9 @@ export function AddItemDialog({ joId }: { joId: Id<"jo"> }) {
                   aria-invalid={fieldState.invalid}
                   onChange={(e) => field.onChange(parseInt(e.target.value))}
                 />
-                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                {fieldState.invalid && (
+                  <FieldError>{fieldState.error?.message}</FieldError>
+                )}
               </Field>
             )}
           />
@@ -160,7 +164,9 @@ export function AddItemDialog({ joId }: { joId: Id<"jo"> }) {
                   aria-invalid={fieldState.invalid}
                   onChange={(e) => field.onChange(parseFloat(e.target.value))}
                 />
-                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                {fieldState.invalid && (
+                  <FieldError>{fieldState.error?.message}</FieldError>
+                )}
               </Field>
             )}
           />

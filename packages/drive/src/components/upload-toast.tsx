@@ -13,7 +13,7 @@ export function UploadToast({
   errorMessage?: string;
 }) {
   return (
-    <div className="w-89 overflow-hidden rounded-lg border bg-popover text-popover-foreground shadow-lg">
+    <div className="w-89 overflow-hidden">
       <div className="flex items-start gap-3 p-4 pb-3">
         <div className="mt-0.5 shrink-0">
           {status === "uploading" && (

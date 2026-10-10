@@ -3,17 +3,17 @@ import { api } from "@dg/backend/api";
 import type { Doc } from "@dg/backend/dataModel";
 import {
   AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
+  AlertDialogClose,
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@dg/ui/components/alert-dialog";
-import { Spinner } from "@dg/ui/components/spinner";
+} from "@dg/ui-coss/components/alert-dialog";
+import { Button } from "@dg/ui-coss/components/button";
+import { Spinner } from "@dg/ui-coss/components/spinner";
+import { toastManager } from "@dg/ui-coss/components/toast";
 import { useMutation } from "@tanstack/react-query";
-import { toast } from "sonner";
 
 const operationLabels: Record<Doc<"inventoryActivities">["operation"], string> = {
   item_created: "Item created",
@@ -33,17 +33,20 @@ export function DeleteInventoryActivityDialog({
   const mutation = useMutation({
     mutationFn: useConvexMutation(api.inventory.deleteActivity),
     onSuccess: () => {
-      toast.success("Inventory activity deleted");
+      toastManager.add({ title: "Inventory activity deleted", type: "success" });
       onOpenChange(false);
     },
     onError: (error) => {
-      toast.error(error.message || "Could not delete inventory activity");
+      toastManager.add({
+        title: error.message || "Could not delete inventory activity",
+        type: "error",
+      });
     },
   });
 
   return (
     <AlertDialog open={Boolean(activity)} onOpenChange={onOpenChange}>
-      <AlertDialogContent size="sm">
+      <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Delete inventory activity?</AlertDialogTitle>
           <AlertDialogDescription>
@@ -54,17 +57,22 @@ export function DeleteInventoryActivityDialog({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={mutation.isPending}>Cancel</AlertDialogCancel>
-          <AlertDialogAction
-            variant="destructive"
+          <AlertDialogClose
+            disabled={mutation.isPending}
+            render={<Button variant="outline" />}
+          >
+            Cancel
+          </AlertDialogClose>
+          <AlertDialogClose
             disabled={!activity || mutation.isPending}
             onClick={() => {
               if (activity) mutation.mutate({ activityId: activity._id });
             }}
+            render={<Button variant="destructive" />}
           >
             {mutation.isPending && <Spinner data-icon="inline-start" />}
             Delete activity
-          </AlertDialogAction>
+          </AlertDialogClose>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

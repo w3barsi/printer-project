@@ -1,7 +1,7 @@
 import { convexQuery, useConvexMutation } from "@convex-dev/react-query";
 import { api } from "@dg/backend/api";
 import type { Id } from "@dg/backend/dataModel";
-import { Button } from "@dg/ui/components/button";
+import { Button } from "@dg/ui-coss/components/button";
 import {
   Dialog,
   DialogContent,
@@ -10,11 +10,12 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@dg/ui/components/dialog";
-import { Field, FieldError, FieldGroup, FieldLabel } from "@dg/ui/components/field";
-import { Input } from "@dg/ui/components/input";
-import { Skeleton } from "@dg/ui/components/skeleton";
-import { Spinner } from "@dg/ui/components/spinner";
+} from "@dg/ui-coss/components/dialog";
+import { Field, FieldError, FieldLabel } from "@dg/ui-coss/components/field";
+import { Input } from "@dg/ui-coss/components/input";
+import { Skeleton } from "@dg/ui-coss/components/skeleton";
+import { Spinner } from "@dg/ui-coss/components/spinner";
+import { toastManager } from "@dg/ui-coss/components/toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import {
@@ -26,7 +27,6 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { toast } from "sonner";
 import { z } from "zod";
 
 const PAGE_SIZE = 10;
@@ -59,11 +59,14 @@ export function SupplierManagerDialog() {
   const mutation = useMutation({
     mutationFn: useConvexMutation(api.inventory.createSupplier),
     onSuccess: () => {
-      toast.success("Supplier created");
+      toastManager.add({ title: "Supplier created", type: "success" });
       form.reset();
     },
     onError: (error) => {
-      toast.error(error.message || "Could not create supplier");
+      toastManager.add({
+        title: error.message || "Could not create supplier",
+        type: "error",
+      });
     },
   });
 
@@ -90,7 +93,7 @@ export function SupplierManagerDialog() {
         </DialogHeader>
 
         <form onSubmit={form.handleSubmit((values) => mutation.mutate(values))}>
-          <FieldGroup className="flex-row items-end gap-2">
+          <div className="flex w-full flex-row items-end gap-2">
             <Controller
               name="name"
               control={form.control}
@@ -104,7 +107,9 @@ export function SupplierManagerDialog() {
                     aria-invalid={fieldState.invalid}
                     disabled={mutation.isPending}
                   />
-                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                  {fieldState.invalid && (
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  )}
                 </Field>
               )}
             />
@@ -116,7 +121,7 @@ export function SupplierManagerDialog() {
               )}
               Add
             </Button>
-          </FieldGroup>
+          </div>
         </form>
 
         <div className="overflow-hidden rounded-lg border">
@@ -210,11 +215,14 @@ function RenameSupplierDialog({
   const mutation = useMutation({
     mutationFn: useConvexMutation(api.inventory.renameSupplier),
     onSuccess: () => {
-      toast.success("Supplier renamed");
+      toastManager.add({ title: "Supplier renamed", type: "success" });
       setOpen(false);
     },
     onError: (error) => {
-      toast.error(error.message || "Could not rename supplier");
+      toastManager.add({
+        title: error.message || "Could not rename supplier",
+        type: "error",
+      });
     },
   });
 
@@ -255,7 +263,9 @@ function RenameSupplierDialog({
                   aria-invalid={fieldState.invalid}
                   disabled={mutation.isPending}
                 />
-                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                {fieldState.invalid && (
+                  <FieldError>{fieldState.error?.message}</FieldError>
+                )}
               </Field>
             )}
           />

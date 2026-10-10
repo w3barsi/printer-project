@@ -1,6 +1,7 @@
 import { convexQuery, useConvexMutation } from "@convex-dev/react-query";
 import { api } from "@dg/backend/api";
-import { Button } from "@dg/ui/components/button";
+import { Button } from "@dg/ui-coss/components/button";
+import { Card } from "@dg/ui-coss/components/card";
 import {
   Dialog,
   DialogContent,
@@ -9,11 +10,11 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@dg/ui/components/dialog";
-import { Field, FieldError, FieldGroup, FieldLabel } from "@dg/ui/components/field";
-import { Input } from "@dg/ui/components/input";
-import { Skeleton } from "@dg/ui/components/skeleton";
-import { Spinner } from "@dg/ui/components/spinner";
+} from "@dg/ui-coss/components/dialog";
+import { Field, FieldError, FieldLabel } from "@dg/ui-coss/components/field";
+import { Input } from "@dg/ui-coss/components/input";
+import { Skeleton } from "@dg/ui-coss/components/skeleton";
+import { Spinner } from "@dg/ui-coss/components/spinner";
 import {
   Table,
   TableBody,
@@ -21,15 +22,14 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-  TableWrapper,
-} from "@dg/ui/components/table";
+} from "@dg/ui-coss/components/table";
+import { toastManager } from "@dg/ui-coss/components/toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { ChevronRightIcon, PlusIcon } from "lucide-react";
 import { Suspense, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { toast } from "sonner";
 import { z } from "zod";
 
 import { Container } from "@/components/layouts/container";
@@ -82,7 +82,7 @@ function SupplierTable() {
   );
 
   return (
-    <TableWrapper>
+    <Card className="overflow-hidden">
       <Table>
         <TableHeader className="sticky top-0 z-10">
           <TableRow>
@@ -150,7 +150,7 @@ function SupplierTable() {
           )}
         </TableBody>
       </Table>
-    </TableWrapper>
+    </Card>
   );
 }
 
@@ -164,11 +164,15 @@ function SupplierFormDialog() {
   const mutation = useMutation({
     mutationFn: (values: SupplierFormData) => createSupplier(values),
     onSuccess: () => {
-      toast.success("Supplier created");
+      toastManager.add({ title: "Supplier created", type: "success" });
       setOpen(false);
       form.reset();
     },
-    onError: (error) => toast.error(error.message || "Could not save supplier"),
+    onError: (error) =>
+      toastManager.add({
+        title: error.message || "Could not save supplier",
+        type: "error",
+      }),
   });
 
   return (
@@ -188,7 +192,7 @@ function SupplierFormDialog() {
           onSubmit={form.handleSubmit((values) => mutation.mutate(values))}
           className="flex flex-col gap-6"
         >
-          <FieldGroup>
+          <div className="flex w-full flex-col gap-7">
             <Controller
               name="name"
               control={form.control}
@@ -202,11 +206,13 @@ function SupplierFormDialog() {
                     disabled={mutation.isPending}
                     autoFocus
                   />
-                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                  {fieldState.invalid && (
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  )}
                 </Field>
               )}
             />
-          </FieldGroup>
+          </div>
           <DialogFooter>
             <Button type="submit" disabled={mutation.isPending}>
               {mutation.isPending && <Spinner data-icon="inline-start" />}
@@ -221,7 +227,7 @@ function SupplierFormDialog() {
 
 function SupplierTableSkeleton() {
   return (
-    <TableWrapper>
+    <Card className="overflow-hidden">
       <Table>
         <TableHeader className="sticky top-0 z-10 bg-muted">
           <TableRow>
@@ -250,6 +256,6 @@ function SupplierTableSkeleton() {
           ))}
         </TableBody>
       </Table>
-    </TableWrapper>
+    </Card>
   );
 }
