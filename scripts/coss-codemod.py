@@ -36,6 +36,19 @@ IMPORT_RULES: list[tuple[str, str]] = [
     ('@dg/ui/', '@dg/ui-coss/'),
 ]
 
+# Identifier rules fire only when the file switched the corresponding
+# source module (old or new path) in the same run — this keeps batches
+# scoped: a batch-1 file that also uses DialogContent keeps its dialog
+# import (and identifiers) untouched until the dialog batch.
+IDENT_RULE_MODULES: list[tuple[str, set[str]]] = [
+    (r"\bDropdownMenu", {"components/dropdown-menu", "components/menu"}),
+    (r"\bAlertDialogCancel\b", {"components/alert-dialog"}),
+    (r"\bContextMenuContent\b", {"components/context-menu"}),
+    (r"\bComboboxContent\b", {"components/combobox"}),
+    (r"\bHoverCard", {"components/hover-card", "components/preview-card"}),
+    (r"\bInputOTP", {"components/input-otp", "components/otp-field"}),
+]
+
 IDENT_RULES: list[tuple[str, str]] = [
     # DropdownMenu* -> Menu* (new package aliases the old names, but
     # per Q5 we do not rely on aliases). Longest names first.
@@ -73,7 +86,7 @@ WARN_RULES: list[tuple[str, str]] = [
     (r"\bFieldGroup\b", "FieldGroup has no COSS export: map to Fieldset/plain div per site."),
     (r"\bTableWrapper\b", "TableWrapper has no COSS export: map to Card/plain div per site."),
     (r"\bInputGroupButton\b", "InputGroupButton has no COSS export: map to Button in InputGroupAddon per site."),
-    (r"\bItem(Actions?|Content|Description|Footer|Group|Header|Icon|Media|Separator|Title)?\b", "Item* has no COSS equivalent: rewrite to Group per site (ItemAction(s)/ItemIcon/ItemContent/ItemTitle)."),
+    (r"<Item[\s/>]|\bItem(Actions?|Content|Description|Footer|Group|Header|Icon|Media|Separator|Title)\b", "Item* has no COSS equivalent: rewrite to Group per site (ItemAction(s)/ItemIcon/ItemContent/ItemTitle)."),
     (r"<Select(?![A-Za-z])", "Select without items= prop needs hand-added items array (SSR) + alignItemWithTrigger review."),
     (r"\basChild\b", "asChild found: convert to render={<.../>} by hand (0 hits expected)."),
     (r"\bAccordion\b.*type=|\bToggleGroup\b.*type=", "Accordion/ToggleGroup type= prop needs multiple={} + array defaultValue conversion."),
@@ -92,21 +105,54 @@ class Result:
     skipped: str = ""
 
 
-def process(text: str, apply: bool) -> tuple[str, list[str], list[str], str]:
-    for marker in PROTECTED:
-        if marker in str(text):
-            pass
+def in_scope(mod: str, scope: set[str] | None) -> bool:
+    """mod is the subpath after @dg/ui/ (e.g. components/button)."""
+    if scope is None:
+        return True
+    return any(mod == tok or mod.endswith("/" + tok) for tok in scope)
+
+
+def rewrite_import_line(line: str, scope: set[str] | None) -> tuple[str, str]:
+    """Rewrite one @dg/ui import path if in scope. Returns (line, edit-note)."""
+    m = re.search(r"@dg/ui/([^\"']+)", line)
+    if not m:
+        return line, ""
+    mod = m.group(1)
+    if not in_scope(mod, scope):
+        return line, ""
+    new = "@dg/ui/" + mod
+    for pat, rep in IMPORT_RULES:
+        if pat in new:
+            new = new.replace(pat, rep)
+            return line.replace(m.group(0), new), f"import {pat} -> {rep}"
+    return line, ""
+
+
+def process(
+    text: str, apply: bool, scope: set[str] | None = None
+) -> tuple[str, list[str], list[str], str]:
     edits: list[str] = []
     warnings: list[str] = []
     for imp in SKIP_IMPORTS:
         if imp in text:
             return text, [], [], f"skip: protected import ({imp}) — hand work Phase 7.6/8"
-    out = text
-    for pat, rep in IMPORT_RULES:
-        out, n = re.subn(pat, rep, out)
-        if n:
-            edits.append(f"import {pat} -> {rep} x{n}")
+    lines = text.split("\n")
+    switched: set[str] = set()
+    for i, line in enumerate(lines):
+        if "@dg/ui/" not in line:
+            continue
+        new_line, note = rewrite_import_line(line, scope)
+        if new_line != line:
+            m = re.search(r"@dg/ui/([^\"']+)", line)
+            if m:
+                switched.add(m.group(1))
+            lines[i] = new_line
+            edits.append(note)
+    out = "\n".join(lines)
     for pat, rep in IDENT_RULES:
+        mods = next((m for p, m in IDENT_RULE_MODULES if re.match(p, pat[2:])), None)
+        if mods is not None and not (switched & mods):
+            continue
         out, n = re.subn(pat, rep, out)
         if n:
             edits.append(f"{pat} -> {rep} x{n}")
@@ -120,9 +166,16 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--check", action="store_true", help="report only (default)")
     ap.add_argument("--apply", action="store_true", help="rewrite files in place")
+    ap.add_argument(
+        "--components",
+        default="",
+        help="comma-separated module scope (e.g. button,badge,lib/utils); "
+        "only matching @dg/ui import lines are switched",
+    )
     ap.add_argument("roots", nargs="*", default=[str(r) for r in DEFAULT_ROOTS])
     args = ap.parse_args()
     apply = args.apply and not args.check
+    scope = set(args.components.split(",")) if args.components else None
     if args.apply and args.check:
         print("pick one of --check / --apply", file=sys.stderr)
         return 2
@@ -135,7 +188,7 @@ def main() -> int:
             if "routeTree.gen.ts" in str(path) or "convex/_generated" in str(path):
                 continue
             text = path.read_text()
-            out, edits, warnings, skipped = process(text, apply)
+            out, edits, warnings, skipped = process(text, apply, scope)
             if edits or warnings or skipped:
                 results.append(Result(path, edits, warnings, skipped))
             if apply and edits and out != text:
