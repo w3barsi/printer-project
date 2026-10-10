@@ -2,13 +2,7 @@ import { convexQuery } from "@convex-dev/react-query";
 import { api } from "@dg/backend/api";
 import type { Id } from "@dg/backend/dataModel";
 import { Button } from "@dg/ui-coss/components/button";
-import { Card, CardContent, CardHeader } from "@dg/ui/components/card";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@dg/ui/components/dropdown-menu";
+import { Card, CardContent, CardHeader } from "@dg/ui-coss/components/card";
 import {
   Table,
   TableBody,
@@ -17,7 +11,13 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@dg/ui/components/table";
+} from "@dg/ui-coss/components/table";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@dg/ui/components/dropdown-menu";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { MoreHorizontalIcon, PencilIcon, Trash2Icon } from "lucide-react";
 import { useState } from "react";

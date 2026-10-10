@@ -1,6 +1,7 @@
 import { api } from "@dg/backend/api";
 import type { Id } from "@dg/backend/dataModel";
 import { Button } from "@dg/ui-coss/components/button";
+import { Field, FieldError, FieldLabel } from "@dg/ui-coss/components/field";
 import { Input } from "@dg/ui-coss/components/input";
 import {
   Dialog,
@@ -9,7 +10,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@dg/ui/components/dialog";
-import { Field, FieldError, FieldLabel } from "@dg/ui/components/field";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouteContext } from "@tanstack/react-router";
 import { useMutation } from "convex/react";
@@ -101,7 +101,9 @@ export function AddCoh({ start }: { start: number }) {
                   aria-invalid={fieldState.invalid}
                   onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
                 />
-                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                {fieldState.invalid && (
+                  <FieldError>{fieldState.error?.message}</FieldError>
+                )}
               </Field>
             )}
           />

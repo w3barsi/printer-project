@@ -1,9 +1,8 @@
 import { convexQuery } from "@convex-dev/react-query";
 import { api } from "@dg/backend/api";
 import type { Id } from "@dg/backend/dataModel";
-import { Card, CardHeader, CardTitle } from "@dg/ui/components/card";
-import { CardContent } from "@dg/ui/components/card";
-import { Item, ItemActions, ItemContent, ItemTitle } from "@dg/ui/components/item";
+import { Card, CardHeader, CardTitle } from "@dg/ui-coss/components/card";
+import { CardContent } from "@dg/ui-coss/components/card";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useMutation } from "convex/react";
 import { BanknoteIcon, CalendarIcon, UserIcon } from "lucide-react";
@@ -51,11 +50,14 @@ export function PaymentsCard({ joId }: { joId: Id<"jo"> }) {
         {jo.payments && jo.payments.length > 0 ? (
           <div className="flex flex-col gap-2 md:gap-4">
             {jo.payments.map((payment) => (
-              <Item key={payment._id} variant="outline">
-                <ItemContent>
-                  <ItemTitle className="font-mono text-lg">
+              <div
+                key={payment._id}
+                className="flex w-full flex-wrap items-center gap-3.5 rounded-md border border-border px-4 py-3.5 text-sm"
+              >
+                <div className="flex flex-1 flex-col gap-1">
+                  <div className="line-clamp-1 flex w-fit items-center gap-2 font-mono text-lg leading-snug font-medium underline-offset-4">
                     {formatCurrency(payment.amount)}
-                  </ItemTitle>
+                  </div>
                   <div>
                     <div className="flex items-center gap-2">
                       <CalendarIcon className="size-4" />
@@ -70,8 +72,8 @@ export function PaymentsCard({ joId }: { joId: Id<"jo"> }) {
                       </p>
                     </div>
                   </div>
-                </ItemContent>
-                <ItemActions>
+                </div>
+                <div className="flex items-center gap-2">
                   <DeleteConfirmButton
                     deleteFor="payment"
                     onConfirm={() =>
@@ -82,8 +84,8 @@ export function PaymentsCard({ joId }: { joId: Id<"jo"> }) {
                       })
                     }
                   />
-                </ItemActions>
-              </Item>
+                </div>
+              </div>
             ))}
           </div>
         ) : (

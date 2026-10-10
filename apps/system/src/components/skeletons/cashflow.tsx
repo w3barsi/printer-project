@@ -1,6 +1,6 @@
+import { Card, CardContent, CardHeader } from "@dg/ui-coss/components/card";
 import { Separator } from "@dg/ui-coss/components/separator";
 import { Skeleton } from "@dg/ui-coss/components/skeleton";
-import { Card, CardContent, CardHeader } from "@dg/ui/components/card";
 import {
   Table,
   TableBody,
@@ -8,8 +8,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-  TableWrapper,
-} from "@dg/ui/components/table";
+} from "@dg/ui-coss/components/table";
 
 export function CashflowSummarySkeleton() {
   return (
@@ -32,7 +31,7 @@ export function CashflowSummarySkeleton() {
 
 export function CashflowTableSkeleton() {
   return (
-    <TableWrapper>
+    <Card className="overflow-hidden">
       <Table>
         <TableHeader className="bg-muted">
           <TableRow>
@@ -73,6 +72,6 @@ export function CashflowTableSkeleton() {
           ))}
         </TableBody>
       </Table>
-    </TableWrapper>
+    </Card>
   );
 }

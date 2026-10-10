@@ -2,9 +2,9 @@ import { convexQuery } from "@convex-dev/react-query";
 import { api } from "@dg/backend/api";
 import { Badge } from "@dg/ui-coss/components/badge";
 import { Button } from "@dg/ui-coss/components/button";
+import { Card } from "@dg/ui-coss/components/card";
 import { Input } from "@dg/ui-coss/components/input";
 import { Skeleton } from "@dg/ui-coss/components/skeleton";
-import { cn } from "@dg/ui-coss/lib/utils";
 import {
   Table,
   TableBody,
@@ -12,8 +12,8 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-  TableWrapper,
-} from "@dg/ui/components/table";
+} from "@dg/ui-coss/components/table";
+import { cn } from "@dg/ui-coss/lib/utils";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, useRouter } from "@tanstack/react-router";
 import {
@@ -331,7 +331,7 @@ function JobOrderDataTable({
         <CreateJoDialog />
       </div>
 
-      <TableWrapper>
+      <Card className="overflow-hidden">
         <Table className="table-fixed">
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -392,7 +392,7 @@ function JobOrderDataTable({
             )}
           </TableBody>
         </Table>
-      </TableWrapper>
+      </Card>
 
       <div className="flex w-full justify-center gap-2 pt-2">
         <Button onClick={onPrev} variant="outline" disabled={isFetching || !canPrev}>
@@ -422,7 +422,7 @@ function JobOrderListSkeleton() {
 
         <CreateJoDialog />
       </div>
-      <TableWrapper>
+      <Card className="overflow-hidden">
         <Table className="table-fixed">
           <TableHeader>
             <TableRow>
@@ -513,7 +513,7 @@ function JobOrderListSkeleton() {
             ))}
           </TableBody>
         </Table>
-      </TableWrapper>
+      </Card>
       <div className="flex w-full justify-center gap-2 pt-2">
         <Button variant="outline" disabled>
           <ArrowLeftIcon /> Prev

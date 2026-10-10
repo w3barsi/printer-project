@@ -8,7 +8,7 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from "@dg/ui/components/breadcrumb";
+} from "@dg/ui-coss/components/breadcrumb";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { isMatch, Link, useMatches } from "@tanstack/react-router";
 import z from "zod";

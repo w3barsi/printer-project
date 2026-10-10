@@ -3,15 +3,30 @@ import { api } from "@dg/backend/api";
 import type { Doc, Id } from "@dg/backend/dataModel";
 import { Badge } from "@dg/ui-coss/components/badge";
 import { Button } from "@dg/ui-coss/components/button";
-import { Skeleton } from "@dg/ui-coss/components/skeleton";
-import { cn } from "@dg/ui-coss/lib/utils";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@dg/ui/components/card";
+} from "@dg/ui-coss/components/card";
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@dg/ui-coss/components/empty";
+import { Skeleton } from "@dg/ui-coss/components/skeleton";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@dg/ui-coss/components/table";
+import { cn } from "@dg/ui-coss/lib/utils";
 import {
   Combobox,
   ComboboxContent,
@@ -22,13 +37,6 @@ import {
   ComboboxTrigger,
 } from "@dg/ui/components/combobox";
 import {
-  Empty,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
-} from "@dg/ui/components/empty";
-import {
   Select,
   SelectContent,
   SelectGroup,
@@ -36,15 +44,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@dg/ui/components/select";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-  TableWrapper,
-} from "@dg/ui/components/table";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { Link, useRouteContext } from "@tanstack/react-router";
 import { ArrowLeftIcon, ArrowRightIcon, HistoryIcon, Trash2Icon } from "lucide-react";
@@ -192,7 +191,7 @@ export function InventoryActivityLog() {
         </CardHeader>
         <CardContent className="p-0">
           {data.page.length ? (
-            <TableWrapper className="rounded-none border-0">
+            <Card className="overflow-hidden rounded-none border-0">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -223,7 +222,7 @@ export function InventoryActivityLog() {
                   ))}
                 </TableBody>
               </Table>
-            </TableWrapper>
+            </Card>
           ) : (
             <Empty className="min-h-64">
               <EmptyHeader>

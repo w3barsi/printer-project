@@ -8,7 +8,7 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@dg/ui/components/card";
+} from "@dg/ui-coss/components/card";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRightIcon } from "lucide-react";
 
@@ -44,7 +44,7 @@ function ThreeDPage() {
 
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {threeDTools.map((tool) => (
-              <Card key={tool.id} size="sm">
+              <Card key={tool.id}>
                 <CardHeader>
                   <span className="mb-2 flex size-10 items-center justify-center rounded-lg bg-primary text-primary-foreground">
                     <tool.icon className="size-5" />

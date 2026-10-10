@@ -1,12 +1,9 @@
 import { convexQuery } from "@convex-dev/react-query";
 import { api } from "@dg/backend/api";
 import { Button } from "@dg/ui-coss/components/button";
+import { Card, CardContent, CardHeader } from "@dg/ui-coss/components/card";
 import { Label } from "@dg/ui-coss/components/label";
 import { Separator } from "@dg/ui-coss/components/separator";
-import { cn } from "@dg/ui-coss/lib/utils";
-import { Calendar } from "@dg/ui/components/calendar";
-import { Card, CardContent, CardHeader } from "@dg/ui/components/card";
-import { Popover, PopoverContent, PopoverTrigger } from "@dg/ui/components/popover";
 import {
   Table,
   TableBody,
@@ -14,8 +11,10 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-  TableWrapper,
-} from "@dg/ui/components/table";
+} from "@dg/ui-coss/components/table";
+import { cn } from "@dg/ui-coss/lib/utils";
+import { Calendar } from "@dg/ui/components/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@dg/ui/components/popover";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation } from "convex/react";
@@ -130,7 +129,7 @@ function CashflowTable() {
   const startingCash = data.startingCash;
 
   return (
-    <TableWrapper>
+    <Card className="overflow-hidden">
       <Table className="min-w-md">
         <TableHeader className="">
           <TableRow>
@@ -248,7 +247,7 @@ function CashflowTable() {
           ))}
         </TableBody>
       </Table>
-    </TableWrapper>
+    </Card>
   );
 }
 

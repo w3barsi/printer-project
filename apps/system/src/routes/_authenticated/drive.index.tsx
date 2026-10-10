@@ -3,7 +3,6 @@ import { api } from "@dg/backend/api";
 import { DriveFileList } from "@dg/drive/components/file-list";
 import { Badge } from "@dg/ui-coss/components/badge";
 import { Button } from "@dg/ui-coss/components/button";
-import { Input } from "@dg/ui-coss/components/input";
 import {
   Card,
   CardAction,
@@ -12,7 +11,8 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@dg/ui/components/card";
+} from "@dg/ui-coss/components/card";
+import { Input } from "@dg/ui-coss/components/input";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { formatDistanceToNow } from "date-fns";
@@ -80,7 +80,7 @@ function DrivePage() {
 
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {spaces.map((space) => (
-              <Card key={space._id} size="sm">
+              <Card key={space._id}>
                 <CardHeader>
                   <span className="mb-2 flex size-10 items-center justify-center rounded-lg bg-primary text-primary-foreground">
                     <FolderKanbanIcon className="size-5" />

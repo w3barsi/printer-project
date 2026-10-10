@@ -5,7 +5,7 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@dg/ui/components/card";
+} from "@dg/ui-coss/components/card";
 import { PaletteIcon, ScanLineIcon } from "lucide-react";
 
 import { MAX_PALETTE_COLORS } from "@/lib/3d/quantize";
@@ -46,7 +46,7 @@ export function SvgModeChooser({
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2">
-        <Card size="sm">
+        <Card>
           <CardHeader>
             <span className="mb-2 flex size-10 items-center justify-center rounded-lg bg-primary text-primary-foreground">
               <ScanLineIcon className="size-5" />
@@ -69,7 +69,7 @@ export function SvgModeChooser({
           </CardFooter>
         </Card>
 
-        <Card size="sm">
+        <Card>
           <CardHeader>
             <span className="mb-2 flex size-10 items-center justify-center rounded-lg bg-secondary text-secondary-foreground">
               <PaletteIcon className="size-5" />

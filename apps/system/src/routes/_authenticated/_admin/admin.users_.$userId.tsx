@@ -1,14 +1,14 @@
 import { convexQuery } from "@convex-dev/react-query";
 import { api } from "@dg/backend/api";
 import { Button } from "@dg/ui-coss/components/button";
-import { Skeleton } from "@dg/ui-coss/components/skeleton";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@dg/ui/components/card";
+} from "@dg/ui-coss/components/card";
+import { Skeleton } from "@dg/ui-coss/components/skeleton";
 import {
   Table,
   TableBody,
@@ -16,7 +16,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@dg/ui/components/table";
+} from "@dg/ui-coss/components/table";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { usePaginatedQuery } from "convex/react";

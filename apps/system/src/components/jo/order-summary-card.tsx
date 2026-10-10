@@ -1,9 +1,9 @@
 import { convexQuery } from "@convex-dev/react-query";
 import { api } from "@dg/backend/api";
 import type { Id } from "@dg/backend/dataModel";
+import { Card, CardContent, CardHeader, CardTitle } from "@dg/ui-coss/components/card";
 import { Separator } from "@dg/ui-coss/components/separator";
 import { cn } from "@dg/ui-coss/lib/utils";
-import { Card, CardContent, CardHeader, CardTitle } from "@dg/ui/components/card";
 import { useSuspenseQuery } from "@tanstack/react-query";
 
 import { formatCurrency } from "@/components/jo/job-order-formatters";

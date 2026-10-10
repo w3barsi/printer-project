@@ -1,12 +1,11 @@
 import { Button } from "@dg/ui-coss/components/button";
 import { Input } from "@dg/ui-coss/components/input";
-import { Label } from "@dg/ui-coss/components/label";
 import {
   InputGroup,
   InputGroupAddon,
-  InputGroupButton,
   InputGroupInput,
-} from "@dg/ui/components/input-group";
+} from "@dg/ui-coss/components/input-group";
+import { Label } from "@dg/ui-coss/components/label";
 import { createFileRoute } from "@tanstack/react-router";
 import { EyeClosedIcon, EyeIcon, LoaderCircleIcon } from "lucide-react";
 import type { FormEvent } from "react";
@@ -85,15 +84,16 @@ function LoginForm() {
                   required
                 />
                 <InputGroupAddon align="inline-end">
-                  <InputGroupButton
+                  <Button
                     type="button"
+                    variant="ghost"
                     aria-label={viewPassword ? "Hide password" : "Show password"}
                     title={viewPassword ? "Hide password" : "Show password"}
                     size="icon-xs"
                     onClick={() => setViewPassword((visible) => !visible)}
                   >
                     {viewPassword ? <EyeIcon /> : <EyeClosedIcon />}
-                  </InputGroupButton>
+                  </Button>
                 </InputGroupAddon>
               </InputGroup>
             </div>
