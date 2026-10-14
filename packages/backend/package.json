@@ -8,6 +8,7 @@
       "default": "./convex/_generated/api.js"
     },
     "./dataModel": "./convex/_generated/dataModel.d.ts",
+    "./printPricing": "./convex/printPricing/lib.ts",
     "./schema": "./convex/schema.ts"
   },
   "scripts": {

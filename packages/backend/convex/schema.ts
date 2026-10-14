@@ -3,6 +3,7 @@ import { v } from "convex/values";
 
 import { driveSchema } from "./schemas/drive";
 import { inventorySchema } from "./schemas/inventory";
+import { printPricingSchema } from "./schemas/printPricing";
 
 export const cashflowType = v.optional(
   // CA = Cash Advance
@@ -31,6 +32,7 @@ export default defineSchema({
 
   ...inventorySchema,
   ...driveSchema,
+  ...printPricingSchema,
 
   jo: defineTable({
     updatedAt: v.optional(v.number()),
