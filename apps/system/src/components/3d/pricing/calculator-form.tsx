@@ -257,16 +257,52 @@ function toPricingInput(values: PricingCalculatorFormData): PrintPricingInput {
   };
 }
 
+// Rebuild the form's flattened shape from a saved pricing input (used to
+// prefill the calculator with the latest history entry).
+function toFormValues(input: PrintPricingInput): PricingCalculatorFormData {
+  const defaults = createDefaultValues();
+  const totalMinutes = Math.round(input.printTimeHours * 60);
+
+  return {
+    ...defaults,
+    filaments: input.filaments.map((filament) => ({
+      presetId: filament.presetId ?? "",
+      name: filament.name,
+      weightGrams: filament.weightGrams,
+      costPerKg: filament.costPerKg,
+    })),
+    printTimeHours: Math.floor(totalMinutes / 60),
+    printTimeMinutes: totalMinutes % 60,
+    includePrinter: input.printer !== undefined,
+    printerPresetId: input.printer?.presetId ?? "",
+    printerName: input.printer?.name ?? "",
+    printerPowerWatts: input.printer?.powerWatts ?? 0,
+    printerPrice: input.printer?.price ?? 0,
+    printerLifespanHours: input.printer?.lifespanHours ?? 0,
+    electricityRatePerKwh:
+      input.printer?.electricityRatePerKwh ?? defaults.electricityRatePerKwh,
+    includeLabor: input.labor !== undefined,
+    laborRatePerHour: input.labor?.ratePerHour ?? defaults.laborRatePerHour,
+    laborHours: input.labor?.hours ?? defaults.laborHours,
+    includeBusiness: input.business !== undefined,
+    failureRatePercent: input.business?.failureRatePercent ?? defaults.failureRatePercent,
+    markupPercent: input.business?.markupPercent ?? defaults.markupPercent,
+    note: "",
+  };
+}
+
 export function PricingCalculatorForm({
   itemId,
+  initialInput,
   onInputChange,
 }: {
   itemId: Id<"printPricingItems">;
+  initialInput?: PrintPricingInput;
   onInputChange: (input: PrintPricingInput) => void;
 }) {
   const form = useForm<PricingCalculatorFormData>({
     resolver: zodResolver(pricingCalculatorSchema),
-    defaultValues: createDefaultValues(),
+    defaultValues: initialInput ? toFormValues(initialInput) : createDefaultValues(),
   });
   const { fields, append, remove } = useFieldArray({
     control: form.control,
@@ -359,16 +395,52 @@ export function PricingCalculatorForm({
   }, [form, onInputChange]);
 
   const appliedDefaultPresetRef = useRef(false);
+  // A form opened from a saved snapshot keeps it until "Clear" is pressed.
+  const prefillActiveRef = useRef(initialInput !== undefined);
 
   // Preselect the most-used printer preset once the preset list arrives.
+  // Prefilled forms keep the saved snapshot instead.
   useEffect(() => {
-    if (appliedDefaultPresetRef.current || !defaultPrinterPreset) {
+    if (
+      prefillActiveRef.current ||
+      appliedDefaultPresetRef.current ||
+      !defaultPrinterPreset
+    ) {
       return;
     }
 
     appliedDefaultPresetRef.current = true;
     applyPrinterPreset(defaultPrinterPreset);
   }, [defaultPrinterPreset]);
+
+  // Snapshots keep their values even if the preset behind them was deleted.
+  // Drop dead preset references so the selects fall back to their placeholder.
+  useEffect(() => {
+    if (!prefillActiveRef.current) {
+      return;
+    }
+
+    const presetId = form.getValues("printerPresetId");
+
+    if (
+      printerPresets &&
+      presetId &&
+      !printerPresets.some((preset) => preset._id === presetId)
+    ) {
+      form.setValue("printerPresetId", "");
+    }
+
+    if (filamentPresets) {
+      form.getValues("filaments").forEach((filament, index) => {
+        if (
+          filament.presetId &&
+          !filamentPresets.some((preset) => preset._id === filament.presetId)
+        ) {
+          form.setValue(`filaments.${index}.presetId`, "");
+        }
+      });
+    }
+  }, [form, printerPresets, filamentPresets]);
 
   function applyPrinterPreset(preset: PrinterPresetListItem) {
     form.setValue("printerPresetId", preset._id);
@@ -393,11 +465,13 @@ export function PricingCalculatorForm({
   }
 
   function handleClear() {
+    prefillActiveRef.current = false;
     const defaults = createDefaultValues();
     form.reset(defaults);
     onInputChange(toPricingInput(defaults));
 
     if (defaultPrinterPreset) {
+      appliedDefaultPresetRef.current = true;
       applyPrinterPreset(defaultPrinterPreset);
     }
   }

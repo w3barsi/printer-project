@@ -1,5 +1,8 @@
+import { convexQuery } from "@convex-dev/react-query";
+import { api } from "@dg/backend/api";
 import { formatPeso, type PrintPricingInput } from "@dg/backend/printPricing";
 import { Button } from "@dg/ui-coss/components/button";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { CalculatorIcon, PencilIcon, Trash2Icon } from "lucide-react";
 import { Suspense, useState } from "react";
@@ -18,6 +21,9 @@ import {
 
 export function PricingItemDetails({ item }: { item: PricingListItem }) {
   const navigate = useNavigate();
+  const { data: calculations } = useSuspenseQuery(
+    convexQuery(api.printPricing.calculations.listByItem, { itemId: item._id }),
+  );
   const [input, setInput] = useState<PrintPricingInput | null>(null);
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -60,7 +66,11 @@ export function PricingItemDetails({ item }: { item: PricingListItem }) {
       </div>
 
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_340px] xl:grid-cols-[minmax(0,1fr)_380px]">
-        <PricingCalculatorForm itemId={item._id} onInputChange={setInput} />
+        <PricingCalculatorForm
+          itemId={item._id}
+          initialInput={calculations[0]}
+          onInputChange={setInput}
+        />
         <div className="lg:sticky lg:top-20 lg:self-start">
           <BreakdownPanel input={input} />
         </div>
