@@ -63,7 +63,9 @@ function ThreeDPage() {
                   </CardAction>
                 </CardHeader>
                 <CardContent className="flex items-center gap-4 text-xs text-muted-foreground">
-                  <Badge variant="secondary">Makes: {tool.product}</Badge>
+                  {tool.product && (
+                    <Badge variant="secondary">Makes: {tool.product}</Badge>
+                  )}
                 </CardContent>
                 <CardFooter>
                   <Button

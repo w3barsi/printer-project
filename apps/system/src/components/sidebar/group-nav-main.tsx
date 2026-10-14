@@ -76,12 +76,20 @@ function ThreeDSidebarItem() {
     from: "/_authenticated/3d/keychain",
     shouldThrow: false,
   });
+  const pricingMatch = useMatch({
+    from: "/_authenticated/3d/pricing",
+    shouldThrow: false,
+  });
+  const pricingItemMatch = useMatch({
+    from: "/_authenticated/3d/pricing_/$itemId",
+    shouldThrow: false,
+  });
 
   return (
     <SidebarMenuItem>
       <SidebarMenuButton
         tooltip="3D"
-        isActive={!!indexMatch || !!keychainMatch}
+        isActive={!!indexMatch || !!keychainMatch || !!pricingMatch || !!pricingItemMatch}
         render={
           <Link to="/3d" onClick={() => isMobile && setOpenMobile(false)} tabIndex={0} />
         }

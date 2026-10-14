@@ -23,6 +23,7 @@ import { Route as AppIndexRouteImport } from './routes/app.index'
 import { Route as AppSplatRouteImport } from './routes/app.$'
 import { Route as Authenticated3dIndexRouteImport } from './routes/_authenticated/3d.index'
 import { Route as Authenticated3dKeychainRouteImport } from './routes/_authenticated/3d.keychain'
+import { Route as Authenticated3dPricingRouteImport } from './routes/_authenticated/3d.pricing'
 import { Route as AuthenticatedCashierCashflowRouteImport } from './routes/_authenticated/_cashier/cashflow'
 import { Route as AuthenticatedDriveIndexRouteImport } from './routes/_authenticated/drive.index'
 import { Route as AuthenticatedInventoryIdRouteImport } from './routes/_authenticated/inventory_.$id'
@@ -32,6 +33,7 @@ import { Route as AuthenticatedNewdriveIndexRouteImport } from './routes/_authen
 import { Route as AuthenticatedTrelloIndexRouteImport } from './routes/_authenticated/trello.index'
 import { Route as AuthenticatedTrelloListIdRouteImport } from './routes/_authenticated/trello.$listId'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth.$'
+import { Route as Authenticated3dPricingItemIdRouteImport } from './routes/_authenticated/3d.pricing_.$itemId'
 import { Route as AuthenticatedAdminAdminIndexRouteImport } from './routes/_authenticated/_admin/admin.index'
 import { Route as AuthenticatedAdminAdminCustomersRouteImport } from './routes/_authenticated/_admin/admin.customers'
 import { Route as AuthenticatedAdminAdminSuppliersRouteImport } from './routes/_authenticated/_admin/admin.suppliers'
@@ -113,6 +115,11 @@ const Authenticated3dKeychainRoute = Authenticated3dKeychainRouteImport.update({
   path: '/3d/keychain',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const Authenticated3dPricingRoute = Authenticated3dPricingRouteImport.update({
+  id: '/3d/pricing',
+  path: '/3d/pricing',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedCashierCashflowRoute =
   AuthenticatedCashierCashflowRouteImport.update({
     id: '/cashflow',
@@ -163,6 +170,12 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const Authenticated3dPricingItemIdRoute =
+  Authenticated3dPricingItemIdRouteImport.update({
+    id: '/3d/pricing_/$itemId',
+    path: '/3d/pricing/$itemId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAdminAdminIndexRoute =
   AuthenticatedAdminAdminIndexRouteImport.update({
     id: '/admin/',
@@ -252,6 +265,7 @@ export interface FileRoutesByFullPath {
   '/app/$': typeof AppSplatRoute
   '/app/': typeof AppIndexRoute
   '/3d/keychain': typeof Authenticated3dKeychainRoute
+  '/3d/pricing': typeof Authenticated3dPricingRoute
   '/cashflow': typeof AuthenticatedCashierCashflowRoute
   '/inventory/$id': typeof AuthenticatedInventoryIdRoute
   '/jo/$joId': typeof AuthenticatedJoJoIdRoute
@@ -262,6 +276,7 @@ export interface FileRoutesByFullPath {
   '/jo/': typeof AuthenticatedJoIndexRoute
   '/newdrive/': typeof AuthenticatedNewdriveIndexRoute
   '/trello/': typeof AuthenticatedTrelloIndexRoute
+  '/3d/pricing/$itemId': typeof Authenticated3dPricingItemIdRoute
   '/admin/customers': typeof AuthenticatedAdminAdminCustomersRouteWithChildren
   '/admin/suppliers': typeof AuthenticatedAdminAdminSuppliersRouteWithChildren
   '/admin/users': typeof AuthenticatedAdminAdminUsersRoute
@@ -284,6 +299,7 @@ export interface FileRoutesByTo {
   '/app/$': typeof AppSplatRoute
   '/app': typeof AppIndexRoute
   '/3d/keychain': typeof Authenticated3dKeychainRoute
+  '/3d/pricing': typeof Authenticated3dPricingRoute
   '/cashflow': typeof AuthenticatedCashierCashflowRoute
   '/inventory/$id': typeof AuthenticatedInventoryIdRoute
   '/jo/$joId': typeof AuthenticatedJoJoIdRoute
@@ -294,6 +310,7 @@ export interface FileRoutesByTo {
   '/jo': typeof AuthenticatedJoIndexRoute
   '/newdrive': typeof AuthenticatedNewdriveIndexRoute
   '/trello': typeof AuthenticatedTrelloIndexRoute
+  '/3d/pricing/$itemId': typeof Authenticated3dPricingItemIdRoute
   '/admin/users': typeof AuthenticatedAdminAdminUsersRoute
   '/drive/$spaceId/{-$folderId}': typeof AuthenticatedDriveSpaceIdChar123FolderIdChar125Route
   '/drive/file/$itemId': typeof AuthenticatedDriveFileItemIdRoute
@@ -321,6 +338,7 @@ export interface FileRoutesById {
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/app/': typeof AppIndexRoute
   '/_authenticated/3d/keychain': typeof Authenticated3dKeychainRoute
+  '/_authenticated/3d/pricing': typeof Authenticated3dPricingRoute
   '/_authenticated/_cashier/cashflow': typeof AuthenticatedCashierCashflowRoute
   '/_authenticated/inventory_/$id': typeof AuthenticatedInventoryIdRoute
   '/_authenticated/jo/$joId': typeof AuthenticatedJoJoIdRoute
@@ -331,6 +349,7 @@ export interface FileRoutesById {
   '/_authenticated/jo/': typeof AuthenticatedJoIndexRoute
   '/_authenticated/newdrive/': typeof AuthenticatedNewdriveIndexRoute
   '/_authenticated/trello/': typeof AuthenticatedTrelloIndexRoute
+  '/_authenticated/3d/pricing_/$itemId': typeof Authenticated3dPricingItemIdRoute
   '/_authenticated/_admin/admin/customers': typeof AuthenticatedAdminAdminCustomersRouteWithChildren
   '/_authenticated/_admin/admin/suppliers': typeof AuthenticatedAdminAdminSuppliersRouteWithChildren
   '/_authenticated/_admin/admin/users': typeof AuthenticatedAdminAdminUsersRoute
@@ -357,6 +376,7 @@ export interface FileRouteTypes {
     | '/app/$'
     | '/app/'
     | '/3d/keychain'
+    | '/3d/pricing'
     | '/cashflow'
     | '/inventory/$id'
     | '/jo/$joId'
@@ -367,6 +387,7 @@ export interface FileRouteTypes {
     | '/jo/'
     | '/newdrive/'
     | '/trello/'
+    | '/3d/pricing/$itemId'
     | '/admin/customers'
     | '/admin/suppliers'
     | '/admin/users'
@@ -389,6 +410,7 @@ export interface FileRouteTypes {
     | '/app/$'
     | '/app'
     | '/3d/keychain'
+    | '/3d/pricing'
     | '/cashflow'
     | '/inventory/$id'
     | '/jo/$joId'
@@ -399,6 +421,7 @@ export interface FileRouteTypes {
     | '/jo'
     | '/newdrive'
     | '/trello'
+    | '/3d/pricing/$itemId'
     | '/admin/users'
     | '/drive/$spaceId/{-$folderId}'
     | '/drive/file/$itemId'
@@ -425,6 +448,7 @@ export interface FileRouteTypes {
     | '/_authenticated/'
     | '/app/'
     | '/_authenticated/3d/keychain'
+    | '/_authenticated/3d/pricing'
     | '/_authenticated/_cashier/cashflow'
     | '/_authenticated/inventory_/$id'
     | '/_authenticated/jo/$joId'
@@ -435,6 +459,7 @@ export interface FileRouteTypes {
     | '/_authenticated/jo/'
     | '/_authenticated/newdrive/'
     | '/_authenticated/trello/'
+    | '/_authenticated/3d/pricing_/$itemId'
     | '/_authenticated/_admin/admin/customers'
     | '/_authenticated/_admin/admin/suppliers'
     | '/_authenticated/_admin/admin/users'
@@ -558,6 +583,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof Authenticated3dKeychainRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/3d/pricing': {
+      id: '/_authenticated/3d/pricing'
+      path: '/3d/pricing'
+      fullPath: '/3d/pricing'
+      preLoaderRoute: typeof Authenticated3dPricingRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/_cashier/cashflow': {
       id: '/_authenticated/_cashier/cashflow'
       path: '/cashflow'
@@ -620,6 +652,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/auth/$'
       preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/3d/pricing_/$itemId': {
+      id: '/_authenticated/3d/pricing_/$itemId'
+      path: '/3d/pricing/$itemId'
+      fullPath: '/3d/pricing/$itemId'
+      preLoaderRoute: typeof Authenticated3dPricingItemIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/_admin/admin/': {
       id: '/_authenticated/_admin/admin/'
@@ -846,12 +885,14 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedNewdriveRoute: typeof AuthenticatedNewdriveRouteWithChildren
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
   Authenticated3dKeychainRoute: typeof Authenticated3dKeychainRoute
+  Authenticated3dPricingRoute: typeof Authenticated3dPricingRoute
   AuthenticatedInventoryIdRoute: typeof AuthenticatedInventoryIdRoute
   AuthenticatedJoJoIdRoute: typeof AuthenticatedJoJoIdRoute
   AuthenticatedTrelloListIdRoute: typeof AuthenticatedTrelloListIdRoute
   Authenticated3dIndexRoute: typeof Authenticated3dIndexRoute
   AuthenticatedJoIndexRoute: typeof AuthenticatedJoIndexRoute
   AuthenticatedTrelloIndexRoute: typeof AuthenticatedTrelloIndexRoute
+  Authenticated3dPricingItemIdRoute: typeof Authenticated3dPricingItemIdRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -862,12 +903,14 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedNewdriveRoute: AuthenticatedNewdriveRouteWithChildren,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
   Authenticated3dKeychainRoute: Authenticated3dKeychainRoute,
+  Authenticated3dPricingRoute: Authenticated3dPricingRoute,
   AuthenticatedInventoryIdRoute: AuthenticatedInventoryIdRoute,
   AuthenticatedJoJoIdRoute: AuthenticatedJoJoIdRoute,
   AuthenticatedTrelloListIdRoute: AuthenticatedTrelloListIdRoute,
   Authenticated3dIndexRoute: Authenticated3dIndexRoute,
   AuthenticatedJoIndexRoute: AuthenticatedJoIndexRoute,
   AuthenticatedTrelloIndexRoute: AuthenticatedTrelloIndexRoute,
+  Authenticated3dPricingItemIdRoute: Authenticated3dPricingItemIdRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
