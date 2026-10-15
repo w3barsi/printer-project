@@ -351,6 +351,24 @@ export function PrinterPresetFormDialog({
     },
   });
 
+  const handleSubmit = form.handleSubmit((values) => {
+    if (
+      preset &&
+      values.name === preset.name &&
+      values.powerWatts === preset.powerWatts &&
+      values.price === preset.price &&
+      values.lifespanHours === preset.lifespanHours
+    ) {
+      toastManager.add({
+        title: "No values were changed",
+        type: "warning",
+      });
+      return;
+    }
+
+    mutation.mutate(values);
+  });
+
   return (
     <Dialog
       open={open}
@@ -368,10 +386,7 @@ export function PrinterPresetFormDialog({
             A printer preset fills in power, price, and lifespan while pricing.
           </DialogDescription>
         </DialogHeader>
-        <form
-          onSubmit={form.handleSubmit((values) => mutation.mutate(values))}
-          className="flex flex-col gap-6"
-        >
+        <form onSubmit={handleSubmit} className="flex flex-col gap-6">
           <DialogPanel>
             <div className="flex w-full flex-col gap-7">
               <Controller
@@ -537,6 +552,18 @@ export function FilamentPresetFormDialog({
     },
   });
 
+  const handleSubmit = form.handleSubmit((values) => {
+    if (preset && values.name === preset.name && values.costPerKg === preset.costPerKg) {
+      toastManager.add({
+        title: "No values were changed",
+        type: "warning",
+      });
+      return;
+    }
+
+    mutation.mutate(values);
+  });
+
   return (
     <Dialog
       open={open}
@@ -554,10 +581,7 @@ export function FilamentPresetFormDialog({
             A filament preset fills in the cost per kilogram while pricing.
           </DialogDescription>
         </DialogHeader>
-        <form
-          onSubmit={form.handleSubmit((values) => mutation.mutate(values))}
-          className="flex flex-col gap-6"
-        >
+        <form onSubmit={handleSubmit} className="flex flex-col gap-6">
           <DialogPanel>
             <div className="flex w-full flex-col gap-7">
               <Controller
