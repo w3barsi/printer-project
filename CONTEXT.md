@@ -20,8 +20,12 @@ _Avoid_: Item, SKU, output
 The Product of the Keychain Maker: a printable Base carrying color relief and one Attachment.
 _Avoid_: Tag, charm, fob
 
+**Medal**:
+The Product of the Medal Maker: a printable Base carrying raised Offsets. Starts from a DXF Profile.
+_Avoid_: Badge, coin, plaque
+
 **Base**:
-The backing plate of a Keychain. Every Color Layer and the Attachment attach to it. Has its own thickness and color.
+The backing plate of a Keychain or Medal. Every Color Layer, Offset, and Attachment attaches to it. Has its own thickness and color.
 _Avoid_: Plate, backer, backing
 
 **Color Layer**:
@@ -44,10 +48,18 @@ _Avoid_: Flatten, bake
 The SVG reading mode that builds the Palette from the file's declared fill and stroke colors, skipping Quantization.
 _Avoid_: Vectorize, direct colors
 
+**Profile**:
+The closed outlines a DXF contributes to a Medal, in millimetres. The Medal's footprint; every Offset is measured from it.
+_Avoid_: Shape, contour, path, silhouette
+
+**Offset**:
+A raised band around a Medal, like a stroke: its width grows the object outward. Offsets stack outward in list order; each has its own thickness and color.
+_Avoid_: Ring, border, outline, bevel
+
 **Attachment**:
 An optional feature on a Keychain used to hang or carry it. Variants: Hook (raised loop joined to the Base), Hole (through-hole), Bookmark (through-hole at the tassel position).
 _Avoid_: Loop, ring, tab, hanger
 
-**Source image**:
-The PNG or SVG a Tool consumes as its input.
-_Avoid_: Upload, photo, artwork
+**Source**:
+The file a Tool consumes as its input. A PNG or SVG for the Keychain Maker; a DXF for the Medal Maker.
+_Avoid_: Source image, upload, photo, artwork

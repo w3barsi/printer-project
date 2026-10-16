@@ -23,6 +23,7 @@ import { Route as AppIndexRouteImport } from './routes/app.index'
 import { Route as AppSplatRouteImport } from './routes/app.$'
 import { Route as Authenticated3dIndexRouteImport } from './routes/_authenticated/3d.index'
 import { Route as Authenticated3dKeychainRouteImport } from './routes/_authenticated/3d.keychain'
+import { Route as Authenticated3dMedalRouteImport } from './routes/_authenticated/3d.medal'
 import { Route as Authenticated3dPricingRouteImport } from './routes/_authenticated/3d.pricing'
 import { Route as AuthenticatedCashierCashflowRouteImport } from './routes/_authenticated/_cashier/cashflow'
 import { Route as AuthenticatedDriveIndexRouteImport } from './routes/_authenticated/drive.index'
@@ -113,6 +114,11 @@ const Authenticated3dIndexRoute = Authenticated3dIndexRouteImport.update({
 const Authenticated3dKeychainRoute = Authenticated3dKeychainRouteImport.update({
   id: '/3d/keychain',
   path: '/3d/keychain',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const Authenticated3dMedalRoute = Authenticated3dMedalRouteImport.update({
+  id: '/3d/medal',
+  path: '/3d/medal',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const Authenticated3dPricingRoute = Authenticated3dPricingRouteImport.update({
@@ -265,6 +271,7 @@ export interface FileRoutesByFullPath {
   '/app/$': typeof AppSplatRoute
   '/app/': typeof AppIndexRoute
   '/3d/keychain': typeof Authenticated3dKeychainRoute
+  '/3d/medal': typeof Authenticated3dMedalRoute
   '/3d/pricing': typeof Authenticated3dPricingRoute
   '/cashflow': typeof AuthenticatedCashierCashflowRoute
   '/inventory/$id': typeof AuthenticatedInventoryIdRoute
@@ -299,6 +306,7 @@ export interface FileRoutesByTo {
   '/app/$': typeof AppSplatRoute
   '/app': typeof AppIndexRoute
   '/3d/keychain': typeof Authenticated3dKeychainRoute
+  '/3d/medal': typeof Authenticated3dMedalRoute
   '/3d/pricing': typeof Authenticated3dPricingRoute
   '/cashflow': typeof AuthenticatedCashierCashflowRoute
   '/inventory/$id': typeof AuthenticatedInventoryIdRoute
@@ -338,6 +346,7 @@ export interface FileRoutesById {
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/app/': typeof AppIndexRoute
   '/_authenticated/3d/keychain': typeof Authenticated3dKeychainRoute
+  '/_authenticated/3d/medal': typeof Authenticated3dMedalRoute
   '/_authenticated/3d/pricing': typeof Authenticated3dPricingRoute
   '/_authenticated/_cashier/cashflow': typeof AuthenticatedCashierCashflowRoute
   '/_authenticated/inventory_/$id': typeof AuthenticatedInventoryIdRoute
@@ -376,6 +385,7 @@ export interface FileRouteTypes {
     | '/app/$'
     | '/app/'
     | '/3d/keychain'
+    | '/3d/medal'
     | '/3d/pricing'
     | '/cashflow'
     | '/inventory/$id'
@@ -410,6 +420,7 @@ export interface FileRouteTypes {
     | '/app/$'
     | '/app'
     | '/3d/keychain'
+    | '/3d/medal'
     | '/3d/pricing'
     | '/cashflow'
     | '/inventory/$id'
@@ -448,6 +459,7 @@ export interface FileRouteTypes {
     | '/_authenticated/'
     | '/app/'
     | '/_authenticated/3d/keychain'
+    | '/_authenticated/3d/medal'
     | '/_authenticated/3d/pricing'
     | '/_authenticated/_cashier/cashflow'
     | '/_authenticated/inventory_/$id'
@@ -581,6 +593,13 @@ declare module '@tanstack/react-router' {
       path: '/3d/keychain'
       fullPath: '/3d/keychain'
       preLoaderRoute: typeof Authenticated3dKeychainRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/3d/medal': {
+      id: '/_authenticated/3d/medal'
+      path: '/3d/medal'
+      fullPath: '/3d/medal'
+      preLoaderRoute: typeof Authenticated3dMedalRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/3d/pricing': {
@@ -885,6 +904,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedNewdriveRoute: typeof AuthenticatedNewdriveRouteWithChildren
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
   Authenticated3dKeychainRoute: typeof Authenticated3dKeychainRoute
+  Authenticated3dMedalRoute: typeof Authenticated3dMedalRoute
   Authenticated3dPricingRoute: typeof Authenticated3dPricingRoute
   AuthenticatedInventoryIdRoute: typeof AuthenticatedInventoryIdRoute
   AuthenticatedJoJoIdRoute: typeof AuthenticatedJoJoIdRoute
@@ -903,6 +923,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedNewdriveRoute: AuthenticatedNewdriveRouteWithChildren,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
   Authenticated3dKeychainRoute: Authenticated3dKeychainRoute,
+  Authenticated3dMedalRoute: Authenticated3dMedalRoute,
   Authenticated3dPricingRoute: Authenticated3dPricingRoute,
   AuthenticatedInventoryIdRoute: AuthenticatedInventoryIdRoute,
   AuthenticatedJoJoIdRoute: AuthenticatedJoJoIdRoute,

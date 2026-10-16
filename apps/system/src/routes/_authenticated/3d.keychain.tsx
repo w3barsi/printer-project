@@ -12,7 +12,7 @@ import { BasePanel } from "@/components/3d/base-panel";
 import { ColorPickerPopover } from "@/components/3d/color-picker-popover";
 import { DetailPanel } from "@/components/3d/detail-panel";
 import { ExportPanel } from "@/components/3d/export-panel";
-import { ImageDropzone } from "@/components/3d/image-dropzone";
+import { FileDropzone } from "@/components/3d/file-dropzone";
 import { KeychainScene } from "@/components/3d/keychain-model";
 import { PalettePanel } from "@/components/3d/palette-panel";
 import { QuantizedPreview } from "@/components/3d/quantized-preview";
@@ -39,6 +39,7 @@ import {
   type PaletteSwatch,
 } from "@/lib/3d/design";
 import { build3mfBlob } from "@/lib/3d/export/3mf";
+import type { ExtrudedModel } from "@/lib/3d/export/model";
 import { buildStlBlob } from "@/lib/3d/export/stl";
 import type { KeychainGeometry } from "@/lib/3d/geometry";
 import { assignToPalette, quantize, type QuantizedImage } from "@/lib/3d/quantize";
@@ -321,17 +322,32 @@ function KeychainMakerPage() {
     setSlots(Math.min(8, Math.max(1, Math.round(next))));
   }
 
-  async function handleExport3mf() {
+  function exportModel(): ExtrudedModel | null {
     const geometry = geometryRef.current;
-    if (!geometry) return;
-    const blob = await build3mfBlob(geometry, palette, baseColor);
-    fileSaver.saveAs(blob, `${exportBaseName()}.3mf`);
+    if (!geometry) return null;
+    return {
+      title: "Keychain",
+      parts: [
+        { name: "Base", geometry: geometry.base, color: baseColor },
+        ...geometry.parts.map((part) => ({
+          name: `Color ${part.colorIndex + 1}`,
+          geometry: part.geometry,
+          color: palette[part.colorIndex] ?? baseColor,
+        })),
+      ],
+    };
+  }
+
+  async function handleExport3mf() {
+    const model = exportModel();
+    if (!model) return;
+    fileSaver.saveAs(await build3mfBlob(model), `${exportBaseName()}.3mf`);
   }
 
   function handleExportStl() {
-    const geometry = geometryRef.current;
-    if (!geometry) return;
-    fileSaver.saveAs(buildStlBlob(geometry), `${exportBaseName()}.stl`);
+    const model = exportModel();
+    if (!model) return;
+    fileSaver.saveAs(buildStlBlob(model), `${exportBaseName()}.stl`);
   }
 
   const thicknesses = palette.map((swatch) => swatch.thickness);
@@ -412,7 +428,14 @@ function KeychainMakerPage() {
                 </p>
               ) : (
                 <div className="w-full max-w-md">
-                  <ImageDropzone onFile={handleFile} disabled={isLoading} />
+                  <FileDropzone
+                    accept={{ "image/png": [".png"], "image/svg+xml": [".svg"] }}
+                    title="Drop a PNG or SVG here"
+                    hint="or click to browse. Transparent pixels are ignored."
+                    rejection="Only PNG and SVG files are supported."
+                    onFile={handleFile}
+                    disabled={isLoading}
+                  />
                 </div>
               )}
             </section>
