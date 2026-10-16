@@ -50,6 +50,8 @@ export function MedalScene({
   onLanyardChange,
 }: MedalSceneProps) {
   const [drag, setDrag] = useState<LanyardDrag | null>(null);
+  const [lanyardSelected, setLanyardSelected] = useState(false);
+  const gl = useThree((state) => state.gl);
 
   const finalProfile = useMemo(
     () => (fitToSize ? fitProfile(profile, fitMm) : profile),
@@ -68,6 +70,19 @@ export function MedalScene({
     if (drag === null) return lanyard;
     return { ...lanyard, leftContact: drag.tLeft, rightContact: drag.tRight };
   }, [lanyard, drag]);
+
+  const activeContacts = useMemo(
+    () => (drag ? { leftT: drag.tLeft, rightT: drag.tRight } : baseContacts),
+    [drag, baseContacts],
+  );
+
+  const chord = useMemo((): [Point2, Point2] | null => {
+    if (!lanyardSelected || outline.length < 3) return null;
+    return [
+      pointAtT(outline, activeContacts.leftT).point,
+      pointAtT(outline, activeContacts.rightT).point,
+    ];
+  }, [lanyardSelected, outline, activeContacts]);
 
   const model = useMemo(
     () => buildMedal(finalProfile, baseThicknessMm, offsets, activeLanyard),
@@ -105,9 +120,33 @@ export function MedalScene({
         );
       })}
       {model.lanyard ? (
-        <mesh geometry={model.lanyard}>
+        <mesh
+          geometry={model.lanyard}
+          onClick={(event) => {
+            // Ignore orbit drags and clicks that landed on a contact handle.
+            if (event.delta > 3) return;
+            if (event.intersections[0]?.object !== event.object) return;
+            setLanyardSelected((selected) => !selected);
+          }}
+          onPointerOver={(event) => {
+            if (drag !== null) return;
+            if (event.intersections[0]?.object !== event.object) return;
+            gl.domElement.style.cursor = "pointer";
+          }}
+          onPointerOut={() => {
+            if (drag === null) gl.domElement.style.cursor = "";
+          }}
+        >
           <meshStandardMaterial color={toHex(baseColor)} roughness={0.6} />
         </mesh>
+      ) : null}
+      {lanyardSelected && model.lanyardOutlines.length > 0 ? (
+        <LanyardEdges
+          outlines={model.lanyardOutlines}
+          objectOutline={outline}
+          chord={chord}
+          z={lanyard.thicknessMm + 0.05}
+        />
       ) : null}
       <LanyardOverlay
         model={model}
@@ -173,6 +212,9 @@ function LanyardOverlay({
   }
 
   function startDrag(side: ContactSide, event: ThreeEvent<PointerEvent>) {
+    // Only the left button drags feet; other buttons stay camera gestures even
+    // when they start on an (invisible) handle.
+    if (event.button !== 0) return;
     event.stopPropagation();
     if (controlsRef.current) controlsRef.current.enabled = false;
     const t = candidateFromEvent(event);
@@ -268,4 +310,65 @@ function contactDistance(outline: Point2[], aT: number, bT: number): number {
   const a = pointAtT(outline, aT).point;
   const b = pointAtT(outline, bT).point;
   return Math.hypot(b[0] - a[0], b[1] - a[1]);
+}
+
+type LanyardEdgesProps = {
+  outlines: Point2[][];
+  objectOutline: Point2[];
+  chord: [Point2, Point2] | null;
+  z: number;
+};
+
+/**
+ * The selected lanyard's edges drawn over the model: the tab boundary and
+ * hole in blue, the contact chord in amber, and the object silhouette in
+ * grey. Lines ignore depth so buried edges stay visible while positioning.
+ */
+function LanyardEdges({ outlines, objectOutline, chord, z }: LanyardEdgesProps) {
+  return (
+    <>
+      <lineLoop renderOrder={99}>
+        <bufferGeometry>
+          <bufferAttribute
+            attach="attributes-position"
+            args={[ringPositions(objectOutline, z - 0.03), 3]}
+          />
+        </bufferGeometry>
+        <lineBasicMaterial color="#94a3b8" depthTest={false} depthWrite={false} />
+      </lineLoop>
+      {outlines.map((ring, index) => (
+        <lineLoop key={index} renderOrder={100}>
+          <bufferGeometry>
+            <bufferAttribute
+              attach="attributes-position"
+              args={[ringPositions(ring, z), 3]}
+            />
+          </bufferGeometry>
+          <lineBasicMaterial color="#2563eb" depthTest={false} depthWrite={false} />
+        </lineLoop>
+      ))}
+      {chord ? (
+        <lineSegments renderOrder={101}>
+          <bufferGeometry>
+            <bufferAttribute
+              attach="attributes-position"
+              args={[ringPositions(chord, z + 0.01), 3]}
+            />
+          </bufferGeometry>
+          <lineBasicMaterial color="#f59e0b" depthTest={false} depthWrite={false} />
+        </lineSegments>
+      ) : null}
+    </>
+  );
+}
+
+function ringPositions(points: Point2[], z: number): Float32Array {
+  const positions = new Float32Array(points.length * 3);
+  for (let index = 0; index < points.length; index += 1) {
+    const [x, y] = points[index];
+    positions[index * 3] = x;
+    positions[index * 3 + 1] = y;
+    positions[index * 3 + 2] = z;
+  }
+  return positions;
 }

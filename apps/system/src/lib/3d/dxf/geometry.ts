@@ -23,6 +23,8 @@ export type MedalGeometry = {
   base: BufferGeometry;
   parts: MedalPart[];
   lanyard: BufferGeometry | null;
+  /** Boundary loops of the tab (outer + hole) for the edge overlay. */
+  lanyardOutlines: Point2[][];
   /** Distance between the lanyard contact feet; null without a tab. */
   lanyardWidthMm: number | null;
   /** Outer ring of the object after offsets, for lanyard placement. */
@@ -90,11 +92,13 @@ export function buildMedal(
   });
 
   let lanyardGeometry: BufferGeometry | null = null;
+  let lanyardOutlines: Point2[][] = [];
   let lanyardWidthMm: number | null = null;
   const tab = lanyardPolygons(outline, lanyard);
   if (tab.length > 0) {
     lanyardWidthMm = lanyardFrame(outline, lanyard).widthMm;
     lanyardGeometry = weld(extrudePolygons(tab, lanyard.thicknessMm, 0));
+    lanyardOutlines = tab.flatMap((polygon) => [polygon.outer, ...polygon.holes]);
     const tabBounds = polygonBounds(tab);
     footprint = {
       minX: Math.min(footprint.minX, tabBounds.minX),
@@ -118,6 +122,7 @@ export function buildMedal(
     base,
     parts,
     lanyard: lanyardGeometry,
+    lanyardOutlines,
     lanyardWidthMm,
     outline,
     width: footprint.maxX - footprint.minX,

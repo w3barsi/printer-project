@@ -145,6 +145,7 @@ Verify: LSP clean; no Convex/storefront/worker diffs; `three`, `dxf-parser`, `cl
 - `lanyard.ts`: contact feet (perimeter parameters) with default spacing, the chord frame (origin at the left foot, outward by the outline normals), a filleted tab ring, a stadium hole; cut with `differencePolygons`. Rooted with the same 0.4 mm bond as bands, extruded from the bed plane with its own thickness.
 - `MedalLanyardPanel`: height, hole width, hole height, thickness sliders; per-corner fillets with lock-freeze; width lock and gap-fill switches; contact-width readout; drag-to-place hint.
 - Drag: two contact handles follow the pointer along the object outline live (orbit controls suspended while dragging) and commit on release; the feet keep a 2 mm minimum separation, and with the width locked the other foot is re-solved to the same span.
+- Click to inspect: clicking the tab toggles an edge overlay — tab boundary and hole (blue), the contact chord (amber), and the object silhouette (grey). The lines ignore depth so buried edges stay visible while positioning; real clicks only (orbit drags are ignored).
 - `fillGaps`: bridges the pocket between the chord and the outline, bonded 0.4 mm into the object like the tab root.
 
 Verify: a 14×10 tab roots on the top edge with filleted outer corners and an 8×4 through-hole; dragging a foot re-aims and resizes the tab along the chord; with the width locked the span holds; over a notch, the gap fills when enabled and stays open when disabled.
@@ -171,7 +172,7 @@ Verify: a 14×10 tab roots on the top edge with filleted outer corners and an 8�
 - Drop a mm DXF (outer profile + holes + rounded corners): preview matches, readout in mm.
 - Base thickness slider changes the plate; unitless file says "assumed mm"; inches scale correctly; Fit-to-size rescales.
 - Add a 3 mm offset (1 mm thick) → a 3 mm-wide step beside the base, in the same plane; add a second 2 mm offset → it stacks outward from the first, and the readout grows accordingly.
-- Drag the lanyard's two contact feet around the outline → the tab bridges them, aims along the chord, stays rooted (bonds in), fills what it covers over a notch, and exports as a `Lanyard` object next to `Base` and `Offset N`. With Lock width on, the span holds while a foot moves.
+- Drag the lanyard's two contact feet around the outline → the tab bridges them, aims along the chord, stays rooted (bonds in), fills what it covers over a notch, and exports as a `Lanyard` object next to `Base` and `Offset N`. With Lock width on, the span holds while a foot moves; clicking the tab shows its edges over the model.
 - 3MF opens in Bambu Studio as `Base` + `Offset N` colored parts in mm; STL opens; keychain exports unchanged.
 - No Convex/storefront/worker diffs; `three` + `dxf-parser` + `clipper-lib` absent from non-3D chunks.
 

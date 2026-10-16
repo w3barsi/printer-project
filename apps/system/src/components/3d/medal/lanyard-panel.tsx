@@ -48,7 +48,7 @@ export function MedalLanyardPanel({
         <h2 className="text-sm font-medium">Lanyard</h2>
         <p className="text-xs text-muted-foreground">
           A tab with a slot for the ribbon. Drag its two contact points on the model to
-          place and aim it.
+          place and aim it; click the tab to show its edges.
         </p>
         <p className="text-xs text-muted-foreground/70">
           {widthMm !== null
