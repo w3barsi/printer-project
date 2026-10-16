@@ -1,5 +1,4 @@
-import { BufferGeometry, ExtrudeGeometry, Path, Shape } from "three";
-import { mergeVertices } from "three/addons/utils/BufferGeometryUtils.js";
+import { BufferGeometry } from "three";
 
 import {
   applyAttachmentToPolygons,
@@ -25,6 +24,7 @@ import {
   MIN_REGION_AREA_MM2,
   type BaseSettings,
 } from "./design";
+import { emptyGeometry, extrudePolygons, triangleCount, weld } from "./extrude";
 import { TRANSPARENT_INDEX, type QuantizedImage } from "./quantize";
 import { detectThinColors } from "./warnings";
 
@@ -57,7 +57,6 @@ type Bounds = {
   maxY: number;
 };
 
-const WELD_TOLERANCE = 1e-4;
 const CORNER_SEGMENTS = 8;
 const CIRCLE_SEGMENTS = 128;
 
@@ -272,12 +271,6 @@ function primaryOutline(polygons: Polygon[]): Point2[] {
   return best;
 }
 
-function emptyGeometry(): BufferGeometry {
-  const geometry = new BufferGeometry();
-  geometry.computeBoundingBox();
-  return geometry;
-}
-
 function contentBounds(quantized: QuantizedImage): Bounds | null {
   const { width, indices } = quantized;
   let minX = width;
@@ -345,46 +338,4 @@ function roundedRectPolygon(width: number, height: number, radius: number): Poin
   corner([x, y + r], [x, y], [x + r, y], false);
 
   return points;
-}
-
-function extrudePolygons(
-  polygons: Polygon[],
-  depth: number,
-  zOffset: number,
-): BufferGeometry {
-  const shapes = polygons.map(polygonToShape);
-  const geometry = new ExtrudeGeometry(shapes, { depth, bevelEnabled: false });
-  if (zOffset !== 0) geometry.translate(0, 0, zOffset);
-  return geometry;
-}
-
-function polygonToShape(polygon: Polygon): Shape {
-  const shape = new Shape();
-  const [first, ...rest] = polygon.outer;
-  shape.moveTo(first[0], first[1]);
-  for (const [x, y] of rest) shape.lineTo(x, y);
-  shape.closePath();
-
-  for (const hole of polygon.holes) {
-    const path = new Path();
-    const [holeFirst, ...holeRest] = hole;
-    path.moveTo(holeFirst[0], holeFirst[1]);
-    for (const [x, y] of holeRest) path.lineTo(x, y);
-    path.closePath();
-    shape.holes.push(path);
-  }
-
-  return shape;
-}
-
-function weld(geometry: BufferGeometry): BufferGeometry {
-  const welded = mergeVertices(geometry, WELD_TOLERANCE);
-  welded.computeBoundingBox();
-  return welded;
-}
-
-function triangleCount(geometry: BufferGeometry): number {
-  const index = geometry.getIndex();
-  if (index) return index.count / 3;
-  return (geometry.getAttribute("position")?.count ?? 0) / 3;
 }

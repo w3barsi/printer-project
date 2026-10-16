@@ -95,7 +95,8 @@ function signedArea(points: Point2[]): number {
   return area / 2;
 }
 
-function orient(points: Point2[], asHole: boolean): Point2[] {
+/** Normalises winding: outers counter-clockwise, holes clockwise. */
+export function orient(points: Point2[], asHole: boolean): Point2[] {
   const area = signedArea(points);
   const shouldReverse = asHole ? area > 0 : area < 0;
   return shouldReverse ? points.slice().reverse() : points;

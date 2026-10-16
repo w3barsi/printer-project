@@ -1,5 +1,5 @@
 import type { LucideIcon } from "lucide-react";
-import { CalculatorIcon, KeyRoundIcon } from "lucide-react";
+import { CalculatorIcon, KeyRoundIcon, MedalIcon } from "lucide-react";
 
 export type ThreeDTool = {
   id: string;
@@ -7,7 +7,7 @@ export type ThreeDTool = {
   description: string;
   icon: LucideIcon;
   product?: string;
-  to: "/3d/keychain" | "/3d/pricing";
+  to: "/3d/keychain" | "/3d/medal" | "/3d/pricing";
 };
 
 export const threeDTools: ThreeDTool[] = [
@@ -18,6 +18,14 @@ export const threeDTools: ThreeDTool[] = [
     icon: KeyRoundIcon,
     product: "Keychain",
     to: "/3d/keychain",
+  },
+  {
+    id: "medal-maker",
+    name: "Medal Maker",
+    description: "Turn a DXF outline into a layered, 3D-printable medal.",
+    icon: MedalIcon,
+    product: "Medal",
+    to: "/3d/medal",
   },
   {
     id: "pricing",

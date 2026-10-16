@@ -1,15 +1,7 @@
 import JSZip from "jszip";
-import type { BufferGeometry } from "three";
 
-import { toHex, type RgbColor } from "../color";
-import type { PaletteSwatch } from "../design";
-import type { KeychainGeometry } from "../geometry";
-
-type Part = {
-  name: string;
-  geometry: BufferGeometry;
-  color: RgbColor;
-};
+import { toHex } from "../color";
+import { hasTriangles, type ExtrudedModel, type ExtrudedPart } from "./model";
 
 const CONTENT_TYPES = `<?xml version="1.0" encoding="UTF-8"?>
 <Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
@@ -22,23 +14,8 @@ const RELS = `<?xml version="1.0" encoding="UTF-8"?>
   <Relationship Target="/3D/3dmodel.model" Id="rel-1" Type="http://schemas.microsoft.com/3dmanufacturing/2013/01/3dmodel"/>
 </Relationships>`;
 
-export async function build3mfBlob(
-  geometry: KeychainGeometry,
-  palette: PaletteSwatch[],
-  baseColor: RgbColor,
-): Promise<Blob> {
-  const parts: Part[] = [
-    ...(hasTriangles(geometry.base)
-      ? [{ name: "Base", geometry: geometry.base, color: baseColor }]
-      : []),
-    ...geometry.parts
-      .filter((part) => hasTriangles(part.geometry))
-      .map((part) => ({
-        name: `Color ${part.colorIndex + 1}`,
-        geometry: part.geometry,
-        color: palette[part.colorIndex] ?? baseColor,
-      })),
-  ];
+export async function build3mfBlob(model: ExtrudedModel): Promise<Blob> {
+  const parts = model.parts.filter((part) => hasTriangles(part.geometry));
 
   const resources = [
     `    <m:colorgroup id="1">`,
@@ -49,9 +26,9 @@ export async function build3mfBlob(
 
   const build = parts.map((_, index) => `    <item objectid="${index + 2}"/>`).join("\n");
 
-  const model = `<?xml version="1.0" encoding="UTF-8"?>
+  const modelXml = `<?xml version="1.0" encoding="UTF-8"?>
 <model unit="millimeter" xml:lang="en-US" xmlns="http://schemas.microsoft.com/3dmanufacturing/core/2015/02" xmlns:m="http://schemas.microsoft.com/3dmanufacturing/material/2015/02">
-  <metadata name="Title">Keychain</metadata>
+  <metadata name="Title">${escapeXml(model.title)}</metadata>
   <resources>
 ${resources}
   </resources>
@@ -63,12 +40,12 @@ ${build}
   const zip = new JSZip();
   zip.file("[Content_Types].xml", CONTENT_TYPES);
   zip.file("_rels/.rels", RELS);
-  zip.file("3D/3dmodel.model", model);
+  zip.file("3D/3dmodel.model", modelXml);
 
   return zip.generateAsync({ type: "blob", compression: "DEFLATE" });
 }
 
-function meshXml(objectId: number, colorIndex: number, part: Part): string {
+function meshXml(objectId: number, colorIndex: number, part: ExtrudedPart): string {
   const position = part.geometry.getAttribute("position");
   const index = part.geometry.getIndex();
   const vertices: string[] = [];
@@ -108,12 +85,6 @@ ${triangles.join("\n")}
 
 function format(value: number): string {
   return value.toFixed(4).replace(/\.?0+$/, "") || "0";
-}
-
-function hasTriangles(geometry: BufferGeometry): boolean {
-  const index = geometry.getIndex();
-  if (index) return index.count > 0;
-  return (geometry.getAttribute("position")?.count ?? 0) > 0;
 }
 
 function escapeXml(value: string): string {
