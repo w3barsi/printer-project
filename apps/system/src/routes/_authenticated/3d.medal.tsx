@@ -213,7 +213,7 @@ function MedalMakerPage() {
         <div className="flex flex-col gap-1 lg:shrink-0">
           <h1 className="text-3xl font-bold tracking-tight">Medal Maker</h1>
           <p className="text-sm text-muted-foreground">
-            Upload a DXF outline, set the base thickness, and grow the medal with raised
+            Upload a DXF outline, set the base thickness, and grow the medal outward with
             offsets.
           </p>
         </div>

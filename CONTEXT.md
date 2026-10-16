@@ -21,7 +21,7 @@ The Product of the Keychain Maker: a printable Base carrying color relief and on
 _Avoid_: Tag, charm, fob
 
 **Medal**:
-The Product of the Medal Maker: a printable Base carrying raised Offsets. Starts from a DXF Profile.
+The Product of the Medal Maker: a printable Base with Offsets beside it. Starts from a DXF Profile.
 _Avoid_: Badge, coin, plaque
 
 **Base**:
@@ -53,7 +53,7 @@ The closed outlines a DXF contributes to a Medal, in millimetres. The Medal's fo
 _Avoid_: Shape, contour, path, silhouette
 
 **Offset**:
-A raised band around a Medal, like a stroke: its width grows the object outward. Offsets stack outward in list order; each has its own thickness and color.
+A band beside a Medal, in the same plane, like a stroke: its width grows the object outward. Bands stack outward in list order; each has its own thickness and color.
 _Avoid_: Ring, border, outline, bevel
 
 **Attachment**:

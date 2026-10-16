@@ -34,14 +34,14 @@ export function MedalOffsetPanel({
       <div className="flex flex-col gap-1">
         <h2 className="text-sm font-medium">Offsets</h2>
         <p className="text-xs text-muted-foreground">
-          Raised bands around the profile. Each offset grows the medal by its width and
-          stacks outward in list order.
+          Bands beside the profile, level with the base. Each offset grows the medal by
+          its width and stacks outward in list order.
         </p>
       </div>
 
       {offsets.length === 0 ? (
         <p className="text-xs text-muted-foreground">
-          No offsets yet. Add one to give the medal a raised border.
+          No offsets yet. Add one to give the medal a border.
         </p>
       ) : (
         <ul className="flex flex-col gap-2.5">

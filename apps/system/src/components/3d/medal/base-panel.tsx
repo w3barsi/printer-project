@@ -23,7 +23,7 @@ export function MedalBasePanel({
       <div className="flex flex-col gap-1">
         <h2 className="text-sm font-medium">Base</h2>
         <p className="text-xs text-muted-foreground">
-          The plate every offset is stacked on.
+          The plate every offset grows out from, level with it on the bed.
         </p>
       </div>
 

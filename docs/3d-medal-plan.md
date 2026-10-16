@@ -1,22 +1,22 @@
 # Medal Maker — Implementation Plan
 
-Status: implemented (2026-10-16). Offsets revised the same day: they are stroke bands that grow the object outward (see Decisions). Manual browser pass and the Bambu Studio export check remain (see Acceptance).
+Status: implemented (2026-10-16). Offsets revised the same day: stroke bands beside the base that grow the object outward (see Decisions). Manual browser pass and the Bambu Studio export check remain (see Acceptance).
 
-Scope: a second Tool in the 3D section, client-only inside `apps/system`. Upload a DXF, preview it, set a Base thickness, and grow the object with any number of raised **Offsets** — stroke bands of a given width, each with its own thickness and color. Reuses the Keychain Maker's extrusion, Viewport, panels, and exporters. The DXF never leaves the browser (ADR-0001); one Tool → one Product (ADR-0002: the Medal).
+Scope: a second Tool in the 3D section, client-only inside `apps/system`. Upload a DXF, preview it, set a Base thickness, and grow the object sideways with any number of **Offsets** — stroke bands of a given width, each with its own thickness and color. Reuses the Keychain Maker's extrusion, Viewport, panels, and exporters. The DXF never leaves the browser (ADR-0001); one Tool → one Product (ADR-0002: the Medal).
 
 ## Flow
 
 - DXF text (read in the browser) → `dxf-parser` → entity walk → rings (bulges/arcs/circles/ellipses/splines flattened, open segments chained) → Clipper even-odd assembly → **Profile** (`Polygon[]` in mm, centered) + parse warnings.
 - Base = `extrudePolygons(Profile, baseThickness)`.
-- Each Offset is a **band** (stroke): the area between the Profile grown by the offsets before it and grown by its own width → extruded at its own thickness, stacked at `baseThickness − LAYER_EMBED_MM` (the same 0.1 mm embed as Color Layers) and bonded 0.4 mm into the layer beneath.
+- Each Offset is a **band** (stroke): the area between the Profile grown by the offsets before it and grown by its own width → extruded at its own thickness from the bed plane, beside the base and bonded 0.4 mm laterally into the layer it grows from.
 - Viewport preview → STL / 3MF export.
 
 ## Decisions
 
 - Product is the **Medal**; Tool is the **Medal Maker**; route `/_authenticated/3d/medal`.
-- Offsets are raised stroke bands on the Base — a Photoshop-style stroke / Fusion-style sketch offset that literally grows the object outward. Not filled plates, not full-height tiers.
+- Offsets are stroke bands beside the Base — a Photoshop-style stroke / Fusion-style sketch offset that grows the object outward in its own plane (every extrusion starts on the bed). Not filled plates, not stacked on top.
 - Bands stack outward in list order (cumulative): a 2 mm offset then a 1 mm offset widens the medal by 3 mm a side. Each row has width (0.5–20 mm, step 0.1), thickness (0.6–5 mm, step 0.2), color, and remove. New rows cycle a six-color preset (silver, gold, copper, bronze, graphite, white). The list starts empty.
-- A band bites `OFFSET_BOND_MM` (0.4 mm) into the layer beneath so the extruded solids overlap volumetrically instead of touching along coincident walls (the lateral twin of the 0.1 mm vertical embed).
+- A band bites `OFFSET_BOND_MM` (0.4 mm) into the layer it grows from so the extruded solids overlap volumetrically instead of only touching along coincident walls.
 - One new geometry dependency does both assembly and offsetting: `clipper-lib`.
   - Assembly: all rings through `Clipper.Execute(ctUnion, PolyTree, pftEvenOdd, pftEvenOdd)` — winding-independent, dissolves overlaps and self-intersections, and the PolyTree's hole flags give `Polygon { outer, holes }` directly (islands become separate outers).
   - Offsetting: `ClipperOffset.AddPaths(..., jtRound, etClosedPolygon)` + `Execute(solution, delta)`; a band is one outward and one inward pass combined with `Clipper.Execute(ctDifference, ...)`.
@@ -77,7 +77,7 @@ Verify: card and "Makes: Medal" badge appear, nav active, crumbs correct, keycha
 ### M1 — Dependency spike
 
 - Install `dxf-parser` and `clipper-lib`; confirm Vite/SSR builds accept both (CJS/UMD interop).
-- Hardcoded sample: rounded-rect ring with two holes → Clipper assembly → offset +2 mm → both extruded and rendered through the existing `Viewport` at `baseThickness − 0.1`.
+- Hardcoded sample: rounded-rect ring with two holes → Clipper assembly → offset +2 mm → base and band both extruded from the bed plane and rendered through the existing `Viewport`.
 
 Verify: `pnpm build:system`; the two new deps load only in the medal route chunk; render shows two stacked plates.
 
@@ -115,9 +115,9 @@ Verify: thickness edits change the plate; a unitless file shows the "assumed mm"
 
 - `offset.ts`: `offsetPolygons(polygons, deltaMm)`, `differencePolygons`, `bandPolygons(polygons, innerMm, outerMm)`, `cleanPolygons` (delta 0); integer scale 1e4; round joins.
 - Offset panel: rows (width, thickness, color, remove) + "Add offset"; defaults and preset cycle in `design.ts`; empty-state copy when the list is empty.
-- `geometry.ts`: `buildMedal(...)` extrudes the base and each band at `baseThickness − LAYER_EMBED_MM`, cumulative widths with a 0.4 mm bond into the layer beneath; the footprint grows with the bands.
+- `geometry.ts`: `buildMedal(...)` extrudes the base and each band from the bed plane, cumulative widths with a 0.4 mm lateral bond into the layer beneath; the footprint grows with the bands.
 
-Verify: a 2 mm band makes the object 4 mm wider; a second 1 mm band adds 2 mm more (cumulative); a hole in the profile gets a matching ring that reaches into the hole; the bands fuse (no coincident-only walls).
+Verify: a 2 mm band makes the object 4 mm wider; a second 1 mm band adds 2 mm more (cumulative); every band starts at the same z as the base; a hole in the profile gets a matching ring that reaches into the hole.
 
 ### M7 — Export
 
@@ -142,7 +142,6 @@ Verify: LSP clean; no Convex/storefront/worker diffs; `three`, `dxf-parser`, `cl
 | Splines: fit-points-only, degree > 3, ragged knots | skip entity + warning; control-polyline approximation only if users hit it                   |
 | OCS / extrusion-direction edge cases (negative Z)  | warn and skip those entities; standard OCS only in v1                                        |
 | Coincident or zero-area rings upsetting Clipper    | `cleanPolygons` (delta 0) first; drop zero-area rings                                        |
-| Band ledges overhang the base edge by their width  | widths are print-scale (≤ 20 mm); typical rims stay bridged without support                  |
 | Large DXFs stall the main thread                   | v1 stays synchronous; decimate with the existing simplify-js or move parse to a Worker later |
 
 ## Non-goals
@@ -154,7 +153,7 @@ Verify: LSP clean; no Convex/storefront/worker diffs; `three`, `dxf-parser`, `cl
 
 - Drop a mm DXF (outer profile + holes + rounded corners): preview matches, readout in mm.
 - Base thickness slider changes the plate; unitless file says "assumed mm"; inches scale correctly; Fit-to-size rescales.
-- Add a 3 mm offset (1 mm thick) → a raised rim that grows the medal by 3 mm a side; add a second 2 mm offset → it stacks outward from the first, and the readout grows accordingly.
+- Add a 3 mm offset (1 mm thick) → a 3 mm-wide step beside the base, in the same plane; add a second 2 mm offset → it stacks outward from the first, and the readout grows accordingly.
 - 3MF opens in Bambu Studio as `Base` + `Offset N` colored parts in mm; STL opens; keychain exports unchanged.
 - No Convex/storefront/worker diffs; `three` + `dxf-parser` + `clipper-lib` absent from non-3D chunks.
 

@@ -2,14 +2,13 @@ import type { BufferGeometry } from "three";
 
 import { polygonBounds } from "../attachment";
 import type { Point2, Polygon } from "../contours";
-import { LAYER_EMBED_MM } from "../design";
 import { extrudePolygons, triangleCount, weld } from "../extrude";
 import type { OffsetLayer } from "./design";
 import { bandPolygons } from "./offset";
 
 /**
- * How far each band reaches into the layer beneath it, so the extruded solids
- * overlap instead of only touching along coincident walls.
+ * How far each band reaches into the layer it grows from, so the extruded
+ * solids overlap instead of only touching along coincident walls.
  */
 const OFFSET_BOND_MM = 0.4;
 
@@ -24,7 +23,6 @@ export type MedalGeometry = {
   parts: MedalPart[];
   width: number;
   height: number;
-  baseThicknessMm: number;
   triangles: number;
 };
 
@@ -45,9 +43,9 @@ export function fitProfile(profile: Polygon[], longestSideMm: number): Polygon[]
 }
 
 /**
- * Extrudes the profile into the base and stacks every offset band on top:
- * each band is a stroke of its own width around the object grown by the
- * offsets before it, with its own thickness and the shared 0.1 mm embed.
+ * Extrudes the profile into the base and lays every offset band beside it on
+ * the same bed plane: each band is a stroke of its own width around the object
+ * grown by the offsets before it, with its own thickness.
  */
 export function buildMedal(
   profile: Polygon[],
@@ -57,7 +55,6 @@ export function buildMedal(
   if (profile.length === 0) return null;
 
   const base = weld(extrudePolygons(profile, baseThicknessMm, 0));
-  const zOffset = baseThicknessMm - LAYER_EMBED_MM;
 
   const parts: MedalPart[] = [];
   let footprint = polygonBounds(profile);
@@ -75,7 +72,7 @@ export function buildMedal(
     parts.push({
       offsetIndex: index,
       thicknessMm: offset.thicknessMm,
-      geometry: weld(extrudePolygons(band, offset.thicknessMm, zOffset)),
+      geometry: weld(extrudePolygons(band, offset.thicknessMm, 0)),
     });
 
     // Each band's outer edge encloses the previous ones, so the newest
@@ -93,7 +90,6 @@ export function buildMedal(
     parts,
     width: footprint.maxX - footprint.minX,
     height: footprint.maxY - footprint.minY,
-    baseThicknessMm,
     triangles,
   };
 }
