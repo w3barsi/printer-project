@@ -1,28 +1,42 @@
 import { cn } from "@dg/ui-coss/lib/utils";
-import { ImageUpIcon } from "lucide-react";
+import { ImageUpIcon, type LucideIcon } from "lucide-react";
 import { useState } from "react";
-import { useDropzone } from "react-dropzone";
+import { useDropzone, type Accept } from "react-dropzone";
 
-type ImageDropzoneProps = {
+type FileDropzoneProps = {
+  accept: Accept;
+  title: string;
+  hint: string;
+  /** Message shown when the drop is rejected by the accept list. */
+  rejection: string;
+  icon?: LucideIcon;
   onFile: (file: File) => void;
   disabled?: boolean;
 };
 
-export function ImageDropzone({ onFile, disabled }: ImageDropzoneProps) {
-  const [rejection, setRejection] = useState<string | null>(null);
+export function FileDropzone({
+  accept,
+  title,
+  hint,
+  rejection,
+  icon: Icon = ImageUpIcon,
+  onFile,
+  disabled,
+}: FileDropzoneProps) {
+  const [rejected, setRejected] = useState<string | null>(null);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    accept: { "image/png": [".png"], "image/svg+xml": [".svg"] },
+    accept,
     multiple: false,
     disabled,
     onDrop: (acceptedFiles) => {
       const file = acceptedFiles[0];
       if (!file) return;
-      setRejection(null);
+      setRejected(null);
       onFile(file);
     },
     onDropRejected: () => {
-      setRejection("Only PNG and SVG files are supported.");
+      setRejected(rejection);
     },
   });
 
@@ -37,13 +51,11 @@ export function ImageDropzone({ onFile, disabled }: ImageDropzoneProps) {
         )}
       >
         <input {...getInputProps()} />
-        <ImageUpIcon className="size-6 text-muted-foreground" />
-        <p className="text-sm font-medium">Drop a PNG or SVG here</p>
-        <p className="text-xs text-muted-foreground">
-          or click to browse. Transparent pixels are ignored.
-        </p>
+        <Icon className="size-6 text-muted-foreground" />
+        <p className="text-sm font-medium">{title}</p>
+        <p className="text-xs text-muted-foreground">{hint}</p>
       </div>
-      {rejection ? <p className="text-xs text-destructive">{rejection}</p> : null}
+      {rejected ? <p className="text-xs text-destructive">{rejected}</p> : null}
     </div>
   );
 }

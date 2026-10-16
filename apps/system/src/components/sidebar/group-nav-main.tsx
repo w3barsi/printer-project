@@ -76,6 +76,10 @@ function ThreeDSidebarItem() {
     from: "/_authenticated/3d/keychain",
     shouldThrow: false,
   });
+  const medalMatch = useMatch({
+    from: "/_authenticated/3d/medal",
+    shouldThrow: false,
+  });
   const pricingMatch = useMatch({
     from: "/_authenticated/3d/pricing",
     shouldThrow: false,
@@ -89,7 +93,13 @@ function ThreeDSidebarItem() {
     <SidebarMenuItem>
       <SidebarMenuButton
         tooltip="3D"
-        isActive={!!indexMatch || !!keychainMatch || !!pricingMatch || !!pricingItemMatch}
+        isActive={
+          !!indexMatch ||
+          !!keychainMatch ||
+          !!medalMatch ||
+          !!pricingMatch ||
+          !!pricingItemMatch
+        }
         render={
           <Link to="/3d" onClick={() => isMobile && setOpenMobile(false)} tabIndex={0} />
         }
