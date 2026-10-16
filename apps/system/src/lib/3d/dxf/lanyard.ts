@@ -9,7 +9,8 @@ import { differencePolygons, offsetPolygons, unionPolygons } from "./offset";
  */
 const BOND_MM = 0.4;
 const ARC_SEGMENTS = 8;
-/** Feet closer than this would make the aim direction unstable. */
+/** Feet closer than this would make the aim direction unstable — and a level
+ * pair must keep a chord that still fits a tab. */
 const MIN_CONTACT_SEPARATION_MM = 2;
 const MIN_CHORD_MM = 0.5;
 /** Gaps smaller than this are rounding noise, not worth bridging. */
@@ -103,6 +104,82 @@ export function lanyardFrame(outline: Point2[], lanyard: Lanyard): LanyardFrame 
   return { point: left, tangent, normal, widthMm, leftT, rightT };
 }
 
+/** Random-access walk over the outline: parameter t (0..1) to point. */
+function perimeterWalker(outline: Point2[]): { pointAt: (t: number) => Point2 } | null {
+  const count = outline.length;
+  if (count < 3) return null;
+
+  const cumulative = new Array<number>(count + 1);
+  cumulative[0] = 0;
+  for (let index = 0; index < count; index += 1) {
+    const a = outline[index];
+    const b = outline[(index + 1) % count];
+    cumulative[index + 1] = cumulative[index] + Math.hypot(b[0] - a[0], b[1] - a[1]);
+  }
+  const total = cumulative[count];
+  if (total <= 0) return null;
+
+  return {
+    pointAt: (t: number): Point2 => {
+      const distance = (((t % 1) + 1) % 1) * total;
+
+      let low = 0;
+      let high = count - 1;
+      while (low < high) {
+        const mid = (low + high) >> 1;
+        if (cumulative[mid + 1] < distance) low = mid + 1;
+        else high = mid;
+      }
+
+      const segment = cumulative[low + 1] - cumulative[low];
+      const local = segment > 0 ? (distance - cumulative[low]) / segment : 0;
+      const a = outline[low];
+      const b = outline[(low + 1) % count];
+      return [a[0] + (b[0] - a[0]) * local, a[1] + (b[1] - a[1]) * local];
+    },
+  };
+}
+
+/** Every parameter where `errorAt` crosses zero, in perimeter order. */
+function rootsOf(errorAt: (t: number) => number): number[] {
+  const roots: number[] = [];
+  let previousT = 0;
+  let previousError = errorAt(0);
+
+  for (let index = 1; index <= SOLVE_SAMPLES; index += 1) {
+    const t = index / SOLVE_SAMPLES;
+    const error = errorAt(t);
+    if (error < 0 !== previousError < 0) {
+      let low = previousT;
+      let high = t;
+      for (let step = 0; step < 30; step += 1) {
+        const mid = (low + high) / 2;
+        if (errorAt(mid) < 0 !== previousError < 0) high = mid;
+        else low = mid;
+      }
+      roots.push((low + high) / 2);
+    }
+    previousT = t;
+    previousError = error;
+  }
+
+  return roots;
+}
+
+/** The candidate with the smallest perimeter offset from `fromT`. */
+function nearestTo(fromT: number, candidates: number[]): number | null {
+  let best: number | null = null;
+  let bestDelta = Number.POSITIVE_INFINITY;
+  for (const candidate of candidates) {
+    const delta = Math.abs(wrapSigned(candidate - fromT));
+    if (delta < bestDelta) {
+      best = candidate;
+      bestDelta = delta;
+    }
+  }
+  return best;
+}
+
 /**
  * Finds the perimeter parameter nearest `fromT` whose point sits `widthMm`
  * away from `anchor`. Powers the width lock: when a foot moves, the other is
@@ -115,73 +192,164 @@ export function solveContactForWidth(
   anchor: Point2,
   widthMm: number,
 ): number | null {
-  const count = outline.length;
-  if (count < 3 || widthMm <= 0) return null;
+  if (widthMm <= 0) return null;
+  const walker = perimeterWalker(outline);
+  if (!walker) return null;
 
-  const cumulative = new Array<number>(count + 1);
-  cumulative[0] = 0;
-  for (let index = 0; index < count; index += 1) {
-    const a = outline[index];
-    const b = outline[(index + 1) % count];
-    cumulative[index + 1] = cumulative[index] + Math.hypot(b[0] - a[0], b[1] - a[1]);
-  }
-  const total = cumulative[count];
-  if (total <= 0) return null;
-
-  const pointAtDistance = (distance: number): Point2 => {
-    let d = distance % total;
-    if (d < 0) d += total;
-
-    let low = 0;
-    let high = count - 1;
-    while (low < high) {
-      const mid = (low + high) >> 1;
-      if (cumulative[mid + 1] < d) low = mid + 1;
-      else high = mid;
-    }
-
-    const segment = cumulative[low + 1] - cumulative[low];
-    const local = segment > 0 ? (d - cumulative[low]) / segment : 0;
-    const a = outline[low];
-    const b = outline[(low + 1) % count];
-    return [a[0] + (b[0] - a[0]) * local, a[1] + (b[1] - a[1]) * local];
-  };
-
-  const errorAt = (t: number): number => {
-    const point = pointAtDistance(t * total);
+  const roots = rootsOf((t) => {
+    const point = walker.pointAt(t);
     return Math.hypot(point[0] - anchor[0], point[1] - anchor[1]) - widthMm;
+  });
+  return nearestTo(fromT, roots);
+}
+
+/** A horizontal line within this of a flat run counts as level along it. */
+const LEVEL_EPSILON_MM = 1e-9;
+
+/**
+ * Parameters where the outline meets the horizontal line `targetY`:
+ * transversal crossings (bisected) and grid samples on flat runs, in perimeter
+ * order.
+ */
+function levelCandidates(pointAt: (t: number) => Point2, targetY: number): number[] {
+  const candidates: number[] = [];
+  const add = (t: number): void => {
+    for (let index = candidates.length - 1; index >= 0; index -= 1) {
+      if (Math.abs(wrapSigned(t - candidates[index])) < 0.25 / SOLVE_SAMPLES) return;
+    }
+    candidates.push(t);
   };
 
-  const candidates: number[] = [];
   let previousT = 0;
-  let previousError = errorAt(0);
+  let previousError = pointAt(0)[1] - targetY;
+  if (Math.abs(previousError) <= LEVEL_EPSILON_MM) add(0);
+
   for (let index = 1; index <= SOLVE_SAMPLES; index += 1) {
     const t = index / SOLVE_SAMPLES;
-    const error = errorAt(t);
+    const error = pointAt(t)[1] - targetY;
+    if (Math.abs(error) <= LEVEL_EPSILON_MM) add(t);
     if (error < 0 !== previousError < 0) {
       let low = previousT;
       let high = t;
       for (let step = 0; step < 30; step += 1) {
         const mid = (low + high) / 2;
-        if (errorAt(mid) < 0 !== previousError < 0) high = mid;
+        if (pointAt(mid)[1] - targetY < 0 !== previousError < 0) high = mid;
         else low = mid;
       }
-      candidates.push((low + high) / 2);
+      add((low + high) / 2);
     }
     previousT = t;
     previousError = error;
   }
 
+  return candidates;
+}
+
+/**
+ * Solves a level contact pair: both feet end up at the same height, so the
+ * chord is flat and aligned with the X axis. The requested height is tried
+ * first, then each foot's own height — at worst the other foot moves. Returns
+ * null when no level pair exists; the caller holds the placement instead of
+ * tilting the chord.
+ */
+export function solveLevelContacts(
+  outline: Point2[],
+  leftT: number,
+  rightT: number,
+  targetY: number,
+): ContactSides | null {
+  const walker = perimeterWalker(outline);
+  if (!walker) return null;
+  const { pointAt } = walker;
+
+  const pairAtHeight = (height: number): ContactSides | null => {
+    const candidates = levelCandidates(pointAt, height);
+    if (candidates.length < 2) return null;
+
+    const nextLeftT = nearestTo(leftT, candidates) ?? leftT;
+    const nextRightT =
+      nearestTo(
+        rightT,
+        candidates.filter((candidate) => candidate !== nextLeftT),
+      ) ?? rightT;
+    const left = pointAt(nextLeftT);
+    const right = pointAt(nextRightT);
+    if (Math.hypot(right[0] - left[0], right[1] - left[1]) < MIN_CONTACT_SEPARATION_MM) {
+      return null;
+    }
+
+    return { leftT: nextLeftT, rightT: nextRightT };
+  };
+
+  return (
+    pairAtHeight(targetY) ??
+    pairAtHeight(pointAt(leftT)[1]) ??
+    pairAtHeight(pointAt(rightT)[1])
+  );
+}
+
+/**
+ * The companion solve for an X-axis locked drag: the dragged foot stays where
+ * the pointer put it and the companion takes the nearest level spot —
+ * preferring the position a rigid slide of the pair would land on, so along a
+ * flat run the holder slides as one piece instead of pinning to a corner.
+ * Returns null when the outline offers no level spot clear of the dragged
+ * foot; the drag then holds.
+ */
+export function solveLevelCompanion(
+  outline: Point2[],
+  draggedT: number,
+  companionT: number,
+  target: Point2,
+): number | null {
+  const walker = perimeterWalker(outline);
+  if (!walker) return null;
+  const { pointAt } = walker;
+  const dragged = pointAt(draggedT);
+
   let best: number | null = null;
+  let bestDistance = Number.POSITIVE_INFINITY;
   let bestDelta = Number.POSITIVE_INFINITY;
-  for (const candidate of candidates) {
-    const delta = Math.abs(wrapSigned(candidate - fromT));
-    if (delta < bestDelta) {
+  for (const candidate of levelCandidates(pointAt, dragged[1])) {
+    const point = pointAt(candidate);
+    if (
+      Math.hypot(point[0] - dragged[0], point[1] - dragged[1]) < MIN_CONTACT_SEPARATION_MM
+    ) {
+      continue;
+    }
+    const distance = Math.hypot(point[0] - target[0], point[1] - target[1]);
+    const delta = Math.abs(wrapSigned(candidate - companionT));
+    if (
+      distance < bestDistance - 1e-9 ||
+      (distance <= bestDistance + 1e-9 && delta < bestDelta)
+    ) {
       best = candidate;
+      bestDistance = distance;
       bestDelta = delta;
     }
   }
-  return best;
+  if (best === null) return null;
+
+  // A grid hit on a flat run sits up to one step from the best spot; walk the
+  // run locally so the slide stays smooth.
+  const step = 1 / SOLVE_SAMPLES;
+  const levelAt = (t: number): boolean =>
+    Math.abs(pointAt(t)[1] - dragged[1]) <= LEVEL_EPSILON_MM;
+  const distanceAt = (t: number): number => {
+    const point = pointAt(t);
+    return Math.hypot(point[0] - target[0], point[1] - target[1]);
+  };
+
+  let low = levelAt(best - step) ? best - step : best;
+  let high = levelAt(best + step) ? best + step : best;
+  for (let index = 0; index < 24 && high - low > 1e-7; index += 1) {
+    const a = low + (high - low) / 3;
+    const b = high - (high - low) / 3;
+    if (distanceAt(a) <= distanceAt(b)) high = b;
+    else low = a;
+  }
+
+  return (low + high) / 2;
 }
 
 /**

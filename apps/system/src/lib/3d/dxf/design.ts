@@ -39,6 +39,8 @@ export type Lanyard = {
   rightContact: number | null;
   /** Dragging one foot re-solves the other so the span stays put. */
   widthLocked: boolean;
+  /** Keeps the contact chord level — flat and aligned with the X axis; needs `widthLocked`. */
+  lockToXAxis: boolean;
   /** Bridges the pocket between the tab's chord and the object outline. */
   fillGaps: boolean;
   heightMm: number;
@@ -63,6 +65,7 @@ export const DEFAULT_LANYARD: Lanyard = {
   leftContact: null,
   rightContact: null,
   widthLocked: false,
+  lockToXAxis: false,
   fillGaps: true,
   heightMm: 10,
   holeWidthMm: 8,

@@ -16,6 +16,8 @@ import {
   clampContact,
   resolveContacts,
   solveContactForWidth,
+  solveLevelCompanion,
+  solveLevelContacts,
   type ContactSides,
 } from "@/lib/3d/dxf/lanyard";
 
@@ -65,6 +67,38 @@ export function MedalScene({
     () => resolveContacts(outline, lanyard),
     [outline, lanyard],
   );
+
+  // The X-axis lock is a hard constraint, so switching it on settles the
+  // current contacts level once instead of waiting for the next drag.
+  useEffect(() => {
+    if (drag !== null || !lanyard.lockToXAxis || outline.length < 3) return;
+
+    const left = pointAtT(outline, baseContacts.leftT).point;
+    const right = pointAtT(outline, baseContacts.rightT).point;
+    if (Math.abs(left[1] - right[1]) < 1e-6) return;
+
+    const targetY = (left[1] + right[1]) / 2;
+    const solved = solveLevelContacts(
+      outline,
+      baseContacts.leftT,
+      baseContacts.rightT,
+      targetY,
+    );
+    if (!solved) return;
+    const nextLeft = pointAtT(outline, solved.leftT).point;
+    const nextRight = pointAtT(outline, solved.rightT).point;
+    const moved =
+      Math.hypot(nextLeft[0] - left[0], nextLeft[1] - left[1]) +
+      Math.hypot(nextRight[0] - right[0], nextRight[1] - right[1]);
+    // No level position available — leave the contacts alone.
+    if (moved < 1e-6) return;
+
+    onLanyardChange({
+      ...lanyard,
+      leftContact: solved.leftT,
+      rightContact: solved.rightT,
+    });
+  }, [drag, lanyard, baseContacts, outline, onLanyardChange]);
 
   const activeLanyard = useMemo(() => {
     if (drag === null) return lanyard;
@@ -221,6 +255,7 @@ function LanyardOverlay({
     if (event.button !== 0) return;
     event.stopPropagation();
     if (controlsRef.current) controlsRef.current.enabled = false;
+
     const t = candidateFromEvent(event);
     onDrag(
       side === "left"
@@ -231,6 +266,37 @@ function LanyardOverlay({
 
   function moveDrag(event: ThreeEvent<PointerEvent>) {
     if (!drag) return;
+
+    if (lanyard.lockToXAxis) {
+      // The grabbed foot follows the pointer; the companion re-solves to the
+      // same height, so the chord stays flat and aligned with the X axis.
+      const t = candidateFromEvent(event);
+      const point = pointAtT(outline, t).point;
+      const startLeft = pointAtT(outline, baseContacts.leftT).point;
+      const startRight = pointAtT(outline, baseContacts.rightT).point;
+      const width = contactDistance(outline, baseContacts.leftT, baseContacts.rightT);
+      const unitX = width > 1e-9 ? (startRight[0] - startLeft[0]) / width : 1;
+      const unitY = width > 1e-9 ? (startRight[1] - startLeft[1]) / width : 0;
+      const target: Point2 =
+        drag.side === "left"
+          ? [point[0] + unitX * width, point[1] + unitY * width]
+          : [point[0] - unitX * width, point[1] - unitY * width];
+      const companion = solveLevelCompanion(
+        outline,
+        t,
+        drag.side === "left" ? drag.tRight : drag.tLeft,
+        target,
+      );
+      // Hold the pair where it is when the outline offers no level spot.
+      if (companion === null) return;
+      onDrag(
+        drag.side === "left"
+          ? { side: drag.side, tLeft: t, tRight: companion }
+          : { side: drag.side, tLeft: companion, tRight: t },
+      );
+      return;
+    }
+
     const t = candidateFromEvent(event);
 
     if (!lanyard.widthLocked) {

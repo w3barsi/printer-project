@@ -72,6 +72,9 @@ function clampContact(t: number | null): number | null {
 function clampLanyard(lanyard: Lanyard): Lanyard {
   return {
     ...lanyard,
+    // The X-axis lock moves the holder as one piece; without the width lock it
+    // would have nothing to keep level.
+    lockToXAxis: lanyard.widthLocked && lanyard.lockToXAxis,
     leftContact: clampContact(lanyard.leftContact),
     rightContact: clampContact(lanyard.rightContact),
     heightMm: clamp(LANYARD_LIMITS.heightMm, lanyard.heightMm),

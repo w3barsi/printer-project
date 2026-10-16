@@ -136,6 +136,7 @@ Verify: user opens a medal 3MF in Bambu Studio — separate colored objects, mm,
 ### M8 — Polish and docs
 
 - Copy pass, empty/loading/error states; CONTEXT.md glossary entries; README todos mirroring milestones.
+- Shared `Viewport`: Fusion-style bed grid (5 mm cells, 25 mm majors, red X / green Z axes) behind an in-canvas toolbar toggle; defaults on, and the camera fit ignores it (`userData.skipFit`).
 - Full manual pass over every Verify line; `pnpm build:system`; chunk check.
 
 Verify: LSP clean; no Convex/storefront/worker diffs; `three`, `dxf-parser`, `clipper-lib` only in 3D route chunks.
@@ -145,10 +146,11 @@ Verify: LSP clean; no Convex/storefront/worker diffs; `three`, `dxf-parser`, `cl
 - `lanyard.ts`: contact feet (perimeter parameters) with default spacing, the chord frame (origin at the left foot, outward by the outline normals), a filleted tab ring, a stadium hole; cut with `differencePolygons`. Rooted with the same 0.4 mm bond as bands, extruded from the bed plane with its own thickness.
 - `MedalLanyardPanel`: height, hole width, hole height, thickness sliders; per-corner fillets with lock-freeze; width lock and gap-fill switches; contact-width readout; drag-to-place hint.
 - Drag: two contact handles follow the pointer along the object outline live (orbit controls suspended while dragging) and commit on release; the feet keep a 2 mm minimum separation, and with the width locked the other foot is re-solved to the same span. Moving and resizing only work while the tab is selected (click it first); only the left button drags feet, other buttons stay camera gestures.
+- Lock to X axis (needs Lock width, and the panel says so): the contact chord is always level — flat and aligned with the X axis. Dragging a foot slides it along the outline as usual while the other foot re-solves to the same height; along a flat run the pair slides as one piece. Switching it on settles the current placement level, and a height with no level pair holds the last placement instead of tilting the chord.
 - Click to inspect and edit: clicking the tab selects it and toggles the edge overlay — tab boundary and hole (blue), the contact chord (amber), and the object silhouette (grey). The lines ignore depth so buried edges stay visible while positioning; real clicks only (orbit drags are ignored).
 - `fillGaps`: bridges the pocket between the chord and the outline, bonded 0.4 mm into the object like the tab root.
 
-Verify: a 14×10 tab roots on the top edge with filleted outer corners and an 8×4 through-hole; dragging a foot re-aims and resizes the tab along the chord; with the width locked the span holds; over a notch, the gap fills when enabled and stays open when disabled.
+Verify: a 14×10 tab roots on the top edge with filleted outer corners and an 8×4 through-hole; dragging a foot re-aims and resizes the tab along the chord; with the width locked the span holds; with the X-axis lock the chord stays level — the holder slides along the outline and along a flat top without tilting; over a notch, the gap fills when enabled and stays open when disabled.
 
 ## Risks
 

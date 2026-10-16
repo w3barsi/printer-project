@@ -1,3 +1,4 @@
+import { Button } from "@dg/ui-coss/components/button";
 import {
   Canvas,
   extend,
@@ -6,8 +7,17 @@ import {
   type ThreeElement,
 } from "@react-three/fiber";
 import { ClientOnly } from "@tanstack/react-router";
-import { useEffect, useRef, type ReactNode, type RefObject } from "react";
-import { Box3, MathUtils, MOUSE, Sphere, Vector3, type PerspectiveCamera } from "three";
+import { Grid3x3Icon } from "lucide-react";
+import { useEffect, useRef, useState, type ReactNode, type RefObject } from "react";
+import {
+  Box3,
+  MathUtils,
+  MOUSE,
+  Sphere,
+  Vector3,
+  type Object3D,
+  type PerspectiveCamera,
+} from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 
 // @react-three/fiber 9.7 constructs a THREE.Clock, which three r183+ deprecates
@@ -38,6 +48,51 @@ extend({ OrbitControls });
 
 const VIEW_DIRECTION = new Vector3(0.55, 0.9, 0.75).normalize();
 
+const GRID_EXTENT_MM = 400;
+const GRID_HALF_MM = GRID_EXTENT_MM / 2;
+// Static bed axes, drawn just above the grid lines (red X, green Z).
+const X_AXIS_POSITIONS = new Float32Array([
+  -GRID_HALF_MM,
+  0.02,
+  0,
+  GRID_HALF_MM,
+  0.02,
+  0,
+]);
+const Z_AXIS_POSITIONS = new Float32Array([
+  0,
+  0.02,
+  -GRID_HALF_MM,
+  0,
+  0.02,
+  GRID_HALF_MM,
+]);
+
+/** Fusion-style bed grid: 5 mm cells with 25 mm majors and coloured axes. */
+function GroundGrid() {
+  return (
+    <group userData={{ skipFit: true }}>
+      <gridHelper args={[GRID_EXTENT_MM, GRID_EXTENT_MM / 5, "#e2e8f0", "#e2e8f0"]} />
+      <gridHelper
+        args={[GRID_EXTENT_MM, GRID_EXTENT_MM / 25, "#cbd5e1", "#cbd5e1"]}
+        position={[0, 0.01, 0]}
+      />
+      <lineSegments>
+        <bufferGeometry>
+          <bufferAttribute attach="attributes-position" args={[X_AXIS_POSITIONS, 3]} />
+        </bufferGeometry>
+        <lineBasicMaterial color="#ef4444" transparent opacity={0.55} />
+      </lineSegments>
+      <lineSegments>
+        <bufferGeometry>
+          <bufferAttribute attach="attributes-position" args={[Z_AXIS_POSITIONS, 3]} />
+        </bufferGeometry>
+        <lineBasicMaterial color="#22c55e" transparent opacity={0.55} />
+      </lineSegments>
+    </group>
+  );
+}
+
 type ViewportProps = {
   children: ReactNode;
   className?: string;
@@ -58,9 +113,13 @@ export function Viewport({
 }: ViewportProps) {
   const internalControlsRef = useRef<OrbitControls>(null);
   const controlsRef = externalControlsRef ?? internalControlsRef;
+  const [showGrid, setShowGrid] = useState(true);
 
   return (
-    <div className={className} style={{ backgroundColor: background }}>
+    <div
+      className={`relative ${className ?? ""}`}
+      style={{ backgroundColor: background }}
+    >
       <ClientOnly
         fallback={
           <div className="flex h-full w-full items-center justify-center text-sm text-muted-foreground">
@@ -76,11 +135,26 @@ export function Viewport({
           <ambientLight intensity={0.65} />
           <directionalLight position={[40, 80, 50]} intensity={1.5} />
           <directionalLight position={[-50, -30, -40]} intensity={0.35} />
+          {showGrid ? <GroundGrid /> : null}
           <group rotation={[-Math.PI / 2, 0, 0]}>{children}</group>
           <Controls controlsRef={controlsRef} />
           <FitToView controlsRef={controlsRef} fitKey={fitKey} />
         </Canvas>
       </ClientOnly>
+
+      <div className="absolute top-3 right-3 z-10 flex items-center gap-0.5 rounded-lg border bg-card/85 p-1 shadow-sm backdrop-blur-sm">
+        <Button
+          type="button"
+          variant={showGrid ? "secondary" : "ghost"}
+          size="icon-sm"
+          aria-label="Toggle grid"
+          aria-pressed={showGrid}
+          title="Grid"
+          onClick={() => setShowGrid((current) => !current)}
+        >
+          <Grid3x3Icon />
+        </Button>
+      </div>
     </div>
   );
 }
@@ -114,6 +188,15 @@ function Controls({ controlsRef }: { controlsRef: RefObject<OrbitControls | null
   );
 }
 
+/** Bounds of the model for fitting; helpers like the bed grid opt out via userData. */
+function expandFitBox(object: Object3D, box: Box3): void {
+  if (object.userData.skipFit) return;
+  if ((object as { geometry?: unknown }).geometry !== undefined) {
+    box.expandByObject(object);
+  }
+  for (const child of object.children) expandFitBox(child, box);
+}
+
 function FitToView({
   controlsRef,
   fitKey,
@@ -126,7 +209,8 @@ function FitToView({
   const hasFramed = useRef(false);
 
   useEffect(() => {
-    const box = new Box3().setFromObject(scene);
+    const box = new Box3();
+    expandFitBox(scene, box);
     if (box.isEmpty()) return;
 
     const sphere = box.getBoundingSphere(new Sphere());

@@ -71,6 +71,22 @@ export function MedalLanyardPanel({
         />
       </div>
 
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex flex-col">
+          <span className="text-xs text-muted-foreground">Lock to X axis</span>
+          <span className="text-xs text-muted-foreground/70">
+            {lanyard.widthLocked
+              ? "Keeps the tab flat and aligned to the X axis."
+              : "Requires Lock width — enable it above to use this."}
+          </span>
+        </div>
+        <Switch
+          checked={lanyard.lockToXAxis}
+          disabled={disabled || !lanyard.widthLocked}
+          onCheckedChange={(checked) => onChange({ ...lanyard, lockToXAxis: checked })}
+        />
+      </div>
+
       <SliderRow
         label="Height"
         value={lanyard.heightMm}
