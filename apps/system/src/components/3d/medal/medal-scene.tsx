@@ -154,6 +154,7 @@ export function MedalScene({
         lanyard={lanyard}
         baseContacts={baseContacts}
         drag={drag}
+        selected={lanyardSelected}
         onDrag={setDrag}
         controlsRef={controlsRef}
         onCommit={onLanyardChange}
@@ -168,6 +169,8 @@ type LanyardOverlayProps = {
   lanyard: Lanyard;
   baseContacts: ContactSides;
   drag: LanyardDrag | null;
+  /** Moving and resizing only works while the tab is selected. */
+  selected: boolean;
   onDrag: (drag: LanyardDrag | null) => void;
   controlsRef: RefObject<OrbitControls | null>;
   onCommit: (lanyard: Lanyard) => void;
@@ -180,6 +183,7 @@ function LanyardOverlay({
   lanyard,
   baseContacts,
   drag,
+  selected,
   onDrag,
   controlsRef,
   onCommit,
@@ -197,7 +201,7 @@ function LanyardOverlay({
     };
   }, [dragging, gl]);
 
-  if (outline.length < 3) return null;
+  if (!selected || outline.length < 3) return null;
 
   const leftT = drag ? drag.tLeft : baseContacts.leftT;
   const rightT = drag ? drag.tRight : baseContacts.rightT;

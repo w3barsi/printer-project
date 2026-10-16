@@ -30,7 +30,7 @@ export function MedalBasePanel({
       <SliderRow
         label="Base thickness"
         value={thicknessMm}
-        formatValue={(value) => `${value.toFixed(1)} mm`}
+        unit="mm"
         min={MEDAL_THICKNESS_LIMITS.min}
         max={MEDAL_THICKNESS_LIMITS.max}
         step={MEDAL_THICKNESS_LIMITS.step}

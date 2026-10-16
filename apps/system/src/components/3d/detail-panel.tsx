@@ -66,7 +66,6 @@ export function DetailPanel({
       <SliderRow
         label="Alpha cutoff"
         value={alphaThreshold}
-        formatValue={(value) => `${value}`}
         min={ALPHA_LIMITS.min}
         max={ALPHA_LIMITS.max}
         step={ALPHA_LIMITS.step}
@@ -77,7 +76,7 @@ export function DetailPanel({
       <SliderRow
         label="Remove specks below"
         value={speckThresholdMm2}
-        formatValue={(value) => (value === 0 ? "Off" : `${value.toFixed(1)} mm²`)}
+        unit="mm²"
         min={SPECK_LIMITS.min}
         max={SPECK_LIMITS.max}
         step={SPECK_LIMITS.step}

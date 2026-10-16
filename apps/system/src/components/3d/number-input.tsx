@@ -37,7 +37,9 @@ export function NumberInput({
         const next = event.target.value;
         setDraft(next);
         const parsed = Number(next);
-        if (next.trim() !== "" && Number.isFinite(parsed)) onChange(parsed);
+        if (next.trim() !== "" && Number.isFinite(parsed)) {
+          onChange(Math.min(max, Math.max(min, parsed)));
+        }
       }}
       onBlur={() => setDraft(null)}
     />

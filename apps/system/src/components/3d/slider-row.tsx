@@ -1,11 +1,13 @@
 import { Slider } from "@dg/ui-coss/components/slider";
 import { useEffect, useState, type ReactNode } from "react";
 
+import { NumberInput } from "@/components/3d/number-input";
+
 export type SliderRowProps = {
   label: string;
   value: number;
-  /** Formats the shown value, including the draft value while dragging. */
-  formatValue: (value: number) => string;
+  /** Unit shown after the value input, e.g. "mm". */
+  unit?: string;
   min: number;
   max: number;
   step: number;
@@ -18,7 +20,7 @@ export type SliderRowProps = {
 export function SliderRow({
   label,
   value,
-  formatValue,
+  unit,
   min,
   max,
   step,
@@ -40,7 +42,18 @@ export function SliderRow({
       <div className="flex items-center justify-between gap-2">
         <span className="text-xs text-muted-foreground">{label}</span>
         <div className="flex items-center gap-3">
-          <span className="text-xs tabular-nums">{formatValue(shown)}</span>
+          <div className="flex items-center gap-1">
+            <NumberInput
+              value={shown}
+              min={min}
+              max={max}
+              step={step}
+              label={label}
+              disabled={disabled}
+              onChange={onChange}
+            />
+            {unit ? <span className="text-xs text-muted-foreground">{unit}</span> : null}
+          </div>
           {action}
         </div>
       </div>

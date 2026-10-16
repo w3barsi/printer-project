@@ -73,7 +73,7 @@ export function MedalSourcePanel({
           <SliderRow
             label="Longest side"
             value={fitMm}
-            formatValue={(value) => `${value} mm`}
+            unit="mm"
             min={FIT_LIMITS.min}
             max={FIT_LIMITS.max}
             step={FIT_LIMITS.step}

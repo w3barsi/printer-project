@@ -82,7 +82,7 @@ export function BasePanel({
       <SliderRow
         label="Longest side"
         value={settings.longestSideMm}
-        formatValue={(value) => `${value} mm`}
+        unit="mm"
         min={BASE_LIMITS.longestSideMm.min}
         max={BASE_LIMITS.longestSideMm.max}
         step={BASE_LIMITS.longestSideMm.step}
@@ -92,7 +92,7 @@ export function BasePanel({
       <SliderRow
         label="Base thickness"
         value={settings.thicknessMm}
-        formatValue={(value) => `${value.toFixed(1)} mm`}
+        unit="mm"
         min={BASE_LIMITS.thicknessMm.min}
         max={BASE_LIMITS.thicknessMm.max}
         step={BASE_LIMITS.thicknessMm.step}
@@ -102,7 +102,7 @@ export function BasePanel({
       <SliderRow
         label="Margin"
         value={settings.marginMm}
-        formatValue={(value) => `${value.toFixed(1)} mm`}
+        unit="mm"
         min={BASE_LIMITS.marginMm.min}
         max={BASE_LIMITS.marginMm.max}
         step={BASE_LIMITS.marginMm.step}
@@ -113,7 +113,7 @@ export function BasePanel({
         <SliderRow
           label="Corner radius"
           value={radius}
-          formatValue={(value) => (autoRadius ? "Auto" : `${value.toFixed(1)} mm`)}
+          unit="mm"
           min={BASE_LIMITS.cornerRadiusMm.min}
           max={BASE_LIMITS.cornerRadiusMm.max}
           step={BASE_LIMITS.cornerRadiusMm.step}

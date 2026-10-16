@@ -47,8 +47,8 @@ export function MedalLanyardPanel({
       <div className="flex flex-col gap-1">
         <h2 className="text-sm font-medium">Lanyard</h2>
         <p className="text-xs text-muted-foreground">
-          A tab with a slot for the ribbon. Drag its two contact points on the model to
-          place and aim it; click the tab to show its edges.
+          A tab with a slot for the ribbon. Click the tab on the model to select it — its
+          edges show and its contact points become draggable to place, aim, and resize it.
         </p>
         <p className="text-xs text-muted-foreground/70">
           {widthMm !== null
@@ -74,7 +74,7 @@ export function MedalLanyardPanel({
       <SliderRow
         label="Height"
         value={lanyard.heightMm}
-        formatValue={(value) => `${value.toFixed(1)} mm`}
+        unit="mm"
         min={LANYARD_LIMITS.heightMm.min}
         max={LANYARD_LIMITS.heightMm.max}
         step={LANYARD_LIMITS.heightMm.step}
@@ -85,7 +85,7 @@ export function MedalLanyardPanel({
       <SliderRow
         label="Hole width"
         value={lanyard.holeWidthMm}
-        formatValue={(value) => `${value.toFixed(1)} mm`}
+        unit="mm"
         min={LANYARD_LIMITS.holeWidthMm.min}
         max={LANYARD_LIMITS.holeWidthMm.max}
         step={LANYARD_LIMITS.holeWidthMm.step}
@@ -96,7 +96,7 @@ export function MedalLanyardPanel({
       <SliderRow
         label="Hole height"
         value={lanyard.holeHeightMm}
-        formatValue={(value) => `${value.toFixed(1)} mm`}
+        unit="mm"
         min={LANYARD_LIMITS.holeHeightMm.min}
         max={LANYARD_LIMITS.holeHeightMm.max}
         step={LANYARD_LIMITS.holeHeightMm.step}
@@ -107,7 +107,7 @@ export function MedalLanyardPanel({
       <SliderRow
         label="Thickness"
         value={lanyard.thicknessMm}
-        formatValue={(value) => `${value.toFixed(1)} mm`}
+        unit="mm"
         min={LANYARD_LIMITS.thicknessMm.min}
         max={LANYARD_LIMITS.thicknessMm.max}
         step={LANYARD_LIMITS.thicknessMm.step}

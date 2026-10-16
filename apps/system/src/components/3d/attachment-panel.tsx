@@ -70,9 +70,9 @@ export function AttachmentPanel({
       {attachment ? (
         <>
           <SliderRow
-            label="Opening"
+            label="Opening diameter"
             value={attachment.sizeMm}
-            formatValue={(value) => `⌀ ${value.toFixed(1)} mm`}
+            unit="mm"
             min={ATTACHMENT_LIMITS.sizeMm.min}
             max={ATTACHMENT_LIMITS.sizeMm.max}
             step={ATTACHMENT_LIMITS.sizeMm.step}
@@ -89,7 +89,7 @@ export function AttachmentPanel({
             <SliderRow
               label="Offset"
               value={attachment.offsetMm}
-              formatValue={(value) => `${value.toFixed(1)} mm`}
+              unit="mm"
               min={ATTACHMENT_LIMITS.offsetMm.min}
               max={maxHookOffsetMm(attachment.sizeMm)}
               step={ATTACHMENT_LIMITS.offsetMm.step}
