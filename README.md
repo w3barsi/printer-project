@@ -51,7 +51,7 @@ Local env lives in `.env.local` (dev) and `.env.prod` (production) — both giti
 ### 3D Tools
 
 - [ ] Keychain Maker: add a silhouette base style that follows the design outline (v1 uses an auto-fitted bounding box)
-- [ ] Medal Maker: browser pass on real DXFs (mm/inches units, arcs, chaining, splines) — Profile preview, thickness, offsets
+- [ ] Medal Maker: browser pass on real DXFs (mm/inches units, arcs, chaining, splines) — Profile preview, thickness, offsets, lanyard placement
 - [ ] Medal Maker: open an exported 3MF in Bambu Studio — expect `Base` + `Offset N` objects, colors, millimetre scale
 
 ### Implement Favorites Feature

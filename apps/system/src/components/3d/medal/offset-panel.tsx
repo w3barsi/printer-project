@@ -1,8 +1,7 @@
 import { Button } from "@dg/ui-coss/components/button";
-import { Input } from "@dg/ui-coss/components/input";
 import { PlusIcon, XIcon } from "lucide-react";
-import { useState } from "react";
 
+import { NumberInput } from "@/components/3d/number-input";
 import { fromHex, toHex, type RgbColor } from "@/lib/3d/color";
 import {
   MEDAL_THICKNESS_LIMITS,
@@ -75,7 +74,7 @@ export function MedalOffsetPanel({
               <div className="flex items-center justify-between gap-2">
                 <span className="text-xs text-muted-foreground">Width</span>
                 <label className="flex items-center gap-1">
-                  <DraftNumberInput
+                  <NumberInput
                     value={offset.widthMm}
                     min={OFFSET_WIDTH_LIMITS.min}
                     max={OFFSET_WIDTH_LIMITS.max}
@@ -91,7 +90,7 @@ export function MedalOffsetPanel({
               <div className="flex items-center justify-between gap-2">
                 <span className="text-xs text-muted-foreground">Thickness</span>
                 <label className="flex items-center gap-1">
-                  <DraftNumberInput
+                  <NumberInput
                     value={offset.thicknessMm}
                     min={MEDAL_THICKNESS_LIMITS.min}
                     max={MEDAL_THICKNESS_LIMITS.max}
@@ -119,46 +118,5 @@ export function MedalOffsetPanel({
         Add offset
       </Button>
     </section>
-  );
-}
-
-/** Number input with a local draft so partial decimals type freely. */
-function DraftNumberInput({
-  value,
-  min,
-  max,
-  step,
-  label,
-  disabled,
-  onChange,
-}: {
-  value: number;
-  min: number;
-  max: number;
-  step: number;
-  label: string;
-  disabled?: boolean;
-  onChange: (value: number) => void;
-}) {
-  const [draft, setDraft] = useState<string | null>(null);
-
-  return (
-    <Input
-      type="number"
-      value={draft ?? String(value)}
-      min={min}
-      max={max}
-      step={step}
-      disabled={disabled}
-      aria-label={label}
-      className="h-7 w-16 text-xs"
-      onChange={(event) => {
-        const next = event.target.value;
-        setDraft(next);
-        const parsed = Number(next);
-        if (next.trim() !== "" && Number.isFinite(parsed)) onChange(parsed);
-      }}
-      onBlur={() => setDraft(null)}
-    />
   );
 }

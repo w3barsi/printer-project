@@ -17,6 +17,65 @@ export type OffsetLayer = {
   color: RgbColor;
 };
 
+export type LanyardCorner = "outerLeft" | "outerRight" | "innerLeft" | "innerRight";
+
+export const LANYARD_CORNERS: LanyardCorner[] = [
+  "outerLeft",
+  "outerRight",
+  "innerLeft",
+  "innerRight",
+];
+
+export type LanyardCornerSettings = {
+  filletMm: number;
+  /** Frozen until unlocked; richer lock semantics land later. */
+  locked: boolean;
+};
+
+export type Lanyard = {
+  /** Perimeter parameter (0..1) of the left contact foot; null = default span. */
+  leftContact: number | null;
+  /** Perimeter parameter (0..1) of the right contact foot; null = default span. */
+  rightContact: number | null;
+  /** Dragging one foot re-solves the other so the span stays put. */
+  widthLocked: boolean;
+  /** Bridges the pocket between the tab's chord and the object outline. */
+  fillGaps: boolean;
+  heightMm: number;
+  holeWidthMm: number;
+  holeHeightMm: number;
+  thicknessMm: number;
+  corners: Record<LanyardCorner, LanyardCornerSettings>;
+};
+
+export const LANYARD_LIMITS = {
+  heightMm: { min: 4, max: 40, step: 0.5 },
+  holeWidthMm: { min: 1, max: 40, step: 0.5 },
+  holeHeightMm: { min: 1, max: 20, step: 0.5 },
+  thicknessMm: { min: 0.6, max: 5, step: 0.2 },
+  filletMm: { min: 0, max: 20, step: 0.5 },
+} as const;
+
+/** Default distance between the contact feet until they are dragged. */
+export const DEFAULT_LANYARD_SPAN_MM = 14;
+
+export const DEFAULT_LANYARD: Lanyard = {
+  leftContact: null,
+  rightContact: null,
+  widthLocked: false,
+  fillGaps: true,
+  heightMm: 10,
+  holeWidthMm: 8,
+  holeHeightMm: 4,
+  thicknessMm: DEFAULT_MEDAL_THICKNESS_MM,
+  corners: {
+    outerLeft: { filletMm: 2, locked: false },
+    outerRight: { filletMm: 2, locked: false },
+    innerLeft: { filletMm: 0, locked: false },
+    innerRight: { filletMm: 0, locked: false },
+  },
+};
+
 /** Cycles across new offsets, medal-ish metals first. */
 export const OFFSET_COLOR_PRESETS: RgbColor[] = [
   { r: 192, g: 192, b: 192 },
@@ -31,4 +90,6 @@ export type MedalModelInfo = {
   width: number;
   height: number;
   triangles: number;
+  /** Distance between the lanyard contact feet, null without a tab. */
+  lanyardWidthMm: number | null;
 };

@@ -56,6 +56,10 @@ _Avoid_: Shape, contour, path, silhouette
 A band beside a Medal, in the same plane, like a stroke: its width grows the object outward. Bands stack outward in list order; each has its own thickness and color.
 _Avoid_: Ring, border, outline, bevel
 
+**Lanyard**:
+The section on a Medal that carries the ribbon: a filleted tab with an elongated hole. Its bottom edge spans two contact points on the object outline, which set its position, width, and orientation; the width can be locked, and the tab bridges the gap it spans into the object.
+_Avoid_: Hook, loop, eyelet, bail
+
 **Attachment**:
 An optional feature on a Keychain used to hang or carry it. Variants: Hook (raised loop joined to the Base), Hole (through-hole), Bookmark (through-hole at the tassel position).
 _Avoid_: Loop, ring, tab, hanger

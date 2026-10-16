@@ -3,8 +3,9 @@ import type { BufferGeometry } from "three";
 import { polygonBounds } from "../attachment";
 import type { Point2, Polygon } from "../contours";
 import { extrudePolygons, triangleCount, weld } from "../extrude";
-import type { OffsetLayer } from "./design";
-import { bandPolygons } from "./offset";
+import type { Lanyard, OffsetLayer } from "./design";
+import { lanyardFrame, lanyardPolygons } from "./lanyard";
+import { bandPolygons, offsetPolygons } from "./offset";
 
 /**
  * How far each band reaches into the layer it grows from, so the extruded
@@ -21,6 +22,11 @@ export type MedalPart = {
 export type MedalGeometry = {
   base: BufferGeometry;
   parts: MedalPart[];
+  lanyard: BufferGeometry | null;
+  /** Distance between the lanyard contact feet; null without a tab. */
+  lanyardWidthMm: number | null;
+  /** Outer ring of the object after offsets, for lanyard placement. */
+  outline: Point2[];
   width: number;
   height: number;
   triangles: number;
@@ -43,18 +49,21 @@ export function fitProfile(profile: Polygon[], longestSideMm: number): Polygon[]
 }
 
 /**
- * Extrudes the profile into the base and lays every offset band beside it on
- * the same bed plane: each band is a stroke of its own width around the object
- * grown by the offsets before it, with its own thickness.
+ * Extrudes the profile into the base, lays every offset band beside it on the
+ * bed plane, and roots the lanyard tab on the object's outer edge. Bands and
+ * tab are strokes around the object grown by the offsets before them, each
+ * with its own thickness.
  */
 export function buildMedal(
   profile: Polygon[],
   baseThicknessMm: number,
   offsets: OffsetLayer[],
+  lanyard: Lanyard,
 ): MedalGeometry | null {
   if (profile.length === 0) return null;
 
   const base = weld(extrudePolygons(profile, baseThicknessMm, 0));
+  const outline = medalOutline(profile, offsets);
 
   const parts: MedalPart[] = [];
   let footprint = polygonBounds(profile);
@@ -80,7 +89,27 @@ export function buildMedal(
     footprint = polygonBounds(band);
   });
 
-  const triangles = [base, ...parts.map((part) => part.geometry)].reduce(
+  let lanyardGeometry: BufferGeometry | null = null;
+  let lanyardWidthMm: number | null = null;
+  const tab = lanyardPolygons(outline, lanyard);
+  if (tab.length > 0) {
+    lanyardWidthMm = lanyardFrame(outline, lanyard).widthMm;
+    lanyardGeometry = weld(extrudePolygons(tab, lanyard.thicknessMm, 0));
+    const tabBounds = polygonBounds(tab);
+    footprint = {
+      minX: Math.min(footprint.minX, tabBounds.minX),
+      minY: Math.min(footprint.minY, tabBounds.minY),
+      maxX: Math.max(footprint.maxX, tabBounds.maxX),
+      maxY: Math.max(footprint.maxY, tabBounds.maxY),
+    };
+  }
+
+  const meshes = [
+    base,
+    ...parts.map((part) => part.geometry),
+    ...(lanyardGeometry ? [lanyardGeometry] : []),
+  ];
+  const triangles = meshes.reduce(
     (total, geometry) => total + triangleCount(geometry),
     0,
   );
@@ -88,8 +117,34 @@ export function buildMedal(
   return {
     base,
     parts,
+    lanyard: lanyardGeometry,
+    lanyardWidthMm,
+    outline,
     width: footprint.maxX - footprint.minX,
     height: footprint.maxY - footprint.minY,
     triangles,
   };
+}
+
+/** The object's primary outer ring: the profile grown by every offset width. */
+export function medalOutline(profile: Polygon[], offsets: OffsetLayer[]): Point2[] {
+  let grownMm = 0;
+  for (const offset of offsets) grownMm += offset.widthMm;
+  return primaryOutline(grownMm > 0 ? offsetPolygons(profile, grownMm) : profile);
+}
+
+function primaryOutline(polygons: Polygon[]): Point2[] {
+  let best: Point2[] = [];
+  let bestArea = 0;
+
+  for (const polygon of polygons) {
+    const bounds = polygonBounds([polygon]);
+    const area = (bounds.maxX - bounds.minX) * (bounds.maxY - bounds.minY);
+    if (area > bestArea) {
+      best = polygon.outer;
+      bestArea = area;
+    }
+  }
+
+  return best;
 }

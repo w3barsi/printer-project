@@ -82,6 +82,26 @@ export function cleanPolygons(polygons: Polygon[]): Polygon[] {
   return assemblePolygons(ringsOf(polygons));
 }
 
+/** True union of two normalised polygon sets (overlaps stay filled). */
+export function unionPolygons(a: Polygon[], b: Polygon[]): Polygon[] {
+  if (a.length === 0) return b;
+  if (b.length === 0) return a;
+
+  const clipper = new ClipperLib.Clipper();
+  clipper.AddPaths(toPaths(ringsOf(a)), ClipperLib.PolyType.ptSubject, true);
+  clipper.AddPaths(toPaths(ringsOf(b)), ClipperLib.PolyType.ptClip, true);
+
+  const tree = new ClipperLib.PolyTree();
+  clipper.Execute(
+    ClipperLib.ClipType.ctUnion,
+    tree,
+    ClipperLib.PolyFillType.pftNonZero,
+    ClipperLib.PolyFillType.pftNonZero,
+  );
+
+  return polyTreeToPolygons(tree);
+}
+
 /**
  * Subtracts the cutter polygons from the subject polygons. Inputs are expected
  * to be normalised Polygons (outers counter-clockwise, holes clockwise).

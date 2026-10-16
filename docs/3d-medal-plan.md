@@ -1,6 +1,6 @@
 # Medal Maker — Implementation Plan
 
-Status: implemented (2026-10-16). Offsets revised the same day: stroke bands beside the base that grow the object outward (see Decisions). Manual browser pass and the Bambu Studio export check remain (see Acceptance).
+Status: implemented (2026-10-16). Offsets revised the same day: stroke bands beside the base that grow the object outward (see Decisions). Lanyard section added the same day (M9). Manual browser pass and the Bambu Studio export check remain (see Acceptance).
 
 Scope: a second Tool in the 3D section, client-only inside `apps/system`. Upload a DXF, preview it, set a Base thickness, and grow the object sideways with any number of **Offsets** — stroke bands of a given width, each with its own thickness and color. Reuses the Keychain Maker's extrusion, Viewport, panels, and exporters. The DXF never leaves the browser (ADR-0001); one Tool → one Product (ADR-0002: the Medal).
 
@@ -17,6 +17,10 @@ Scope: a second Tool in the 3D section, client-only inside `apps/system`. Upload
 - Offsets are stroke bands beside the Base — a Photoshop-style stroke / Fusion-style sketch offset that grows the object outward in its own plane (every extrusion starts on the bed). Not filled plates, not stacked on top.
 - Bands stack outward in list order (cumulative): a 2 mm offset then a 1 mm offset widens the medal by 3 mm a side. Each row has width (0.5–20 mm, step 0.1), thickness (0.6–5 mm, step 0.2), color, and remove. New rows cycle a six-color preset (silver, gold, copper, bronze, graphite, white). The list starts empty.
 - A band bites `OFFSET_BOND_MM` (0.4 mm) into the layer it grows from so the extruded solids overlap volumetrically instead of only touching along coincident walls.
+- The **Lanyard** is a filleted tab with a stadium hole rooted on the object outline (after offsets) by **two contact points**: the bottom edge spans from the left foot to the right foot and the tab extends outward from that chord. The feet set position, width, and orientation; a generous overlap merges the tab into the object — placed across a notch, it fills the area it covers.
+- Lanyard parameters: height, hole width, hole height, thickness, and a fillet per corner with a per-corner lock (locked = frozen; richer lock rules deferred). Width is the distance between the contacts, shown in the panel. The tab renders and exports in the base color, named `Lanyard`.
+- Width can be locked: dragging one foot re-solves the other along the outline at the same span (nearest solution to where it was).
+- `fillGaps` (default on) bridges the pocket between the chord and the object outline: the smaller of the two arc remainders wins, so a bridging tab never swallows the body on the far side, and sub-millimetre slivers are ignored.
 - One new geometry dependency does both assembly and offsetting: `clipper-lib`.
   - Assembly: all rings through `Clipper.Execute(ctUnion, PolyTree, pftEvenOdd, pftEvenOdd)` — winding-independent, dissolves overlaps and self-intersections, and the PolyTree's hole flags give `Polygon { outer, holes }` directly (islands become separate outers).
   - Offsetting: `ClipperOffset.AddPaths(..., jtRound, etClosedPolygon)` + `Execute(solution, delta)`; a band is one outward and one inward pass combined with `Clipper.Execute(ctDifference, ...)`.
@@ -36,14 +40,17 @@ New:
 apps/system/src/lib/3d/dxf/parse.ts       DXF text → rings → Clipper assembly → Profile + warnings
 apps/system/src/lib/3d/dxf/curves.ts      bulge/arc/circle/ellipse sampling, de Boor splines, chaining
 apps/system/src/lib/3d/dxf/offset.ts      clipper-lib wrappers: assemble, clean, offset, band, difference
-apps/system/src/lib/3d/dxf/design.ts      defaults, limits, offset color presets
-apps/system/src/lib/3d/dxf/geometry.ts    buildMedal(profile, thickness, offsets) → MedalGeometry
+apps/system/src/lib/3d/dxf/lanyard.ts     contact feet, chord frame, filleted tab ring, stadium hole
+apps/system/src/lib/3d/dxf/design.ts      defaults, limits, offset color presets, lanyard defaults
+apps/system/src/lib/3d/dxf/geometry.ts    buildMedal(profile, thickness, offsets, lanyard) → MedalGeometry
 apps/system/src/lib/3d/dxf/warnings.ts    parse issues → ModelWarning[]
 apps/system/src/lib/3d/extrude.ts         shared extrudePolygons/polygonToShape/weld (moved out of geometry.ts)
-apps/system/src/components/3d/medal/medal-scene.tsx    R3F meshes: base + offsets
+apps/system/src/components/3d/number-input.tsx         draft-aware number input (lifted from offset-panel)
+apps/system/src/components/3d/medal/medal-scene.tsx    R3F meshes: base + offsets + lanyard, drag-to-place
 apps/system/src/components/3d/medal/source-panel.tsx   file, units note, fit-to-size, readout
 apps/system/src/components/3d/medal/base-panel.tsx     base thickness + color
 apps/system/src/components/3d/medal/offset-panel.tsx   offset list UI
+apps/system/src/components/3d/medal/lanyard-panel.tsx  lanyard parameters + corner fillets
 apps/system/src/routes/_authenticated/3d.medal.tsx     page shell + state
 docs/3d-medal-plan.md                                  this file
 ```
@@ -133,6 +140,15 @@ Verify: user opens a medal 3MF in Bambu Studio — separate colored objects, mm,
 
 Verify: LSP clean; no Convex/storefront/worker diffs; `three`, `dxf-parser`, `clipper-lib` only in 3D route chunks.
 
+### M9 — Lanyard section
+
+- `lanyard.ts`: contact feet (perimeter parameters) with default spacing, the chord frame (origin at the left foot, outward by the outline normals), a filleted tab ring, a stadium hole; cut with `differencePolygons`. Rooted with the same 0.4 mm bond as bands, extruded from the bed plane with its own thickness.
+- `MedalLanyardPanel`: height, hole width, hole height, thickness sliders; per-corner fillets with lock-freeze; width lock and gap-fill switches; contact-width readout; drag-to-place hint.
+- Drag: two contact handles follow the pointer along the object outline live (orbit controls suspended while dragging) and commit on release; the feet keep a 2 mm minimum separation, and with the width locked the other foot is re-solved to the same span.
+- `fillGaps`: bridges the pocket between the chord and the outline, bonded 0.4 mm into the object like the tab root.
+
+Verify: a 14×10 tab roots on the top edge with filleted outer corners and an 8×4 through-hole; dragging a foot re-aims and resizes the tab along the chord; with the width locked the span holds; over a notch, the gap fills when enabled and stays open when disabled.
+
 ## Risks
 
 | Risk                                               | Fallback                                                                                     |
@@ -146,14 +162,16 @@ Verify: LSP clean; no Convex/storefront/worker diffs; `three`, `dxf-parser`, `cl
 
 ## Non-goals
 
-- No ribbon hole / attachment, no text engraving, no DXF writing, no blocks/INSERTs, no DXF-layer map, no 2D canvas overlay, no per-offset thin-feature checks.
+- No Keychain-style attachment variants (hook, bookmark) on the Medal; no text engraving, no DXF writing, no blocks/INSERTs, no DXF-layer map, no 2D canvas overlay, no per-offset thin-feature checks.
 - No persistence, Convex, storefront, or worker changes (ADR-0001). No tests (repo rule).
+- Corner-lock semantics beyond freezing a fillet are deferred until the details land.
 
 ## Acceptance
 
 - Drop a mm DXF (outer profile + holes + rounded corners): preview matches, readout in mm.
 - Base thickness slider changes the plate; unitless file says "assumed mm"; inches scale correctly; Fit-to-size rescales.
 - Add a 3 mm offset (1 mm thick) → a 3 mm-wide step beside the base, in the same plane; add a second 2 mm offset → it stacks outward from the first, and the readout grows accordingly.
+- Drag the lanyard's two contact feet around the outline → the tab bridges them, aims along the chord, stays rooted (bonds in), fills what it covers over a notch, and exports as a `Lanyard` object next to `Base` and `Offset N`. With Lock width on, the span holds while a foot moves.
 - 3MF opens in Bambu Studio as `Base` + `Offset N` colored parts in mm; STL opens; keychain exports unchanged.
 - No Convex/storefront/worker diffs; `three` + `dxf-parser` + `clipper-lib` absent from non-3D chunks.
 

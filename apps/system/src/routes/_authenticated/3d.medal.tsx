@@ -4,10 +4,12 @@ import { format } from "date-fns";
 import fileSaver from "file-saver";
 import { ChevronDownIcon, SplineIcon } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
+import type { OrbitControls } from "three/addons/controls/OrbitControls.js";
 
 import { ExportPanel } from "@/components/3d/export-panel";
 import { FileDropzone } from "@/components/3d/file-dropzone";
 import { MedalBasePanel } from "@/components/3d/medal/base-panel";
+import { MedalLanyardPanel } from "@/components/3d/medal/lanyard-panel";
 import { MedalScene } from "@/components/3d/medal/medal-scene";
 import { MedalOffsetPanel } from "@/components/3d/medal/offset-panel";
 import { MedalSourcePanel } from "@/components/3d/medal/source-panel";
@@ -18,13 +20,17 @@ import { type RgbColor } from "@/lib/3d/color";
 import { DEFAULT_BASE_COLOR } from "@/lib/3d/design";
 import {
   DEFAULT_FIT_MM,
+  DEFAULT_LANYARD,
   DEFAULT_MEDAL_THICKNESS_MM,
   DEFAULT_OFFSET_THICKNESS_MM,
   DEFAULT_OFFSET_WIDTH_MM,
   FIT_LIMITS,
+  LANYARD_LIMITS,
   MEDAL_THICKNESS_LIMITS,
   OFFSET_COLOR_PRESETS,
   OFFSET_WIDTH_LIMITS,
+  type Lanyard,
+  type LanyardCornerSettings,
   type MedalModelInfo,
   type OffsetLayer,
 } from "@/lib/3d/dxf/design";
@@ -54,8 +60,36 @@ function clamp(limits: Limit, value: number): number {
   return Math.min(limits.max, Math.max(limits.min, value));
 }
 
+function clampCorner(settings: LanyardCornerSettings): LanyardCornerSettings {
+  return { ...settings, filletMm: clamp(LANYARD_LIMITS.filletMm, settings.filletMm) };
+}
+
+function clampContact(t: number | null): number | null {
+  if (t === null || !Number.isFinite(t)) return null;
+  return ((t % 1) + 1) % 1;
+}
+
+function clampLanyard(lanyard: Lanyard): Lanyard {
+  return {
+    ...lanyard,
+    leftContact: clampContact(lanyard.leftContact),
+    rightContact: clampContact(lanyard.rightContact),
+    heightMm: clamp(LANYARD_LIMITS.heightMm, lanyard.heightMm),
+    holeWidthMm: clamp(LANYARD_LIMITS.holeWidthMm, lanyard.holeWidthMm),
+    holeHeightMm: clamp(LANYARD_LIMITS.holeHeightMm, lanyard.holeHeightMm),
+    thicknessMm: clamp(LANYARD_LIMITS.thicknessMm, lanyard.thicknessMm),
+    corners: {
+      outerLeft: clampCorner(lanyard.corners.outerLeft),
+      outerRight: clampCorner(lanyard.corners.outerRight),
+      innerLeft: clampCorner(lanyard.corners.innerLeft),
+      innerRight: clampCorner(lanyard.corners.innerRight),
+    },
+  };
+}
+
 function MedalMakerPage() {
   const geometryRef = useRef<MedalGeometry | null>(null);
+  const controlsRef = useRef<OrbitControls | null>(null);
   const sidebarRef = useRef<HTMLElement>(null);
   const sidebarEndRef = useRef<HTMLDivElement>(null);
   const [hasMoreOptions, setHasMoreOptions] = useState(false);
@@ -64,6 +98,7 @@ function MedalMakerPage() {
   const [baseThicknessMm, setBaseThicknessMm] = useState(DEFAULT_MEDAL_THICKNESS_MM);
   const [baseColor, setBaseColor] = useState<RgbColor>(DEFAULT_BASE_COLOR);
   const [offsets, setOffsets] = useState<OffsetLayer[]>([]);
+  const [lanyard, setLanyard] = useState<Lanyard>(DEFAULT_LANYARD);
   const [fitToSize, setFitToSize] = useState(false);
   const [fitMm, setFitMm] = useState(DEFAULT_FIT_MM);
   const [modelInfo, setModelInfo] = useState<MedalModelInfo | null>(null);
@@ -167,6 +202,10 @@ function MedalMakerPage() {
     );
   }
 
+  function handleLanyardChange(next: Lanyard) {
+    setLanyard(clampLanyard(next));
+  }
+
   function exportModel(): ExtrudedModel | null {
     const model = geometryRef.current;
     if (!model) return null;
@@ -179,6 +218,9 @@ function MedalMakerPage() {
           geometry: part.geometry,
           color: offsets[part.offsetIndex]?.color ?? baseColor,
         })),
+        ...(model.lanyard
+          ? [{ name: "Lanyard", geometry: model.lanyard, color: baseColor }]
+          : []),
       ],
     };
   }
@@ -228,6 +270,7 @@ function MedalMakerPage() {
               <Viewport
                 fitKey={modelVersion}
                 background="#ffffff"
+                controlsRef={controlsRef}
                 className="h-[70svh] min-h-100 w-full overflow-hidden rounded-lg border bg-card lg:h-full lg:min-h-0"
               >
                 <MedalScene
@@ -235,10 +278,13 @@ function MedalMakerPage() {
                   baseThicknessMm={baseThicknessMm}
                   baseColor={baseColor}
                   offsets={offsets}
+                  lanyard={lanyard}
                   fitToSize={fitToSize}
                   fitMm={fitMm}
                   geometryRef={geometryRef}
+                  controlsRef={controlsRef}
                   onModelInfo={setModelInfo}
+                  onLanyardChange={handleLanyardChange}
                 />
               </Viewport>
             </div>
@@ -297,6 +343,13 @@ function MedalMakerPage() {
               onWidthChange={handleOffsetWidthChange}
               onThicknessChange={handleOffsetThicknessChange}
               onColorChange={handleOffsetColorChange}
+            />
+
+            <MedalLanyardPanel
+              lanyard={lanyard}
+              widthMm={modelInfo?.lanyardWidthMm ?? null}
+              disabled={isLoading}
+              onChange={handleLanyardChange}
             />
 
             <WarningsPanel warnings={warnings} />
