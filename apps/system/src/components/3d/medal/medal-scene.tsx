@@ -14,15 +14,19 @@ import {
 } from "@/lib/3d/dxf/geometry";
 import {
   clampContact,
-  resolveContacts,
-  solveContactForWidth,
-  solveLevelCompanion,
-  solveLevelContacts,
-  type ContactSides,
+  levelContacts,
+  resolveLanyardContacts,
+  type LanyardContacts,
 } from "@/lib/3d/dxf/lanyard";
 
 type ContactSide = "left" | "right";
-type LanyardDrag = { side: ContactSide; tLeft: number; tRight: number };
+type LanyardDrag = {
+  side: ContactSide;
+  startPointer: Point2;
+  start: LanyardContacts;
+  left: Point2;
+  right: Point2;
+};
 
 type MedalSceneProps = {
   profile: Polygon[];
@@ -64,58 +68,34 @@ export function MedalScene({
     [finalProfile, offsets],
   );
   const baseContacts = useMemo(
-    () => resolveContacts(outline, lanyard),
+    () => resolveLanyardContacts(outline, lanyard),
     [outline, lanyard],
   );
 
-  // The X-axis lock is a hard constraint, so switching it on settles the
-  // current contacts level once instead of waiting for the next drag.
+  // Switching the X-axis lock on settles the current contacts level once
+  // instead of waiting for the next drag; a locked pair stays level after.
   useEffect(() => {
-    if (drag !== null || !lanyard.lockToXAxis || outline.length < 3) return;
+    if (drag !== null || !lanyard.lockToXAxis) return;
 
-    const left = pointAtT(outline, baseContacts.leftT).point;
-    const right = pointAtT(outline, baseContacts.rightT).point;
-    if (Math.abs(left[1] - right[1]) < 1e-6) return;
+    const leveled = levelContacts(baseContacts);
+    if (leveled === baseContacts) return;
 
-    const targetY = (left[1] + right[1]) / 2;
-    const solved = solveLevelContacts(
-      outline,
-      baseContacts.leftT,
-      baseContacts.rightT,
-      targetY,
-    );
-    if (!solved) return;
-    const nextLeft = pointAtT(outline, solved.leftT).point;
-    const nextRight = pointAtT(outline, solved.rightT).point;
-    const moved =
-      Math.hypot(nextLeft[0] - left[0], nextLeft[1] - left[1]) +
-      Math.hypot(nextRight[0] - right[0], nextRight[1] - right[1]);
-    // No level position available — leave the contacts alone.
-    if (moved < 1e-6) return;
-
-    onLanyardChange({
-      ...lanyard,
-      leftContact: solved.leftT,
-      rightContact: solved.rightT,
-    });
-  }, [drag, lanyard, baseContacts, outline, onLanyardChange]);
+    onLanyardChange({ ...lanyard, leftPoint: leveled.left, rightPoint: leveled.right });
+  }, [drag, lanyard, baseContacts, onLanyardChange]);
 
   const activeLanyard = useMemo(() => {
     if (drag === null) return lanyard;
-    return { ...lanyard, leftContact: drag.tLeft, rightContact: drag.tRight };
+    return { ...lanyard, leftPoint: drag.left, rightPoint: drag.right };
   }, [lanyard, drag]);
 
   const activeContacts = useMemo(
-    () => (drag ? { leftT: drag.tLeft, rightT: drag.tRight } : baseContacts),
+    () => (drag ? { left: drag.left, right: drag.right } : baseContacts),
     [drag, baseContacts],
   );
 
   const chord = useMemo((): [Point2, Point2] | null => {
     if (!lanyardSelected || outline.length < 3) return null;
-    return [
-      pointAtT(outline, activeContacts.leftT).point,
-      pointAtT(outline, activeContacts.rightT).point,
-    ];
+    return [activeContacts.left, activeContacts.right];
   }, [lanyardSelected, outline, activeContacts]);
 
   const model = useMemo(
@@ -201,16 +181,19 @@ type LanyardOverlayProps = {
   model: MedalGeometry;
   outline: Point2[];
   lanyard: Lanyard;
-  baseContacts: ContactSides;
+  baseContacts: LanyardContacts;
   drag: LanyardDrag | null;
-  /** Moving and resizing only works while the tab is selected. */
+  /** Moving the tab only works while it is selected. */
   selected: boolean;
   onDrag: (drag: LanyardDrag | null) => void;
   controlsRef: RefObject<OrbitControls | null>;
   onCommit: (lanyard: Lanyard) => void;
 };
 
-/** Drag either contact foot along the outline; the model follows live. */
+/**
+ * Drag the contact feet; the model follows live. With the width locked the
+ * tab moves as one piece and the feet may leave the outline.
+ */
 function LanyardOverlay({
   model,
   outline,
@@ -237,101 +220,63 @@ function LanyardOverlay({
 
   if (!selected || outline.length < 3) return null;
 
-  const leftT = drag ? drag.tLeft : baseContacts.leftT;
-  const rightT = drag ? drag.tRight : baseContacts.rightT;
-  const leftPoint = pointAtT(outline, leftT).point;
-  const rightPoint = pointAtT(outline, rightT).point;
+  const leftPoint = drag ? drag.left : baseContacts.left;
+  const rightPoint = drag ? drag.right : baseContacts.right;
   const handleZ = lanyard.thicknessMm + 0.02;
   const handleRadius = Math.max(4, lanyard.heightMm / 2);
 
-  function candidateFromEvent(event: ThreeEvent<PointerEvent>): number {
-    const point: Point2 = [event.point.x, -event.point.z];
-    return nearestOutlineT(outline, point).t;
+  function pointerPoint(event: ThreeEvent<PointerEvent>): Point2 {
+    return [event.point.x, -event.point.z];
   }
 
   function startDrag(side: ContactSide, event: ThreeEvent<PointerEvent>) {
-    // Only the left button drags feet; other buttons stay camera gestures even
-    // when they start on an (invisible) handle.
+    // Only the left button drags the tab; other buttons stay camera gestures
+    // even when they start on an (invisible) handle.
     if (event.button !== 0) return;
     event.stopPropagation();
     if (controlsRef.current) controlsRef.current.enabled = false;
 
-    const t = candidateFromEvent(event);
-    onDrag(
-      side === "left"
-        ? { side, tLeft: t, tRight: baseContacts.rightT }
-        : { side, tLeft: baseContacts.leftT, tRight: t },
-    );
+    const pointer = pointerPoint(event);
+    onDrag({
+      side,
+      startPointer: pointer,
+      start: baseContacts,
+      left: baseContacts.left,
+      right: baseContacts.right,
+    });
   }
 
   function moveDrag(event: ThreeEvent<PointerEvent>) {
     if (!drag) return;
+    const pointer = pointerPoint(event);
 
-    if (lanyard.lockToXAxis) {
-      // The grabbed foot follows the pointer; the companion re-solves to the
-      // same height, so the chord stays flat and aligned with the X axis.
-      const t = candidateFromEvent(event);
-      const point = pointAtT(outline, t).point;
-      const startLeft = pointAtT(outline, baseContacts.leftT).point;
-      const startRight = pointAtT(outline, baseContacts.rightT).point;
-      const width = contactDistance(outline, baseContacts.leftT, baseContacts.rightT);
-      const unitX = width > 1e-9 ? (startRight[0] - startLeft[0]) / width : 1;
-      const unitY = width > 1e-9 ? (startRight[1] - startLeft[1]) / width : 0;
-      const target: Point2 =
-        drag.side === "left"
-          ? [point[0] + unitX * width, point[1] + unitY * width]
-          : [point[0] - unitX * width, point[1] - unitY * width];
-      const companion = solveLevelCompanion(
-        outline,
-        t,
-        drag.side === "left" ? drag.tRight : drag.tLeft,
-        target,
-      );
-      // Hold the pair where it is when the outline offers no level spot.
-      if (companion === null) return;
-      onDrag(
-        drag.side === "left"
-          ? { side: drag.side, tLeft: t, tRight: companion }
-          : { side: drag.side, tLeft: companion, tRight: t },
-      );
+    if (lanyard.widthLocked) {
+      // The tab moves as one piece: translate the pair with the pointer, so
+      // the span and the angle never change. The feet may leave the model —
+      // the gap fill bridges whatever hangs off it.
+      const dx = pointer[0] - drag.startPointer[0];
+      const dy = pointer[1] - drag.startPointer[1];
+      onDrag({
+        ...drag,
+        left: [drag.start.left[0] + dx, drag.start.left[1] + dy],
+        right: [drag.start.right[0] + dx, drag.start.right[1] + dy],
+      });
       return;
     }
 
-    const t = candidateFromEvent(event);
-
-    if (!lanyard.widthLocked) {
-      onDrag(
-        drag.side === "left"
-          ? {
-              side: drag.side,
-              tLeft: clampContact(t, drag.tRight, outline),
-              tRight: drag.tRight,
-            }
-          : {
-              side: drag.side,
-              tLeft: drag.tLeft,
-              tRight: clampContact(t, drag.tLeft, outline),
-            },
-      );
-      return;
-    }
-
-    const width = contactDistance(outline, baseContacts.leftT, baseContacts.rightT);
-    if (drag.side === "left") {
-      const anchor = pointAtT(outline, t).point;
-      const solved = solveContactForWidth(outline, baseContacts.rightT, anchor, width);
-      onDrag({ side: drag.side, tLeft: t, tRight: solved ?? drag.tRight });
-    } else {
-      const anchor = pointAtT(outline, t).point;
-      const solved = solveContactForWidth(outline, baseContacts.leftT, anchor, width);
-      onDrag({ side: drag.side, tLeft: solved ?? drag.tLeft, tRight: t });
-    }
+    // Unlocked: the grabbed foot snaps along the object outline near the
+    // pointer; the other stays put, so the span can change freely.
+    const snapped = pointAtT(outline, nearestOutlineT(outline, pointer).t).point;
+    const clamped = clampContact(snapped, drag.side === "left" ? drag.right : drag.left);
+    onDrag(
+      drag.side === "left" ? { ...drag, left: clamped } : { ...drag, right: clamped },
+    );
   }
 
   function finishDrag(commit: boolean) {
     if (controlsRef.current) controlsRef.current.enabled = true;
     if (commit && drag) {
-      onCommit({ ...lanyard, leftContact: drag.tLeft, rightContact: drag.tRight });
+      onCommit({ ...lanyard, leftPoint: drag.left, rightPoint: drag.right });
     }
     onDrag(null);
   }
@@ -374,12 +319,6 @@ function LanyardOverlay({
       ) : null}
     </>
   );
-}
-
-function contactDistance(outline: Point2[], aT: number, bT: number): number {
-  const a = pointAtT(outline, aT).point;
-  const b = pointAtT(outline, bT).point;
-  return Math.hypot(b[0] - a[0], b[1] - a[1]);
 }
 
 type LanyardEdgesProps = {

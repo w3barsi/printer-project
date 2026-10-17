@@ -48,7 +48,8 @@ export function MedalLanyardPanel({
         <h2 className="text-sm font-medium">Lanyard</h2>
         <p className="text-xs text-muted-foreground">
           A tab with a slot for the ribbon. Click the tab on the model to select it — its
-          edges show and its contact points become draggable to place, aim, and resize it.
+          edges show and its contact points become draggable to place and aim it. With the
+          width locked the tab moves as one piece.
         </p>
         <p className="text-xs text-muted-foreground/70">
           {widthMm !== null
@@ -61,7 +62,7 @@ export function MedalLanyardPanel({
         <div className="flex flex-col">
           <span className="text-xs text-muted-foreground">Lock width</span>
           <span className="text-xs text-muted-foreground/70">
-            Keep the span while dragging a contact.
+            Keep the width while moving the tab.
           </span>
         </div>
         <Switch

@@ -64,19 +64,12 @@ function clampCorner(settings: LanyardCornerSettings): LanyardCornerSettings {
   return { ...settings, filletMm: clamp(LANYARD_LIMITS.filletMm, settings.filletMm) };
 }
 
-function clampContact(t: number | null): number | null {
-  if (t === null || !Number.isFinite(t)) return null;
-  return ((t % 1) + 1) % 1;
-}
-
 function clampLanyard(lanyard: Lanyard): Lanyard {
   return {
     ...lanyard,
-    // The X-axis lock moves the holder as one piece; without the width lock it
-    // would have nothing to keep level.
+    // The X-axis lock keeps the rigid pair level, so it needs the width lock:
+    // with free feet there is no pair to keep level.
     lockToXAxis: lanyard.widthLocked && lanyard.lockToXAxis,
-    leftContact: clampContact(lanyard.leftContact),
-    rightContact: clampContact(lanyard.rightContact),
     heightMm: clamp(LANYARD_LIMITS.heightMm, lanyard.heightMm),
     holeWidthMm: clamp(LANYARD_LIMITS.holeWidthMm, lanyard.holeWidthMm),
     holeHeightMm: clamp(LANYARD_LIMITS.holeHeightMm, lanyard.holeHeightMm),

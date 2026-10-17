@@ -1,4 +1,5 @@
 import type { RgbColor } from "../color";
+import type { Point2 } from "../contours";
 
 export const MEDAL_THICKNESS_LIMITS = { min: 0.6, max: 5, step: 0.2 } as const;
 export const OFFSET_WIDTH_LIMITS = { min: 0.5, max: 20, step: 0.1 } as const;
@@ -33,11 +34,11 @@ export type LanyardCornerSettings = {
 };
 
 export type Lanyard = {
-  /** Perimeter parameter (0..1) of the left contact foot; null = default span. */
-  leftContact: number | null;
-  /** Perimeter parameter (0..1) of the right contact foot; null = default span. */
-  rightContact: number | null;
-  /** Dragging one foot re-solves the other so the span stays put. */
+  /** The left contact foot in model space; null = default span. */
+  leftPoint: Point2 | null;
+  /** The right contact foot in model space; null = default span. */
+  rightPoint: Point2 | null;
+  /** The feet move as one piece: dragging translates the tab, span kept. */
   widthLocked: boolean;
   /** Keeps the contact chord level — flat and aligned with the X axis; needs `widthLocked`. */
   lockToXAxis: boolean;
@@ -62,8 +63,8 @@ export const LANYARD_LIMITS = {
 export const DEFAULT_LANYARD_SPAN_MM = 14;
 
 export const DEFAULT_LANYARD: Lanyard = {
-  leftContact: null,
-  rightContact: null,
+  leftPoint: null,
+  rightPoint: null,
   widthLocked: false,
   lockToXAxis: false,
   fillGaps: true,
