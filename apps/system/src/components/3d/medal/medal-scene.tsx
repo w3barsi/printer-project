@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState, type RefObject } from "react";
 import { BackSide } from "three";
 import type { OrbitControls } from "three/addons/controls/OrbitControls.js";
 
-import { nearestOutlineT, pointAtT } from "@/lib/3d/attachment";
+import { nearestOutlineT, pointAtT, polygonBounds } from "@/lib/3d/attachment";
 import { toHex, type RgbColor } from "@/lib/3d/color";
 import type { Point2, Polygon } from "@/lib/3d/contours";
 import type { Lanyard, MedalModelInfo, OffsetLayer } from "@/lib/3d/dxf/design";
@@ -28,6 +28,9 @@ type LanyardDrag = {
   left: Point2;
   right: Point2;
 };
+
+/** Hole-centre distance from the model centre that still counts as aligned. */
+const CENTER_ALIGN_TOLERANCE_MM = 1;
 
 type MedalSceneProps = {
   profile: Polygon[];
@@ -262,6 +265,19 @@ function LanyardOverlay({
   const handleZ = lanyard.thicknessMm + 0.02;
   const handleRadius = Math.max(4, lanyard.heightMm / 2);
 
+  // A level chord puts the hole's centre half-way between the feet, so the
+  // mid-point marks its centre line — compare that with the model's centre.
+  const bounds = polygonBounds([{ outer: outline, holes: [] }]);
+  const modelCenterX = (bounds.minX + bounds.maxX) / 2;
+  const holeCenterX = (leftPoint[0] + rightPoint[0]) / 2;
+  const alignedToCenter =
+    Math.abs(holeCenterX - modelCenterX) <= CENTER_ALIGN_TOLERANCE_MM;
+  const feetY = (leftPoint[1] + rightPoint[1]) / 2;
+  const centerGuide: [Point2, Point2] = [
+    [modelCenterX, Math.min(bounds.minY, feetY - lanyard.heightMm) - 4],
+    [modelCenterX, Math.max(bounds.maxY, feetY + lanyard.heightMm) + 4],
+  ];
+
   function pointerPoint(event: ThreeEvent<PointerEvent>): Point2 {
     return [event.point.x, -event.point.z];
   }
@@ -343,6 +359,22 @@ function LanyardOverlay({
     <>
       {contactHandle("left", leftPoint)}
       {contactHandle("right", rightPoint)}
+
+      {dragging && lanyard.lockToXAxis ? (
+        <lineSegments renderOrder={98}>
+          <bufferGeometry>
+            <bufferAttribute
+              attach="attributes-position"
+              args={[ringPositions(centerGuide, handleZ + 0.01), 3]}
+            />
+          </bufferGeometry>
+          <lineBasicMaterial
+            color={alignedToCenter ? "#22c55e" : "#94a3b8"}
+            depthTest={false}
+            depthWrite={false}
+          />
+        </lineSegments>
+      ) : null}
 
       {dragging ? (
         <mesh
