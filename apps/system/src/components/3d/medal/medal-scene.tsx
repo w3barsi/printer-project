@@ -1,5 +1,6 @@
 import { useThree, type ThreeEvent } from "@react-three/fiber";
 import { useEffect, useMemo, useState, type RefObject } from "react";
+import { BackSide } from "three";
 import type { OrbitControls } from "three/addons/controls/OrbitControls.js";
 
 import { nearestOutlineT, pointAtT } from "@/lib/3d/attachment";
@@ -117,10 +118,44 @@ export function MedalScene({
     );
   }, [geometryRef, model, onModelInfo]);
 
+  // Escape clears the selection; a drag in flight is cancelled with it. Leave
+  // Escape alone while typing in a field.
+  useEffect(() => {
+    if (!lanyardSelected && drag === null) return;
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key !== "Escape" || event.defaultPrevented) return;
+      if (
+        event.target instanceof HTMLElement &&
+        event.target.closest("input, textarea, select")
+      ) {
+        return;
+      }
+      if (drag !== null && controlsRef.current) controlsRef.current.enabled = true;
+      setDrag(null);
+      setLanyardSelected(false);
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [lanyardSelected, drag, controlsRef]);
+
   if (!model) return null;
 
   return (
     <>
+      {/* Sits behind every hit, so a click that reaches it landed outside the
+          tab — on the model, the bed, or empty space. */}
+      <mesh
+        userData={{ skipFit: true }}
+        onClick={(event) => {
+          if (event.delta > 3) return;
+          setLanyardSelected(false);
+        }}
+      >
+        <sphereGeometry args={[1000, 16, 16]} />
+        <meshBasicMaterial side={BackSide} transparent opacity={0} depthWrite={false} />
+      </mesh>
       <mesh geometry={model.base}>
         <meshStandardMaterial color={toHex(baseColor)} roughness={0.6} />
       </mesh>
@@ -140,6 +175,8 @@ export function MedalScene({
             // Ignore orbit drags and clicks that landed on a contact handle.
             if (event.delta > 3) return;
             if (event.intersections[0]?.object !== event.object) return;
+            // Keep the background click-catcher from also clearing the selection.
+            event.stopPropagation();
             setLanyardSelected((selected) => !selected);
           }}
           onPointerOver={(event) => {
@@ -288,6 +325,7 @@ function LanyardOverlay({
         position={[point[0], point[1], handleZ]}
         onPointerDown={(event) => startDrag(side, event)}
         onPointerUp={() => finishDrag(true)}
+        onClick={(event) => event.stopPropagation()}
         onPointerOver={() => {
           gl.domElement.style.cursor = "grab";
         }}
@@ -312,6 +350,7 @@ function LanyardOverlay({
           onPointerMove={moveDrag}
           onPointerUp={() => finishDrag(true)}
           onPointerLeave={() => finishDrag(false)}
+          onClick={(event) => event.stopPropagation()}
         >
           <planeGeometry args={[model.width * 4, model.height * 4]} />
           <meshBasicMaterial transparent opacity={0} depthWrite={false} />
