@@ -324,16 +324,15 @@ function buildTabRing(lanyard: Lanyard, frame: LanyardFrame): Point2[] {
   const fillet = (corner: LanyardCorner) =>
     Math.min(limit, Math.max(0, lanyard.corners[corner].filletMm));
 
-  const innerLeft = fillet("innerLeft");
-  const innerRight = fillet("innerRight");
   const outerRight = fillet("outerRight");
   const outerLeft = fillet("outerLeft");
 
   // Counter-clockwise from the bottom edge: each entry is an arc centre plus
-  // its start angle; arcs sweep 90°.
+  // its start angle; arcs sweep 90°. The feet corners stay sharp — they sit
+  // buried in the object.
   const points: Point2[] = [];
-  cornerArc(points, frame, innerLeft, inner + innerLeft, innerLeft, 180);
-  cornerArc(points, frame, width - innerRight, inner + innerRight, innerRight, 270);
+  cornerArc(points, frame, 0, inner, 0, 180);
+  cornerArc(points, frame, width, inner, 0, 270);
   cornerArc(points, frame, width - outerRight, outer - outerRight, outerRight, 0);
   cornerArc(points, frame, outerLeft, outer - outerLeft, outerLeft, 90);
 
@@ -365,35 +364,34 @@ function cornerArc(
   }
 }
 
-/** A stadium-shaped slot centred in the tab's outward extent. */
+/** A filleted rectangle centred in the tab's outward extent. */
 function buildHoleRing(lanyard: Lanyard, frame: LanyardFrame): Point2[] {
   const halfWidth = lanyard.holeWidthMm / 2;
   const halfHeight = lanyard.holeHeightMm / 2;
-  const radius = Math.min(halfWidth, halfHeight);
-  const a = halfWidth - radius;
-  const b = halfHeight - radius;
   const centerU = frame.widthMm / 2;
   const centerV = lanyard.heightMm / 2;
+  const minU = centerU - halfWidth;
+  const maxU = centerU + halfWidth;
+  const minV = centerV - halfHeight;
+  const maxV = centerV + halfHeight;
+  // Keeping each fillet within the hole's half-extents prevents neighbouring
+  // arcs from crossing each other.
+  const limit = Math.min(halfWidth, halfHeight);
+  const fillet = (corner: LanyardCorner) =>
+    Math.min(limit, Math.max(0, lanyard.corners[corner].filletMm));
 
+  const bottomLeft = fillet("holeBottomLeft");
+  const bottomRight = fillet("holeBottomRight");
+  const topRight = fillet("holeTopRight");
+  const topLeft = fillet("holeTopLeft");
+
+  // Counter-clockwise quarter arcs: bottom-left, bottom-right, top-right,
+  // top-left.
   const points: Point2[] = [];
-  const arc = (cu: number, cv: number, start: number) => {
-    for (let index = 0; index < ARC_SEGMENTS; index += 1) {
-      const angle = start + (Math.PI / 2) * (index / ARC_SEGMENTS);
-      points.push(
-        toWorld(
-          frame,
-          centerU + cu + Math.cos(angle) * radius,
-          centerV + cv + Math.sin(angle) * radius,
-        ),
-      );
-    }
-  };
-
-  // Counter-clockwise quarter arcs: bottom-right, top-right, top-left, bottom-left.
-  arc(a, -b, -Math.PI / 2);
-  arc(a, b, 0);
-  arc(-a, b, Math.PI / 2);
-  arc(-a, -b, Math.PI);
+  cornerArc(points, frame, minU + bottomLeft, minV + bottomLeft, bottomLeft, 180);
+  cornerArc(points, frame, maxU - bottomRight, minV + bottomRight, bottomRight, 270);
+  cornerArc(points, frame, maxU - topRight, maxV - topRight, topRight, 0);
+  cornerArc(points, frame, minU + topLeft, maxV - topLeft, topLeft, 90);
 
   return points;
 }

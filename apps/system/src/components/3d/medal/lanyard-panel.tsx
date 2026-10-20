@@ -13,10 +13,12 @@ import {
 } from "@/lib/3d/dxf/design";
 
 const CORNER_LABELS: Record<LanyardCorner, string> = {
-  outerLeft: "Outer left",
-  outerRight: "Outer right",
-  innerLeft: "Inner left",
-  innerRight: "Inner right",
+  outerLeft: "Top left",
+  outerRight: "Top right",
+  holeTopLeft: "Inside top left",
+  holeTopRight: "Inside top right",
+  holeBottomLeft: "Inside bottom left",
+  holeBottomRight: "Inside bottom right",
 };
 
 type MedalLanyardPanelProps = {
@@ -157,15 +159,15 @@ export function MedalLanyardPanel({
 
       <div className="flex flex-col gap-2">
         <span className="text-xs text-muted-foreground">Corner fillets</span>
-        <ul className="flex flex-col gap-1.5">
+        <div className="grid grid-cols-2 gap-x-3 gap-y-2">
           {LANYARD_CORNERS.map((corner) => {
             const settings = lanyard.corners[corner];
             return (
-              <li key={corner} className="flex items-center justify-between gap-2">
-                <span className="text-xs text-muted-foreground">
+              <div key={corner} className="flex min-w-0 flex-col gap-1">
+                <span className="truncate text-xs text-muted-foreground">
                   {CORNER_LABELS[corner]}
                 </span>
-                <label className="flex items-center gap-1">
+                <div className="flex items-center gap-1">
                   <NumberInput
                     value={settings.filletMm}
                     min={LANYARD_LIMITS.filletMm.min}
@@ -186,11 +188,11 @@ export function MedalLanyardPanel({
                   >
                     {settings.locked ? <LockIcon /> : <UnlockIcon />}
                   </Button>
-                </label>
-              </li>
+                </div>
+              </div>
             );
           })}
-        </ul>
+        </div>
         <p className="text-xs text-muted-foreground/70">
           Locked corners are frozen until unlocked.
         </p>

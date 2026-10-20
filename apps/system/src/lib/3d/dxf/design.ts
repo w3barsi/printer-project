@@ -18,13 +18,21 @@ export type OffsetLayer = {
   color: RgbColor;
 };
 
-export type LanyardCorner = "outerLeft" | "outerRight" | "innerLeft" | "innerRight";
+export type LanyardCorner =
+  | "outerLeft"
+  | "outerRight"
+  | "holeTopLeft"
+  | "holeTopRight"
+  | "holeBottomLeft"
+  | "holeBottomRight";
 
 export const LANYARD_CORNERS: LanyardCorner[] = [
   "outerLeft",
   "outerRight",
-  "innerLeft",
-  "innerRight",
+  "holeTopLeft",
+  "holeTopRight",
+  "holeBottomLeft",
+  "holeBottomRight",
 ];
 
 export type LanyardCornerSettings = {
@@ -77,8 +85,10 @@ export const DEFAULT_LANYARD: Lanyard = {
   corners: {
     outerLeft: { filletMm: 2, locked: false },
     outerRight: { filletMm: 2, locked: false },
-    innerLeft: { filletMm: 0, locked: false },
-    innerRight: { filletMm: 0, locked: false },
+    holeTopLeft: { filletMm: 0, locked: false },
+    holeTopRight: { filletMm: 0, locked: false },
+    holeBottomLeft: { filletMm: 0, locked: false },
+    holeBottomRight: { filletMm: 0, locked: false },
   },
 };
 

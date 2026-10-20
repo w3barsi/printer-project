@@ -78,8 +78,10 @@ function clampLanyard(lanyard: Lanyard): Lanyard {
     corners: {
       outerLeft: clampCorner(lanyard.corners.outerLeft),
       outerRight: clampCorner(lanyard.corners.outerRight),
-      innerLeft: clampCorner(lanyard.corners.innerLeft),
-      innerRight: clampCorner(lanyard.corners.innerRight),
+      holeTopLeft: clampCorner(lanyard.corners.holeTopLeft),
+      holeTopRight: clampCorner(lanyard.corners.holeTopRight),
+      holeBottomLeft: clampCorner(lanyard.corners.holeBottomLeft),
+      holeBottomRight: clampCorner(lanyard.corners.holeBottomRight),
     },
   };
 }
