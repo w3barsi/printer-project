@@ -34,7 +34,8 @@ import {
   type MedalModelInfo,
   type OffsetLayer,
 } from "@/lib/3d/dxf/design";
-import type { MedalGeometry } from "@/lib/3d/dxf/geometry";
+import { fitProfile, medalOutline, type MedalGeometry } from "@/lib/3d/dxf/geometry";
+import { resolveLanyardContacts, resizeContacts } from "@/lib/3d/dxf/lanyard";
 import { parseDxf, type DxfResults } from "@/lib/3d/dxf/parse";
 import { buildDxfWarnings } from "@/lib/3d/dxf/warnings";
 import { build3mfBlob } from "@/lib/3d/export/3mf";
@@ -202,6 +203,18 @@ function MedalMakerPage() {
     setLanyard(clampLanyard(next));
   }
 
+  function handleLanyardWidthChange(widthMm: number) {
+    const finalProfile = fitToSize ? fitProfile(profile, fitMm) : profile;
+    const outline = medalOutline(finalProfile, offsets);
+    const contacts = resolveLanyardContacts(outline, lanyard);
+    const resized = resizeContacts(contacts, clamp(LANYARD_LIMITS.widthMm, widthMm));
+    handleLanyardChange({
+      ...lanyard,
+      leftPoint: resized.left,
+      rightPoint: resized.right,
+    });
+  }
+
   function exportModel(): ExtrudedModel | null {
     const model = geometryRef.current;
     if (!model) return null;
@@ -346,6 +359,7 @@ function MedalMakerPage() {
               widthMm={modelInfo?.lanyardWidthMm ?? null}
               disabled={isLoading}
               onChange={handleLanyardChange}
+              onWidthChange={handleLanyardWidthChange}
             />
 
             <WarningsPanel warnings={warnings} />

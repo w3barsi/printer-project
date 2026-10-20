@@ -52,6 +52,8 @@ export type Lanyard = {
 };
 
 export const LANYARD_LIMITS = {
+  /** The span between the contact feet; also the tab's width. */
+  widthMm: { min: 2, max: 80, step: 0.5 },
   heightMm: { min: 4, max: 40, step: 0.5 },
   holeWidthMm: { min: 1, max: 40, step: 0.5 },
   holeHeightMm: { min: 1, max: 20, step: 0.5 },

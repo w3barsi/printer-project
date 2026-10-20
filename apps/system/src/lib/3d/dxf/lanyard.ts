@@ -88,6 +88,28 @@ export function levelContacts(contacts: LanyardContacts): LanyardContacts {
   };
 }
 
+/**
+ * Widens or narrows the pair about its midpoint, keeping its direction, so a
+ * typed width never moves the tab's centre.
+ */
+export function resizeContacts(
+  contacts: LanyardContacts,
+  widthMm: number,
+): LanyardContacts {
+  const [leftX, leftY] = contacts.left;
+  const [rightX, rightY] = contacts.right;
+  const midX = (leftX + rightX) / 2;
+  const midY = (leftY + rightY) / 2;
+  const length = Math.hypot(rightX - leftX, rightY - leftY);
+  const directionX = length > 1e-9 ? (rightX - leftX) / length : 1;
+  const directionY = length > 1e-9 ? (rightY - leftY) / length : 0;
+  const half = widthMm / 2;
+  return {
+    left: [midX - directionX * half, midY - directionY * half],
+    right: [midX + directionX * half, midY + directionY * half],
+  };
+}
+
 export function perimeterLength(outline: Point2[]): number {
   let total = 0;
   for (let index = 0; index < outline.length; index += 1) {

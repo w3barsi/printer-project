@@ -5,6 +5,7 @@ import { LockIcon, UnlockIcon } from "lucide-react";
 import { NumberInput } from "@/components/3d/number-input";
 import { SliderRow } from "@/components/3d/slider-row";
 import {
+  DEFAULT_LANYARD_SPAN_MM,
   LANYARD_CORNERS,
   LANYARD_LIMITS,
   type Lanyard,
@@ -24,6 +25,7 @@ type MedalLanyardPanelProps = {
   widthMm: number | null;
   disabled?: boolean;
   onChange: (lanyard: Lanyard) => void;
+  onWidthChange: (widthMm: number) => void;
 };
 
 export function MedalLanyardPanel({
@@ -31,6 +33,7 @@ export function MedalLanyardPanel({
   widthMm,
   disabled,
   onChange,
+  onWidthChange,
 }: MedalLanyardPanelProps) {
   function setCorner(
     corner: LanyardCorner,
@@ -47,14 +50,9 @@ export function MedalLanyardPanel({
       <div className="flex flex-col gap-1">
         <h2 className="text-sm font-medium">Lanyard</h2>
         <p className="text-xs text-muted-foreground">
-          A tab with a slot for the ribbon. Click the tab on the model to select it — its
-          edges show and its contact points become draggable to place and aim it. With the
-          width locked the tab moves as one piece.
-        </p>
-        <p className="text-xs text-muted-foreground/70">
-          {widthMm !== null
-            ? `Width ${widthMm.toFixed(1)} mm — set by the contact points.`
-            : "Waiting for a model."}
+          A tab with a slot for the ribbon. Drag the tab on the model to move it; its
+          contact points aim and resize it once selected. With the width locked the tab
+          always moves as one piece.
         </p>
       </div>
 
@@ -87,6 +85,17 @@ export function MedalLanyardPanel({
           onCheckedChange={(checked) => onChange({ ...lanyard, lockToXAxis: checked })}
         />
       </div>
+
+      <SliderRow
+        label="Width"
+        value={widthMm ?? DEFAULT_LANYARD_SPAN_MM}
+        unit="mm"
+        min={LANYARD_LIMITS.widthMm.min}
+        max={LANYARD_LIMITS.widthMm.max}
+        step={LANYARD_LIMITS.widthMm.step}
+        disabled={disabled || widthMm === null}
+        onChange={onWidthChange}
+      />
 
       <SliderRow
         label="Height"

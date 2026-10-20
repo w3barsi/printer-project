@@ -1,6 +1,6 @@
 import { useThree, type ThreeEvent } from "@react-three/fiber";
 import { useEffect, useMemo, useState, type RefObject } from "react";
-import { BackSide } from "three";
+import { BackSide, DoubleSide } from "three";
 import type { OrbitControls } from "three/addons/controls/OrbitControls.js";
 
 import { nearestOutlineT, pointAtT, polygonBounds } from "@/lib/3d/attachment";
@@ -15,14 +15,16 @@ import {
 } from "@/lib/3d/dxf/geometry";
 import {
   clampContact,
+  lanyardFrame,
   levelContacts,
   resolveLanyardContacts,
   type LanyardContacts,
 } from "@/lib/3d/dxf/lanyard";
 
 type ContactSide = "left" | "right";
+type DragSide = ContactSide | "body";
 type LanyardDrag = {
-  side: ContactSide;
+  side: DragSide;
   startPointer: Point2;
   start: LanyardContacts;
   left: Point2;
@@ -31,6 +33,8 @@ type LanyardDrag = {
 
 /** Hole-centre distance from the model centre that still counts as aligned. */
 const CENTER_ALIGN_TOLERANCE_MM = 1;
+/** Extra room around the tab that still counts as grabbing it. */
+const HIT_PADDING_MM = 5;
 
 type MedalSceneProps = {
   profile: Polygon[];
@@ -61,7 +65,6 @@ export function MedalScene({
 }: MedalSceneProps) {
   const [drag, setDrag] = useState<LanyardDrag | null>(null);
   const [lanyardSelected, setLanyardSelected] = useState(false);
-  const gl = useThree((state) => state.gl);
 
   const finalProfile = useMemo(
     () => (fitToSize ? fitProfile(profile, fitMm) : profile),
@@ -182,14 +185,6 @@ export function MedalScene({
             event.stopPropagation();
             setLanyardSelected((selected) => !selected);
           }}
-          onPointerOver={(event) => {
-            if (drag !== null) return;
-            if (event.intersections[0]?.object !== event.object) return;
-            gl.domElement.style.cursor = "pointer";
-          }}
-          onPointerOut={() => {
-            if (drag === null) gl.domElement.style.cursor = "";
-          }}
         >
           <meshStandardMaterial color={toHex(baseColor)} roughness={0.6} />
         </mesh>
@@ -210,6 +205,7 @@ export function MedalScene({
         drag={drag}
         selected={lanyardSelected}
         onDrag={setDrag}
+        onSelect={setLanyardSelected}
         controlsRef={controlsRef}
         onCommit={onLanyardChange}
       />
@@ -226,6 +222,7 @@ type LanyardOverlayProps = {
   /** Moving the tab only works while it is selected. */
   selected: boolean;
   onDrag: (drag: LanyardDrag | null) => void;
+  onSelect: (selected: boolean) => void;
   controlsRef: RefObject<OrbitControls | null>;
   onCommit: (lanyard: Lanyard) => void;
 };
@@ -242,6 +239,7 @@ function LanyardOverlay({
   drag,
   selected,
   onDrag,
+  onSelect,
   controlsRef,
   onCommit,
 }: LanyardOverlayProps) {
@@ -258,12 +256,26 @@ function LanyardOverlay({
     };
   }, [dragging, gl]);
 
-  if (!selected || outline.length < 3) return null;
+  if (outline.length < 3) return null;
 
   const leftPoint = drag ? drag.left : baseContacts.left;
   const rightPoint = drag ? drag.right : baseContacts.right;
-  const handleZ = lanyard.thicknessMm + 0.02;
+  const handleZ = lanyard.thicknessMm + 0.04;
+  const hitZ = lanyard.thicknessMm + 0.03;
   const handleRadius = Math.max(4, lanyard.heightMm / 2);
+
+  // A tab-shaped target padded around the tab makes the small tab easy to
+  // grab; it follows the tab while it moves.
+  const frame = lanyardFrame(outline, { ...lanyard, leftPoint, rightPoint });
+  const hitCenter: Point2 = [
+    frame.point[0] +
+      frame.tangent[0] * (frame.widthMm / 2) +
+      frame.normal[0] * (lanyard.heightMm / 2),
+    frame.point[1] +
+      frame.tangent[1] * (frame.widthMm / 2) +
+      frame.normal[1] * (lanyard.heightMm / 2),
+  ];
+  const hitRotation = Math.atan2(frame.tangent[1], frame.tangent[0]);
 
   // A level chord puts the hole's centre half-way between the feet, so the
   // mid-point marks its centre line — compare that with the model's centre.
@@ -282,7 +294,14 @@ function LanyardOverlay({
     return [event.point.x, -event.point.z];
   }
 
-  function startDrag(side: ContactSide, event: ThreeEvent<PointerEvent>) {
+  function toggleSelection(event: ThreeEvent<MouseEvent>) {
+    if (event.delta > 3) return;
+    if (event.intersections[0]?.object !== event.object) return;
+    event.stopPropagation();
+    onSelect(!selected);
+  }
+
+  function startDrag(side: DragSide, event: ThreeEvent<PointerEvent>) {
     // Only the left button drags the tab; other buttons stay camera gestures
     // even when they start on an (invisible) handle.
     if (event.button !== 0) return;
@@ -303,7 +322,7 @@ function LanyardOverlay({
     if (!drag) return;
     const pointer = pointerPoint(event);
 
-    if (lanyard.widthLocked) {
+    if (drag.side === "body" || lanyard.widthLocked) {
       // The tab moves as one piece: translate the pair with the pointer, so
       // the span and the angle never change. The feet may leave the model —
       // the gap fill bridges whatever hangs off it.
@@ -357,8 +376,37 @@ function LanyardOverlay({
 
   return (
     <>
-      {contactHandle("left", leftPoint)}
-      {contactHandle("right", rightPoint)}
+      {model.lanyard ? (
+        <mesh
+          position={[hitCenter[0], hitCenter[1], hitZ]}
+          rotation={[0, 0, hitRotation]}
+          userData={{ skipFit: true }}
+          onClick={toggleSelection}
+          onPointerDown={(event) => startDrag("body", event)}
+          onPointerOver={() => {
+            if (!dragging) gl.domElement.style.cursor = "grab";
+          }}
+          onPointerOut={() => {
+            if (!dragging) gl.domElement.style.cursor = "";
+          }}
+        >
+          <planeGeometry
+            args={[
+              frame.widthMm + HIT_PADDING_MM * 2,
+              lanyard.heightMm + HIT_PADDING_MM * 2,
+            ]}
+          />
+          <meshBasicMaterial
+            transparent
+            opacity={0}
+            depthWrite={false}
+            side={DoubleSide}
+          />
+        </mesh>
+      ) : null}
+
+      {selected ? contactHandle("left", leftPoint) : null}
+      {selected ? contactHandle("right", rightPoint) : null}
 
       {dragging && lanyard.lockToXAxis ? (
         <lineSegments renderOrder={98}>
