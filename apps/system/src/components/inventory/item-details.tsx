@@ -12,14 +12,12 @@ import {
   ArrowRightIcon,
   HistoryIcon,
   PackageCheckIcon,
-  PackageIcon,
   PackageMinusIcon,
   PackagePlusIcon,
   PencilLineIcon,
   RefreshCwIcon,
   Trash2Icon,
-  TruckIcon,
-  UserIcon,
+  type LucideIcon,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -51,7 +49,7 @@ const movementLabels: Record<InventoryActivity["operation"], string> = {
   details_updated: "No stock change",
 };
 
-const operationIcons: Record<InventoryActivity["operation"], typeof PackageIcon> = {
+const operationIcons: Record<InventoryActivity["operation"], LucideIcon> = {
   item_created: PackageCheckIcon,
   stock_added: PackagePlusIcon,
   stock_removed: PackageMinusIcon,
@@ -66,80 +64,67 @@ const dateTimeFormatter = new Intl.DateTimeFormat(undefined, {
 
 export function InventoryItemDetails({ item }: { item: InventoryListItem }) {
   return (
-    <div className="flex flex-col gap-7">
-      <header className="flex flex-col gap-2 border-b pb-6">
-        <div className="flex flex-wrap items-center gap-2">
-          <Badge variant="outline">Inventory item</Badge>
-          <span className="text-xs text-muted-foreground">
-            Added {dateTimeFormatter.format(item._creationTime)}
-          </span>
+    <div className="flex flex-col gap-6">
+      <header className="flex flex-col gap-1.5 border-b pb-5">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+          <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
+            {item.name}
+          </h1>
+          {item.quantity === 0 && <Badge variant="warning">Out of stock</Badge>}
         </div>
-        <h1 className="text-3xl font-semibold tracking-tight">{item.name}</h1>
-        <p className="text-sm text-muted-foreground">{item.supplierName}</p>
+        <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted-foreground">
+          <span>{item.supplierName}</span>
+          <span aria-hidden="true" className="text-muted-foreground/40">
+            ·
+          </span>
+          <span>Added {dateTimeFormatter.format(item._creationTime)}</span>
+        </p>
       </header>
 
-      <section aria-labelledby="inventory-balance-heading">
-        <div className="flex flex-col gap-3">
-          <div className="flex items-end justify-between gap-4 rounded-xl border bg-muted/40 p-5">
-            <div className="flex flex-col gap-1">
-              <h2
-                id="inventory-balance-heading"
-                className="text-sm font-medium text-muted-foreground"
-              >
-                Current stock
-              </h2>
-              <p className="text-4xl font-semibold tracking-tight tabular-nums">
-                {item.quantity.toLocaleString()}
-              </p>
-            </div>
-            <div className="rounded-lg border bg-background/60 p-3">
-              <PackageIcon className="size-7 text-muted-foreground" />
-            </div>
-          </div>
-          <InventoryStockActions item={item} />
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1fr)_19rem] lg:items-start lg:gap-6">
+        <aside className="order-1 lg:sticky lg:top-4 lg:order-2 lg:col-start-2 lg:row-start-1">
+          <StockPanel item={item} />
+        </aside>
+        <div className="order-2 min-w-0 lg:order-1 lg:col-start-1 lg:row-start-1">
+          <ItemActivity item={item} />
         </div>
-      </section>
+      </div>
 
-      <section className="flex flex-col gap-3" aria-labelledby="item-details-heading">
-        <h2 id="item-details-heading" className="font-semibold">
-          Item details
-        </h2>
-        <dl className="grid grid-cols-1 gap-x-6 gap-y-5 border-y py-5 sm:grid-cols-2">
-          <Detail icon={TruckIcon} label="Supplier" value={item.supplierName} />
-          <Detail icon={UserIcon} label="Created by" value={item.createdByName} />
-          <Detail
-            icon={HistoryIcon}
-            label="Created"
-            value={dateTimeFormatter.format(item._creationTime)}
-          />
-          <Detail icon={PackageIcon} label="Item ID" value={item._id} breakAll />
+      <footer className="flex flex-col gap-2 border-t pt-4 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between sm:gap-8">
+        <dl className="flex min-w-0 items-center gap-1.5">
+          <dt>Created by</dt>
+          <dd className="font-medium text-foreground">{item.createdByName}</dd>
         </dl>
-      </section>
-
-      <ItemActivity item={item} />
+        <dl className="flex min-w-0 items-center gap-1.5 font-mono">
+          <dt className="font-sans">Item ID</dt>
+          <dd className="min-w-0 break-all text-foreground/80">{item._id}</dd>
+        </dl>
+      </footer>
     </div>
   );
 }
 
-function Detail({
-  icon: Icon,
-  label,
-  value,
-  breakAll = false,
-}: {
-  icon: typeof PackageIcon;
-  label: string;
-  value: string;
-  breakAll?: boolean;
-}) {
+function StockPanel({ item }: { item: InventoryListItem }) {
   return (
-    <div className="flex min-w-0 gap-3">
-      <Icon className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
-      <div className="min-w-0">
-        <dt className="text-xs text-muted-foreground">{label}</dt>
-        <dd className={cn("font-medium", breakAll && "text-xs break-all")}>{value}</dd>
+    <section
+      aria-labelledby="inventory-balance-heading"
+      className="overflow-hidden rounded-xl border bg-card"
+    >
+      <div className="p-4">
+        <h2
+          id="inventory-balance-heading"
+          className="text-sm font-medium text-muted-foreground"
+        >
+          On hand
+        </h2>
+        <p className="mt-1 text-4xl leading-none font-semibold tracking-tight tabular-nums">
+          {item.quantity.toLocaleString()}
+        </p>
       </div>
-    </div>
+      <div className="border-t bg-muted/30 p-3">
+        <InventoryStockActions item={item} />
+      </div>
+    </section>
   );
 }
 
@@ -162,16 +147,13 @@ function ItemActivity({ item }: { item: InventoryListItem }) {
 
   return (
     <section className="flex flex-col gap-4" aria-labelledby="item-activity-heading">
-      <div className="flex items-end justify-between gap-4">
-        <div className="flex flex-col gap-1">
-          <h2 id="item-activity-heading" className="text-lg font-semibold tracking-tight">
-            Activity
-          </h2>
-          <p className="text-sm text-muted-foreground">
-            A chronological ledger of every stock change.
-          </p>
-        </div>
-        {data && <Badge variant="secondary">Page {cursorHistory.length + 1}</Badge>}
+      <div className="flex flex-col gap-1">
+        <h2 id="item-activity-heading" className="text-lg font-semibold tracking-tight">
+          Activity
+        </h2>
+        <p className="text-sm text-muted-foreground">
+          Every change to this item, newest first.
+        </p>
       </div>
 
       {!data ? (

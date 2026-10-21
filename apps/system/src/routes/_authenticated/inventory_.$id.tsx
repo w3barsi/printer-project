@@ -66,8 +66,10 @@ function InventoryItemPage() {
   }
 
   return (
-    <Container className="flex flex-col gap-4">
-      <InventoryItemDetails item={item} />
+    <Container className="pwa-padding">
+      <div className="mx-auto flex w-full max-w-5xl flex-col pb-6">
+        <InventoryItemDetails item={item} />
+      </div>
     </Container>
   );
 }

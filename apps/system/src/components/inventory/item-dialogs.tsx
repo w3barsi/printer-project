@@ -300,43 +300,47 @@ export function InventoryItemActions({ item }: { item: InventoryListItem }) {
 
 export function InventoryStockActions({ item }: { item: InventoryListItem }) {
   const [action, setAction] = useState<ItemAction | null>(null);
+  const isOutOfStock = item.quantity === 0;
 
   return (
     <>
-      <div className="flex flex-col gap-2">
-        <Button type="button" variant="destructive" onClick={() => setAction("remove")}>
+      <div className="grid grid-cols-2 gap-2 md:grid-cols-4 lg:grid-cols-1">
+        <Button
+          type="button"
+          className="col-span-2 justify-start md:col-span-1"
+          disabled={isOutOfStock}
+          onClick={() => setAction("remove")}
+        >
           <MinusIcon data-icon="inline-start" />
-          Use Stock
+          Use stock
         </Button>
-        <div className="grid grid-cols-3 gap-2">
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => setAction("add")}
-          >
-            <PackagePlusIcon data-icon="inline-start" />
-            Add
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => setAction("correct")}
-          >
-            <RefreshCwIcon data-icon="inline-start" />
-            Update
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => setAction("edit")}
-          >
-            <PencilIcon data-icon="inline-start" />
-            Edit
-          </Button>
-        </div>
+        <Button
+          type="button"
+          variant="outline"
+          className="justify-start"
+          onClick={() => setAction("add")}
+        >
+          <PackagePlusIcon data-icon="inline-start" />
+          Add stock
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          className="justify-start"
+          onClick={() => setAction("correct")}
+        >
+          <RefreshCwIcon data-icon="inline-start" />
+          Correct count
+        </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          className="col-span-2 justify-start md:col-span-1"
+          onClick={() => setAction("edit")}
+        >
+          <PencilIcon data-icon="inline-start" />
+          Edit details
+        </Button>
       </div>
 
       {action === "edit" ? (
