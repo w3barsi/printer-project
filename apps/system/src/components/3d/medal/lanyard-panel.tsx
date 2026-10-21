@@ -52,9 +52,9 @@ export function MedalLanyardPanel({
       <div className="flex flex-col gap-1">
         <h2 className="text-sm font-medium">Lanyard</h2>
         <p className="text-xs text-muted-foreground">
-          A tab with a slot for the ribbon. Drag the tab on the model to move it; its
-          contact points aim and resize it once selected. With the width locked the tab
-          always moves as one piece.
+          A tab with a slot for the ribbon. Select it on the model, then drag its body to
+          move it, its corner dots to rotate it, and its contact points to aim and resize
+          it. With the width locked the tab always moves as one piece.
         </p>
       </div>
 

@@ -89,6 +89,33 @@ export function levelContacts(contacts: LanyardContacts): LanyardContacts {
 }
 
 /**
+ * Swings one foot around the other, span kept: the dragged foot keeps its
+ * distance from the pivot and follows the pointer's direction. The tab (and
+ * its hole) rotate rigidly; the feet may leave the outline.
+ */
+export function rotateContactsAboutFoot(
+  contacts: LanyardContacts,
+  dragged: "left" | "right",
+  pointer: Point2,
+): LanyardContacts {
+  const pivot = dragged === "left" ? contacts.right : contacts.left;
+  const current = dragged === "left" ? contacts.left : contacts.right;
+  const dx = current[0] - pivot[0];
+  const dy = current[1] - pivot[1];
+  const span = Math.hypot(dx, dy);
+  if (span < 1e-6) return contacts;
+
+  const px = pointer[0] - pivot[0];
+  const py = pointer[1] - pivot[1];
+  const distance = Math.hypot(px, py);
+  const direction: Point2 =
+    distance < 1e-6 ? [dx / span, dy / span] : [px / distance, py / distance];
+  const next: Point2 = [pivot[0] + direction[0] * span, pivot[1] + direction[1] * span];
+
+  return dragged === "left" ? { left: next, right: pivot } : { left: pivot, right: next };
+}
+
+/**
  * Widens or narrows the pair about its midpoint, keeping its direction, so a
  * typed width never moves the tab's centre.
  */

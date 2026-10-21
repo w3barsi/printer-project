@@ -18,23 +18,36 @@ import {
   lanyardFrame,
   levelContacts,
   resolveLanyardContacts,
+  rotateContactsAboutFoot,
   type LanyardContacts,
 } from "@/lib/3d/dxf/lanyard";
 
 type ContactSide = "left" | "right";
 type DragSide = ContactSide | "body";
-type LanyardDrag = {
+type LanyardContactDrag = {
+  kind: "contact";
   side: DragSide;
   startPointer: Point2;
   start: LanyardContacts;
   left: Point2;
   right: Point2;
 };
+type LanyardRotateDrag = {
+  kind: "rotate";
+  dragged: ContactSide;
+  left: Point2;
+  right: Point2;
+};
+type LanyardDrag = LanyardContactDrag | LanyardRotateDrag;
 
 /** Hole-centre distance from the model centre that still counts as aligned. */
 const CENTER_ALIGN_TOLERANCE_MM = 1;
 /** Extra room around the tab that still counts as grabbing it. */
 const HIT_PADDING_MM = 5;
+/** Visible radius of the tab's rotation dots. */
+const ROTATE_HANDLE_RADIUS_MM = 1.2;
+/** Easier-to-grab radius around each rotation dot. */
+const ROTATE_HANDLE_HIT_RADIUS_MM = 2.2;
 
 type MedalSceneProps = {
   profile: Polygon[];
@@ -261,6 +274,7 @@ function LanyardOverlay({
   const leftPoint = drag ? drag.left : baseContacts.left;
   const rightPoint = drag ? drag.right : baseContacts.right;
   const handleZ = lanyard.thicknessMm + 0.04;
+  const rotateHandleZ = handleZ + 0.02;
   const hitZ = lanyard.thicknessMm + 0.03;
   const handleRadius = Math.max(4, lanyard.heightMm / 2);
 
@@ -310,6 +324,7 @@ function LanyardOverlay({
 
     const pointer = pointerPoint(event);
     onDrag({
+      kind: "contact",
       side,
       startPointer: pointer,
       start: baseContacts,
@@ -318,9 +333,29 @@ function LanyardOverlay({
     });
   }
 
+  function startRotateDrag(dragged: ContactSide, event: ThreeEvent<PointerEvent>) {
+    if (event.button !== 0) return;
+    event.stopPropagation();
+    if (controlsRef.current) controlsRef.current.enabled = false;
+
+    onDrag({
+      kind: "rotate",
+      dragged,
+      left: baseContacts.left,
+      right: baseContacts.right,
+    });
+  }
+
   function moveDrag(event: ThreeEvent<PointerEvent>) {
     if (!drag) return;
     const pointer = pointerPoint(event);
+
+    if (drag.kind === "rotate") {
+      // Swing the whole tab around the opposite foot, span kept.
+      const rotated = rotateContactsAboutFoot(drag, drag.dragged, pointer);
+      onDrag({ ...drag, ...rotated });
+      return;
+    }
 
     if (drag.side === "body" || lanyard.widthLocked) {
       // The tab moves as one piece: translate the pair with the pointer, so
@@ -407,6 +442,44 @@ function LanyardOverlay({
 
       {selected ? contactHandle("left", leftPoint) : null}
       {selected ? contactHandle("right", rightPoint) : null}
+
+      {selected && !lanyard.lockToXAxis
+        ? (["left", "right"] as const).map((side) => {
+            const point = side === "left" ? leftPoint : rightPoint;
+            // While the other dot is dragged, this one is the pivot.
+            const pivot = drag?.kind === "rotate" && drag.dragged !== side;
+            return (
+              <group
+                key={`rotate-${side}`}
+                position={[point[0], point[1], rotateHandleZ]}
+              >
+                <mesh
+                  position={[0, 0, 0.01]}
+                  onPointerDown={(event) => startRotateDrag(side, event)}
+                  onPointerUp={() => finishDrag(true)}
+                  onClick={(event) => event.stopPropagation()}
+                  onPointerOver={() => {
+                    gl.domElement.style.cursor = "grab";
+                  }}
+                  onPointerOut={() => {
+                    if (!dragging) gl.domElement.style.cursor = "";
+                  }}
+                >
+                  <circleGeometry args={[ROTATE_HANDLE_HIT_RADIUS_MM, 24]} />
+                  <meshBasicMaterial transparent opacity={0} depthWrite={false} />
+                </mesh>
+                <mesh renderOrder={102}>
+                  <circleGeometry args={[ROTATE_HANDLE_RADIUS_MM, 24]} />
+                  <meshBasicMaterial
+                    color={pivot ? "#22c55e" : "#f59e0b"}
+                    depthTest={false}
+                    depthWrite={false}
+                  />
+                </mesh>
+              </group>
+            );
+          })
+        : null}
 
       {dragging && lanyard.lockToXAxis ? (
         <lineSegments renderOrder={98}>
