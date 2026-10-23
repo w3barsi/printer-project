@@ -40,6 +40,49 @@ const expirationItems: Array<{ label: string; value: Expiration }> = [
   { label: "Custom", value: "custom" },
 ];
 
+function formatExpiration(expiresAt: number) {
+  return new Intl.DateTimeFormat(undefined, { dateStyle: "medium" }).format(expiresAt);
+}
+
+function accessLabel(access: "read" | "edit") {
+  return access === "read" ? "Viewer" : "Editor";
+}
+
+function accessDescription(access: "read" | "edit") {
+  return access === "read"
+    ? "Anyone with the link can view."
+    : "Anyone with the link can edit.";
+}
+
+function expirationDescription(expiresAt: number | null) {
+  return expiresAt === null
+    ? "Never expires."
+    : `Expires on ${formatExpiration(expiresAt)}.`;
+}
+
+function expirationChangeLabel(expiration: Expiration, expiresAt: number | null) {
+  switch (expiration) {
+    case "never":
+      return "Expiration set to never";
+    case "day":
+      return "Expiration changed to 24 hours";
+    case "week":
+      return "Expiration changed to 7 days";
+    case "month":
+      return "Expiration changed to 30 days";
+    case "custom":
+      return `Expiration changed to ${
+        expiresAt === null ? "a custom date" : formatExpiration(expiresAt)
+      }`;
+  }
+}
+
+function sameExpiration(expiresAt: number | null, current: number | null) {
+  if (expiresAt === null || current === null) return expiresAt === current;
+  // The datetime-local input only stores minutes, so compare at that precision.
+  return Math.floor(expiresAt / 60_000) === Math.floor(current / 60_000);
+}
+
 export function ShareDialog({
   item,
   onOpenChange,
@@ -85,9 +128,17 @@ export function ShareDialog({
   }
 
   async function save() {
-    if (!itemId) return;
+    if (!itemId || !settings) return;
     if (access === "restricted") {
-      if (settings?.status === "shared") await disable();
+      if (settings.status === "shared") {
+        await disable();
+      } else {
+        toastManager.add({
+          title: "Nothing to create",
+          description: "Choose Viewer or Editor to create a public link.",
+          type: "info",
+        });
+      }
       return;
     }
     const expirationTime = expiresAt();
@@ -98,13 +149,33 @@ export function ShareDialog({
       toastManager.add({ title: "Choose a future expiration date", type: "error" });
       return;
     }
+
+    const shared = settings.status === "shared" ? settings : null;
+    const accessChanged = shared ? access !== shared.access : false;
+    const expirationChanged = shared
+      ? !sameExpiration(expirationTime, shared.expiresAt)
+      : false;
+    if (shared && !accessChanged && !expirationChanged) {
+      toastManager.add({
+        title: "No changes",
+        description: "The public link already has these settings.",
+        type: "info",
+      });
+      return;
+    }
+
     setIsSaving(true);
     try {
       await setShare({ itemId, access, expiresAt: expirationTime });
-      toastManager.add({
-        title: settings?.status === "shared" ? "Sharing updated" : "Public link created",
-        type: "success",
-      });
+      const description = `${accessDescription(access)} ${expirationDescription(expirationTime)}`;
+      const title = !shared
+        ? "Public link created"
+        : accessChanged && expirationChanged
+          ? "Public link updated"
+          : accessChanged
+            ? `Access changed to ${accessLabel(access)}`
+            : expirationChangeLabel(expiration, expirationTime);
+      toastManager.add({ title, description, type: "success" });
     } catch (error) {
       toastManager.add({
         title: error instanceof Error ? error.message : "Sharing could not be updated",
@@ -120,7 +191,11 @@ export function ShareDialog({
     setIsSaving(true);
     try {
       await disableShare({ itemId });
-      toastManager.add({ title: "Public link disabled", type: "success" });
+      toastManager.add({
+        title: "Public link disabled",
+        description: "The link no longer works.",
+        type: "success",
+      });
     } catch (error) {
       toastManager.add({
         title: error instanceof Error ? error.message : "Sharing could not be disabled",

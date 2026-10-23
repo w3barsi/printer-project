@@ -54,6 +54,9 @@ export function DeleteInventoryActivityDialog({
             {activity ? operationLabels[activity.operation] : ""}
             {activity ? ` entry for ${activity.itemNameAfter}` : " entry"}. It will not
             change the item&apos;s current stock balance.
+            <span className="mt-2 block font-medium text-neutral-900 dark:text-neutral-100">
+              Only admins can delete inventory activity.
+            </span>
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
