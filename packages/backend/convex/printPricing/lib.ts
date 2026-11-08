@@ -1,11 +1,13 @@
 import type { Infer } from "convex/values";
 
 import type {
+  printAccessoryUsage,
   printFilamentUsage,
   printPricingInput,
   printPriceBreakdown,
 } from "../schemas/printPricing";
 
+export type PrintAccessoryUsage = Infer<typeof printAccessoryUsage>;
 export type PrintFilamentUsage = Infer<typeof printFilamentUsage>;
 export type PrintPricingInput = Infer<typeof printPricingInput>;
 export type PrintPriceBreakdown = Infer<typeof printPriceBreakdown>;
@@ -13,7 +15,9 @@ export type PrintPriceBreakdown = Infer<typeof printPriceBreakdown>;
 export const printPricingLimits = {
   maxNameLength: 120,
   maxNoteLength: 500,
+  maxUrlLength: 500,
   maxFilaments: 20,
+  maxAccessories: 20,
 } as const;
 
 export function normalizeName(name: string, label: string) {
@@ -75,6 +79,44 @@ export function validateNote(note?: string) {
   return trimmedNote;
 }
 
+export function validateStoreUrl(url: string, label = "Store link") {
+  const trimmedUrl = url.trim();
+
+  if (!trimmedUrl) {
+    throw new Error(`${label} is required`);
+  }
+
+  if (trimmedUrl.length > printPricingLimits.maxUrlLength) {
+    throw new Error(
+      `${label} cannot be longer than ${printPricingLimits.maxUrlLength} characters`,
+    );
+  }
+
+  let parsedUrl: URL;
+
+  try {
+    parsedUrl = new URL(trimmedUrl);
+  } catch {
+    throw new Error(`${label} must be a valid URL`);
+  }
+
+  if (parsedUrl.protocol !== "http:" && parsedUrl.protocol !== "https:") {
+    throw new Error(`${label} must start with http:// or https://`);
+  }
+
+  return trimmedUrl;
+}
+
+export function validateOptionalStoreUrl(url?: string) {
+  const trimmedUrl = url?.trim();
+
+  if (!trimmedUrl) {
+    return undefined;
+  }
+
+  return validateStoreUrl(trimmedUrl);
+}
+
 export function validatePrintPricingInput(input: PrintPricingInput): PrintPricingInput {
   if (input.filaments.length === 0) {
     throw new Error("At least one filament is required");
@@ -95,6 +137,23 @@ export function validatePrintPricingInput(input: PrintPricingInput): PrintPricin
         `${label} weight in grams`,
       ),
       costPerKg: validateNonNegativeNumber(filament.costPerKg, `${label} cost per kg`),
+    };
+  });
+
+  if ((input.accessories?.length ?? 0) > printPricingLimits.maxAccessories) {
+    throw new Error(
+      `Cannot use more than ${printPricingLimits.maxAccessories} accessories`,
+    );
+  }
+
+  const accessories = (input.accessories ?? []).map((accessory, index) => {
+    const label = `Accessory ${index + 1}`;
+
+    return {
+      accessoryId: accessory.accessoryId,
+      name: normalizeName(accessory.name, `${label} name`).name,
+      price: validateNonNegativeNumber(accessory.price, `${label} price`),
+      storeUrl: validateOptionalStoreUrl(accessory.storeUrl),
     };
   });
 
@@ -145,6 +204,7 @@ export function validatePrintPricingInput(input: PrintPricingInput): PrintPricin
 
   return {
     filaments,
+    accessories,
     printTimeHours: validateNonNegativeNumber(
       input.printTimeHours,
       "Print time in hours",
@@ -173,7 +233,12 @@ export function computePriceBreakdown(input: PrintPricingInput): PrintPriceBreak
 
   const laborCost = input.labor ? input.labor.ratePerHour * input.labor.hours : 0;
 
-  const subtotal = material + electricity + printerWear + laborCost;
+  const accessoryCost = (input.accessories ?? []).reduce(
+    (total, accessory) => total + accessory.price,
+    0,
+  );
+
+  const subtotal = material + electricity + printerWear + laborCost + accessoryCost;
 
   const failure = input.business
     ? (subtotal * input.business.failureRatePercent) / 100
@@ -188,6 +253,7 @@ export function computePriceBreakdown(input: PrintPricingInput): PrintPriceBreak
     electricity,
     printerWear,
     labor: laborCost,
+    accessories: accessoryCost,
     subtotal,
     failure,
     profit,

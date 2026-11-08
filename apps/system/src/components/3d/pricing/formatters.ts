@@ -43,6 +43,10 @@ export function buildBreakdownRows(
 ): BreakdownRow[] {
   const rows: BreakdownRow[] = [{ label: "Material", amount: breakdown.material }];
 
+  if (input.accessories?.length) {
+    rows.push({ label: "Accessories", amount: breakdown.accessories ?? 0 });
+  }
+
   if (input.printer) {
     rows.push({ label: "Electricity", amount: breakdown.electricity });
     rows.push({ label: "Printer wear", amount: breakdown.printerWear });

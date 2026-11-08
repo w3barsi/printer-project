@@ -4,6 +4,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { CalculatorIcon } from "lucide-react";
 import { Suspense } from "react";
 
+import { AccessoryManagerDialog } from "@/components/3d/pricing/accessory-manager-dialog";
 import { PresetManagerDialog } from "@/components/3d/pricing/preset-manager-dialog";
 import { CreatePricingItemDialog } from "@/components/3d/pricing/pricing-item-dialogs";
 import {
@@ -49,10 +50,11 @@ function ThreeDPricingPage() {
             <h1 className="text-3xl font-bold tracking-tight">3D Pricing</h1>
           </div>
           <p className="text-sm text-muted-foreground">
-            Price prints from material, machine, labor, and profit settings.
+            Price prints from material, accessories, machine, labor, and profit settings.
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
+          <AccessoryManagerDialog />
           <PresetManagerDialog />
           <CreatePricingItemDialog />
         </div>

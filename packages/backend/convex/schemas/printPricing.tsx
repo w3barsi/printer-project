@@ -9,9 +9,19 @@ export const printFilamentUsage = v.object({
   costPerKg: v.number(),
 });
 
+// One accessory line: an extra part bought for the print.
+export const printAccessoryUsage = v.object({
+  accessoryId: v.optional(v.id("printPricingAccessories")),
+  name: v.string(),
+  price: v.number(),
+  storeUrl: v.optional(v.string()),
+});
+
 // The calculator's full input payload (also used as the save mutation args).
 export const printPricingInput = v.object({
   filaments: v.array(printFilamentUsage),
+  // Optional so calculations saved before accessories existed still read back.
+  accessories: v.optional(v.array(printAccessoryUsage)),
   printTimeHours: v.number(),
   printer: v.optional(
     v.object({
@@ -43,6 +53,8 @@ export const printPriceBreakdown = v.object({
   electricity: v.number(),
   printerWear: v.number(),
   labor: v.number(),
+  // Optional for the same backwards-compatibility reason as accessories above.
+  accessories: v.optional(v.number()),
   subtotal: v.number(),
   failure: v.number(),
   profit: v.number(),
@@ -85,6 +97,19 @@ export const printPricingSchema = {
     name: v.string(),
     normalizedName: v.string(),
     costPerKg: v.number(),
+    createdBy: v.id("users"),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_normalized_name", ["normalizedName"])
+    .searchIndex("search_name", { searchField: "name" }),
+
+  // Reusable accessory catalog. Store links make restocking quick.
+  printPricingAccessories: defineTable({
+    name: v.string(),
+    normalizedName: v.string(),
+    price: v.number(),
+    storeUrl: v.optional(v.string()),
     createdBy: v.id("users"),
     createdAt: v.number(),
     updatedAt: v.number(),

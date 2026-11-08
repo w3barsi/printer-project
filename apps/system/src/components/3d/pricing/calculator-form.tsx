@@ -43,6 +43,11 @@ import { useHotkeys } from "react-hotkeys-hook";
 import { z } from "zod";
 
 import {
+  AccessoryFormDialog,
+  isValidStoreUrl,
+  type AccessoryInitialValues,
+} from "@/components/3d/pricing/accessory-manager-dialog";
+import {
   FilamentPresetFormDialog,
   PrinterPresetFormDialog,
   type FilamentPresetInitialValues,
@@ -57,6 +62,21 @@ const filamentRowSchema = z.object({
   costPerKg: z.number().nonnegative("Cost per kg cannot be negative"),
 });
 
+const accessoryRowSchema = z.object({
+  accessoryId: z.string(),
+  name: z.string().trim().min(1, "Accessory name is required").max(120),
+  price: z.number().nonnegative("Price cannot be negative"),
+  storeUrl: z
+    .string()
+    .trim()
+    .max(500)
+    .optional()
+    .refine(
+      (value) => !value || isValidStoreUrl(value),
+      "Enter a valid link starting with http:// or https://",
+    ),
+});
+
 const pricingCalculatorSchema = z
   .object({
     filaments: z
@@ -65,6 +85,12 @@ const pricingCalculatorSchema = z
       .max(
         printPricingLimits.maxFilaments,
         `Use at most ${printPricingLimits.maxFilaments} filaments`,
+      ),
+    accessories: z
+      .array(accessoryRowSchema)
+      .max(
+        printPricingLimits.maxAccessories,
+        `Use at most ${printPricingLimits.maxAccessories} accessories`,
       ),
     printTimeHours: z.number(),
     printTimeMinutes: z.number(),
@@ -191,9 +217,14 @@ function createEmptyFilamentRow() {
   return { presetId: "", name: "", weightGrams: 0, costPerKg: 0 };
 }
 
+function createEmptyAccessoryRow() {
+  return { accessoryId: "", name: "", price: 0, storeUrl: "" };
+}
+
 function createDefaultValues(): PricingCalculatorFormData {
   return {
     filaments: [createEmptyFilamentRow()],
+    accessories: [],
     printTimeHours: 0,
     printTimeMinutes: 0,
     includePrinter: true,
@@ -226,6 +257,14 @@ function toPricingInput(values: PricingCalculatorFormData): PrintPricingInput {
       name: filament.name.trim(),
       weightGrams: toFiniteNumber(filament.weightGrams),
       costPerKg: toFiniteNumber(filament.costPerKg),
+    })),
+    accessories: values.accessories.map((accessory) => ({
+      accessoryId: accessory.accessoryId
+        ? (accessory.accessoryId as Id<"printPricingAccessories">)
+        : undefined,
+      name: accessory.name.trim(),
+      price: toFiniteNumber(accessory.price),
+      storeUrl: accessory.storeUrl?.trim() || undefined,
     })),
     printTimeHours:
       toFiniteNumber(values.printTimeHours) +
@@ -271,6 +310,12 @@ function toFormValues(input: PrintPricingInput): PricingCalculatorFormData {
       weightGrams: filament.weightGrams,
       costPerKg: filament.costPerKg,
     })),
+    accessories: (input.accessories ?? []).map((accessory) => ({
+      accessoryId: accessory.accessoryId ?? "",
+      name: accessory.name,
+      price: accessory.price,
+      storeUrl: accessory.storeUrl ?? "",
+    })),
     printTimeHours: Math.floor(totalMinutes / 60),
     printTimeMinutes: totalMinutes % 60,
     includePrinter: input.printer !== undefined,
@@ -308,6 +353,14 @@ export function PricingCalculatorForm({
     control: form.control,
     name: "filaments",
   });
+  const {
+    fields: accessoryFields,
+    append: appendAccessory,
+    remove: removeAccessory,
+  } = useFieldArray({
+    control: form.control,
+    name: "accessories",
+  });
   const mutation = useMutation({
     mutationFn: useConvexMutation(api.printPricing.calculations.createCalculation),
     onSuccess: () => {
@@ -327,6 +380,9 @@ export function PricingCalculatorForm({
   const { data: filamentPresets } = useQuery(
     convexQuery(api.printPricing.presets.listFilamentPresets, {}),
   );
+  const { data: accessories } = useQuery(
+    convexQuery(api.printPricing.accessories.listAccessories, {}),
+  );
   const includePrinter = form.watch("includePrinter");
   const includeLabor = form.watch("includeLabor");
   const includeBusiness = form.watch("includeBusiness");
@@ -335,6 +391,9 @@ export function PricingCalculatorForm({
     useState<PrinterPresetInitialValues | null>(null);
   const [filamentPresetInitial, setFilamentPresetInitial] =
     useState<FilamentPresetInitialValues | null>(null);
+  const [accessoryInitial, setAccessoryInitial] = useState<AccessoryInitialValues | null>(
+    null,
+  );
   const saveButtonRef = useRef<HTMLButtonElement>(null);
   useHotkeys(
     "ctrl+enter",
@@ -364,6 +423,14 @@ export function PricingCalculatorForm({
         value: preset._id,
       })),
     [filamentPresets],
+  );
+  const accessoryItems = useMemo(
+    () =>
+      (accessories ?? []).map((accessory) => ({
+        label: `${accessory.name} · ${formatPeso(accessory.price)}`,
+        value: accessory._id,
+      })),
+    [accessories],
   );
   const selectedPrinterPreset = useMemo(
     () =>
@@ -440,7 +507,18 @@ export function PricingCalculatorForm({
         }
       });
     }
-  }, [form, printerPresets, filamentPresets]);
+
+    if (accessories) {
+      form.getValues("accessories").forEach((accessory, index) => {
+        if (
+          accessory.accessoryId &&
+          !accessories.some((item) => item._id === accessory.accessoryId)
+        ) {
+          form.setValue(`accessories.${index}.accessoryId`, "");
+        }
+      });
+    }
+  }, [form, printerPresets, filamentPresets, accessories]);
 
   function applyPrinterPreset(preset: PrinterPresetListItem) {
     form.setValue("printerPresetId", preset._id);
@@ -464,6 +542,16 @@ export function PricingCalculatorForm({
     syncInput();
   }
 
+  function handleAddAccessory() {
+    appendAccessory(createEmptyAccessoryRow());
+    syncInput();
+  }
+
+  function handleRemoveAccessory(index: number) {
+    removeAccessory(index);
+    syncInput();
+  }
+
   function handleClear() {
     prefillActiveRef.current = false;
     const defaults = createDefaultValues();
@@ -483,6 +571,7 @@ export function PricingCalculatorForm({
       itemId,
       note: values.note?.trim() || undefined,
       filaments: input.filaments,
+      accessories: input.accessories,
       printTimeHours: input.printTimeHours,
       printer: input.printer,
       labor: input.labor,
@@ -668,6 +757,212 @@ export function PricingCalculatorForm({
                 </div>
               </div>
             ))}
+          </CardContent>
+        </Card>
+
+        <Card className="gap-0 overflow-hidden py-0">
+          <CardHeader className="border-b py-4">
+            <CardTitle>Accessories</CardTitle>
+            <CardDescription>Extra parts bought for this print.</CardDescription>
+            <CardAction>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={
+                  accessoryFields.length >= printPricingLimits.maxAccessories ||
+                  mutation.isPending
+                }
+                onClick={handleAddAccessory}
+              >
+                <PlusIcon data-icon="inline-start" />
+                Add accessory
+              </Button>
+            </CardAction>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-4 p-4">
+            {accessoryFields.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                No accessories added. Add one to include its cost in the total.
+              </p>
+            ) : (
+              accessoryFields.map((field, index) => (
+                <div key={field.id} className="flex flex-col gap-4 rounded-lg border p-4">
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="text-sm font-medium">Accessory {index + 1}</p>
+                    <div className="flex items-center gap-1">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon-sm"
+                        disabled={mutation.isPending}
+                        onClick={() =>
+                          setAccessoryInitial({
+                            name: form.getValues(`accessories.${index}.name`),
+                            price: form.getValues(`accessories.${index}.price`),
+                            storeUrl: form.getValues(`accessories.${index}.storeUrl`),
+                          })
+                        }
+                      >
+                        <BookmarkPlusIcon />
+                        <span className="sr-only">
+                          Save accessory {index + 1} to the catalog
+                        </span>
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon-sm"
+                        className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+                        disabled={mutation.isPending}
+                        onClick={() => handleRemoveAccessory(index)}
+                      >
+                        <Trash2Icon />
+                        <span className="sr-only">Remove accessory {index + 1}</span>
+                      </Button>
+                    </div>
+                  </div>
+                  <Controller
+                    name={`accessories.${index}.accessoryId`}
+                    control={form.control}
+                    render={({ field: presetField }) => (
+                      <Field>
+                        <FieldLabel htmlFor={`accessory-${index}-preset`}>
+                          Saved accessory
+                        </FieldLabel>
+                        <Select
+                          items={accessoryItems}
+                          name={presetField.name}
+                          value={presetField.value || null}
+                          onValueChange={(value) => {
+                            const accessoryId = typeof value === "string" ? value : "";
+                            presetField.onChange(accessoryId);
+                            const accessory = accessories?.find(
+                              (item) => item._id === accessoryId,
+                            );
+                            if (accessory) {
+                              form.setValue(`accessories.${index}.name`, accessory.name);
+                              form.setValue(
+                                `accessories.${index}.price`,
+                                accessory.price,
+                              );
+                              form.setValue(
+                                `accessories.${index}.storeUrl`,
+                                accessory.storeUrl ?? "",
+                              );
+                            }
+                          }}
+                          disabled={mutation.isPending || accessoryItems.length === 0}
+                        >
+                          <SelectTrigger
+                            id={`accessory-${index}-preset`}
+                            className="w-full"
+                          >
+                            <SelectValue
+                              placeholder={
+                                accessoryItems.length === 0
+                                  ? "No saved accessories"
+                                  : "Choose a saved accessory"
+                              }
+                            />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectGroup>
+                              {accessoryItems.map((item) => (
+                                <SelectItem key={item.value} value={item.value}>
+                                  {item.label}
+                                </SelectItem>
+                              ))}
+                            </SelectGroup>
+                          </SelectContent>
+                        </Select>
+                        <FieldDescription>
+                          {accessoryItems.length === 0
+                            ? "No saved accessories yet. Enter the details below and use the bookmark button to save one."
+                            : "Choosing one fills in its name, price, and store link."}
+                        </FieldDescription>
+                      </Field>
+                    )}
+                  />
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <Controller
+                      name={`accessories.${index}.name`}
+                      control={form.control}
+                      render={({ field: nameField, fieldState }) => (
+                        <Field data-invalid={fieldState.invalid}>
+                          <FieldLabel htmlFor={`accessory-${index}-name`}>
+                            Name
+                          </FieldLabel>
+                          <Input
+                            {...nameField}
+                            id={`accessory-${index}-name`}
+                            placeholder="e.g. M3 heat inserts"
+                            aria-invalid={fieldState.invalid}
+                            disabled={mutation.isPending}
+                          />
+                          {fieldState.invalid && (
+                            <FieldError>{fieldState.error?.message}</FieldError>
+                          )}
+                        </Field>
+                      )}
+                    />
+                    <Controller
+                      name={`accessories.${index}.price`}
+                      control={form.control}
+                      render={({ field: priceField, fieldState }) => (
+                        <Field data-invalid={fieldState.invalid}>
+                          <FieldLabel htmlFor={`accessory-${index}-price`}>
+                            Price (₱)
+                          </FieldLabel>
+                          <Input
+                            {...priceField}
+                            id={`accessory-${index}-price`}
+                            type="number"
+                            min="0"
+                            step="any"
+                            aria-invalid={fieldState.invalid}
+                            disabled={mutation.isPending}
+                            onChange={(event) =>
+                              priceField.onChange(Number(event.target.value))
+                            }
+                          />
+                          {fieldState.invalid && (
+                            <FieldError>{fieldState.error?.message}</FieldError>
+                          )}
+                        </Field>
+                      )}
+                    />
+                  </div>
+                  <Controller
+                    name={`accessories.${index}.storeUrl`}
+                    control={form.control}
+                    render={({ field: storeField, fieldState }) => (
+                      <Field data-invalid={fieldState.invalid}>
+                        <FieldLabel htmlFor={`accessory-${index}-store`}>
+                          Store link{" "}
+                          <span className="text-muted-foreground">(optional)</span>
+                        </FieldLabel>
+                        <Input
+                          {...storeField}
+                          id={`accessory-${index}-store`}
+                          type="text"
+                          inputMode="url"
+                          placeholder="https://..."
+                          aria-invalid={fieldState.invalid}
+                          disabled={mutation.isPending}
+                        />
+                        <FieldDescription>
+                          Where to buy it when you need to restock.
+                        </FieldDescription>
+                        {fieldState.invalid && (
+                          <FieldError>{fieldState.error?.message}</FieldError>
+                        )}
+                      </Field>
+                    )}
+                  />
+                </div>
+              ))
+            )}
           </CardContent>
         </Card>
 
@@ -1122,6 +1417,16 @@ export function PricingCalculatorForm({
           initialValues={filamentPresetInitial}
           onOpenChange={(nextOpen) => {
             if (!nextOpen) setFilamentPresetInitial(null);
+          }}
+        />
+      ) : null}
+
+      {accessoryInitial ? (
+        <AccessoryFormDialog
+          open
+          initialValues={accessoryInitial}
+          onOpenChange={(nextOpen) => {
+            if (!nextOpen) setAccessoryInitial(null);
           }}
         />
       ) : null}

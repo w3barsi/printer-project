@@ -20,6 +20,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, useMatch, useRouteContext } from "@tanstack/react-router";
 import {
   BoxesIcon,
+  CalculatorIcon,
   ChevronRightIcon,
   CuboidIcon,
   FolderIcon,
@@ -107,6 +108,23 @@ function ThreeDSidebarItem() {
         <CuboidIcon />
         <span>3D</span>
       </SidebarMenuButton>
+      <SidebarMenuSub>
+        <SidebarMenuSubItem>
+          <SidebarMenuSubButton
+            isActive={!!pricingMatch || !!pricingItemMatch}
+            render={
+              <Link
+                to="/3d/pricing"
+                onClick={() => isMobile && setOpenMobile(false)}
+                tabIndex={0}
+              />
+            }
+          >
+            <CalculatorIcon />
+            <span>Pricing</span>
+          </SidebarMenuSubButton>
+        </SidebarMenuSubItem>
+      </SidebarMenuSub>
     </SidebarMenuItem>
   );
 }

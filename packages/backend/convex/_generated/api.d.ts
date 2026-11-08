@@ -26,6 +26,7 @@ import type * as items from "../items.js";
 import type * as jo from "../jo.js";
 import type * as migrations from "../migrations.js";
 import type * as payment from "../payment.js";
+import type * as printPricing_accessories from "../printPricing/accessories.js";
 import type * as printPricing_calculations from "../printPricing/calculations.js";
 import type * as printPricing_items from "../printPricing/items.js";
 import type * as printPricing_lib from "../printPricing/lib.js";
@@ -66,6 +67,7 @@ declare const fullApi: ApiFromModules<{
   jo: typeof jo;
   migrations: typeof migrations;
   payment: typeof payment;
+  "printPricing/accessories": typeof printPricing_accessories;
   "printPricing/calculations": typeof printPricing_calculations;
   "printPricing/items": typeof printPricing_items;
   "printPricing/lib": typeof printPricing_lib;

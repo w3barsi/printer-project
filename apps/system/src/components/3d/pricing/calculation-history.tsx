@@ -32,7 +32,12 @@ import { Skeleton } from "@dg/ui-coss/components/skeleton";
 import { Spinner } from "@dg/ui-coss/components/spinner";
 import { toastManager } from "@dg/ui-coss/components/toast";
 import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
-import { ChevronRightIcon, HistoryIcon, Trash2Icon } from "lucide-react";
+import {
+  ChevronRightIcon,
+  ExternalLinkIcon,
+  HistoryIcon,
+  Trash2Icon,
+} from "lucide-react";
 import { useState } from "react";
 
 import {
@@ -159,12 +164,17 @@ function CalculationHistoryRow({
 }
 
 function CalculationSnapshot({ calculation }: { calculation: CalculationListItem }) {
-  const inputRows: Array<{ label: string; value: string }> = [
+  const inputRows: Array<{ label: string; value: string; href?: string }> = [
     ...calculation.filaments.map((filament) => ({
       label: filament.name,
       value: `${filament.weightGrams.toLocaleString()} g · ${formatPeso(
         filament.costPerKg,
       )}/kg`,
+    })),
+    ...(calculation.accessories ?? []).map((accessory) => ({
+      label: accessory.name,
+      value: formatPeso(accessory.price),
+      href: accessory.storeUrl,
     })),
     { label: "Print time", value: formatPrintTime(calculation.printTimeHours) },
   ];
@@ -223,7 +233,20 @@ function CalculationSnapshot({ calculation }: { calculation: CalculationListItem
               className="flex items-center justify-between gap-4"
             >
               <dt className="min-w-0 truncate text-muted-foreground">{row.label}</dt>
-              <dd className="shrink-0 tabular-nums">{row.value}</dd>
+              <dd className="flex shrink-0 items-center gap-2 tabular-nums">
+                <span>{row.value}</span>
+                {row.href ? (
+                  <a
+                    href={row.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 text-xs underline underline-offset-4 hover:text-foreground"
+                  >
+                    Restock
+                    <ExternalLinkIcon className="size-3" />
+                  </a>
+                ) : null}
+              </dd>
             </div>
           ))}
         </dl>
