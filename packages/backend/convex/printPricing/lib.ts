@@ -55,6 +55,14 @@ export function validatePositiveNumber(value: number, label: string) {
   return value;
 }
 
+export function validatePositiveInteger(value: number, label: string) {
+  if (!Number.isInteger(value) || value <= 0) {
+    throw new Error(`${label} must be a whole number greater than 0`);
+  }
+
+  return value;
+}
+
 export function validatePercentage(value: number, label: string) {
   if (!Number.isFinite(value) || value < 0 || value > 100) {
     throw new Error(`${label} must be between 0 and 100`);
@@ -118,6 +126,11 @@ export function validateOptionalStoreUrl(url?: string) {
 }
 
 export function validatePrintPricingInput(input: PrintPricingInput): PrintPricingInput {
+  const quantity =
+    input.quantity === undefined
+      ? 1
+      : validatePositiveInteger(input.quantity, "Quantity");
+
   if (input.filaments.length === 0) {
     throw new Error("At least one filament is required");
   }
@@ -203,6 +216,7 @@ export function validatePrintPricingInput(input: PrintPricingInput): PrintPricin
     : undefined;
 
   return {
+    quantity,
     filaments,
     accessories,
     printTimeHours: validateNonNegativeNumber(
@@ -216,27 +230,34 @@ export function validatePrintPricingInput(input: PrintPricingInput): PrintPricin
 }
 
 export function computePriceBreakdown(input: PrintPricingInput): PrintPriceBreakdown {
-  const material = input.filaments.reduce(
-    (total, filament) => total + (filament.weightGrams / 1000) * filament.costPerKg,
-    0,
-  );
+  const quantity = input.quantity ?? 1;
+
+  // Quantity covers the parts and machine time for every print in the order.
+  // Labor is a one-off cost, so it is added once on top of the multiplied cost.
+  const material =
+    input.filaments.reduce(
+      (total, filament) => total + (filament.weightGrams / 1000) * filament.costPerKg,
+      0,
+    ) * quantity;
 
   const electricity = input.printer
     ? (input.printer.powerWatts / 1000) *
       input.printTimeHours *
-      input.printer.electricityRatePerKwh
+      input.printer.electricityRatePerKwh *
+      quantity
     : 0;
 
   const printerWear = input.printer
-    ? (input.printer.price / input.printer.lifespanHours) * input.printTimeHours
+    ? (input.printer.price / input.printer.lifespanHours) *
+      input.printTimeHours *
+      quantity
     : 0;
 
   const laborCost = input.labor ? input.labor.ratePerHour * input.labor.hours : 0;
 
-  const accessoryCost = (input.accessories ?? []).reduce(
-    (total, accessory) => total + accessory.price,
-    0,
-  );
+  const accessoryCost =
+    (input.accessories ?? []).reduce((total, accessory) => total + accessory.price, 0) *
+    quantity;
 
   const subtotal = material + electricity + printerWear + laborCost + accessoryCost;
 

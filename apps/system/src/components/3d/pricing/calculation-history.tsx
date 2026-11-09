@@ -165,6 +165,7 @@ function CalculationHistoryRow({
 
 function CalculationSnapshot({ calculation }: { calculation: CalculationListItem }) {
   const inputRows: Array<{ label: string; value: string; href?: string }> = [
+    { label: "Quantity", value: (calculation.quantity ?? 1).toLocaleString() },
     ...calculation.filaments.map((filament) => ({
       label: filament.name,
       value: `${filament.weightGrams.toLocaleString()} g · ${formatPeso(

@@ -79,6 +79,10 @@ const accessoryRowSchema = z.object({
 
 const pricingCalculatorSchema = z
   .object({
+    quantity: z
+      .number()
+      .int("Quantity must be a whole number")
+      .min(1, "Quantity must be at least 1"),
     filaments: z
       .array(filamentRowSchema)
       .min(1, "Add at least one filament")
@@ -223,6 +227,7 @@ function createEmptyAccessoryRow() {
 
 function createDefaultValues(): PricingCalculatorFormData {
   return {
+    quantity: 1,
     filaments: [createEmptyFilamentRow()],
     accessories: [],
     printTimeHours: 0,
@@ -248,8 +253,14 @@ function toFiniteNumber(value: number) {
   return Number.isFinite(value) ? value : 0;
 }
 
+// Quantity is always at least 1; zero and invalid values fall back to 1.
+function normalizeQuantity(value: number) {
+  return Number.isFinite(value) && value >= 1 ? value : 1;
+}
+
 function toPricingInput(values: PricingCalculatorFormData): PrintPricingInput {
   return {
+    quantity: normalizeQuantity(toFiniteNumber(values.quantity)),
     filaments: values.filaments.map((filament) => ({
       presetId: filament.presetId
         ? (filament.presetId as Id<"printPricingFilamentPresets">)
@@ -304,6 +315,7 @@ function toFormValues(input: PrintPricingInput): PricingCalculatorFormData {
 
   return {
     ...defaults,
+    quantity: normalizeQuantity(input.quantity ?? 1),
     filaments: input.filaments.map((filament) => ({
       presetId: filament.presetId ?? "",
       name: filament.name,
@@ -570,6 +582,7 @@ export function PricingCalculatorForm({
     mutation.mutate({
       itemId,
       note: values.note?.trim() || undefined,
+      quantity: input.quantity,
       filaments: input.filaments,
       accessories: input.accessories,
       printTimeHours: input.printTimeHours,
@@ -582,6 +595,42 @@ export function PricingCalculatorForm({
   return (
     <>
       <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4">
+        <Card className="gap-0 overflow-hidden py-0">
+          <CardHeader className="border-b py-4">
+            <CardTitle>Order</CardTitle>
+            <CardDescription>
+              Quantity multiplies material, accessory, and machine costs. Labor is added
+              once on top.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="p-4">
+            <Controller
+              name="quantity"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid} className="sm:max-w-48">
+                  <FieldLabel htmlFor="order-quantity">Quantity ordered</FieldLabel>
+                  <Input
+                    {...field}
+                    id="order-quantity"
+                    type="number"
+                    min="1"
+                    step="1"
+                    aria-invalid={fieldState.invalid}
+                    disabled={mutation.isPending}
+                    onChange={(event) =>
+                      field.onChange(normalizeQuantity(Number(event.target.value)))
+                    }
+                  />
+                  {fieldState.invalid && (
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  )}
+                </Field>
+              )}
+            />
+          </CardContent>
+        </Card>
+
         <Card className="gap-0 overflow-hidden py-0">
           <CardHeader className="border-b py-4">
             <CardTitle>Material</CardTitle>

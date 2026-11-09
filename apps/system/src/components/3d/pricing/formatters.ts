@@ -41,15 +41,22 @@ export function buildBreakdownRows(
   input: PrintPricingInput,
   breakdown: PrintPriceBreakdown,
 ): BreakdownRow[] {
-  const rows: BreakdownRow[] = [{ label: "Material", amount: breakdown.material }];
+  const quantity = input.quantity ?? 1;
+  const quantitySuffix = quantity > 1 ? ` × ${quantity}` : "";
+  const rows: BreakdownRow[] = [
+    { label: `Material${quantitySuffix}`, amount: breakdown.material },
+  ];
 
   if (input.accessories?.length) {
-    rows.push({ label: "Accessories", amount: breakdown.accessories ?? 0 });
+    rows.push({
+      label: `Accessories${quantitySuffix}`,
+      amount: breakdown.accessories ?? 0,
+    });
   }
 
   if (input.printer) {
-    rows.push({ label: "Electricity", amount: breakdown.electricity });
-    rows.push({ label: "Printer wear", amount: breakdown.printerWear });
+    rows.push({ label: `Electricity${quantitySuffix}`, amount: breakdown.electricity });
+    rows.push({ label: `Printer wear${quantitySuffix}`, amount: breakdown.printerWear });
   }
 
   if (input.labor) {

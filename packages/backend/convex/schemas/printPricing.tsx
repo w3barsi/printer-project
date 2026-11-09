@@ -19,6 +19,8 @@ export const printAccessoryUsage = v.object({
 
 // The calculator's full input payload (also used as the save mutation args).
 export const printPricingInput = v.object({
+  // Optional so calculations saved before quantity existed still read back as 1.
+  quantity: v.optional(v.number()),
   filaments: v.array(printFilamentUsage),
   // Optional so calculations saved before accessories existed still read back.
   accessories: v.optional(v.array(printAccessoryUsage)),
