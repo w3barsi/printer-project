@@ -1,7 +1,7 @@
 import { execSync } from "node:child_process";
 import { readFileSync, writeFileSync } from "node:fs";
 
-const VALID_TARGETS = ["backend", "storefront", "system", "cfsystem"];
+const VALID_TARGETS = ["backend", "storefront", "system"];
 
 const target = process.argv[2];
 

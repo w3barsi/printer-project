@@ -1,16 +1,15 @@
 # DARCYGRAPHiX — Printer/Signage Business System
 
-Monorepo (pnpm workspaces) with two independently deployable TanStack Start frontends, one shared Convex backend, and a transient redirect Worker.
+Monorepo (pnpm workspaces) with two independently deployable TanStack Start frontends and one shared Convex backend.
 
 ## Domains
 
-| Surface                                   | URL                                 | Worker                    | Backend                           |
-| ----------------------------------------- | ----------------------------------- | ------------------------- | --------------------------------- |
-| Storefront, online ordering, drive shares | `https://darcygraphix.com`          | `darcygraphix-storefront` | shared Convex (`cool-wombat-664`) |
-| Login, auth proxy, internal system        | `https://system.darcygraphix.com`   | `darcygraphix-system`     | shared Convex (`cool-wombat-664`) |
-| Legacy redirect (migration window)        | `https://cfsystem.darcygraphix.com` | `cfsystem-redirect`       | —                                 |
+| Surface                                   | URL                               | Worker                    | Backend                           |
+| ----------------------------------------- | --------------------------------- | ------------------------- | --------------------------------- |
+| Storefront, online ordering, drive shares | `https://darcygraphix.com`        | `darcygraphix-storefront` | shared Convex (`cool-wombat-664`) |
+| Login, auth proxy, internal system        | `https://system.darcygraphix.com` | `darcygraphix-system`     | shared Convex (`cool-wombat-664`) |
 
-Internal URLs are root-level (no `/app`): `/jo`, `/inventory`, `/cashflow`, `/drive`, `/newdrive`, `/trello`, `/admin`. Old `/app/*` and `cfsystem.darcygraphix.com` links redirect. Public shares live at `/share/$token/{-$itemId}` on the public domain. Development Convex deployment: `rosy-rabbit-645`.
+Internal URLs are root-level (no `/app`): `/jo`, `/inventory`, `/cashflow`, `/drive`, `/newdrive`, `/trello`, `/admin`. Old `/app/*` links redirect. Public shares live at `/share/$token/{-$itemId}` on the public domain. Development Convex deployment: `rosy-rabbit-645`.
 
 ## Packages
 
@@ -20,7 +19,6 @@ Internal URLs are root-level (no `/app`): `/jo`, `/inventory`, `/cashflow`, `/dr
 - `packages/auth` — `@dg/auth`: Better Auth access-control/role definitions.
 - `packages/drive` — `@dg/drive`: shared drive implementation (public shares + system drive).
 - `packages/ui-coss` — `@dg/ui-coss`: COSS UI primitives, hooks, base design tokens.
-- `workers/cfsystem-redirect` — `@dg/cfsystem-redirect`: legacy-domain redirect Worker.
 
 ## Commands (root)
 
@@ -28,7 +26,6 @@ Internal URLs are root-level (no `/app`): `/jo`, `/inventory`, `/cashflow`, `/dr
 - `pnpm build:storefront` / `pnpm build:system` — build one frontend (Nitro output in `.output/`)
 - `pnpm deploy:backend` — deploy the shared Convex backend
 - `pnpm deploy:storefront` / `pnpm deploy:system` — Cloudflare build + deploy one Worker
-- `pnpm deploy:cfsystem` — deploy the redirect Worker
 - `pnpm cf:typegen` — regenerate per-app Worker types
 - `pnpm env` / `pnpm env:prod` — sync `.env.local`/`.env.prod` vars to the dev/production Convex deployments (`sync-env.js` targets `@dg/backend`)
 - `pnpm dryrun` — Convex deploy dry-run

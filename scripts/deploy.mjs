@@ -2,11 +2,10 @@ import { execSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
-const VALID_TARGETS = ["backend", "storefront", "system", "cfsystem"];
+const VALID_TARGETS = ["backend", "storefront", "system"];
 
 const DEPLOY_COMMANDS = {
   backend: "pnpm --filter @dg/backend run deploy",
-  cfsystem: "pnpm --filter @dg/cfsystem-redirect run deploy",
   storefront: "pnpm --filter @dg/storefront run deploy",
   system: "pnpm --filter @dg/system run deploy",
 };

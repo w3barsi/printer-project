@@ -23,7 +23,7 @@ Recorded on 2026-08-27 before structural migration work. Secret values are inten
 
 - `darcygraphix.com`: Cloudflare is authoritative, but the apex currently has no public A or CNAME answer. No Cloudflare Pages project owns this domain in the authenticated account.
 - `system.darcygraphix.com`: active CNAME to Vercel (`5130d9f900692fc1.vercel-dns-017.com`) and currently serves the system application with `/` redirecting to `/jo` and then `/login`.
-- `cfsystem.darcygraphix.com`: active proxied Cloudflare endpoint serving the `printer-project` Worker configured in root `wrangler.jsonc`.
+- `cfsystem.darcygraphix.com`: proxied Cloudflare endpoint serving the `printer-project` Worker configured in root `wrangler.jsonc` (removed 2026-11-09; the domain never served production traffic).
 - The authenticated Cloudflare account contains the active `printer-project` deployment. The only listed Pages project is unrelated (`airflow-simulator`).
 
 ## Asset Ownership

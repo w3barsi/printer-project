@@ -37,7 +37,6 @@ We need to be on the same page with terminology. When communicating, use this la
 - `packages/auth` - Shared Better Auth access-control roles and permissions.
 - `packages/drive` - Shared drive UI and file upload/download behavior used by the apps.
 - `packages/ui` - Shared shadcn/ui components, hooks, utilities, and base styles.
-- `workers/cfsystem-redirect` - Standalone Cloudflare Worker for system redirects.
 - `docs` - Repository documentation and operational notes.
 
 ## Style
