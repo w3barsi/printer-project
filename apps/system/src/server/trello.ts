@@ -40,6 +40,7 @@ const trelloListSchema = z.object({
   closed: z.boolean(),
   pos: z.number(),
   idBoard: z.string(),
+  cards: z.array(z.object({ id: z.string() })).optional(),
 });
 
 const cardAttachmentSchema = z.array(
@@ -64,6 +65,7 @@ const trelloCardsSchema = z.array(
     closed: z.boolean(),
     desc: z.string().optional(),
     due: z.string().nullable(),
+    dueComplete: z.boolean().optional(),
     idList: z.string(),
     name: z.string(),
     pos: z.number(),
@@ -88,7 +90,10 @@ export const getListCards = createServerFn({ method: "GET" })
   });
 
 export const getTrelloLists = createServerFn({ method: "GET" }).handler(async () => {
-  return trelloFetch(`/boards/${BOARD_ID}/lists`, z.array(trelloListSchema));
+  return trelloFetch(
+    `/boards/${BOARD_ID}/lists?cards=open&card_fields=id`,
+    z.array(trelloListSchema),
+  );
 });
 
 const moveCardValidator = z.object({
