@@ -91,6 +91,33 @@ export const getTrelloLists = createServerFn({ method: "GET" }).handler(async ()
   return trelloFetch(`/boards/${BOARD_ID}/lists`, z.array(trelloListSchema));
 });
 
+const moveCardValidator = z.object({
+  cardId: z.string(),
+  listId: z.string(),
+});
+
+const movedCardSchema = z.object({
+  id: z.string(),
+  idList: z.string(),
+});
+
+export const moveCardToList = createServerFn({ method: "POST" })
+  .validator(moveCardValidator)
+  .handler(async ({ data }) => {
+    const lists = await trelloFetch(
+      `/boards/${BOARD_ID}/lists`,
+      z.array(trelloListSchema),
+    );
+    if (!lists.some((list) => list.id === data.listId)) {
+      throw new Error("Trello list not found");
+    }
+    const cardId = encodeURIComponent(data.cardId);
+    const listId = encodeURIComponent(data.listId);
+    return trelloFetch(`/cards/${cardId}?idList=${listId}&pos=bottom`, movedCardSchema, {
+      method: "PUT",
+    });
+  });
+
 export const getCardAttachmentsServerFn = createServerFn({ method: "POST" })
   .validator(z.object({ id: z.string() }))
   .handler(async ({ data }) => {

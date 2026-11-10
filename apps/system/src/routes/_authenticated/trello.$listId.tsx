@@ -1,12 +1,18 @@
 import { Button } from "@dg/ui-coss/components/button";
 import { Card, CardContent, CardFooter } from "@dg/ui-coss/components/card";
+import { Menu, MenuItem, MenuPopup, MenuTrigger } from "@dg/ui-coss/components/menu";
 import { Skeleton } from "@dg/ui-coss/components/skeleton";
 import { toastManager } from "@dg/ui-coss/components/toast";
-import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQuery,
+  useQueryClient,
+  useSuspenseQuery,
+} from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import fileSaver from "file-saver";
 import JSZip from "jszip";
-import { RefreshCwIcon } from "lucide-react";
+import { MoveRightIcon, RefreshCwIcon } from "lucide-react";
 import { Suspense } from "react";
 
 import { Container } from "@/components/layouts/container";
@@ -14,6 +20,8 @@ import {
   downloadCardAttachmentsServerFn,
   getCardAttachmentsServerFn,
   getListCards,
+  getTrelloLists,
+  moveCardToList,
 } from "@/server/trello";
 
 type ImagesFromCard = {
@@ -77,6 +85,7 @@ function CardListSkeleton() {
 
 function CardList() {
   const { listId } = Route.useParams();
+  const queryClient = useQueryClient();
   const {
     data: cards,
     refetch,
@@ -85,6 +94,11 @@ function CardList() {
     queryKey: ["listCards", listId],
     queryFn: () => getListCards({ data: { listId } }),
   });
+  const { data: lists } = useQuery({
+    queryKey: ["trelloLists"],
+    queryFn: () => getTrelloLists(),
+  });
+  const otherLists = (lists ?? []).filter((list) => list.id !== listId && !list.closed);
 
   const getCardAttachments = useMutation({
     mutationFn: getCardAttachmentsServerFn,
@@ -92,6 +106,25 @@ function CardList() {
 
   const downloadCardAttachments = useMutation({
     mutationFn: downloadCardAttachmentsServerFn,
+  });
+
+  const moveCard = useMutation({
+    mutationFn: moveCardToList,
+    onSuccess: async (_card, variables) => {
+      const targetList = otherLists.find((list) => list.id === variables.data.listId);
+      await queryClient.invalidateQueries({ queryKey: ["listCards"] });
+      toastManager.add({
+        title: targetList ? `Moved to ${targetList.name}` : "Card moved",
+        type: "success",
+      });
+    },
+    onError: (error) => {
+      toastManager.add({
+        title: "Failed to move card",
+        description: error.message,
+        type: "error",
+      });
+    },
   });
 
   const getAttachments = async (cardId: string, cardName: string) => {
@@ -150,9 +183,9 @@ function CardList() {
                   {card.name}
                 </Link>
               </CardContent>
-              <CardFooter className="p-0">
+              <CardFooter className="grid grid-cols-[1fr_auto] gap-0 p-0">
                 <Button
-                  className="w-full rounded-t-none"
+                  className="rounded-t-none rounded-br-none"
                   onClick={() => {
                     const toastId = toastManager.add({
                       title: "Downloading attachments...",
@@ -185,6 +218,43 @@ function CardList() {
                     {card.badges.attachments > 0 && ` (${card.badges.attachments})`}
                   </span>
                 </Button>
+                <Menu>
+                  <MenuTrigger
+                    render={
+                      <Button
+                        variant="outline"
+                        className="rounded-t-none rounded-bl-none border-l-0"
+                        disabled={otherLists.length === 0 || moveCard.isPending}
+                        loading={
+                          moveCard.isPending &&
+                          moveCard.variables?.data.cardId === card.id
+                        }
+                      />
+                    }
+                  >
+                    <MoveRightIcon />
+                    Move to
+                  </MenuTrigger>
+                  <MenuPopup align="end">
+                    {otherLists.length ? (
+                      otherLists.map((list) => (
+                        <MenuItem
+                          key={list.id}
+                          disabled={moveCard.isPending}
+                          onClick={() =>
+                            moveCard.mutate({
+                              data: { cardId: card.id, listId: list.id },
+                            })
+                          }
+                        >
+                          {list.name}
+                        </MenuItem>
+                      ))
+                    ) : (
+                      <MenuItem disabled>No other lists</MenuItem>
+                    )}
+                  </MenuPopup>
+                </Menu>
               </CardFooter>
             </Card>
           ))}
