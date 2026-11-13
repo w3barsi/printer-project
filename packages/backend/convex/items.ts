@@ -1,4 +1,4 @@
-import { v } from "convex/values";
+import { ConvexError, v } from "convex/values";
 
 import { mutation } from "./_generated/server";
 import { authedMutation, requireAppUser } from "./auth";
@@ -54,7 +54,7 @@ export const updateItem = authedMutation({
 
     // Temporary fail case for testing optimistic rollback.
     if (rest.name.trim().toLowerCase() === "watwatwat") {
-      throw new Error('Item name "watwatwat" is not allowed');
+      throw new ConvexError('"watwatwat" is not an allowed item name.');
     }
 
     await ctx.db.patch("items", itemId, rest);

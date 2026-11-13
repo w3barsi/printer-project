@@ -15,6 +15,7 @@ import { Input } from "@dg/ui-coss/components/input";
 import { toastManager } from "@dg/ui-coss/components/toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "convex/react";
+import { ConvexError } from "convex/values";
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
@@ -110,10 +111,11 @@ export function EditItemDialog({
       })
       .catch((error) => {
         toastManager.add({
-          title:
-            error instanceof Error
-              ? error.message
-              : "Failed to update item. Please try again.",
+          title: "Couldn't update item",
+          description:
+            error instanceof ConvexError && typeof error.data === "string"
+              ? error.data
+              : "Please try again.",
           type: "error",
         });
       });
