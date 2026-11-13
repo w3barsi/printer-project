@@ -40,7 +40,37 @@ export function EditItemDialog({
   item: Item | null;
   joId: Id<"jo">;
 }) {
-  const editItem = useMutation(api.items.updateItem);
+  const editItem = useMutation(api.items.updateItem).withOptimisticUpdate(
+    (localStore, args) => {
+      const current = localStore.getQuery(api.jo.getOneComplete, { id: joId });
+      if (!current) return;
+
+      const existing = current.items.find((item) => item._id === args.itemId);
+      if (!existing) return;
+
+      localStore.setQuery(
+        api.jo.getOneComplete,
+        { id: joId },
+        {
+          ...current,
+          items: current.items.map((item) =>
+            item._id === args.itemId
+              ? {
+                  ...item,
+                  name: args.name,
+                  quantity: args.quantity,
+                  price: args.price,
+                }
+              : item,
+          ),
+          totalOrderValue:
+            current.totalOrderValue -
+            existing.quantity * existing.price +
+            args.quantity * args.price,
+        },
+      );
+    },
+  );
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -62,25 +92,33 @@ export function EditItemDialog({
     }
   }, [item, form]);
 
-  const onSubmit = async (data: FormData) => {
+  const onSubmit = (data: FormData) => {
     if (!item) return;
 
-    try {
-      await editItem({
-        joId,
-        itemId: item._id,
-        name: data.name,
-        quantity: data.quantity,
-        price: data.price,
+    editItem({
+      joId,
+      itemId: item._id,
+      name: data.name,
+      quantity: data.quantity,
+      price: data.price,
+    })
+      .then(() => {
+        toastManager.add({
+          title: `"${data.name}" has been updated.`,
+          type: "success",
+        });
+      })
+      .catch((error) => {
+        toastManager.add({
+          title:
+            error instanceof Error
+              ? error.message
+              : "Failed to update item. Please try again.",
+          type: "error",
+        });
       });
-      toastManager.add({ title: `"${data.name}" has been updated.`, type: "success" });
-      setOpen(false);
-    } catch (error) {
-      toastManager.add({
-        title: "Failed to update item. Please try again.",
-        type: "error",
-      });
-    }
+
+    setOpen(false);
   };
 
   const handleOpenChange = (newOpen: boolean) => {
@@ -101,7 +139,7 @@ export function EditItemDialog({
             Update the details below to edit the item.
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={form.handleSubmit(onSubmit)}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="contents">
           <DialogPanel>
             <Controller
               name="name"

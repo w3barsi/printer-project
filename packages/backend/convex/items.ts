@@ -51,6 +51,12 @@ export const updateItem = authedMutation({
   },
   handler: async (ctx, args) => {
     const { joId, itemId, ...rest } = args;
+
+    // Temporary fail case for testing optimistic rollback.
+    if (rest.name.trim().toLowerCase() === "watwatwat") {
+      throw new Error('Item name "watwatwat" is not allowed');
+    }
+
     await ctx.db.patch("items", itemId, rest);
 
     await ctx.db.patch("jo", joId, { updatedAt: new Date().getTime() });
