@@ -56,3 +56,18 @@ export const updateItem = authedMutation({
     await ctx.db.patch("jo", joId, { updatedAt: new Date().getTime() });
   },
 });
+
+export const toggleItemChecked = authedMutation({
+  args: {
+    itemId: v.id("items"),
+  },
+  handler: async (ctx, args) => {
+    const item = await ctx.db.get("items", args.itemId);
+    if (!item) throw new Error("Item not found");
+
+    await ctx.db.patch("items", item._id, {
+      checked: !item.checked,
+      updatedAt: new Date().getTime(),
+    });
+  },
+});

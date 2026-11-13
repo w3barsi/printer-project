@@ -104,6 +104,7 @@ export default defineSchema({
 
   items: defineTable({
     updatedAt: v.optional(v.number()),
+    checked: v.optional(v.boolean()),
 
     joId: v.id("jo"),
     name: v.string(),

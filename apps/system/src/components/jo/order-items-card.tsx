@@ -3,6 +3,7 @@ import { api } from "@dg/backend/api";
 import type { Id } from "@dg/backend/dataModel";
 import { Button } from "@dg/ui-coss/components/button";
 import { Card, CardContent, CardHeader } from "@dg/ui-coss/components/card";
+import { Checkbox } from "@dg/ui-coss/components/checkbox";
 import { Menu, MenuPopup, MenuItem, MenuTrigger } from "@dg/ui-coss/components/menu";
 import {
   Table,
@@ -13,7 +14,9 @@ import {
   TableHeader,
   TableRow,
 } from "@dg/ui-coss/components/table";
+import { cn } from "@dg/ui-coss/lib/utils";
 import { useSuspenseQuery } from "@tanstack/react-query";
+import { useMutation } from "convex/react";
 import { MoreHorizontalIcon, PencilIcon, Trash2Icon } from "lucide-react";
 import { useState } from "react";
 
@@ -25,6 +28,23 @@ import type { Item } from "@/types/convex";
 
 export function OrderItemsCard({ joId }: { joId: Id<"jo"> }) {
   const { data: jo } = useSuspenseQuery(convexQuery(api.jo.getOneComplete, { id: joId }));
+  const toggleItemChecked = useMutation(api.items.toggleItemChecked).withOptimisticUpdate(
+    (localStore, args) => {
+      const current = localStore.getQuery(api.jo.getOneComplete, { id: joId });
+      if (!current) return;
+
+      localStore.setQuery(
+        api.jo.getOneComplete,
+        { id: joId },
+        {
+          ...current,
+          items: current.items.map((item) =>
+            item._id === args.itemId ? { ...item, checked: !item.checked } : item,
+          ),
+        },
+      );
+    },
+  );
   const [item, setItem] = useState<Item | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteAlertDialogOpen, setIsDeleteAlertDialogOpen] = useState(false);
@@ -58,7 +78,8 @@ export function OrderItemsCard({ joId }: { joId: Id<"jo"> }) {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="text-xs font-semibold text-muted-foreground uppercase md:pl-4">
+                <TableHead className="w-10 md:pl-4" />
+                <TableHead className="text-xs font-semibold text-muted-foreground uppercase">
                   Item Name
                 </TableHead>
                 <TableHead className="text-center text-xs font-semibold text-muted-foreground uppercase">
@@ -76,7 +97,18 @@ export function OrderItemsCard({ joId }: { joId: Id<"jo"> }) {
             <TableBody>
               {jo.items.map((item) => (
                 <TableRow key={item._id} className="group">
-                  <TableCell className="font-medium md:pl-4">{item.name}</TableCell>
+                  <TableCell className="md:pl-4">
+                    <Checkbox
+                      checked={item.checked ?? false}
+                      onCheckedChange={() => toggleItemChecked({ itemId: item._id })}
+                      aria-label={`Toggle "${item.name}"`}
+                    />
+                  </TableCell>
+                  <TableCell
+                    className={cn("font-medium", item.checked && "text-muted-foreground")}
+                  >
+                    {item.name}
+                  </TableCell>
                   <TableCell className="text-center">{item.quantity}</TableCell>
                   <TableCell className="text-right">
                     {formatCurrency(item.price)}
@@ -119,7 +151,7 @@ export function OrderItemsCard({ joId }: { joId: Id<"jo"> }) {
             </TableBody>
             <TableFooter>
               <TableRow className="border-t-2">
-                <TableCell colSpan={3} className="text-lg font-semibold md:pl-4" />
+                <TableCell colSpan={4} className="text-lg font-semibold md:pl-4" />
                 <TableCell className="text-right">
                   <span className="text-xs text-muted-foreground">Total Order Value</span>
                   <p className="text-lg">{formatCurrency(jo.totalOrderValue)}</p>
