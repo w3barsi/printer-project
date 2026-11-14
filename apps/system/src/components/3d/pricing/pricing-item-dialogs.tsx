@@ -115,7 +115,7 @@ export function CreatePricingItemDialog() {
               notes: values.notes?.trim() || undefined,
             }),
           )}
-          className="flex flex-col gap-6"
+          className="contents"
         >
           <DialogPanel>
             <div className="flex w-full flex-col gap-7">
@@ -221,7 +221,7 @@ export function EditPricingItemDialog({
               notes: values.notes?.trim() || undefined,
             }),
           )}
-          className="flex flex-col gap-6"
+          className="contents"
         >
           <DialogPanel>
             <div className="flex w-full flex-col gap-7">

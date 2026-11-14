@@ -191,7 +191,7 @@ function SupplierFormDialog() {
         </DialogHeader>
         <form
           onSubmit={form.handleSubmit((values) => mutation.mutate(values))}
-          className="flex flex-col gap-6"
+          className="contents"
         >
           <DialogPanel>
             <div className="flex w-full flex-col gap-7">

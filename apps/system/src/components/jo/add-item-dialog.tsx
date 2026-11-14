@@ -110,7 +110,7 @@ export function AddItemDialog({ joId }: { joId: Id<"jo"> }) {
             Fill in the details below to add a new item to the job order.
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={form.handleSubmit(onSubmit)}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="contents">
           <DialogPanel>
             <Controller
               name="name"

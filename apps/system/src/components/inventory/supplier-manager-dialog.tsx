@@ -250,7 +250,7 @@ function RenameSupplierDialog({
           onSubmit={form.handleSubmit((values) =>
             mutation.mutate({ supplierId, ...values }),
           )}
-          className="flex flex-col gap-6"
+          className="contents"
         >
           <DialogPanel>
             <Controller

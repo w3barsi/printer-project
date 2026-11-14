@@ -386,7 +386,7 @@ export function PrinterPresetFormDialog({
             A printer preset fills in power, price, and lifespan while pricing.
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+        <form onSubmit={handleSubmit} className="contents">
           <DialogPanel>
             <div className="flex w-full flex-col gap-7">
               <Controller
@@ -581,7 +581,7 @@ export function FilamentPresetFormDialog({
             A filament preset fills in the cost per kilogram while pricing.
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+        <form onSubmit={handleSubmit} className="contents">
           <DialogPanel>
             <div className="flex w-full flex-col gap-7">
               <Controller

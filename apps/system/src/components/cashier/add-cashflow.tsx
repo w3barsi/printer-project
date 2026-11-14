@@ -109,7 +109,7 @@ export function AddCashflow({ date }: { date?: number }) {
         {form.formState.errors.root && (
           <p className="text-sm text-red-500">{form.formState.errors.root.message}</p>
         )}
-        <form onSubmit={handleSave}>
+        <form onSubmit={handleSave} className="contents">
           <DialogPanel>
             <Controller
               name="amount"

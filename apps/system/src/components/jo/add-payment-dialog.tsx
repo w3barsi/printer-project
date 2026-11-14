@@ -144,7 +144,7 @@ export function AddPaymentDialog({
             Fill in the details below to add a new payment to the job order.
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={form.handleSubmit(onSubmit)}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="contents">
           <DialogPanel>
             <Controller
               name="amount"

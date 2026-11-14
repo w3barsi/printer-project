@@ -313,7 +313,7 @@ export function AccessoryFormDialog({
             Keep the price and store link handy so restocking is quick.
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+        <form onSubmit={handleSubmit} className="contents">
           <DialogPanel>
             <div className="flex w-full flex-col gap-7">
               <Controller

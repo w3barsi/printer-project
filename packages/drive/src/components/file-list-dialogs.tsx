@@ -118,7 +118,7 @@ export function RenameItemDialog({
           <DialogTitle>Rename</DialogTitle>
           <DialogDescription>Enter a new name for {item?.name}.</DialogDescription>
         </DialogHeader>
-        <form className="flex flex-col" onSubmit={onSubmit}>
+        <form className="contents" onSubmit={onSubmit}>
           <DialogPanel>
             <Input
               autoFocus

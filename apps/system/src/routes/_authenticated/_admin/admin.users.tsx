@@ -286,16 +286,17 @@ function ChangePasswordDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Change Password</DialogTitle>
+          <DialogDescription>Enter your new password below.</DialogDescription>
+        </DialogHeader>
         <form
           onSubmit={(e) => {
             e.preventDefault();
             handleApply();
           }}
+          className="contents"
         >
-          <DialogHeader>
-            <DialogTitle>Change Password</DialogTitle>
-            <DialogDescription>Enter your new password below.</DialogDescription>
-          </DialogHeader>
           <DialogPanel>
             <div className="grid gap-4 py-4">
               <div className="grid grid-cols-4 items-center gap-4">

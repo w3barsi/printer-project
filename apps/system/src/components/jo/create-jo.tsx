@@ -98,7 +98,7 @@ export function CreateJoDialog() {
           <DialogTitle>Create job order</DialogTitle>
           <DialogDescription>Add the customer and pickup details.</DialogDescription>
         </DialogHeader>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="contents">
           <DialogPanel>
             <div className="flex w-full flex-col gap-7">
               <Controller
