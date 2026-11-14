@@ -83,7 +83,7 @@ export function CreateUserDialog() {
               account.
             </DialogDescription>
           </DialogHeader>
-          <DialogPanel>
+          <DialogPanel className="grid gap-4">
             <Controller
               name="name"
               control={form.control}

@@ -111,7 +111,7 @@ export function AddItemDialog({ joId }: { joId: Id<"jo"> }) {
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={form.handleSubmit(onSubmit)} className="contents">
-          <DialogPanel>
+          <DialogPanel className="grid gap-4">
             <Controller
               name="name"
               control={form.control}

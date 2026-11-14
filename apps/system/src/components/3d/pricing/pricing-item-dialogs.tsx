@@ -118,7 +118,7 @@ export function CreatePricingItemDialog() {
           className="contents"
         >
           <DialogPanel>
-            <div className="flex w-full flex-col gap-7">
+            <div className="flex w-full flex-col gap-4">
               <Controller
                 name="name"
                 control={form.control}
@@ -224,7 +224,7 @@ export function EditPricingItemDialog({
           className="contents"
         >
           <DialogPanel>
-            <div className="flex w-full flex-col gap-7">
+            <div className="flex w-full flex-col gap-4">
               <Controller
                 name="name"
                 control={form.control}

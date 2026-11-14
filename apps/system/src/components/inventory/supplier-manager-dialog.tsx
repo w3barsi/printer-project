@@ -92,7 +92,7 @@ export function SupplierManagerDialog() {
             Create reusable suppliers or rename an existing supplier.
           </DialogDescription>
         </DialogHeader>
-        <DialogPanel>
+        <DialogPanel className="grid gap-4">
           <form onSubmit={form.handleSubmit((values) => mutation.mutate(values))}>
             <div className="flex w-full flex-row items-end gap-2">
               <Controller
@@ -252,7 +252,7 @@ function RenameSupplierDialog({
           )}
           className="contents"
         >
-          <DialogPanel>
+          <DialogPanel className="grid gap-4">
             <Controller
               name="name"
               control={form.control}

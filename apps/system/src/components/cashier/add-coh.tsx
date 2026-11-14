@@ -89,7 +89,7 @@ export function AddCoh({ start }: { start: number }) {
           <DialogTitle>Add Cash On Hand</DialogTitle>
         </DialogHeader>
         <DialogPanel>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4">
             <Controller
               name="amount"
               control={form.control}

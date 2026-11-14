@@ -139,7 +139,7 @@ export function AddInventoryItemDialog() {
           className="contents"
         >
           <DialogPanel>
-            <div className="flex w-full flex-col gap-7">
+            <div className="flex w-full flex-col gap-4">
               <Controller
                 name="name"
                 control={form.control}
@@ -539,7 +539,7 @@ function StockAdjustmentDialog({
         </div>
         <form onSubmit={form.handleSubmit(onSubmit)} className="contents">
           <DialogPanel>
-            <div className="flex w-full flex-col gap-7">
+            <div className="flex w-full flex-col gap-4">
               <Controller
                 name="quantity"
                 control={form.control}
@@ -721,7 +721,7 @@ function EditItemDetailsDialog({
           className="contents"
         >
           <DialogPanel>
-            <div className="flex w-full flex-col gap-7">
+            <div className="flex w-full flex-col gap-4">
               <Controller
                 name="name"
                 control={form.control}

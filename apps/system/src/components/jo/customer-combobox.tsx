@@ -215,7 +215,7 @@ export function CustomerCombobox({
           </DialogHeader>
           <form onSubmit={handleCreate} className="contents">
             <DialogPanel>
-              <div className="flex w-full flex-col gap-7">
+              <div className="flex w-full flex-col gap-4">
                 <Field>
                   <FieldLabel htmlFor={`${inputId}-new-name`}>Customer name</FieldLabel>
                   <Input

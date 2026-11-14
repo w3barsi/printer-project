@@ -315,7 +315,7 @@ export function AccessoryFormDialog({
         </DialogHeader>
         <form onSubmit={handleSubmit} className="contents">
           <DialogPanel>
-            <div className="flex w-full flex-col gap-7">
+            <div className="flex w-full flex-col gap-4">
               <Controller
                 name="name"
                 control={form.control}

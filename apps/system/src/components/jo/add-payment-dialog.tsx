@@ -145,7 +145,7 @@ export function AddPaymentDialog({
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={form.handleSubmit(onSubmit)} className="contents">
-          <DialogPanel>
+          <DialogPanel className="grid gap-4">
             <Controller
               name="amount"
               control={form.control}

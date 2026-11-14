@@ -110,7 +110,7 @@ export function AddCashflow({ date }: { date?: number }) {
           <p className="text-sm text-red-500">{form.formState.errors.root.message}</p>
         )}
         <form onSubmit={handleSave} className="contents">
-          <DialogPanel>
+          <DialogPanel className="grid gap-4">
             <Controller
               name="amount"
               control={form.control}

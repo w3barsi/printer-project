@@ -224,7 +224,7 @@ export function ShareDialog({
               <Spinner />
             </div>
           ) : (
-            <div className="flex w-full flex-col gap-7">
+            <div className="flex w-full flex-col gap-4">
               <Field>
                 <FieldLabel>Access</FieldLabel>
                 <Select

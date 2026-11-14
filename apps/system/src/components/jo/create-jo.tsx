@@ -100,7 +100,7 @@ export function CreateJoDialog() {
         </DialogHeader>
         <form onSubmit={form.handleSubmit(onSubmit)} className="contents">
           <DialogPanel>
-            <div className="flex w-full flex-col gap-7">
+            <div className="flex w-full flex-col gap-4">
               <Controller
                 name="customerId"
                 control={form.control}
