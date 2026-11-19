@@ -23,6 +23,7 @@ import {
 } from "@dg/ui-coss/components/menu";
 import { Spinner } from "@dg/ui-coss/components/spinner";
 import { toastManager } from "@dg/ui-coss/components/toast";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@dg/ui-coss/components/tooltip";
 import { useIsMobile } from "@dg/ui-coss/hooks/use-mobile";
 import { cn } from "@dg/ui-coss/lib/utils";
 // oxlint-disable jsx-a11y/click-events-have-key-events, jsx-a11y/no-noninteractive-element-interactions, jsx-a11y/no-static-element-interactions
@@ -227,6 +228,7 @@ export function DriveFileList({
       : selectedFolderCount === 0
         ? `Download ${selectedItems.length === 1 ? "file" : "files"}`
         : "Download items";
+  const sortLabel = sortOptions.find((option) => option.value === sortBy)?.label;
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: { distance: 5 },
@@ -509,15 +511,22 @@ export function DriveFileList({
               className="flex min-h-9 w-full items-center gap-2"
               data-file-list-selection-actions
             >
-              <Button
-                type="button"
-                variant="outline"
-                size="icon"
-                aria-label="Clear selection"
-                onClick={clearSelection}
-              >
-                <XIcon />
-              </Button>
+              <Tooltip>
+                <TooltipTrigger
+                  render={
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      aria-label="Clear selection"
+                      onClick={clearSelection}
+                    />
+                  }
+                >
+                  <XIcon />
+                </TooltipTrigger>
+                <TooltipContent>Clear selection</TooltipContent>
+              </Tooltip>
               <span className="px-1 text-sm font-medium">
                 {selectedIds.length} {selectedIds.length === 1 ? "item" : "items"}{" "}
                 selected
@@ -543,31 +552,49 @@ export function DriveFileList({
           ) : (
             <div className="flex min-h-9 flex-wrap items-center gap-3">
               <div className="flex gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  aria-label={
-                    parentPath
-                      ? `Open parent folder ${parentPath.name}`
-                      : "No parent folder"
-                  }
-                  disabled={!parentPath}
-                  onClick={openParentFolder}
-                >
-                  <FolderUpIcon />
-                </Button>
-                <Menu>
-                  <MenuTrigger
+                <Tooltip>
+                  <TooltipTrigger
                     render={
                       <Button
+                        type="button"
                         variant="outline"
-                        size="icon"
-                        aria-label={`Sort by ${sortOptions.find((option) => option.value === sortBy)?.label}`}
+                        aria-label={
+                          parentPath
+                            ? `Open parent folder ${parentPath.name}`
+                            : "No parent folder"
+                        }
+                        disabled={!parentPath}
+                        onClick={openParentFolder}
                       />
                     }
                   >
-                    <ArrowUpDownIcon />
-                  </MenuTrigger>
+                    <FolderUpIcon />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    {parentPath
+                      ? `Open parent folder ${parentPath.name}`
+                      : "No parent folder"}
+                  </TooltipContent>
+                </Tooltip>
+                <Menu>
+                  <Tooltip>
+                    <TooltipTrigger
+                      render={
+                        <MenuTrigger
+                          render={
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              aria-label={`Sort by ${sortLabel}`}
+                            />
+                          }
+                        />
+                      }
+                    >
+                      <ArrowUpDownIcon />
+                    </TooltipTrigger>
+                    <TooltipContent>Sort by {sortLabel}</TooltipContent>
+                  </Tooltip>
                   <MenuPopup align="start" className="min-w-48">
                     <MenuRadioGroup
                       value={sortBy}
@@ -598,15 +625,22 @@ export function DriveFileList({
                     />
                     {searchValue && (
                       <InputGroupAddon align="inline-end">
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon-xs"
-                          aria-label="Clear search"
-                          onClick={() => onSearchChange("")}
-                        >
-                          <XIcon />
-                        </Button>
+                        <Tooltip>
+                          <TooltipTrigger
+                            render={
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon-xs"
+                                aria-label="Clear search"
+                                onClick={() => onSearchChange("")}
+                              />
+                            }
+                          >
+                            <XIcon />
+                          </TooltipTrigger>
+                          <TooltipContent>Clear search</TooltipContent>
+                        </Tooltip>
                       </InputGroupAddon>
                     )}
                   </InputGroup>

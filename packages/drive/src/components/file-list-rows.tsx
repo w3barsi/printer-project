@@ -13,6 +13,7 @@ import {
   MenuSeparator,
   MenuTrigger,
 } from "@dg/ui-coss/components/menu";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@dg/ui-coss/components/tooltip";
 import { cn } from "@dg/ui-coss/lib/utils";
 import { useDraggable, useDroppable } from "@dnd-kit/core";
 import {
@@ -249,18 +250,25 @@ export function DriveFileRow({
           onKeyDown={(event) => event.stopPropagation()}
         >
           <Menu open={actionsOpen} onOpenChange={setActionsOpen}>
-            <MenuTrigger
-              render={
-                <Button
-                  variant="ghost"
-                  size="icon-sm"
-                  className="text-muted-foreground md:data-popup-open:opacity-100"
-                  aria-label={`More actions for ${item.name}`}
-                />
-              }
-            >
-              <MoreHorizontalIcon />
-            </MenuTrigger>
+            <Tooltip>
+              <TooltipTrigger
+                render={
+                  <MenuTrigger
+                    render={
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        className="text-muted-foreground md:data-popup-open:opacity-100"
+                        aria-label={`More actions for ${item.name}`}
+                      />
+                    }
+                  />
+                }
+              >
+                <MoreHorizontalIcon />
+              </TooltipTrigger>
+              <TooltipContent>More actions</TooltipContent>
+            </Tooltip>
             <MenuPopup align="end" className="w-max">
               <MenuGroup>
                 <DriveItemMenuItems

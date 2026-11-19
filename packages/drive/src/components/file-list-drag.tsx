@@ -1,4 +1,5 @@
 import { Button } from "@dg/ui-coss/components/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@dg/ui-coss/components/tooltip";
 import { cn } from "@dg/ui-coss/lib/utils";
 import { useDroppable } from "@dnd-kit/core";
 import { Trash2Icon } from "lucide-react";
@@ -21,26 +22,33 @@ export function DeleteDropButton({
     disabled: !dragEnabled,
   });
 
+  const label = isOver
+    ? `Drop to delete ${itemCount} selected ${itemCount === 1 ? "item" : "items"}`
+    : `Delete ${itemCount} selected ${itemCount === 1 ? "item" : "items"}`;
+
   return (
-    <Button
-      ref={setNodeRef}
-      type="button"
-      variant={isOver ? "destructive" : "outline"}
-      size="icon"
-      className={cn(
-        !isOver &&
-          "text-destructive hover:border-destructive/50 hover:bg-destructive/10 hover:text-destructive",
-        isOver && "ring-2 ring-destructive/30",
-      )}
-      aria-label={
-        isOver
-          ? `Drop to delete ${itemCount} selected ${itemCount === 1 ? "item" : "items"}`
-          : `Delete ${itemCount} selected ${itemCount === 1 ? "item" : "items"}`
-      }
-      onClick={onClick}
-    >
-      <Trash2Icon />
-    </Button>
+    <Tooltip>
+      <TooltipTrigger
+        render={
+          <Button
+            ref={setNodeRef}
+            type="button"
+            variant={isOver ? "destructive" : "outline"}
+            size="icon"
+            className={cn(
+              !isOver &&
+                "text-destructive hover:border-destructive/50 hover:bg-destructive/10 hover:text-destructive",
+              isOver && "ring-2 ring-destructive/30",
+            )}
+            aria-label={label}
+            onClick={onClick}
+          />
+        }
+      >
+        <Trash2Icon />
+      </TooltipTrigger>
+      <TooltipContent>{label}</TooltipContent>
+    </Tooltip>
   );
 }
 
