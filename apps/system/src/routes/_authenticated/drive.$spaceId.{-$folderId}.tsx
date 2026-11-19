@@ -102,6 +102,12 @@ function SpaceBrowserPage() {
       parentId: typedFolderId,
     }),
   );
+  const summary = useQuery(
+    convexQuery(api.drive.items.getSummary, {
+      spaceId: typedSpaceId,
+      parentId: typedFolderId,
+    }),
+  );
   const deleteItems = useMutation(api.drive.items.deleteItems);
   const moveItems = useMutation(api.drive.items.moveItems);
   const renameItem = useMutation(api.drive.items.renameItem);
@@ -227,6 +233,11 @@ function SpaceBrowserPage() {
             </span>
             <div className="min-w-0">
               <h1 className="truncate text-2xl font-bold tracking-tight">{title}</h1>
+              {summary.data && (
+                <p className="text-sm text-muted-foreground">
+                  {formatSummary(summary.data)}
+                </p>
+              )}
             </div>
           </div>
         </div>
@@ -326,6 +337,21 @@ function SpaceBrowserPage() {
       </Container>
     </DriveUploadDropzone>
   );
+}
+
+function formatSummary({
+  itemCount,
+  totalSize,
+  truncated,
+}: {
+  itemCount: number;
+  totalSize: number;
+  truncated: boolean;
+}) {
+  const count = truncated ? `${itemCount.toLocaleString()}+` : itemCount.toLocaleString();
+  const label = itemCount === 1 && !truncated ? "item" : "items";
+  const size = `${formatFileSize(totalSize)}${truncated ? "+" : ""}`;
+  return `${count} ${label} · ${size} total`;
 }
 
 function formatFileSize(bytes: number) {

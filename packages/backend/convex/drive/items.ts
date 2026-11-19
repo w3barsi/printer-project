@@ -231,6 +231,54 @@ export const getFolder = authedQuery({
   },
 });
 
+const MAX_SUMMARY_ITEMS = 3_000;
+
+export const getSummary = authedQuery({
+  args: {
+    spaceId: v.id("driveSpaces"),
+    parentId: parentIdValidator,
+  },
+  handler: async (ctx, args) => {
+    await requireSpaceAccess(ctx, args.spaceId);
+    await requireParentFolder(ctx, args.spaceId, args.parentId);
+
+    const folderIds = [args.parentId];
+    let itemCount = 0;
+    let totalSize = 0;
+    let truncated = false;
+
+    while (folderIds.length > 0 && !truncated) {
+      const parentId = folderIds.pop();
+      const children = await ctx.db
+        .query("driveItems")
+        .withIndex(
+          "by_spaceId_and_parentId_and_deletedAt_and_kindSort_and_nameKey",
+          (q) =>
+            q
+              .eq("spaceId", args.spaceId)
+              .eq("parentId", parentId)
+              .eq("deletedAt", undefined),
+        )
+        .take(MAX_SUMMARY_ITEMS - itemCount + 1);
+
+      for (const child of children) {
+        if (itemCount === MAX_SUMMARY_ITEMS) {
+          truncated = true;
+          break;
+        }
+        itemCount += 1;
+        if (child.kind === "folder") {
+          folderIds.push(child._id);
+        } else {
+          totalSize += child.r2.size;
+        }
+      }
+    }
+
+    return { itemCount, totalSize, truncated };
+  },
+});
+
 export const getFilePreview = authedQuery({
   args: { itemId: v.id("driveItems") },
   handler: async (ctx, args) => {
