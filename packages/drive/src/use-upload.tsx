@@ -14,6 +14,12 @@ export type DriveUploadSelection = {
   folderPaths: string[];
 };
 
+type QueuedUploadFile = {
+  uploadFile: DriveUploadFile;
+  name: string;
+  targetParent: Id<"driveItems"> | undefined;
+};
+
 export type DriveUploadOperations = {
   createFolder: (args: {
     parentId?: Id<"driveItems">;
@@ -85,6 +91,82 @@ export function useDriveUploadWithOperations(
         return currentParent;
       }
 
+      async function uploadQueuedFile({
+        uploadFile,
+        name,
+        targetParent,
+      }: QueuedUploadFile) {
+        let ticketId: Id<"driveUploadTickets"> | undefined;
+        let progress = 0;
+        const toastId = toastManager.add({
+          data: {
+            customContent: (
+              <UploadToast
+                name={uploadFile.relativePath}
+                progress={progress}
+                status="uploading"
+              />
+            ),
+          },
+          timeout: 0,
+        });
+        try {
+          const ticket = await createUploadTicket({
+            parentId: targetParent,
+            name,
+            contentType: uploadFile.file.type || "application/octet-stream",
+            size: uploadFile.file.size,
+          });
+          ticketId = ticket.ticketId;
+          await putFile(ticket.url, uploadFile.file, (nextProgress) => {
+            progress = nextProgress;
+            toastManager.add({
+              data: {
+                customContent: (
+                  <UploadToast
+                    name={uploadFile.relativePath}
+                    progress={progress}
+                    status="uploading"
+                  />
+                ),
+              },
+              id: toastId,
+              timeout: 0,
+            });
+          });
+          await finalizeUpload({ ticketId });
+          toastManager.add({
+            data: {
+              customContent: (
+                <UploadToast
+                  name={uploadFile.relativePath}
+                  progress={100}
+                  status="success"
+                />
+              ),
+            },
+            id: toastId,
+            timeout: 3000,
+          });
+        } catch (error) {
+          if (ticketId) void cancelUpload({ ticketId });
+          toastManager.add({
+            data: {
+              customContent: (
+                <UploadToast
+                  name={uploadFile.relativePath}
+                  progress={progress}
+                  status="error"
+                  errorMessage={error instanceof Error ? error.message : "Upload failed"}
+                />
+              ),
+            },
+            id: toastId,
+            timeout: 5000,
+          });
+        }
+      }
+
       try {
         const allFolderPaths = new Set(folderPaths);
         for (const uploadFile of files) {
@@ -97,82 +179,26 @@ export function useDriveUploadWithOperations(
           await ensureFolder(folderPath);
         }
 
+        const queue: QueuedUploadFile[] = [];
         for (const uploadFile of files) {
           const segments = pathSegments(uploadFile.relativePath);
-          const name = segments.at(-1) ?? uploadFile.file.name;
-          const targetParent = await ensureFolder(segments.slice(0, -1).join("/"));
-          let ticketId: Id<"driveUploadTickets"> | undefined;
-          let progress = 0;
-          const toastId = toastManager.add({
-            data: {
-              customContent: (
-                <UploadToast
-                  name={uploadFile.relativePath}
-                  progress={progress}
-                  status="uploading"
-                />
-              ),
-            },
-            timeout: 0,
+          queue.push({
+            uploadFile,
+            name: segments.at(-1) ?? uploadFile.file.name,
+            targetParent: await ensureFolder(segments.slice(0, -1).join("/")),
           });
-          try {
-            const ticket = await createUploadTicket({
-              parentId: targetParent,
-              name,
-              contentType: uploadFile.file.type || "application/octet-stream",
-              size: uploadFile.file.size,
-            });
-            ticketId = ticket.ticketId;
-            await putFile(ticket.url, uploadFile.file, (nextProgress) => {
-              progress = nextProgress;
-              toastManager.add({
-                data: {
-                  customContent: (
-                    <UploadToast
-                      name={uploadFile.relativePath}
-                      progress={progress}
-                      status="uploading"
-                    />
-                  ),
-                },
-                id: toastId,
-                timeout: 0,
-              });
-            });
-            await finalizeUpload({ ticketId });
-            toastManager.add({
-              data: {
-                customContent: (
-                  <UploadToast
-                    name={uploadFile.relativePath}
-                    progress={100}
-                    status="success"
-                  />
-                ),
-              },
-              id: toastId,
-              timeout: 3000,
-            });
-          } catch (error) {
-            if (ticketId) void cancelUpload({ ticketId });
-            toastManager.add({
-              data: {
-                customContent: (
-                  <UploadToast
-                    name={uploadFile.relativePath}
-                    progress={progress}
-                    status="error"
-                    errorMessage={
-                      error instanceof Error ? error.message : "Upload failed"
-                    }
-                  />
-                ),
-              },
-              id: toastId,
-              timeout: 5000,
-            });
+        }
+
+        async function worker() {
+          while (queue.length > 0) {
+            const next = queue.shift();
+            if (!next) return;
+            await uploadQueuedFile(next);
           }
         }
+        await Promise.all(
+          Array.from({ length: Math.min(4, queue.length) }, () => worker()),
+        );
       } catch (error) {
         toastManager.add({
           title: error instanceof Error ? error.message : "Upload could not be started",
