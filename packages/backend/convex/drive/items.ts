@@ -242,13 +242,17 @@ export const getSummary = authedQuery({
     await requireSpaceAccess(ctx, args.spaceId);
     await requireParentFolder(ctx, args.spaceId, args.parentId);
 
-    const folderIds = [args.parentId];
+    const queue: Array<{ parentId?: Id<"driveItems">; isCurrentFolder: boolean }> = [
+      { parentId: args.parentId, isCurrentFolder: true },
+    ];
     let itemCount = 0;
+    let itemCountTruncated = false;
     let totalSize = 0;
     let truncated = false;
+    let scanned = 0;
 
-    while (folderIds.length > 0 && !truncated) {
-      const parentId = folderIds.pop();
+    while (queue.length > 0 && !truncated) {
+      const { parentId, isCurrentFolder } = queue.pop()!;
       const children = await ctx.db
         .query("driveItems")
         .withIndex(
@@ -259,23 +263,25 @@ export const getSummary = authedQuery({
               .eq("parentId", parentId)
               .eq("deletedAt", undefined),
         )
-        .take(MAX_SUMMARY_ITEMS - itemCount + 1);
+        .take(MAX_SUMMARY_ITEMS - scanned + 1);
 
       for (const child of children) {
-        if (itemCount === MAX_SUMMARY_ITEMS) {
+        if (scanned === MAX_SUMMARY_ITEMS) {
           truncated = true;
+          if (isCurrentFolder) itemCountTruncated = true;
           break;
         }
-        itemCount += 1;
+        scanned += 1;
+        if (isCurrentFolder) itemCount += 1;
         if (child.kind === "folder") {
-          folderIds.push(child._id);
+          queue.push({ parentId: child._id, isCurrentFolder: false });
         } else {
           totalSize += child.r2.size;
         }
       }
     }
 
-    return { itemCount, totalSize, truncated };
+    return { itemCount, itemCountTruncated, totalSize, truncated };
   },
 });
 

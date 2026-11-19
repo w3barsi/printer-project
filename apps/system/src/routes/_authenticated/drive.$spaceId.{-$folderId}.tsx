@@ -341,15 +341,17 @@ function SpaceBrowserPage() {
 
 function formatSummary({
   itemCount,
+  itemCountTruncated,
   totalSize,
   truncated,
 }: {
   itemCount: number;
+  itemCountTruncated: boolean;
   totalSize: number;
   truncated: boolean;
 }) {
-  const count = truncated ? `${itemCount.toLocaleString()}+` : itemCount.toLocaleString();
-  const label = itemCount === 1 && !truncated ? "item" : "items";
+  const count = `${itemCount.toLocaleString()}${itemCountTruncated ? "+" : ""}`;
+  const label = itemCount === 1 && !itemCountTruncated ? "item" : "items";
   const size = `${formatFileSize(totalSize)}${truncated ? "+" : ""}`;
   return `${count} ${label} · ${size} total`;
 }
