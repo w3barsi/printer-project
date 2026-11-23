@@ -18,11 +18,12 @@ import {
   TableRow,
 } from "@dg/ui-coss/components/table";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { usePaginatedQuery } from "convex/react";
 import type { ReactNode } from "react";
 
 import { Container } from "@/components/layouts/container";
+import { UserActionsMenu } from "@/components/user-actions";
 
 export const Route = createFileRoute("/_authenticated/_admin/admin/users_/$userId")({
   loader: async ({ context: { queryClient: qc }, params }) => {
@@ -65,6 +66,7 @@ function Detail({ label, children }: { label: string; children: ReactNode }) {
 
 function UserDetailsPage() {
   const { userId } = Route.useParams();
+  const navigate = useNavigate();
   const { data: user } = useSuspenseQuery(
     convexQuery(api.admin.users.getUser, { userId }),
   );
@@ -79,13 +81,20 @@ function UserDetailsPage() {
       </Link>
       {user ? (
         <>
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">
-              {user.name || "User details"}
-            </h1>
-            <p className="text-sm text-muted-foreground">
-              {user.email} · Times shown in Asia/Manila
-            </p>
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <h1 className="text-3xl font-bold tracking-tight">
+                {user.name || "User details"}
+              </h1>
+              <p className="text-sm text-muted-foreground">
+                {user.email} · Times shown in Asia/Manila
+              </p>
+            </div>
+            <UserActionsMenu
+              inline
+              user={user}
+              onDeleted={() => void navigate({ to: "/admin/users" })}
+            />
           </div>
           <Card>
             <CardHeader>

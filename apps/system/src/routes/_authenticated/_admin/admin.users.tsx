@@ -2,17 +2,6 @@ import { convexQuery, useConvexMutation } from "@convex-dev/react-query";
 import { api } from "@dg/backend/api";
 import { Button } from "@dg/ui-coss/components/button";
 import { Card } from "@dg/ui-coss/components/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogPanel,
-  DialogTitle,
-} from "@dg/ui-coss/components/dialog";
-import { Input } from "@dg/ui-coss/components/input";
-import { Label } from "@dg/ui-coss/components/label";
 import { Menu, MenuPopup, MenuItem, MenuTrigger } from "@dg/ui-coss/components/menu";
 import { Skeleton } from "@dg/ui-coss/components/skeleton";
 import {
@@ -27,19 +16,11 @@ import { toastManager } from "@dg/ui-coss/components/toast";
 import { cn } from "@dg/ui-coss/lib/utils";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import {
-  DeleteIcon,
-  GavelIcon,
-  LockKeyholeIcon,
-  MoreVerticalIcon,
-  User2Icon,
-} from "lucide-react";
-import type { Dispatch } from "react";
-import { Suspense, useState } from "react";
+import { Suspense } from "react";
 
 import { CreateUserDialog } from "@/components/create-user";
 import { Container } from "@/components/layouts/container";
-import { authClient } from "@/lib/auth-client";
+import { UserActionsMenu } from "@/components/user-actions";
 
 export const Route = createFileRoute("/_authenticated/_admin/admin/users")({
   component: RouteComponent,
@@ -75,13 +56,9 @@ function RouteComponent() {
 
 function UserManagementTable() {
   const navigate = useNavigate();
-  const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
-  const [user, setUser] = useState<{ name: string; id: string }>();
 
   const { data } = useSuspenseQuery(convexQuery(api.admin.users.listUsers, {}));
   const setRole = useConvexMutation(api.admin.users.setRole);
-  const banOrUnbanUser = useConvexMutation(api.admin.users.banOrUnbanUser);
-  const deleteUser = useConvexMutation(api.admin.users.deleteUser);
 
   async function onChangeRole(userId: string, role: "user" | "admin" | "cashier") {
     try {
@@ -91,19 +68,6 @@ function UserManagementTable() {
       const error = e as { message?: string };
       toastManager.add({
         title: error?.message || "Failed to update role",
-        type: "error",
-      });
-    }
-  }
-
-  async function banHandler(userId: string, isBanned: boolean) {
-    try {
-      await banOrUnbanUser({ userId, isBanned });
-      toastManager.add({ title: "User deleted", type: "success" });
-    } catch (e: unknown) {
-      const error = e as { message?: string };
-      toastManager.add({
-        title: error?.message || "Failed to delete user",
         type: "error",
       });
     }
@@ -174,167 +138,14 @@ function UserManagementTable() {
                   {u.createdAt ? new Date(u.createdAt).toLocaleString() : "-"}
                 </TableCell>
                 <TableCell className="pr-4 text-right" data-user-actions>
-                  <Menu>
-                    <MenuTrigger
-                      render={<Button variant="ghost" size="icon" aria-label="Actions" />}
-                    >
-                      <MoreVerticalIcon className="size-4" />
-                    </MenuTrigger>
-                    <MenuPopup align="end" className="w-max">
-                      <MenuItem onClick={() => banHandler(u.id, u.banned ?? false)}>
-                        <GavelIcon /> {u.banned ? "Unban User" : "Ban User"}
-                      </MenuItem>
-
-                      <MenuItem
-                        onClick={async () => {
-                          const { error } = await authClient.admin.impersonateUser({
-                            userId: u.id,
-                          });
-                          if (error) {
-                            toastManager.add({ title: error.message, type: "error" });
-                          } else {
-                            window.location.reload();
-                          }
-                        }}
-                      >
-                        <User2Icon /> Impersonate User
-                      </MenuItem>
-                      <MenuItem
-                        onClick={() => {
-                          setIsPasswordDialogOpen(true);
-                          setUser({ name: u.name, id: u.id });
-                        }}
-                      >
-                        <LockKeyholeIcon /> Change Password
-                      </MenuItem>
-
-                      <MenuItem
-                        variant="destructive"
-                        onClick={() => {
-                          deleteUser({ id: u.id });
-                        }}
-                      >
-                        <DeleteIcon /> Delete User
-                      </MenuItem>
-                    </MenuPopup>
-                  </Menu>
+                  <UserActionsMenu user={u} />
                 </TableCell>
               </TableRow>
             ))
           )}
         </TableBody>
       </Table>
-      <ChangePasswordDialog
-        open={isPasswordDialogOpen}
-        setOpen={setIsPasswordDialogOpen}
-        user={user}
-      />
     </Card>
-  );
-}
-
-function ChangePasswordDialog({
-  open,
-  setOpen,
-  user,
-}: {
-  open: boolean;
-  setOpen: Dispatch<React.SetStateAction<boolean>>;
-  user?: { name: string; id: string };
-}) {
-  const [password, setPassword] = useState("");
-
-  const handleOpenChange = (next: boolean) => {
-    setOpen(next);
-    if (!next) setPassword("");
-  };
-
-  const changePassword = async () => {
-    if (!user) throw new Error("No user selected");
-    const { error } = await authClient.admin.setUserPassword({
-      userId: user.id,
-      newPassword: password,
-    });
-    if (error) throw new Error(error.message);
-    handleOpenChange(false);
-  };
-  const handleApply = () => {
-    if (!user) return;
-    if (password.length < 8) {
-      return toastManager.add({
-        title: "Password must be at least 8 characters long",
-        type: "error",
-      });
-    }
-    const toastId = toastManager.add({
-      title: `Changing password for ${user.name}`,
-      type: "loading",
-      timeout: 0,
-    });
-    void changePassword().then(
-      () => {
-        toastManager.add({
-          title: "Password changed successfully!",
-          type: "success",
-          id: toastId,
-        });
-      },
-      (error: unknown) => {
-        toastManager.add({
-          title: error instanceof Error ? error.message : "Error changing password!",
-          type: "error",
-          id: toastId,
-        });
-      },
-    );
-  };
-
-  return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Change Password</DialogTitle>
-          <DialogDescription>Enter your new password below.</DialogDescription>
-        </DialogHeader>
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            handleApply();
-          }}
-          className="contents"
-        >
-          <DialogPanel>
-            <div className="grid gap-4">
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="new-password" className="text-right">
-                  New Password
-                </Label>
-                <Input
-                  id="new-password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="col-span-3"
-                  placeholder="Enter new password"
-                />
-              </div>
-            </div>
-          </DialogPanel>
-          <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => handleOpenChange(false)}
-            >
-              Close
-            </Button>
-            <Button type="submit" disabled={password.length < 8}>
-              Apply
-            </Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
   );
 }
 
