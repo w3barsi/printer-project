@@ -244,28 +244,34 @@ function ChangePasswordDialog({
 }) {
   const [password, setPassword] = useState("");
 
+  const handleOpenChange = (next: boolean) => {
+    setOpen(next);
+    if (!next) setPassword("");
+  };
+
   const changePassword = async () => {
-    setOpen(false);
-    await authClient.admin.setUserPassword({
-      userId: user!.id,
+    if (!user) throw new Error("No user selected");
+    const { error } = await authClient.admin.setUserPassword({
+      userId: user.id,
       newPassword: password,
     });
-    setPassword("");
+    if (error) throw new Error(error.message);
+    handleOpenChange(false);
   };
   const handleApply = () => {
-    if (password.trim().length < 8) {
-      setPassword((p) => p.trim());
+    if (!user) return;
+    if (password.length < 8) {
       return toastManager.add({
         title: "Password must be at least 8 characters long",
         type: "error",
       });
     }
     const toastId = toastManager.add({
-      title: `Changing password for ${user!.name}`,
+      title: `Changing password for ${user.name}`,
       type: "loading",
       timeout: 0,
     });
-    void Promise.resolve(changePassword).then(
+    void changePassword().then(
       () => {
         toastManager.add({
           title: "Password changed successfully!",
@@ -273,9 +279,9 @@ function ChangePasswordDialog({
           id: toastId,
         });
       },
-      () => {
+      (error: unknown) => {
         toastManager.add({
-          title: "Error changing password!",
+          title: error instanceof Error ? error.message : "Error changing password!",
           type: "error",
           id: toastId,
         });
@@ -284,7 +290,7 @@ function ChangePasswordDialog({
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Change Password</DialogTitle>
@@ -315,7 +321,11 @@ function ChangePasswordDialog({
             </div>
           </DialogPanel>
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => handleOpenChange(false)}
+            >
               Close
             </Button>
             <Button type="submit" disabled={password.length < 8}>
