@@ -464,6 +464,7 @@ function PricingItemRow({
       className={cn(
         "cursor-pointer select-none",
         isGrouped && "border-b-0 bg-black/5 dark:bg-black/30",
+        isGrouped && "hover:bg-black/[2%]! dark:hover:bg-black/20!",
         isGrouped && isLastInGroup && "border-b",
         isDragging && "opacity-40",
         isOver &&
