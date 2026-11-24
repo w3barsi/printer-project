@@ -1,4 +1,4 @@
-import { convexQuery } from "@convex-dev/react-query";
+import { convexQuery, useConvexMutation } from "@convex-dev/react-query";
 import { api } from "@dg/backend/api";
 import type { Id } from "@dg/backend/dataModel";
 import { formatPeso } from "@dg/backend/printPricing";
@@ -19,6 +19,13 @@ import {
   EmptyTitle,
 } from "@dg/ui-coss/components/empty";
 import { Input } from "@dg/ui-coss/components/input";
+import {
+  Menu,
+  MenuGroup,
+  MenuItem,
+  MenuPopup,
+  MenuTrigger,
+} from "@dg/ui-coss/components/menu";
 import { Skeleton } from "@dg/ui-coss/components/skeleton";
 import {
   Table,
@@ -28,15 +35,46 @@ import {
   TableHeader,
   TableRow,
 } from "@dg/ui-coss/components/table";
-import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
+import { toastManager } from "@dg/ui-coss/components/toast";
+import { cn } from "@dg/ui-coss/lib/utils";
+import {
+  DndContext,
+  DragOverlay,
+  PointerSensor,
+  pointerWithin,
+  useDraggable,
+  useDroppable,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+  type DragStartEvent,
+} from "@dnd-kit/core";
+import { useMutation, useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { ArchiveIcon, ArrowLeftIcon, ArrowRightIcon, SearchIcon } from "lucide-react";
-import { useState } from "react";
+import {
+  ArchiveIcon,
+  BoxesIcon,
+  CornerDownRightIcon,
+  GripVerticalIcon,
+  MoreHorizontalIcon,
+  PencilIcon,
+  SearchIcon,
+  Trash2Icon,
+} from "lucide-react";
+import { useCallback, useState } from "react";
 
-import { PricingItemActions } from "@/components/3d/pricing/pricing-item-dialogs";
+import {
+  CreatePricingGroupDialog,
+  DeletePricingGroupDialog,
+  RenamePricingGroupDialog,
+  type PricingGroup,
+  type PricingGroupDraftItem,
+} from "@/components/3d/pricing/pricing-group-dialogs";
+import {
+  PricingItemActions,
+  type PricingListItem,
+} from "@/components/3d/pricing/pricing-item-dialogs";
 import { useDebounce } from "@/hooks/use-debounce";
-
-export const PRICING_ITEMS_PAGE_SIZE = 25;
 
 type PricingItemOption = {
   _id: Id<"printPricingItems">;
@@ -44,194 +82,443 @@ type PricingItemOption = {
   latestTotal?: number;
 };
 
+type ItemDragData = {
+  kind: "item";
+  itemId: Id<"printPricingItems">;
+  itemName: string;
+  latestTotal?: number;
+  groupId?: Id<"printPricingGroups">;
+};
+
+type GroupDropData = {
+  kind: "group";
+  groupId: Id<"printPricingGroups">;
+};
+
+type PricingEntry =
+  | { kind: "group"; sortAt: number; group: PricingGroup }
+  | { kind: "item"; sortAt: number; item: PricingListItem };
+
 function formatPricingDate(value?: number) {
   return value ? new Date(value).toLocaleDateString() : "—";
 }
 
 export function PricingItemsTable() {
-  const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search, 200);
   const searchQuery = debouncedSearch.trim();
   const isSearching = searchQuery.length > 0;
-  const [cursorHistory, setCursorHistory] = useState<string[]>([]);
-  const cursor = cursorHistory.at(-1) ?? null;
-  const { data, isFetching } = useSuspenseQuery(
-    convexQuery(api.printPricing.items.listItems, {
-      paginationOpts: {
-        numItems: PRICING_ITEMS_PAGE_SIZE,
-        cursor,
-      },
+  const { data: items } = useSuspenseQuery(
+    convexQuery(api.printPricing.items.listUngroupedItems, {}),
+  );
+  const { data: groups } = useSuspenseQuery(
+    convexQuery(api.printPricing.groups.listGroups, {}),
+  );
+  const [activeDrag, setActiveDrag] = useState<{ name: string } | null>(null);
+  const [pendingGroup, setPendingGroup] = useState<{
+    items: PricingGroupDraftItem[];
+  } | null>(null);
+  const moveItem = useMutation({
+    mutationFn: useConvexMutation(api.printPricing.groups.moveItemToGroup),
+    onError: (error) => {
+      toastManager.add({
+        title: error.message || "Could not move item to group",
+        type: "error",
+      });
+    },
+  });
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: { distance: 6 },
     }),
   );
   const searchResults = useQuery({
     ...convexQuery(api.printPricing.items.searchItems, { query: searchQuery }),
     enabled: isSearching,
   });
+  const entries: PricingEntry[] = [
+    ...groups.map((group) => ({
+      kind: "group" as const,
+      sortAt: group.updatedAt,
+      group,
+    })),
+    ...items.map((item) => ({
+      kind: "item" as const,
+      sortAt: item.updatedAt,
+      item,
+    })),
+  ].sort((a, b) => b.sortAt - a.sortAt);
+  const hasRows = entries.length > 0;
 
-  function goToNextPage() {
-    if (!data.isDone) {
-      setCursorHistory((history) => [...history, data.continueCursor]);
-    }
+  function handleDragStart(event: DragStartEvent) {
+    const active = event.active.data.current as ItemDragData | undefined;
+
+    if (active?.kind !== "item") return;
+
+    setActiveDrag({ name: active.itemName });
   }
 
-  function goToPreviousPage() {
-    setCursorHistory((history) => history.slice(0, -1));
+  function handleDragEnd(event: DragEndEvent) {
+    const active = event.active.data.current as ItemDragData | undefined;
+    const over = event.over?.data.current as ItemDragData | GroupDropData | undefined;
+
+    setActiveDrag(null);
+
+    if (active?.kind !== "item" || !over) return;
+
+    if (over.kind === "group") {
+      if (active.groupId === over.groupId) return;
+
+      moveItem.mutate({ itemId: active.itemId, groupId: over.groupId });
+      return;
+    }
+
+    if (active.itemId === over.itemId) return;
+
+    if (over.groupId) {
+      if (active.groupId === over.groupId) return;
+
+      moveItem.mutate({ itemId: active.itemId, groupId: over.groupId });
+      return;
+    }
+
+    setPendingGroup({
+      items: [
+        {
+          _id: active.itemId,
+          name: active.itemName,
+          latestTotal: active.latestTotal,
+        },
+        {
+          _id: over.itemId,
+          name: over.itemName,
+          latestTotal: over.latestTotal,
+        },
+      ],
+    });
   }
 
   return (
-    <div className="flex flex-col gap-3">
-      <Card className="gap-0 overflow-hidden py-0">
-        <CardHeader className="border-b py-4">
-          <div className="flex flex-wrap items-end justify-between gap-3">
-            <div className="flex flex-col gap-1">
-              <CardTitle>Priced items</CardTitle>
-              <CardDescription>
-                Each item keeps every saved price as history.
-              </CardDescription>
+    <DndContext
+      sensors={sensors}
+      collisionDetection={pointerWithin}
+      onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd}
+      onDragCancel={() => setActiveDrag(null)}
+    >
+      <div className="flex flex-col gap-3">
+        <Card className="gap-0 overflow-hidden py-0">
+          <CardHeader className="border-b py-4">
+            <div className="flex flex-wrap items-end justify-between gap-3">
+              <div className="flex flex-col gap-1">
+                <CardTitle>Priced items</CardTitle>
+                <CardDescription>
+                  Drag an item onto another to group them, or onto a group to add it.
+                </CardDescription>
+              </div>
+              <div className="relative w-full sm:w-64">
+                <SearchIcon className="absolute top-1/2 left-2.5 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  value={search}
+                  onChange={(event) => setSearch(event.target.value)}
+                  placeholder="Search items..."
+                  className="pl-9"
+                  aria-label="Search pricing items"
+                />
+              </div>
             </div>
-            <div className="relative w-full sm:w-64">
-              <SearchIcon className="absolute top-1/2 left-2.5 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                value={search}
-                onChange={(event) => setSearch(event.target.value)}
-                placeholder="Search items..."
-                className="pl-9"
-                aria-label="Search pricing items"
+          </CardHeader>
+          <CardContent className="p-0">
+            {isSearching ? (
+              <PricingItemSearchResults
+                query={searchQuery}
+                results={searchResults.data}
+                isPending={searchResults.isPending}
               />
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent className="p-0">
-          {isSearching ? (
-            <PricingItemSearchResults
-              query={searchQuery}
-              results={searchResults.data}
-              isPending={searchResults.isPending}
-            />
-          ) : data.page.length === 0 ? (
-            <div className="p-6">
-              <Empty>
-                <EmptyHeader>
-                  <EmptyMedia variant="icon">
-                    <ArchiveIcon />
-                  </EmptyMedia>
-                  <EmptyTitle>No pricing items yet</EmptyTitle>
-                  <EmptyDescription>
-                    Add an item to price a print and start its price history.
-                  </EmptyDescription>
-                </EmptyHeader>
-              </Empty>
-            </div>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="md:pl-4">Item</TableHead>
-                  <TableHead className="text-right">Latest price</TableHead>
-                  <TableHead>Last priced</TableHead>
-                  <TableHead className="hidden md:table-cell">Updated</TableHead>
-                  <TableHead className="w-12">
-                    <span className="sr-only">Actions</span>
-                  </TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {data.page.map((item) => (
-                  <TableRow
-                    key={item._id}
-                    role="link"
-                    tabIndex={0}
-                    className="cursor-pointer"
-                    onClick={(event) => {
-                      if (
-                        event.target instanceof Element &&
-                        event.target.closest("a, button")
-                      ) {
-                        return;
-                      }
-                      void navigate({
-                        to: "/3d/pricing/$itemId",
-                        params: { itemId: item._id },
-                      });
-                    }}
-                    onKeyDown={(event) => {
-                      if (event.key !== "Enter" || event.target !== event.currentTarget)
-                        return;
-                      void navigate({
-                        to: "/3d/pricing/$itemId",
-                        params: { itemId: item._id },
-                      });
-                    }}
-                  >
-                    <TableCell className="md:pl-4">
-                      <Link
-                        to="/3d/pricing/$itemId"
-                        params={{ itemId: item._id }}
-                        className="font-medium underline-offset-4 hover:underline"
-                      >
-                        {item.name}
-                      </Link>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {item.latestTotal !== undefined ? (
-                        <Badge variant="secondary" className="tabular-nums">
-                          {formatPeso(item.latestTotal)}
-                        </Badge>
-                      ) : (
-                        <span className="text-muted-foreground">Not priced yet</span>
-                      )}
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {formatPricingDate(item.latestCalculatedAt)}
-                    </TableCell>
-                    <TableCell className="hidden text-muted-foreground md:table-cell">
-                      {formatPricingDate(item.updatedAt)}
-                    </TableCell>
-                    <TableCell className="pr-2 text-right">
-                      <PricingItemActions item={item} />
-                    </TableCell>
+            ) : !hasRows ? (
+              <div className="p-6">
+                <Empty>
+                  <EmptyHeader>
+                    <EmptyMedia variant="icon">
+                      <ArchiveIcon />
+                    </EmptyMedia>
+                    <EmptyTitle>No pricing items yet</EmptyTitle>
+                    <EmptyDescription>
+                      Add an item to price a print and start its price history.
+                    </EmptyDescription>
+                  </EmptyHeader>
+                </Empty>
+              </div>
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="md:pl-4">Item</TableHead>
+                    <TableHead className="text-right">Latest price</TableHead>
+                    <TableHead>Last priced</TableHead>
+                    <TableHead className="hidden md:table-cell">Updated</TableHead>
+                    <TableHead className="w-12">
+                      <span className="sr-only">Actions</span>
+                    </TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          )}
-        </CardContent>
-      </Card>
+                </TableHeader>
+                <TableBody>
+                  {entries.map((entry) =>
+                    entry.kind === "group" ? (
+                      <PricingGroupRows
+                        key={`group:${entry.group._id}`}
+                        group={entry.group}
+                      />
+                    ) : (
+                      <PricingItemRow key={`item:${entry.item._id}`} item={entry.item} />
+                    ),
+                  )}
+                </TableBody>
+              </Table>
+            )}
+          </CardContent>
+        </Card>
+      </div>
 
-      {!isSearching && data.page.length > 0 && (
-        <div className="flex items-center justify-between">
-          <p className="text-sm text-muted-foreground">
-            Showing {data.page.length} item{data.page.length === 1 ? "" : "s"}
-          </p>
-          <div className="flex items-center gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              disabled={isFetching || cursorHistory.length === 0}
-              onClick={goToPreviousPage}
-            >
-              <ArrowLeftIcon data-icon="inline-start" />
-              Previous
-            </Button>
-            <span className="min-w-6 text-center text-sm text-muted-foreground tabular-nums">
-              {cursorHistory.length + 1}
-            </span>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              disabled={isFetching || data.isDone}
-              onClick={goToNextPage}
-            >
-              Next
-              <ArrowRightIcon data-icon="inline-end" />
-            </Button>
+      <DragOverlay dropAnimation={null}>
+        {activeDrag ? (
+          <div className="flex max-w-64 items-center gap-2 rounded-lg border bg-background px-3 py-2 text-sm shadow-lg">
+            <GripVerticalIcon className="h-4 w-4 shrink-0 text-muted-foreground" />
+            <span className="truncate font-medium">{activeDrag.name}</span>
           </div>
-        </div>
+        ) : null}
+      </DragOverlay>
+
+      {pendingGroup ? (
+        <CreatePricingGroupDialog
+          items={pendingGroup.items}
+          open
+          onOpenChange={(nextOpen) => {
+            if (!nextOpen) setPendingGroup(null);
+          }}
+        />
+      ) : null}
+    </DndContext>
+  );
+}
+
+function PricingGroupRows({ group }: { group: PricingGroup }) {
+  const [action, setAction] = useState<"rename" | "delete" | null>(null);
+  const { setNodeRef, isOver } = useDroppable({
+    id: `price-group:${group._id}`,
+    data: { kind: "group", groupId: group._id },
+  });
+
+  return (
+    <>
+      <TableRow
+        ref={setNodeRef}
+        className={cn(
+          "bg-muted/40 hover:bg-muted/50",
+          isOver && "bg-primary/10 outline-1 -outline-offset-1 outline-primary/40",
+        )}
+      >
+        <TableCell className="md:pl-4">
+          <div className="flex min-w-0 items-center gap-1">
+            <span className="inline-flex size-8 shrink-0 items-center justify-center text-muted-foreground sm:size-7">
+              <BoxesIcon className="h-4 w-4" />
+            </span>
+            <span className="truncate font-semibold">{group.name}</span>
+            <Badge variant="outline" size="sm" className="ml-1 shrink-0">
+              {group.items.length} item{group.items.length === 1 ? "" : "s"}
+            </Badge>
+          </div>
+        </TableCell>
+        <TableCell className="text-right">
+          <div className="flex flex-col items-end gap-1">
+            <Badge variant="secondary" className="tabular-nums">
+              {formatPeso(group.total)}
+            </Badge>
+            {group.unpricedCount > 0 ? (
+              <span className="text-xs text-muted-foreground">
+                {group.unpricedCount} not priced
+              </span>
+            ) : null}
+          </div>
+        </TableCell>
+        <TableCell className="text-muted-foreground">
+          {formatPricingDate(group.latestCalculatedAt)}
+        </TableCell>
+        <TableCell className="hidden text-muted-foreground md:table-cell">
+          {formatPricingDate(group.updatedAt)}
+        </TableCell>
+        <TableCell className="pr-2 text-right">
+          <Menu>
+            <MenuTrigger render={<Button type="button" variant="ghost" size="icon-sm" />}>
+              <MoreHorizontalIcon />
+              <span className="sr-only">Actions for {group.name}</span>
+            </MenuTrigger>
+            <MenuPopup align="end" className="w-44">
+              <MenuGroup>
+                <MenuItem onClick={() => setAction("rename")}>
+                  <PencilIcon />
+                  Rename group
+                </MenuItem>
+                <MenuItem variant="destructive" onClick={() => setAction("delete")}>
+                  <Trash2Icon />
+                  Delete group
+                </MenuItem>
+              </MenuGroup>
+            </MenuPopup>
+          </Menu>
+        </TableCell>
+      </TableRow>
+
+      {group.items.map((item) => (
+        <PricingItemRow key={item._id} item={item} />
+      ))}
+
+      {action === "rename" ? (
+        <RenamePricingGroupDialog
+          group={group}
+          open
+          onOpenChange={(nextOpen) => {
+            if (!nextOpen) setAction(null);
+          }}
+        />
+      ) : action === "delete" ? (
+        <DeletePricingGroupDialog
+          group={group}
+          open
+          onOpenChange={(nextOpen) => {
+            if (!nextOpen) setAction(null);
+          }}
+        />
+      ) : null}
+    </>
+  );
+}
+
+function PricingItemRow({ item }: { item: PricingListItem }) {
+  const navigate = useNavigate();
+  const isGrouped = item.groupId !== undefined;
+  const {
+    attributes,
+    listeners,
+    setNodeRef: setDraggableRef,
+    isDragging,
+  } = useDraggable({
+    id: `price-item:${item._id}`,
+    data: {
+      kind: "item",
+      itemId: item._id,
+      itemName: item.name,
+      latestTotal: item.latestTotal,
+      groupId: item.groupId,
+    },
+  });
+  const { setNodeRef: setDroppableRef, isOver } = useDroppable({
+    id: `price-item-target:${item._id}`,
+    data: {
+      kind: "item",
+      itemId: item._id,
+      itemName: item.name,
+      latestTotal: item.latestTotal,
+      groupId: item.groupId,
+    },
+  });
+  const removeFromGroup = useMutation({
+    mutationFn: useConvexMutation(api.printPricing.groups.removeItemFromGroup),
+    onError: (error) => {
+      toastManager.add({
+        title: error.message || "Could not remove item from group",
+        type: "error",
+      });
+    },
+  });
+  const setRowRef = useCallback(
+    (node: HTMLTableRowElement | null) => {
+      setDraggableRef(node);
+      setDroppableRef(node);
+    },
+    [setDraggableRef, setDroppableRef],
+  );
+
+  return (
+    <TableRow
+      ref={setRowRef}
+      role="link"
+      tabIndex={0}
+      className={cn(
+        "cursor-pointer",
+        isDragging && "opacity-40",
+        isOver &&
+          !isDragging &&
+          "bg-primary/5 outline-1 -outline-offset-1 outline-primary/40",
       )}
-    </div>
+      onClick={(event) => {
+        if (event.target instanceof Element && event.target.closest("a, button")) {
+          return;
+        }
+        void navigate({
+          to: "/3d/pricing/$itemId",
+          params: { itemId: item._id },
+        });
+      }}
+      onKeyDown={(event) => {
+        if (event.key !== "Enter" || event.target !== event.currentTarget) return;
+        void navigate({
+          to: "/3d/pricing/$itemId",
+          params: { itemId: item._id },
+        });
+      }}
+    >
+      <TableCell className="md:pl-4">
+        <div className="flex min-w-0 items-center gap-1">
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            className="shrink-0 cursor-grab touch-none text-muted-foreground active:cursor-grabbing"
+            {...attributes}
+            {...listeners}
+          >
+            <GripVerticalIcon />
+            <span className="sr-only">
+              Drag {item.name} {isGrouped ? "to another group" : "to group it"}
+            </span>
+          </Button>
+          {isGrouped ? (
+            <CornerDownRightIcon className="ml-4 h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+          ) : null}
+          <Link
+            to="/3d/pricing/$itemId"
+            params={{ itemId: item._id }}
+            className="truncate font-medium underline-offset-4 hover:underline"
+          >
+            {item.name}
+          </Link>
+        </div>
+      </TableCell>
+      <TableCell className="text-right">
+        {item.latestTotal !== undefined ? (
+          <Badge variant="secondary" className="tabular-nums">
+            {formatPeso(item.latestTotal)}
+          </Badge>
+        ) : (
+          <span className="text-muted-foreground">Not priced yet</span>
+        )}
+      </TableCell>
+      <TableCell className="text-muted-foreground">
+        {formatPricingDate(item.latestCalculatedAt)}
+      </TableCell>
+      <TableCell className="hidden text-muted-foreground md:table-cell">
+        {formatPricingDate(item.updatedAt)}
+      </TableCell>
+      <TableCell className="pr-2 text-right">
+        <PricingItemActions
+          item={item}
+          onRemoveFromGroup={
+            isGrouped ? () => removeFromGroup.mutate({ itemId: item._id }) : undefined
+          }
+        />
+      </TableCell>
+    </TableRow>
   );
 }
 

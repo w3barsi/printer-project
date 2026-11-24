@@ -35,7 +35,13 @@ import { Textarea } from "@dg/ui-coss/components/textarea";
 import { toastManager } from "@dg/ui-coss/components/toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
-import { MoreHorizontalIcon, PencilIcon, PlusIcon, Trash2Icon } from "lucide-react";
+import {
+  MoreHorizontalIcon,
+  PencilIcon,
+  PlusIcon,
+  Trash2Icon,
+  UnlinkIcon,
+} from "lucide-react";
 import { useId, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useHotkeys } from "react-hotkeys-hook";
@@ -337,7 +343,13 @@ export function DeletePricingItemDialog({
 
 type PricingItemAction = "edit" | "delete";
 
-export function PricingItemActions({ item }: { item: PricingListItem }) {
+export function PricingItemActions({
+  item,
+  onRemoveFromGroup,
+}: {
+  item: PricingListItem;
+  onRemoveFromGroup?: () => void;
+}) {
   const [action, setAction] = useState<PricingItemAction | null>(null);
 
   return (
@@ -347,8 +359,14 @@ export function PricingItemActions({ item }: { item: PricingListItem }) {
           <MoreHorizontalIcon />
           <span className="sr-only">Actions for {item.name}</span>
         </MenuTrigger>
-        <MenuPopup align="end" className="w-40">
+        <MenuPopup align="end" className="w-44">
           <MenuGroup>
+            {onRemoveFromGroup ? (
+              <MenuItem onClick={onRemoveFromGroup}>
+                <UnlinkIcon />
+                Remove from group
+              </MenuItem>
+            ) : null}
             <MenuItem onClick={() => setAction("edit")}>
               <PencilIcon />
               Edit details

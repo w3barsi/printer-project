@@ -1,34 +1,15 @@
-import { paginationOptsValidator, paginationResultValidator } from "convex/server";
 import { v } from "convex/values";
 
 import { authedMutation, authedQuery, requireAppUser } from "../auth";
+import { deleteGroupIfEmpty } from "./groups";
 import { normalizeName, validateNote } from "./lib";
-
-const pricingItemListItemValidator = v.object({
-  _id: v.id("printPricingItems"),
-  _creationTime: v.number(),
-  name: v.string(),
-  normalizedName: v.string(),
-  notes: v.optional(v.string()),
-  createdBy: v.id("users"),
-  createdByName: v.string(),
-  createdAt: v.number(),
-  updatedAt: v.number(),
-  latestTotal: v.optional(v.number()),
-  latestCalculatedAt: v.optional(v.number()),
-});
+import { pricingItemListItemValidator } from "./validators";
 
 const pricingItemOptionValidator = v.object({
   _id: v.id("printPricingItems"),
   name: v.string(),
   latestTotal: v.optional(v.number()),
 });
-
-function validatePaginationSize(numItems: number) {
-  if (!Number.isSafeInteger(numItems) || numItems < 1 || numItems > 50) {
-    throw new Error("Page size must be a whole number between 1 and 50");
-  }
-}
 
 export const createItem = authedMutation({
   args: {
@@ -122,6 +103,8 @@ export const deleteItem = authedMutation({
       throw new Error("Pricing item not found");
     }
 
+    const groupId = item.groupId;
+
     // Cascade: a price history is only meaningful alongside its item.
     while (true) {
       const calculations = await ctx.db
@@ -140,26 +123,33 @@ export const deleteItem = authedMutation({
 
     await ctx.db.delete("printPricingItems", args.itemId);
 
+    if (groupId) {
+      const groupDeleted = await deleteGroupIfEmpty(ctx, groupId);
+
+      if (!groupDeleted) {
+        await ctx.db.patch("printPricingGroups", groupId, {
+          updatedAt: Date.now(),
+        });
+      }
+    }
+
     return null;
   },
 });
 
-export const listItems = authedQuery({
-  args: {
-    paginationOpts: paginationOptsValidator,
-  },
-  returns: paginationResultValidator(pricingItemListItemValidator),
-  handler: async (ctx, args) => {
-    validatePaginationSize(args.paginationOpts.numItems);
-
-    const result = await ctx.db
+export const listUngroupedItems = authedQuery({
+  args: {},
+  returns: v.array(pricingItemListItemValidator),
+  handler: async (ctx) => {
+    const items = await ctx.db
       .query("printPricingItems")
       .withIndex("by_updatedAt")
+      .filter((q) => q.eq(q.field("groupId"), undefined))
       .order("desc")
-      .paginate(args.paginationOpts);
+      .collect();
 
-    const page = await Promise.all(
-      result.page.map(async (item) => {
+    return await Promise.all(
+      items.map(async (item) => {
         const creator = await ctx.db.get("users", item.createdBy);
 
         return {
@@ -168,11 +158,6 @@ export const listItems = authedQuery({
         };
       }),
     );
-
-    return {
-      ...result,
-      page,
-    };
   },
 });
 

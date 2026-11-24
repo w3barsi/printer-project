@@ -8,7 +8,6 @@ import { AccessoryManagerDialog } from "@/components/3d/pricing/accessory-manage
 import { PresetManagerDialog } from "@/components/3d/pricing/preset-manager-dialog";
 import { CreatePricingItemDialog } from "@/components/3d/pricing/pricing-item-dialogs";
 import {
-  PRICING_ITEMS_PAGE_SIZE,
   PricingItemsTable,
   PricingItemsTableSkeleton,
 } from "@/components/3d/pricing/pricing-items-table";
@@ -19,14 +18,10 @@ export const Route = createFileRoute("/_authenticated/3d/pricing")({
   component: ThreeDPricingPage,
   errorComponent: DefaultCatchBoundary,
   loader: async ({ context: { queryClient: qc } }) => {
-    await qc.ensureQueryData(
-      convexQuery(api.printPricing.items.listItems, {
-        paginationOpts: {
-          numItems: PRICING_ITEMS_PAGE_SIZE,
-          cursor: null,
-        },
-      }),
-    );
+    await Promise.all([
+      qc.ensureQueryData(convexQuery(api.printPricing.items.listUngroupedItems, {})),
+      qc.ensureQueryData(convexQuery(api.printPricing.groups.listGroups, {})),
+    ]);
 
     return {
       crumb: [

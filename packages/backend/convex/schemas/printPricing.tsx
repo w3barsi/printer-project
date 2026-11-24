@@ -64,6 +64,15 @@ export const printPriceBreakdown = v.object({
 });
 
 export const printPricingSchema = {
+  // Optional grouping of priced items, e.g. a multi-part build.
+  printPricingGroups: defineTable({
+    name: v.string(),
+    normalizedName: v.string(),
+    createdBy: v.id("users"),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  }).index("by_normalized_name", ["normalizedName"]),
+
   // The "item" — stable identity, e.g. "Bracket v2"
   printPricingItems: defineTable({
     name: v.string(),
@@ -75,9 +84,12 @@ export const printPricingSchema = {
     // denormalized so the list can show the current price cheaply
     latestTotal: v.optional(v.number()),
     latestCalculatedAt: v.optional(v.number()),
+    // Set while the item belongs to a group; the group total is derived from members.
+    groupId: v.optional(v.id("printPricingGroups")),
   })
     .index("by_normalized_name", ["normalizedName"])
     .index("by_updatedAt", ["updatedAt"])
+    .index("by_groupId_and_updatedAt", ["groupId", "updatedAt"])
     .searchIndex("search_name", { searchField: "name" }),
 
   printPricingPrinterPresets: defineTable({
