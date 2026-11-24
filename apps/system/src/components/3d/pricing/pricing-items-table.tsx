@@ -54,8 +54,6 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import {
   ArchiveIcon,
   BoxesIcon,
-  CornerDownRightIcon,
-  GripVerticalIcon,
   MoreHorizontalIcon,
   PencilIcon,
   SearchIcon,
@@ -114,7 +112,7 @@ export function PricingItemsTable() {
   const { data: groups } = useSuspenseQuery(
     convexQuery(api.printPricing.groups.listGroups, {}),
   );
-  const [activeDrag, setActiveDrag] = useState<{ name: string } | null>(null);
+  const [activeDrag, setActiveDrag] = useState<ItemDragData | null>(null);
   const [pendingGroup, setPendingGroup] = useState<{
     items: PricingGroupDraftItem[];
   } | null>(null);
@@ -155,7 +153,7 @@ export function PricingItemsTable() {
 
     if (active?.kind !== "item") return;
 
-    setActiveDrag({ name: active.itemName });
+    setActiveDrag(active);
   }
 
   function handleDragEnd(event: DragEndEvent) {
@@ -282,9 +280,17 @@ export function PricingItemsTable() {
 
       <DragOverlay dropAnimation={null}>
         {activeDrag ? (
-          <div className="flex max-w-64 items-center gap-2 rounded-lg border bg-background px-3 py-2 text-sm shadow-lg">
-            <GripVerticalIcon className="h-4 w-4 shrink-0 text-muted-foreground" />
-            <span className="truncate font-medium">{activeDrag.name}</span>
+          <div className="pointer-events-none w-64 rounded-xl bg-background/80 p-2 opacity-80 shadow-xl ring-1 ring-foreground/10">
+            <div className="flex items-center justify-between gap-3 rounded-lg bg-card px-3 py-2">
+              <span className="min-w-0 truncate text-sm font-medium">
+                {activeDrag.itemName}
+              </span>
+              {activeDrag.latestTotal !== undefined ? (
+                <span className="shrink-0 text-sm text-muted-foreground tabular-nums">
+                  {formatPeso(activeDrag.latestTotal)}
+                </span>
+              ) : null}
+            </div>
           </div>
         ) : null}
       </DragOverlay>
@@ -314,7 +320,6 @@ function PricingGroupRows({ group }: { group: PricingGroup }) {
       <TableRow
         ref={setNodeRef}
         className={cn(
-          "bg-muted/40 hover:bg-muted/50",
           isOver && "bg-primary/10 outline-1 -outline-offset-1 outline-primary/40",
         )}
       >
@@ -369,8 +374,12 @@ function PricingGroupRows({ group }: { group: PricingGroup }) {
         </TableCell>
       </TableRow>
 
-      {group.items.map((item) => (
-        <PricingItemRow key={item._id} item={item} />
+      {group.items.map((item, index) => (
+        <PricingItemRow
+          key={item._id}
+          item={item}
+          isLastInGroup={index === group.items.length - 1}
+        />
       ))}
 
       {action === "rename" ? (
@@ -394,7 +403,13 @@ function PricingGroupRows({ group }: { group: PricingGroup }) {
   );
 }
 
-function PricingItemRow({ item }: { item: PricingListItem }) {
+function PricingItemRow({
+  item,
+  isLastInGroup = false,
+}: {
+  item: PricingListItem;
+  isLastInGroup?: boolean;
+}) {
   const navigate = useNavigate();
   const isGrouped = item.groupId !== undefined;
   const {
@@ -442,10 +457,14 @@ function PricingItemRow({ item }: { item: PricingListItem }) {
   return (
     <TableRow
       ref={setRowRef}
+      {...attributes}
+      {...listeners}
       role="link"
       tabIndex={0}
       className={cn(
-        "cursor-pointer",
+        "cursor-pointer select-none",
+        isGrouped && "border-b-0 bg-black/5 dark:bg-black/30",
+        isGrouped && isLastInGroup && "border-b",
         isDragging && "opacity-40",
         isOver &&
           !isDragging &&
@@ -468,24 +487,14 @@ function PricingItemRow({ item }: { item: PricingListItem }) {
         });
       }}
     >
-      <TableCell className="md:pl-4">
-        <div className="flex min-w-0 items-center gap-1">
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon-sm"
-            className="shrink-0 cursor-grab touch-none text-muted-foreground active:cursor-grabbing"
-            {...attributes}
-            {...listeners}
-          >
-            <GripVerticalIcon />
-            <span className="sr-only">
-              Drag {item.name} {isGrouped ? "to another group" : "to group it"}
-            </span>
-          </Button>
-          {isGrouped ? (
-            <CornerDownRightIcon className="ml-4 h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-          ) : null}
+      <TableCell className={cn("relative", isGrouped ? "pl-12" : "md:pl-4")}>
+        {isGrouped ? (
+          <span
+            aria-hidden
+            className="absolute inset-y-0 left-6 w-px bg-border md:left-7"
+          />
+        ) : null}
+        <div className="flex min-w-0 items-center">
           <Link
             to="/3d/pricing/$itemId"
             params={{ itemId: item._id }}
@@ -510,7 +519,10 @@ function PricingItemRow({ item }: { item: PricingListItem }) {
       <TableCell className="hidden text-muted-foreground md:table-cell">
         {formatPricingDate(item.updatedAt)}
       </TableCell>
-      <TableCell className="pr-2 text-right">
+      <TableCell
+        className="pr-2 text-right"
+        onPointerDown={(event) => event.stopPropagation()}
+      >
         <PricingItemActions
           item={item}
           onRemoveFromGroup={
