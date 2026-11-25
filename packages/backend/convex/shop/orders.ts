@@ -220,6 +220,7 @@ export const createUnconfirmedOrderAfterTurnstile = internalMutation({
         name: item.name,
         quantity: item.quantity,
         price: item.piecePrice,
+        orderWeight: clientIndex,
       });
 
       const onlineOrderItemId = await ctx.db.insert("onlineOrderItems", {

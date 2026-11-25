@@ -6,6 +6,7 @@ import type { Doc, Id } from "./_generated/dataModel";
 import type { QueryCtx } from "./_generated/server";
 import { internalMutation, internalQuery } from "./_generated/server";
 import { authedMutation, authedQuery, requireAppUser } from "./auth";
+import { sortItemsForDisplay } from "./items";
 
 const selectableJobOrderStatus = v.union(
   v.literal("pending"),
@@ -75,10 +76,12 @@ export const getForPrinting = authedQuery({
       .collect();
 
     const completeJosPromise = forPrinting.map(async (jo) => {
-      const items = await ctx.db
-        .query("items")
-        .withIndex("by_joId", (q) => q.eq("joId", jo._id))
-        .collect();
+      const items = sortItemsForDisplay(
+        await ctx.db
+          .query("items")
+          .withIndex("by_joId", (q) => q.eq("joId", jo._id))
+          .collect(),
+      );
 
       const payments = await ctx.db
         .query("payment")
@@ -318,10 +321,12 @@ export const getWithPagination = authedQuery({
     const { page, isDone, continueCursor } = res;
 
     const joWithItems = page.map(async (jo) => {
-      const items = await ctx.db
-        .query("items")
-        .withIndex("by_joId", (q) => q.eq("joId", jo._id))
-        .collect();
+      const items = sortItemsForDisplay(
+        await ctx.db
+          .query("items")
+          .withIndex("by_joId", (q) => q.eq("joId", jo._id))
+          .collect(),
+      );
 
       return { ...jo, items };
     });
@@ -346,10 +351,12 @@ export const getOneCompleteMutation = authedMutation({
       return null;
     }
 
-    const items = await ctx.db
-      .query("items")
-      .withIndex("by_joId", (q) => q.eq("joId", jo._id))
-      .collect();
+    const items = sortItemsForDisplay(
+      await ctx.db
+        .query("items")
+        .withIndex("by_joId", (q) => q.eq("joId", jo._id))
+        .collect(),
+    );
 
     const payments = await ctx.db
       .query("payment")
@@ -385,10 +392,12 @@ export const getOneComplete = authedQuery({
       return null;
     }
 
-    const items = await ctx.db
-      .query("items")
-      .withIndex("by_joId", (q) => q.eq("joId", jo._id))
-      .collect();
+    const items = sortItemsForDisplay(
+      await ctx.db
+        .query("items")
+        .withIndex("by_joId", (q) => q.eq("joId", jo._id))
+        .collect(),
+    );
 
     const payments = await ctx.db
       .query("payment")

@@ -105,6 +105,7 @@ export default defineSchema({
   items: defineTable({
     updatedAt: v.optional(v.number()),
     checked: v.optional(v.boolean()),
+    orderWeight: v.optional(v.number()),
 
     joId: v.id("jo"),
     name: v.string(),
