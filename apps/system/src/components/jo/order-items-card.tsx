@@ -328,7 +328,7 @@ function OrderItemRow({
       )}
     >
       <TableCell
-        className="w-10 md:pl-4"
+        className="w-10 cursor-pointer md:pl-4"
         onMouseDown={(event) => event.stopPropagation()}
         onTouchStart={(event) => event.stopPropagation()}
       >
@@ -345,6 +345,7 @@ function OrderItemRow({
           checked={item.checked ?? false}
           onCheckedChange={onToggleChecked}
           aria-label={`Toggle "${item.name}"`}
+          className="cursor-pointer"
         />
       </TableCell>
       <TableCell className={cn("font-medium", item.checked && "text-muted-foreground")}>
@@ -356,13 +357,15 @@ function OrderItemRow({
         {formatCurrency(item.quantity * item.price)}
       </TableCell>
       <TableCell
-        className="w-12 text-right"
+        className="w-12 cursor-pointer text-right"
         onMouseDown={(event) => event.stopPropagation()}
         onTouchStart={(event) => event.stopPropagation()}
       >
         {editable ? (
           <Menu>
-            <MenuTrigger render={<Button variant="ghost" size="icon" />}>
+            <MenuTrigger
+              render={<Button variant="ghost" size="icon" className="cursor-pointer" />}
+            >
               <MoreHorizontalIcon className="h-4 w-4" />
             </MenuTrigger>
             <MenuPopup align="end">

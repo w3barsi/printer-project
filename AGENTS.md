@@ -64,6 +64,13 @@ We need to be on the same page with terminology. When communicating, use this la
 - When asked a question, do not yet proceed to implementation. Answer the question first, instructions for implementation will follow.
 - When told to "plan" something in build mode, do not yet proceed with the implementation. Create the plan first, instructions for implementation will follow.
 
+## Committing
+
+- `gac` is our commit helper (aliased to `terminal-commit` in `~/.zshrc`). Run bare it opens an interactive TUI; in non-interactive contexts use the headless subcommands:
+  - `gac add` - stage all changes and create one commit.
+  - `gac staged` - commit what is already staged.
+  - `gac group` - split all changes into coherent commits.
+
 ## Todo Management
 
 - When asked to add a todo, add it to README.md under "## Todos" section
