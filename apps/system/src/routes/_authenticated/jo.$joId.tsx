@@ -64,17 +64,18 @@ export const Route = createFileRoute("/_authenticated/jo/$joId")({
 function JoDetailComponent() {
   const { joId } = Route.useLoaderData();
   const navigate = Route.useNavigate();
+  const [hasItemSelection, setHasItemSelection] = useState(false);
   useHotkeys("b", () => navigate({ to: "/jo" }));
 
   return (
     <Container className="pwa-padding flex flex-col">
-      <JobOrderHeader />
+      <JobOrderHeader hasItemSelection={hasItemSelection} />
       <div className="grid gap-2 md:gap-4 lg:grid-cols-3">
         <div className="flex flex-col gap-2 md:gap-4 lg:col-span-2">
           <JobOrderSummaries joId={joId} />
           <OnlineOrderDetailsCard joId={joId} />
           <OrderSummaryCard joId={joId} />
-          <OrderItemsCard joId={joId} />
+          <OrderItemsCard joId={joId} onSelectionChange={setHasItemSelection} />
           <InventoryUsedCard joId={joId} />
         </div>
         <PaymentsCard joId={joId} />
@@ -83,7 +84,7 @@ function JoDetailComponent() {
   );
 }
 
-function JobOrderHeader() {
+function JobOrderHeader({ hasItemSelection }: { hasItemSelection: boolean }) {
   const { joId } = Route.useLoaderData();
   const { data: jo } = useSuspenseQuery(convexQuery(api.jo.getOneComplete, { id: joId }));
   const confirmOnlineOrder = useMutation(api.shop.orders.confirmOnlineOrder);
@@ -165,6 +166,7 @@ function JobOrderHeader() {
           joId={joId}
           joName={jo.name}
           joNumber={String(jo.joNumber)}
+          deleteHotkeyEnabled={!hasItemSelection}
         />
       </div>
     </div>

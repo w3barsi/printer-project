@@ -49,7 +49,13 @@ import { EditItemsDialog } from "@/components/jo/edit-items-dialog";
 import { formatCurrency } from "@/components/jo/job-order-formatters";
 import type { Item } from "@/types/convex";
 
-export function OrderItemsCard({ joId }: { joId: Id<"jo"> }) {
+export function OrderItemsCard({
+  joId,
+  onSelectionChange,
+}: {
+  joId: Id<"jo">;
+  onSelectionChange?: (hasSelection: boolean) => void;
+}) {
   const { data: jo } = useSuspenseQuery(convexQuery(api.jo.getOneComplete, { id: joId }));
   const items = jo?.items ?? [];
   const editable = jo !== null && jo.status !== "unconfirmed";
@@ -114,6 +120,12 @@ export function OrderItemsCard({ joId }: { joId: Id<"jo"> }) {
   const selectedItems = items.filter((currentItem) =>
     selectedIds.includes(currentItem._id),
   );
+  const selectionHotkeysEnabled =
+    selectedItems.length > 0 &&
+    !isEditDialogOpen &&
+    !isDeleteAlertDialogOpen &&
+    !isBulkEditOpen &&
+    !isBulkDeleteOpen;
 
   // Drop ids that no longer exist; a live query update can remove items
   // underneath an active selection.
@@ -132,21 +144,24 @@ export function OrderItemsCard({ joId }: { joId: Id<"jo"> }) {
     setAnchorId(null);
   }, [editable]);
 
+  useEffect(() => {
+    onSelectionChange?.(selectedItems.length > 0);
+  }, [selectedItems.length, onSelectionChange]);
+
   useHotkeys(
     "escape",
     () => {
       setSelectedIds([]);
       setAnchorId(null);
     },
-    {
-      enabled:
-        selectedIds.length > 0 &&
-        !isEditDialogOpen &&
-        !isDeleteAlertDialogOpen &&
-        !isBulkEditOpen &&
-        !isBulkDeleteOpen,
-    },
+    { enabled: selectionHotkeysEnabled },
   );
+  useHotkeys("e", () => setIsBulkEditOpen(true), {
+    enabled: selectionHotkeysEnabled,
+  });
+  useHotkeys("d", () => setIsBulkDeleteOpen(true), {
+    enabled: selectionHotkeysEnabled,
+  });
 
   if (jo === null) {
     return null;

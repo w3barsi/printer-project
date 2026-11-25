@@ -24,15 +24,19 @@ export function DeleteJoAlertDialog({
   joId,
   joName,
   joNumber,
+  deleteHotkeyEnabled = true,
 }: {
   joId: Id<"jo">;
   joName?: string;
   joNumber?: string;
+  deleteHotkeyEnabled?: boolean;
 }) {
   const navigate = useNavigate();
   const deleteButtonRef = useRef<HTMLButtonElement>(null);
   const [isDeleting, setIsDeleting] = useState(false);
-  useHotkeys("d", () => deleteButtonRef.current?.click());
+  useHotkeys("d", () => deleteButtonRef.current?.click(), {
+    enabled: deleteHotkeyEnabled,
+  });
 
   const mutate = useMutation(api.jo.deleteJo).withOptimisticUpdate((localStore, args) => {
     const getWithPaginationArgs = { paginationOptions: { cursor: null, numItems: 10 } };
@@ -104,7 +108,7 @@ export function DeleteJoAlertDialog({
         </TooltipTrigger>
         <TooltipContent>
           <div className="flex items-center gap-2">
-            Delete Job Order <Kbd>D</Kbd>
+            Delete Job Order {deleteHotkeyEnabled ? <Kbd>D</Kbd> : null}
           </div>
         </TooltipContent>
       </Tooltip>
