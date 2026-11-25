@@ -4,7 +4,7 @@ import type { Id } from "@dg/backend/dataModel";
 import { Button } from "@dg/ui-coss/components/button";
 import { Card, CardContent, CardHeader } from "@dg/ui-coss/components/card";
 import { Checkbox } from "@dg/ui-coss/components/checkbox";
-import { Menu, MenuPopup, MenuItem, MenuTrigger } from "@dg/ui-coss/components/menu";
+import { Menu, MenuItem, MenuPopup, MenuTrigger } from "@dg/ui-coss/components/menu";
 import {
   Table,
   TableBody,
@@ -32,21 +32,28 @@ import {
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useMutation } from "convex/react";
 import {
+  CheckSquareIcon,
   GripVerticalIcon,
   MoreHorizontalIcon,
   PencilIcon,
   Trash2Icon,
+  XIcon,
 } from "lucide-react";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useHotkeys } from "react-hotkeys-hook";
 
 import { AddItemDialog } from "@/components/jo/add-item-dialog";
-import { DeleteItemAlertDialog } from "@/components/jo/delete-item-alert-dialog";
+import { DeleteItemsAlertDialog } from "@/components/jo/delete-items-alert-dialog";
 import { EditItemDialog } from "@/components/jo/edit-item-dialog";
+import { EditItemsDialog } from "@/components/jo/edit-items-dialog";
 import { formatCurrency } from "@/components/jo/job-order-formatters";
 import type { Item } from "@/types/convex";
 
 export function OrderItemsCard({ joId }: { joId: Id<"jo"> }) {
   const { data: jo } = useSuspenseQuery(convexQuery(api.jo.getOneComplete, { id: joId }));
+  const items = jo?.items ?? [];
+  const editable = jo !== null && jo.status !== "unconfirmed";
+
   const toggleItemChecked = useMutation(api.items.toggleItemChecked).withOptimisticUpdate(
     (localStore, args) => {
       const current = localStore.getQuery(api.jo.getOneComplete, { id: joId });
@@ -78,11 +85,13 @@ export function OrderItemsCard({ joId }: { joId: Id<"jo"> }) {
       localStore.setQuery(api.jo.getOneComplete, { id: joId }, { ...current, items });
     },
   );
+
+  const [selectedIds, setSelectedIds] = useState<Id<"items">[]>([]);
+  const [anchorId, setAnchorId] = useState<Id<"items"> | null>(null);
   const [item, setItem] = useState<Item | null>(null);
   const [activeDrag, setActiveDrag] = useState<{
-    item: Item;
+    items: Item[];
     width?: number;
-    height?: number;
   } | null>(null);
   const [dropTarget, setDropTarget] = useState<{
     itemId: Id<"items">;
@@ -90,6 +99,9 @@ export function OrderItemsCard({ joId }: { joId: Id<"jo"> }) {
   } | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteAlertDialogOpen, setIsDeleteAlertDialogOpen] = useState(false);
+  const [isBulkEditOpen, setIsBulkEditOpen] = useState(false);
+  const [isBulkDeleteOpen, setIsBulkDeleteOpen] = useState(false);
+  const lastDragEndedAt = useRef(0);
   const sensors = useSensors(
     useSensor(MouseSensor, {
       activationConstraint: { distance: 6 },
@@ -99,17 +111,108 @@ export function OrderItemsCard({ joId }: { joId: Id<"jo"> }) {
     }),
   );
 
+  const selectedItems = items.filter((currentItem) =>
+    selectedIds.includes(currentItem._id),
+  );
+
+  // Drop ids that no longer exist; a live query update can remove items
+  // underneath an active selection.
+  useEffect(() => {
+    setSelectedIds((current) => {
+      const next = current.filter((itemId) =>
+        items.some((currentItem) => currentItem._id === itemId),
+      );
+      return next.length === current.length ? current : next;
+    });
+  }, [items]);
+
+  useEffect(() => {
+    if (editable) return;
+    setSelectedIds([]);
+    setAnchorId(null);
+  }, [editable]);
+
+  useHotkeys(
+    "escape",
+    () => {
+      setSelectedIds([]);
+      setAnchorId(null);
+    },
+    {
+      enabled:
+        selectedIds.length > 0 &&
+        !isEditDialogOpen &&
+        !isDeleteAlertDialogOpen &&
+        !isBulkEditOpen &&
+        !isBulkDeleteOpen,
+    },
+  );
+
   if (jo === null) {
     return null;
   }
 
-  const items = jo.items;
-  const editable = jo.status !== "unconfirmed";
+  function clearSelection() {
+    setSelectedIds([]);
+    setAnchorId(null);
+  }
+
+  function toggleSelection(itemId: Id<"items">) {
+    setSelectedIds((current) =>
+      current.includes(itemId)
+        ? current.filter((selectedId) => selectedId !== itemId)
+        : [...current, itemId],
+    );
+    setAnchorId(itemId);
+  }
+
+  function selectRange(itemId: Id<"items">) {
+    const anchorIndex = anchorId
+      ? items.findIndex((currentItem) => currentItem._id === anchorId)
+      : -1;
+    const itemIndex = items.findIndex((currentItem) => currentItem._id === itemId);
+
+    if (anchorIndex === -1 || itemIndex === -1) {
+      setSelectedIds([itemId]);
+      setAnchorId(itemId);
+      return;
+    }
+
+    const start = Math.min(anchorIndex, itemIndex);
+    const end = Math.max(anchorIndex, itemIndex);
+    setSelectedIds(items.slice(start, end + 1).map((currentItem) => currentItem._id));
+  }
+
+  function handleRowClick(event: React.MouseEvent<HTMLTableRowElement>, rowItem: Item) {
+    if (!editable) return;
+    if (performance.now() - lastDragEndedAt.current < 150) return;
+
+    if (event.shiftKey) {
+      selectRange(rowItem._id);
+      return;
+    }
+
+    if (event.ctrlKey || event.metaKey) {
+      toggleSelection(rowItem._id);
+      return;
+    }
+
+    setSelectedIds([rowItem._id]);
+    setAnchorId(rowItem._id);
+  }
 
   function handleDragStart(event: DragStartEvent) {
     const itemId = event.active.data.current?.itemId as Id<"items"> | undefined;
     const draggedItem = items.find((currentItem) => currentItem._id === itemId);
     if (!draggedItem || !itemId) return;
+
+    let dragItems: Item[];
+    if (selectedIds.includes(itemId)) {
+      dragItems = items.filter((currentItem) => selectedIds.includes(currentItem._id));
+    } else {
+      clearSelection();
+      dragItems = [draggedItem];
+    }
 
     // dnd-kit hasn't populated `active.rect.current.initial` yet when
     // onDragStart fires, so measure the row element directly.
@@ -119,9 +222,8 @@ export function OrderItemsCard({ joId }: { joId: Id<"jo"> }) {
     const rect = row?.getBoundingClientRect();
 
     setActiveDrag({
-      item: draggedItem,
+      items: dragItems,
       width: rect?.width,
-      height: rect?.height,
     });
   }
 
@@ -129,43 +231,93 @@ export function OrderItemsCard({ joId }: { joId: Id<"jo"> }) {
     const activeId = event.active.data.current?.itemId as Id<"items"> | undefined;
     const overId = event.over?.data.current?.itemId as Id<"items"> | undefined;
 
-    if (!activeId || !overId || activeId === overId) {
+    if (!activeId || !overId) {
       setDropTarget(null);
       return;
     }
 
-    const fromIndex = items.findIndex((currentItem) => currentItem._id === activeId);
-    const toIndex = items.findIndex((currentItem) => currentItem._id === overId);
+    const movingIds = activeDrag
+      ? activeDrag.items.map((dragItem) => dragItem._id)
+      : [activeId];
+    const movingSet = new Set(movingIds);
+    const overIndex = items.findIndex((currentItem) => currentItem._id === overId);
 
-    if (fromIndex === -1 || toIndex === -1) {
+    if (movingSet.has(overId) || overIndex === -1) {
+      setDropTarget(null);
+      return;
+    }
+
+    const movingIndexes = items
+      .map((currentItem, index) => (movingSet.has(currentItem._id) ? index : -1))
+      .filter((index) => index !== -1);
+
+    if (movingIndexes.length === 0) {
+      setDropTarget(null);
+      return;
+    }
+
+    const firstMovingIndex = Math.min(...movingIndexes);
+    const lastMovingIndex = Math.max(...movingIndexes);
+
+    // Hovering between the moving rows is a no-op, not a drop target.
+    if (overIndex > firstMovingIndex && overIndex < lastMovingIndex) {
       setDropTarget(null);
       return;
     }
 
     setDropTarget({
       itemId: overId,
-      // Moving down lands after the hovered item, moving up lands before it.
-      position: fromIndex < toIndex ? "after" : "before",
+      position: overIndex > lastMovingIndex ? "after" : "before",
     });
   }
 
   function handleDragEnd(event: DragEndEvent) {
+    const activeId = event.active.data.current?.itemId as Id<"items"> | undefined;
+    const overId = event.over?.data.current?.itemId as Id<"items"> | undefined;
+    const draggedItems = activeDrag?.items ?? [];
+    lastDragEndedAt.current = performance.now();
     setActiveDrag(null);
     setDropTarget(null);
 
-    const activeId = event.active.data.current?.itemId as Id<"items"> | undefined;
-    const overId = event.over?.data.current?.itemId as Id<"items"> | undefined;
+    if (!activeId || !overId) return;
 
-    if (!activeId || !overId || activeId === overId) return;
+    const movingIds =
+      draggedItems.length > 0 ? draggedItems.map((dragItem) => dragItem._id) : [activeId];
+    const movingSet = new Set(movingIds);
+    if (movingSet.has(overId)) return;
 
-    const itemIds = items.map((currentItem) => currentItem._id);
-    const fromIndex = itemIds.indexOf(activeId);
-    const toIndex = itemIds.indexOf(overId);
+    const order = items.map((currentItem) => currentItem._id);
+    const rest = order.filter((itemId) => !movingSet.has(itemId));
+    const targetIndex = rest.indexOf(overId);
+    if (targetIndex === -1) return;
 
-    if (fromIndex === -1 || toIndex === -1) return;
+    const overIndex = order.indexOf(overId);
+    const movingIndexes = order
+      .map((itemId, index) => (movingSet.has(itemId) ? index : -1))
+      .filter((index) => index !== -1);
+    if (movingIndexes.length === 0) return;
 
-    itemIds.splice(toIndex, 0, ...itemIds.splice(fromIndex, 1));
-    reorderItems({ joId, itemIds });
+    const firstMovingIndex = Math.min(...movingIndexes);
+    const lastMovingIndex = Math.max(...movingIndexes);
+    if (overIndex > firstMovingIndex && overIndex < lastMovingIndex) return;
+
+    const position = overIndex > lastMovingIndex ? "after" : "before";
+    const insertAt = position === "after" ? targetIndex + 1 : targetIndex;
+    const nextOrder = [
+      ...rest.slice(0, insertAt),
+      ...order.filter((itemId) => movingSet.has(itemId)),
+      ...rest.slice(insertAt),
+    ];
+
+    if (nextOrder.every((itemId, index) => itemId === order[index])) return;
+
+    reorderItems({ joId, itemIds: nextOrder });
+  }
+
+  function handleDragCancel() {
+    lastDragEndedAt.current = performance.now();
+    setActiveDrag(null);
+    setDropTarget(null);
   }
 
   return (
@@ -176,18 +328,68 @@ export function OrderItemsCard({ joId }: { joId: Id<"jo"> }) {
         item={item}
         joId={joId}
       />
-      <DeleteItemAlertDialog
+      <DeleteItemsAlertDialog
         open={isDeleteAlertDialogOpen}
         setOpen={setIsDeleteAlertDialogOpen}
-        item={item}
+        items={item ? [item] : []}
         joId={joId}
+      />
+      <EditItemsDialog
+        open={isBulkEditOpen}
+        setOpen={setIsBulkEditOpen}
+        items={selectedItems}
+        joId={joId}
+        onUpdated={clearSelection}
+      />
+      <DeleteItemsAlertDialog
+        open={isBulkDeleteOpen}
+        setOpen={setIsBulkDeleteOpen}
+        items={selectedItems}
+        joId={joId}
+        onDeleted={clearSelection}
       />
       <Card className="pt-6 pb-0">
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <h3 className="text-lg font-bold">Order Items</h3>
-            {editable ? <AddItemDialog joId={joId} /> : null}
-          </div>
+          {selectedItems.length > 0 ? (
+            <div className="flex min-h-9 flex-wrap items-center gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                aria-label="Clear selection"
+                onClick={clearSelection}
+              >
+                <XIcon />
+              </Button>
+              <span className="px-1 text-sm font-medium">
+                {selectedItems.length} {selectedItems.length === 1 ? "item" : "items"}{" "}
+                selected
+              </span>
+              <div className="ml-auto flex gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setIsBulkEditOpen(true)}
+                >
+                  <PencilIcon />
+                  Edit
+                </Button>
+                <Button
+                  type="button"
+                  variant="destructive"
+                  onClick={() => setIsBulkDeleteOpen(true)}
+                >
+                  <Trash2Icon />
+                  Delete
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-bold">Order Items</h3>
+              {editable ? <AddItemDialog joId={joId} /> : null}
+            </div>
+          )}
         </CardHeader>
         <CardContent className="p-0">
           <DndContext
@@ -196,10 +398,7 @@ export function OrderItemsCard({ joId }: { joId: Id<"jo"> }) {
             onDragStart={handleDragStart}
             onDragOver={handleDragOver}
             onDragEnd={handleDragEnd}
-            onDragCancel={() => {
-              setActiveDrag(null);
-              setDropTarget(null);
-            }}
+            onDragCancel={handleDragCancel}
           >
             <Table>
               <TableHeader>
@@ -221,22 +420,32 @@ export function OrderItemsCard({ joId }: { joId: Id<"jo"> }) {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {items.map((item) => (
+                {items.map((currentItem) => (
                   <OrderItemRow
-                    key={item._id}
-                    item={item}
+                    key={currentItem._id}
+                    item={currentItem}
                     editable={editable}
-                    dropPosition={
-                      dropTarget?.itemId === item._id ? dropTarget.position : undefined
+                    isSelected={selectedIds.includes(currentItem._id)}
+                    isMoving={
+                      activeDrag?.items.some(
+                        (dragItem) => dragItem._id === currentItem._id,
+                      ) ?? false
                     }
-                    onToggleChecked={() => toggleItemChecked({ itemId: item._id })}
+                    dropPosition={
+                      dropTarget?.itemId === currentItem._id
+                        ? dropTarget.position
+                        : undefined
+                    }
+                    onClick={(event) => handleRowClick(event, currentItem)}
+                    onToggleChecked={() => toggleItemChecked({ itemId: currentItem._id })}
+                    onToggleSelected={() => toggleSelection(currentItem._id)}
                     onEdit={() => {
                       setIsEditDialogOpen(true);
-                      setItem(item);
+                      setItem(currentItem);
                     }}
                     onDelete={() => {
                       setIsDeleteAlertDialogOpen(true);
-                      setItem(item);
+                      setItem(currentItem);
                     }}
                   />
                 ))}
@@ -257,16 +466,25 @@ export function OrderItemsCard({ joId }: { joId: Id<"jo"> }) {
             <DragOverlay dropAnimation={null}>
               {activeDrag ? (
                 <div
-                  style={{ width: activeDrag.width, height: activeDrag.height }}
-                  className="pointer-events-none flex items-center gap-3 rounded-lg bg-background/90 px-3 text-sm shadow-xl ring-1 ring-foreground/10"
+                  style={{ width: activeDrag.width }}
+                  className="pointer-events-none flex flex-col gap-1 rounded-lg bg-background/90 p-2 text-sm shadow-xl ring-1 ring-foreground/10"
                 >
-                  <GripVerticalIcon className="h-4 w-4 shrink-0 text-muted-foreground" />
-                  <span className="min-w-0 truncate font-medium">
-                    {activeDrag.item.name}
-                  </span>
-                  <span className="ml-auto shrink-0 text-muted-foreground tabular-nums">
-                    {activeDrag.item.quantity} × {formatCurrency(activeDrag.item.price)}
-                  </span>
+                  {activeDrag.items.slice(0, 3).map((dragItem) => (
+                    <div key={dragItem._id} className="flex items-center gap-3 px-1">
+                      <GripVerticalIcon className="h-4 w-4 shrink-0 text-muted-foreground" />
+                      <span className="min-w-0 truncate font-medium">
+                        {dragItem.name}
+                      </span>
+                      <span className="ml-auto shrink-0 text-muted-foreground tabular-nums">
+                        {dragItem.quantity} × {formatCurrency(dragItem.price)}
+                      </span>
+                    </div>
+                  ))}
+                  {activeDrag.items.length > 3 ? (
+                    <p className="px-1 text-xs text-muted-foreground">
+                      +{activeDrag.items.length - 3} more selected
+                    </p>
+                  ) : null}
                 </div>
               ) : null}
             </DragOverlay>
@@ -280,15 +498,23 @@ export function OrderItemsCard({ joId }: { joId: Id<"jo"> }) {
 function OrderItemRow({
   item,
   editable,
+  isSelected,
+  isMoving,
   dropPosition,
+  onClick,
   onToggleChecked,
+  onToggleSelected,
   onEdit,
   onDelete,
 }: {
   item: Item;
   editable: boolean;
+  isSelected: boolean;
+  isMoving: boolean;
   dropPosition?: "before" | "after";
+  onClick: (event: React.MouseEvent<HTMLTableRowElement>) => void;
   onToggleChecked: () => void;
+  onToggleSelected: () => void;
   onEdit: () => void;
   onDelete: () => void;
 }) {
@@ -296,7 +522,6 @@ function OrderItemRow({
     attributes,
     listeners,
     setNodeRef: setDraggableRef,
-    isDragging,
   } = useDraggable({
     id: `order-item:${item._id}`,
     data: { itemId: item._id },
@@ -319,18 +544,23 @@ function OrderItemRow({
     <TableRow
       ref={setRowRef}
       data-order-item={item._id}
+      data-state={isSelected ? "selected" : undefined}
+      aria-selected={isSelected}
       {...(editable ? attributes : {})}
       {...(editable ? listeners : {})}
+      role="row"
+      onClick={onClick}
       className={cn(
         "group",
         editable && "cursor-grab select-none",
-        isDragging && "opacity-40",
+        isMoving && "opacity-35",
       )}
     >
       <TableCell
         className="w-10 cursor-pointer md:pl-4"
         onMouseDown={(event) => event.stopPropagation()}
         onTouchStart={(event) => event.stopPropagation()}
+        onClick={(event) => event.stopPropagation()}
       >
         {dropPosition ? (
           <div
@@ -360,6 +590,7 @@ function OrderItemRow({
         className="w-12 cursor-pointer text-right"
         onMouseDown={(event) => event.stopPropagation()}
         onTouchStart={(event) => event.stopPropagation()}
+        onClick={(event) => event.stopPropagation()}
       >
         {editable ? (
           <Menu>
@@ -369,6 +600,15 @@ function OrderItemRow({
               <MoreHorizontalIcon className="h-4 w-4" />
             </MenuTrigger>
             <MenuPopup align="end">
+              <MenuItem
+                onClick={(event) => {
+                  event.stopPropagation();
+                  onToggleSelected();
+                }}
+              >
+                <CheckSquareIcon />
+                {isSelected ? "Deselect" : "Select"}
+              </MenuItem>
               <MenuItem onClick={onEdit}>
                 <PencilIcon />
                 Edit

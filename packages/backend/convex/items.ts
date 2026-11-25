@@ -1,6 +1,5 @@
 import { v } from "convex/values";
 
-import { mutation } from "./_generated/server";
 import { authedMutation, requireAppUser } from "./auth";
 
 export function sortItemsForDisplay<
@@ -13,16 +12,23 @@ export function sortItemsForDisplay<
   );
 }
 
-export const deleteItem = mutation({
+export const deleteItems = authedMutation({
   args: {
-    itemId: v.id("items"),
     joId: v.id("jo"),
+    itemIds: v.array(v.id("items")),
   },
   handler: async (ctx, args) => {
-    Promise.all([
-      ctx.db.delete("items", args.itemId),
-      ctx.db.patch("jo", args.joId, { updatedAt: new Date().getTime() }),
-    ]);
+    const itemIds = [...new Set(args.itemIds)];
+    if (itemIds.length === 0) throw new Error("No items selected");
+
+    const items = await Promise.all(itemIds.map((itemId) => ctx.db.get("items", itemId)));
+    if (items.some((item) => !item || item.joId !== args.joId)) {
+      throw new Error("Item does not belong to this job order");
+    }
+
+    await Promise.all(itemIds.map((itemId) => ctx.db.delete("items", itemId)));
+
+    await ctx.db.patch("jo", args.joId, { updatedAt: new Date().getTime() });
   },
 });
 
@@ -75,6 +81,53 @@ export const updateItem = authedMutation({
     await ctx.db.patch("items", itemId, rest);
 
     await ctx.db.patch("jo", joId, { updatedAt: new Date().getTime() });
+  },
+});
+
+export const updateItems = authedMutation({
+  args: {
+    joId: v.id("jo"),
+    itemIds: v.array(v.id("items")),
+    name: v.optional(v.string()),
+    quantity: v.optional(v.number()),
+    price: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    const itemIds = [...new Set(args.itemIds)];
+    if (itemIds.length === 0) throw new Error("No items selected");
+
+    const patch: { name?: string; quantity?: number; price?: number } = {};
+
+    if (args.name !== undefined) {
+      const name = args.name.trim();
+      if (!name) throw new Error("Name cannot be empty");
+      patch.name = name;
+    }
+
+    if (args.quantity !== undefined) {
+      if (!Number.isFinite(args.quantity) || args.quantity < 1) {
+        throw new Error("Quantity must be at least 1");
+      }
+      patch.quantity = args.quantity;
+    }
+
+    if (args.price !== undefined) {
+      if (!Number.isFinite(args.price) || args.price < 0) {
+        throw new Error("Price cannot be negative");
+      }
+      patch.price = args.price;
+    }
+
+    if (Object.keys(patch).length === 0) throw new Error("Nothing to update");
+
+    const items = await Promise.all(itemIds.map((itemId) => ctx.db.get("items", itemId)));
+    if (items.some((item) => !item || item.joId !== args.joId)) {
+      throw new Error("Item does not belong to this job order");
+    }
+
+    await Promise.all(itemIds.map((itemId) => ctx.db.patch("items", itemId, patch)));
+
+    await ctx.db.patch("jo", args.joId, { updatedAt: new Date().getTime() });
   },
 });
 
