@@ -26,6 +26,7 @@ import {
   useSensor,
   useSensors,
   type DragEndEvent,
+  type DragOverEvent,
   type DragStartEvent,
 } from "@dnd-kit/core";
 import { useSuspenseQuery } from "@tanstack/react-query";
@@ -83,6 +84,10 @@ export function OrderItemsCard({ joId }: { joId: Id<"jo"> }) {
     width?: number;
     height?: number;
   } | null>(null);
+  const [dropTarget, setDropTarget] = useState<{
+    itemId: Id<"items">;
+    position: "before" | "after";
+  } | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteAlertDialogOpen, setIsDeleteAlertDialogOpen] = useState(false);
   const sensors = useSensors(
@@ -120,8 +125,33 @@ export function OrderItemsCard({ joId }: { joId: Id<"jo"> }) {
     });
   }
 
+  function handleDragOver(event: DragOverEvent) {
+    const activeId = event.active.data.current?.itemId as Id<"items"> | undefined;
+    const overId = event.over?.data.current?.itemId as Id<"items"> | undefined;
+
+    if (!activeId || !overId || activeId === overId) {
+      setDropTarget(null);
+      return;
+    }
+
+    const fromIndex = items.findIndex((currentItem) => currentItem._id === activeId);
+    const toIndex = items.findIndex((currentItem) => currentItem._id === overId);
+
+    if (fromIndex === -1 || toIndex === -1) {
+      setDropTarget(null);
+      return;
+    }
+
+    setDropTarget({
+      itemId: overId,
+      // Moving down lands after the hovered item, moving up lands before it.
+      position: fromIndex < toIndex ? "after" : "before",
+    });
+  }
+
   function handleDragEnd(event: DragEndEvent) {
     setActiveDrag(null);
+    setDropTarget(null);
 
     const activeId = event.active.data.current?.itemId as Id<"items"> | undefined;
     const overId = event.over?.data.current?.itemId as Id<"items"> | undefined;
@@ -164,8 +194,12 @@ export function OrderItemsCard({ joId }: { joId: Id<"jo"> }) {
             sensors={sensors}
             collisionDetection={closestCenter}
             onDragStart={handleDragStart}
+            onDragOver={handleDragOver}
             onDragEnd={handleDragEnd}
-            onDragCancel={() => setActiveDrag(null)}
+            onDragCancel={() => {
+              setActiveDrag(null);
+              setDropTarget(null);
+            }}
           >
             <Table>
               <TableHeader>
@@ -192,6 +226,9 @@ export function OrderItemsCard({ joId }: { joId: Id<"jo"> }) {
                     key={item._id}
                     item={item}
                     editable={editable}
+                    dropPosition={
+                      dropTarget?.itemId === item._id ? dropTarget.position : undefined
+                    }
                     onToggleChecked={() => toggleItemChecked({ itemId: item._id })}
                     onEdit={() => {
                       setIsEditDialogOpen(true);
@@ -243,12 +280,14 @@ export function OrderItemsCard({ joId }: { joId: Id<"jo"> }) {
 function OrderItemRow({
   item,
   editable,
+  dropPosition,
   onToggleChecked,
   onEdit,
   onDelete,
 }: {
   item: Item;
   editable: boolean;
+  dropPosition?: "before" | "after";
   onToggleChecked: () => void;
   onEdit: () => void;
   onDelete: () => void;
@@ -263,7 +302,7 @@ function OrderItemRow({
     data: { itemId: item._id },
     disabled: !editable,
   });
-  const { setNodeRef: setDroppableRef, isOver } = useDroppable({
+  const { setNodeRef: setDroppableRef } = useDroppable({
     id: `order-item-target:${item._id}`,
     data: { itemId: item._id },
     disabled: !editable,
@@ -286,7 +325,6 @@ function OrderItemRow({
         "group",
         editable && "cursor-grab select-none",
         isDragging && "opacity-40",
-        isOver && !isDragging && "bg-primary/5",
       )}
     >
       <TableCell
@@ -294,6 +332,15 @@ function OrderItemRow({
         onMouseDown={(event) => event.stopPropagation()}
         onTouchStart={(event) => event.stopPropagation()}
       >
+        {dropPosition ? (
+          <div
+            aria-hidden
+            className={cn(
+              "pointer-events-none absolute inset-x-0 z-[1000] h-0.5 bg-primary",
+              dropPosition === "before" ? "top-0" : "bottom-0",
+            )}
+          />
+        ) : null}
         <Checkbox
           checked={item.checked ?? false}
           onCheckedChange={onToggleChecked}
