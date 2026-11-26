@@ -212,12 +212,6 @@ export function OrderItemsCard({
       return;
     }
 
-    // Clicking the only selected row again clears the selection.
-    if (selectedIds.length === 1 && selectedIds[0] === rowItem._id) {
-      clearSelection();
-      return;
-    }
-
     setSelectedIds([rowItem._id]);
     setAnchorId(rowItem._id);
   }
