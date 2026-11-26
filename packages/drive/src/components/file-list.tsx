@@ -504,7 +504,7 @@ export function DriveFileList({
       onDragEnd={handleDragEnd}
       onDragCancel={() => setActiveDragId(null)}
     >
-      <Card ref={cardRef} className="gap-0 bg-background py-0">
+      <Card ref={cardRef} className="gap-0 overflow-hidden bg-background py-0">
         <CardHeader className="py-6">
           {selectionEnabled && selectedIds.length > 0 ? (
             <div
