@@ -394,6 +394,12 @@ export function DriveFileList({
       return;
     }
 
+    // Clicking the only selected item again clears the selection.
+    if (selectedIds.length === 1 && selectedIds[0] === item.id) {
+      clearSelection();
+      return;
+    }
+
     setSelectedIds([item.id]);
     setSelectionAnchor(item.id);
   }
@@ -426,6 +432,8 @@ export function DriveFileList({
       selectRange(item.id);
     } else if (event.ctrlKey || event.metaKey) {
       toggleSelection(item.id);
+    } else if (selectedIds.length === 1 && selectedIds[0] === item.id) {
+      clearSelection();
     } else {
       setSelectedIds([item.id]);
       setSelectionAnchor(item.id);

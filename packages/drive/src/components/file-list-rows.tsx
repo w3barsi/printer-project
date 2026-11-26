@@ -44,6 +44,8 @@ export type DriveParentPath = {
   folderId: string | null;
 };
 
+const menuItemClassName = "min-h-10 px-2.5 sm:min-h-9";
+
 function DriveItemMenuItems({
   item,
   onDelete,
@@ -74,25 +76,25 @@ function DriveItemMenuItems({
   return (
     <>
       {onDownload && (
-        <MenuItem onClick={onDownload}>
+        <MenuItem className={menuItemClassName} onClick={onDownload}>
           <DownloadIcon />
           {item.kind === "folder" ? "Download Folder" : "Download File"}
         </MenuItem>
       )}
       {onRename && (
-        <MenuItem onClick={onRename}>
+        <MenuItem className={menuItemClassName} onClick={onRename}>
           <PencilIcon />
           Rename
         </MenuItem>
       )}
       {onMove && (
-        <MenuItem onClick={onMove}>
+        <MenuItem className={menuItemClassName} onClick={onMove}>
           <FolderInputIcon />
           Move
         </MenuItem>
       )}
       {onShare && (
-        <MenuItem onClick={onShare}>
+        <MenuItem className={menuItemClassName} onClick={onShare}>
           <Share2Icon />
           Share
         </MenuItem>
@@ -101,7 +103,11 @@ function DriveItemMenuItems({
       {canDelete && (
         <>
           {hasActionsBeforeDelete && <MenuSeparator />}
-          <MenuItem variant="destructive" onClick={onDelete}>
+          <MenuItem
+            className={menuItemClassName}
+            variant="destructive"
+            onClick={onDelete}
+          >
             <Trash2Icon />
             Delete
           </MenuItem>

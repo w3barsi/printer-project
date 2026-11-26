@@ -47,6 +47,8 @@ type AttachmentResult =
   | { status: "synced" | "already-attached" }
   | { status: "error"; message: string };
 
+const menuItemClassName = "min-h-10 px-2.5 sm:min-h-9";
+
 function ActionStatus({ attachment }: { attachment: Attachment }) {
   if (attachment.syncStatus === "pending") {
     return <LoaderCircleIcon className="ml-auto animate-spin text-muted-foreground" />;
@@ -79,22 +81,27 @@ function TrelloListMenu({
 
   return (
     <MenuSub open={open} onOpenChange={setOpen}>
-      <MenuSubTrigger className="max-w-72">
+      <MenuSubTrigger className="min-h-10 max-w-72 px-2.5 sm:min-h-9">
         <span className="truncate">{list.name}</span>
       </MenuSubTrigger>
       <MenuSubPopup className="max-h-80 w-72 overflow-y-auto">
         {cardsQuery.isLoading && (
-          <MenuItem disabled>
+          <MenuItem className={menuItemClassName} disabled>
             <LoaderCircleIcon className="animate-spin" /> Loading cards
           </MenuItem>
         )}
         {cardsQuery.isError && (
-          <MenuItem onClick={() => void cardsQuery.refetch()}>
+          <MenuItem
+            className={menuItemClassName}
+            onClick={() => void cardsQuery.refetch()}
+          >
             <RefreshCwIcon /> Retry loading cards
           </MenuItem>
         )}
         {cardsQuery.isSuccess && cards.length === 0 && (
-          <MenuItem disabled>No active cards</MenuItem>
+          <MenuItem className={menuItemClassName} disabled>
+            No active cards
+          </MenuItem>
         )}
         {cards.map((card) => {
           const attachment = byCardId.get(card.id);
@@ -104,7 +111,7 @@ function TrelloListMenu({
               checked={attachment?.desiredState === "attached"}
               disabled={attachment?.syncStatus === "pending"}
               onClick={() => onSelectCard(card, attachment)}
-              className="max-w-72"
+              className="min-h-10 max-w-72 sm:min-h-9"
               title={attachment?.lastSyncError}
             >
               <span className="truncate">{card.name}</span>
@@ -204,12 +211,12 @@ export function TrelloAttachmentMenu({
   return (
     <>
       <MenuSub open={open} onOpenChange={setOpen}>
-        <MenuSubTrigger>
+        <MenuSubTrigger className={menuItemClassName}>
           <PaperclipIcon /> Attach to Trello Card
         </MenuSubTrigger>
         <MenuSubPopup className="max-h-[min(24rem,70svh)] w-72 overflow-y-auto">
           {attachmentsQuery.isLoading && (
-            <MenuItem disabled>
+            <MenuItem className={menuItemClassName} disabled>
               <LoaderCircleIcon className="animate-spin" /> Loading attachments
             </MenuItem>
           )}
@@ -222,7 +229,7 @@ export function TrelloAttachmentMenu({
                   checked={attachment.desiredState === "attached"}
                   disabled={attachment.syncStatus === "pending" || busy}
                   onClick={() => selectAttachment(attachment)}
-                  className="max-w-72"
+                  className="min-h-10 max-w-72 sm:min-h-9"
                   title={attachment.lastSyncError}
                 >
                   <span className="min-w-0 flex-1 truncate">
@@ -236,17 +243,22 @@ export function TrelloAttachmentMenu({
             </>
           )}
           {listsQuery.isLoading && (
-            <MenuItem disabled>
+            <MenuItem className={menuItemClassName} disabled>
               <LoaderCircleIcon className="animate-spin" /> Loading lists
             </MenuItem>
           )}
           {listsQuery.isError && (
-            <MenuItem onClick={() => void listsQuery.refetch()}>
+            <MenuItem
+              className={menuItemClassName}
+              onClick={() => void listsQuery.refetch()}
+            >
               <RefreshCwIcon /> Retry loading lists
             </MenuItem>
           )}
           {listsQuery.isSuccess && activeLists.length === 0 && (
-            <MenuItem disabled>No active Trello lists</MenuItem>
+            <MenuItem className={menuItemClassName} disabled>
+              No active Trello lists
+            </MenuItem>
           )}
           {activeLists.map((list) => (
             <TrelloListMenu
